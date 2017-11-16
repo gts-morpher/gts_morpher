@@ -13,6 +13,9 @@ import org.junit.runner.RunWith
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
+import org.eclipse.xtext.resource.XtextResourceSet
+import com.google.inject.Provider
+import org.eclipse.emf.common.util.URI
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -20,16 +23,25 @@ class XDsmlComposeParsingTest {
 	@Inject
 	ParseHelper<GTSMapping> parseHelper
 	
+	@Inject
+	private Provider<XtextResourceSet> resourceSetProvider;
+	
 	@Test
 	def void loadModel() {
+		val resourceSet = resourceSetProvider.get
+		val serverURI = URI.createFileURI(XDsmlComposeParsingTest.getResource("server.ecore").path)
+		resourceSet.getResource(serverURI, true)
+		val devsmmURI = URI.createFileURI(XDsmlComposeParsingTest.getResource("DEVSMM.ecore").path)
+		resourceSet.getResource(devsmmURI, true)
 		val result = parseHelper.parse('''
-			map {
-				type_mapping from "platform:/uk.ac.kcl.inf.xdsml_compose.tests/src/uk/ac/kcl/inf/tests/server.ecore" to "platform:/uk.ac.kcl.inf.xdsml_compose.tests/src/uk/ac/kcl/inf/tests/DEVSMM.ecore" {
-					class server.Server => devsmm.Machine
-					reference server.Server.Out => devsmm.Machine.out
+				map {
+					type_mapping from "«serverURI.toString»" to "«devsmmURI.toString»" {
+						class server.Server => devsmm.Machine
+						reference server.Server.Out => devsmm.Machine.out
+					}
 				}
-			}
-		''')
+			''',
+			resourceSet)
 		Assert.assertNotNull("Did not produce parse result", result)
 		Assert.assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 		Assert.assertNotNull("No type mapping", result.typeMapping)
