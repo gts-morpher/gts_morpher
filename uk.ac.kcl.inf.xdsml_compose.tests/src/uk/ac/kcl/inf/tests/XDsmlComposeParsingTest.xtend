@@ -24,7 +24,7 @@ class XDsmlComposeParsingTest {
 	def void loadModel() {
 		val result = parseHelper.parse('''
 			map {
-				type_mapping from "server.ecore" to "DEVSMM.ecore" {
+				type_mapping from "platform:/uk.ac.kcl.inf.xdsml_compose.tests/src/uk/ac/kcl/inf/tests/server.ecore" to "platform:/uk.ac.kcl.inf.xdsml_compose.tests/src/uk/ac/kcl/inf/tests/DEVSMM.ecore" {
 					class server.Server => devsmm.Machine
 					reference server.Server.Out => devsmm.Machine.out
 				}
