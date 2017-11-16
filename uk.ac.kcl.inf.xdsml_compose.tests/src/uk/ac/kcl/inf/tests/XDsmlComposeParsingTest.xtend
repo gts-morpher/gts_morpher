@@ -21,7 +21,11 @@ class XDsmlComposeParsingTest {
 	@Test
 	def void loadModel() {
 		val result = parseHelper.parse('''
-			Hello Xtext!
+			map {
+				type_mapping from "server.ecore" to "DEVSMM.ecore" {
+					class server.Server => devsmm.Machine
+				}
+			}
 		''')
 		Assert.assertNotNull(result)
 		Assert.assertTrue(result.eResource.errors.isEmpty)
