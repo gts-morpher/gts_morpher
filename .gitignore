@@ -1,1 +1,5 @@
 bin/
+xtend-gen/
+*.java._trace
+*.xtendbin
+src-gen/

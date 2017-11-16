@@ -2,8 +2,31 @@ grammar uk.ac.kcl.inf.XDsmlCompose with org.eclipse.xtext.common.Terminals
 
 generate xDsmlCompose "http://www.ac.uk/kcl/inf/XDsmlCompose"
 
-Model:
-	greetings+=Greeting*;
-	
-Greeting:
-	'Hello' name=ID '!';
+GTSMapping:
+	"map" "{" 
+		typeMapping = TypeGraphMapping
+		(behaviourMapping = BehaviourMapping)?
+	"}"
+;
+
+TypeGraphMapping:
+	"type_mapping" "from" source = STRING "to" target = STRING "{"
+		mappings += TypeMapping+ 
+	"}"
+;
+
+TypeMapping:
+	ClassMapping | ReferenceMapping
+;
+
+ClassMapping:
+	"class" source = STRING "=>" target = STRING
+;
+
+ReferenceMapping:
+	"reference" source = STRING "=>" target = STRING
+;
+
+BehaviourMapping:
+	"behaviour_mapping"
+;
