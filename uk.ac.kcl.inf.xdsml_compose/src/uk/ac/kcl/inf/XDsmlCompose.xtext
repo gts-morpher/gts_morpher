@@ -12,7 +12,7 @@ GTSMapping:
 ;
 
 TypeGraphMapping:
-	"type_mapping" "from" source = STRING "to" target = STRING "{"
+	"type_mapping" "from" source = [ecore::EPackage | STRING] "to" target = [ecore::EPackage | STRING] "{"
 		mappings += TypeMapping+ 
 	"}"
 ;
