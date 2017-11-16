@@ -1,0 +1,9 @@
+grammar uk.ac.kcl.inf.XDsmlCompose with org.eclipse.xtext.common.Terminals
+
+generate xDsmlCompose "http://www.ac.uk/kcl/inf/XDsmlCompose"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
