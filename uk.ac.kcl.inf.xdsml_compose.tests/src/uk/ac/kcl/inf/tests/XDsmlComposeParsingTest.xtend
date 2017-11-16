@@ -44,9 +44,15 @@ class XDsmlComposeParsingTest {
 			resourceSet)
 		Assert.assertNotNull("Did not produce parse result", result)
 		Assert.assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
 		Assert.assertNotNull("No type mapping", result.typeMapping)
+
+		/*Assert.assertNotNull("Did not load source package", result.typeMapping.source.name)
+		Assert.assertNotNull("Did not load target package", result.typeMapping.target.name)*/
+
 		Assert.assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
 		Assert.assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
+
 		Assert.assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		Assert.assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 	}
