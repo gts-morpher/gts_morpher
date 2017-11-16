@@ -33,9 +33,11 @@ class XDsmlComposeParsingTest {
 		resourceSet.getResource(serverURI, true)
 		val devsmmURI = URI.createFileURI(XDsmlComposeParsingTest.getResource("DEVSMM.ecore").path)
 		resourceSet.getResource(devsmmURI, true)
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				map {
-					type_mapping from "«serverURI.toString»" to "«devsmmURI.toString»" {
+					type_mapping from "server" to "devsmm" {
 						class server.Server => devsmm.Machine
 						reference server.Server.Out => devsmm.Machine.out
 					}
@@ -47,8 +49,8 @@ class XDsmlComposeParsingTest {
 
 		Assert.assertNotNull("No type mapping", result.typeMapping)
 
-		/*Assert.assertNotNull("Did not load source package", result.typeMapping.source.name)
-		Assert.assertNotNull("Did not load target package", result.typeMapping.target.name)*/
+		Assert.assertNotNull("Did not load source package", result.typeMapping.source.name)
+		Assert.assertNotNull("Did not load target package", result.typeMapping.target.name)
 
 		Assert.assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
 		Assert.assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
