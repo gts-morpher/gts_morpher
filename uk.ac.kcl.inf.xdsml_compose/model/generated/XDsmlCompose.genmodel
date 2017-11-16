@@ -15,11 +15,14 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//TypeGraphMapping/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//TypeGraphMapping/mappings"/>
     </genClasses>
-    <genClasses ecoreClass="XDsmlCompose.ecore#//TypeMapping">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//TypeMapping/source"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//TypeMapping/target"/>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//TypeMapping"/>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//ClassMapping">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ClassMapping/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ClassMapping/target"/>
     </genClasses>
-    <genClasses ecoreClass="XDsmlCompose.ecore#//ClassMapping"/>
-    <genClasses ecoreClass="XDsmlCompose.ecore#//ReferenceMapping"/>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//ReferenceMapping">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ReferenceMapping/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ReferenceMapping/target"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

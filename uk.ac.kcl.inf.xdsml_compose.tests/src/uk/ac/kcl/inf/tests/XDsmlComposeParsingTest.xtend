@@ -24,6 +24,7 @@ class XDsmlComposeParsingTest {
 			map {
 				type_mapping from "server.ecore" to "DEVSMM.ecore" {
 					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
 				}
 			}
 		''')

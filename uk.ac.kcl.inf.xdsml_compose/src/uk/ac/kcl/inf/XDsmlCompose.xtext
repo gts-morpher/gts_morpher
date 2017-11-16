@@ -2,6 +2,8 @@ grammar uk.ac.kcl.inf.XDsmlCompose with org.eclipse.xtext.common.Terminals
 
 generate xDsmlCompose "http://www.ac.uk/kcl/inf/XDsmlCompose"
 
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
 GTSMapping:
 	"map" "{" 
 		typeMapping = TypeGraphMapping
@@ -20,13 +22,17 @@ TypeMapping:
 ;
 
 ClassMapping:
-	"class" source = STRING "=>" target = STRING
+	"class" source = [ecore::EClassifier | QualifiedName] "=>" target = [ecore::EClassifier | QualifiedName]
 ;
 
 ReferenceMapping:
-	"reference" source = STRING "=>" target = STRING
+	"reference" source = [ecore::EReference | QualifiedName] "=>" target = [ecore::EReference | QualifiedName]
 ;
 
 BehaviourMapping:
 	"behaviour_mapping"
+;
+
+QualifiedName:
+	ID ('.' ID)*
 ;
