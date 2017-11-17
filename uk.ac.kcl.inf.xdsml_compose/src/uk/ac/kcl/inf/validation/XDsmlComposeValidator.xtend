@@ -12,6 +12,8 @@ import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
+import static uk.ac.kcl.inf.validation.checkers.TypeMorphismChecker.*
+
 /**
  * This class contains custom validation rules. 
  * 
@@ -29,8 +31,16 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		mapping.extractMapping
 	}
 
+	/**
+	 * Check that the given mappings do not violate the rules for clan morphisms
+	 */
+	@Check
+	def checkIsMorphismMaybeIncomplete(TypeGraphMapping mapping) {
+		checkValidMaybeIncompleteClanMorphism(extractMapping(mapping))
+	}
+
 	private static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
-	
+
 	/**
 	 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 
 	 * otherwise. Expects to be called in a validation context.
@@ -39,7 +49,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		if (context.containsKey(TYPE_MAPPINGS)) {
 			return context.get(TYPE_MAPPINGS) as Map<EObject, EObject>
 		}
-		
+
 		val Map<EObject, EObject> _mapping = new HashMap
 		mapping.mappings.filter(ClassMapping).forEach [ cm |
 			if (_mapping.containsKey(cm.source)) {
