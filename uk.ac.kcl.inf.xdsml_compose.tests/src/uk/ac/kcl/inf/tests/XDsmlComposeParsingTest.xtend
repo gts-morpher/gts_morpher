@@ -88,6 +88,7 @@ class XDsmlComposeParsingTest {
 		// Expecting validation errors as source and target are switched in the class mapping
 		val issues = result.validate()
 		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+//		(result.typeMapping.mappings.get(0) as ClassMapping).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		assertTrue(!issues.empty)
 		
