@@ -14,6 +14,7 @@ import org.eclipse.xtext.testing.util.ParseHelper
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.junit.Test
 import org.junit.runner.RunWith
+import uk.ac.kcl.inf.validation.XDsmlComposeValidator
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
@@ -23,7 +24,7 @@ import static org.junit.Assert.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
-class XDsmlComposeParsingTest {
+class XDsmlComposeParsingAndValidationTests {
 	@Inject
 	ParseHelper<GTSMapping> parseHelper
 
@@ -35,13 +36,16 @@ class XDsmlComposeParsingTest {
 	
 	private def createResourceSet() {
 		val resourceSet = resourceSetProvider.get
-		val serverURI = URI.createFileURI(XDsmlComposeParsingTest.getResource("server.ecore").path)
+		val serverURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource("server.ecore").path)
 		resourceSet.getResource(serverURI, true)
-		val devsmmURI = URI.createFileURI(XDsmlComposeParsingTest.getResource("DEVSMM.ecore").path)
+		val devsmmURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource("DEVSMM.ecore").path)
 		resourceSet.getResource(devsmmURI, true)
 		resourceSet
 	}
 	
+	/**
+	 * Tests basic parsing and linking for a sunshine case
+	 */
 	@Test
 	def void loadModel() {	
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
@@ -70,15 +74,18 @@ class XDsmlComposeParsingTest {
 		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 	}
 	
+	/**
+	 * Tests that we get the correct error messages when a type mapping is the wrong way around
+	 */
 	@Test
-	def void referenceFail() {
+	def void crossedMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				map {
 					type_mapping from "server" to "devsmm" {
 						class devsmm.Machine => server.Server 
-						reference server.Server.Out => devsmm.Machine.out
+						reference devsmm.Machine.out => server.Server.Out
 					}
 				}
 			''',
@@ -88,8 +95,33 @@ class XDsmlComposeParsingTest {
 		// Expecting validation errors as source and target are switched in the class mapping
 		val issues = result.validate()
 		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 //		(result.typeMapping.mappings.get(0) as ClassMapping).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
-		assertTrue(issues.length == 2)
-		
+		assertTrue(issues.length == 4)	
 	}
+	
+	/**
+	 * Tests validation against duplicate mappings
+	 */
+	@Test
+	def void duplicateMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					type_mapping from "server" to "devsmm" {
+						class server.Server => devsmm.Machine 
+						class server.Server => devsmm.Assemble 
+					}
+				}
+			''',
+			createResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		// Expecting validation errors as there are duplicate mappings
+		val issues = result.validate()
+		(result.typeMapping.mappings.get(1)).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
+		assertTrue(issues.length == 1)	
+		
+	} 
 }
