@@ -3,14 +3,21 @@
  */
 package uk.ac.kcl.inf.validation
 
+import java.util.HashMap
+import java.util.Map
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.validation.Check
+import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
+import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
+import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
 /**
  * This class contains custom validation rules. 
- *
+ * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
-	
+
 //	public static val INVALID_NAME = 'invalidName'
 //
 //	@Check
@@ -21,5 +28,21 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 //					INVALID_NAME)
 //		}
 //	}
-	
+	public static val DUPLICATE_CLASS_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_CLASS_MAPPING'
+
+	/**
+	 * Check that no source EClass or EReference is mapped more than once in the given mapping.
+	 */
+	@Check
+	def checkMapsUniqueSources(TypeGraphMapping mapping) {
+		val Map<EObject, EObject> _mapping = new HashMap
+		mapping.mappings.filter(ClassMapping).forEach [ cm |
+			if (_mapping.containsKey(cm.source)) {
+				error('''Duplicate mapping for EClassifier «cm.source.name».''', cm,
+					XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, DUPLICATE_CLASS_MAPPING)
+			} else {
+				_mapping.put(cm.source, cm.target)
+			}
+		]
+	}
 }
