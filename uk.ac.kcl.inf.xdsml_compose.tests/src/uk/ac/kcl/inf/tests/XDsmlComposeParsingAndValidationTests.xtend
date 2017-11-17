@@ -124,7 +124,32 @@ class XDsmlComposeParsingAndValidationTests {
 		val issues = result.validate()
 		(result.typeMapping.mappings.get(1)).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
 		(result.typeMapping.mappings.get(3)).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference Out.")
-		assertTrue(issues.length == 2)	
-		
+		assertTrue(issues.length == 2)
 	} 
+	
+	/**
+	 * Tests validation against mappings that aren't morphisms
+	 */
+	@Test
+	def void nonMorphismMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					type_mapping from "server" to "devsmm" {
+						class server.Server => devsmm.Machine
+						class server.Queue => devsmm.Container
+						reference server.Server.Out => devsmm.Machine.out
+						reference server.Server.In => devsmm.Machine.in
+					}
+				}
+			''',
+			createResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		// Expecting validation errors as there are duplicate mappings
+		val issues = result.validate()
+		(result.typeMapping).assertError(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
+		assertTrue(issues.length == 1)
+	}	
 }

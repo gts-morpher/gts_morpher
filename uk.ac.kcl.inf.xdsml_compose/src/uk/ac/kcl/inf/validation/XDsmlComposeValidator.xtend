@@ -22,6 +22,7 @@ import static uk.ac.kcl.inf.validation.checkers.TypeMorphismChecker.*
 class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val DUPLICATE_CLASS_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_CLASS_MAPPING'
 	public static val DUPLICATE_REFERENCE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_REFERENCE_MAPPING'
+	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
 
 	/**
 	 * Check that no source EClass or EReference is mapped more than once in the given mapping.
@@ -36,7 +37,9 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkIsMorphismMaybeIncomplete(TypeGraphMapping mapping) {
-		checkValidMaybeIncompleteClanMorphism(extractMapping(mapping))
+		if (!checkValidMaybeIncompleteClanMorphism(extractMapping(mapping))) {
+			error("Not a clan morphism", XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING__MAPPINGS, NOT_A_CLAN_MORPHISM)
+		}
 	}
 
 	private static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
