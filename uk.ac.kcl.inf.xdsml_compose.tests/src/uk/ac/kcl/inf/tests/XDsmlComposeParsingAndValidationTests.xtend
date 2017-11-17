@@ -112,6 +112,8 @@ class XDsmlComposeParsingAndValidationTests {
 					type_mapping from "server" to "devsmm" {
 						class server.Server => devsmm.Machine 
 						class server.Server => devsmm.Assemble 
+						reference server.Server.Out => devsmm.Machine.out 
+						reference server.Server.Out => devsmm.Machine.in
 					}
 				}
 			''',
@@ -121,7 +123,8 @@ class XDsmlComposeParsingAndValidationTests {
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
 		(result.typeMapping.mappings.get(1)).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
-		assertTrue(issues.length == 1)	
+		(result.typeMapping.mappings.get(3)).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference Out.")
+		assertTrue(issues.length == 2)	
 		
 	} 
 }
