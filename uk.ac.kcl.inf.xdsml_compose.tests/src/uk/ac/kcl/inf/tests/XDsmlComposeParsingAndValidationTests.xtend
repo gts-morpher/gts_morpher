@@ -149,7 +149,8 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
-		(result.typeMapping).assertError(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
-		assertTrue(issues.length == 1)
-	}	
+		(result.typeMapping.mappings.get(2)).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
+		(result.typeMapping.mappings.get(3)).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
+		assertTrue(issues.length == 2)
+	}
 }

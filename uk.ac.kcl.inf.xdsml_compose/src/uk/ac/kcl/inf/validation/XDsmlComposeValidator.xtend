@@ -3,10 +3,15 @@
  */
 package uk.ac.kcl.inf.validation
 
+import java.util.ArrayList
 import java.util.HashMap
+import java.util.List
 import java.util.Map
+import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
 import org.eclipse.xtext.validation.Check
+import uk.ac.kcl.inf.validation.checkers.TypeMorphismChecker.Issue
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
@@ -37,8 +42,19 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkIsMorphismMaybeIncomplete(TypeGraphMapping mapping) {
-		if (!checkValidMaybeIncompleteClanMorphism(extractMapping(mapping))) {
-			error("Not a clan morphism", XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING__MAPPINGS, NOT_A_CLAN_MORPHISM)
+		val List<Issue> issues = new ArrayList
+		if (!checkValidMaybeIncompleteClanMorphism(extractMapping(mapping), issues)) {
+			issues.forEach [ i |
+				if (i.sourceModelElement instanceof EClassifier) {
+					error(i.message, mapping.mappings.filter(ClassMapping).
+						findFirst[m|m.source == i.sourceModelElement],
+						XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+				} else if (i.sourceModelElement instanceof EReference) {
+					error(i.message, mapping.mappings.filter(ReferenceMapping).
+						findFirst[m|m.source == i.sourceModelElement],
+						XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+				}
+			]
 		}
 	}
 
