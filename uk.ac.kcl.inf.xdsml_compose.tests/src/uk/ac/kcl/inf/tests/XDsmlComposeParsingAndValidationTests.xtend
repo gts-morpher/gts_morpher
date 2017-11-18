@@ -97,7 +97,8 @@ class XDsmlComposeParsingAndValidationTests {
 		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 //		(result.typeMapping.mappings.get(0) as ClassMapping).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
-		assertTrue(issues.length == 4)	
+		result.typeMapping.assertWarning(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		assertTrue(issues.length == 5)	
 	}
 	
 	/**
@@ -122,9 +123,10 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
-		(result.typeMapping.mappings.get(1)).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
-		(result.typeMapping.mappings.get(3)).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference Out.")
-		assertTrue(issues.length == 2)
+		result.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
+		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference Out.")
+		result.typeMapping.assertWarning(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		assertTrue(issues.length == 3)
 	} 
 	
 	/**
@@ -149,8 +151,9 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
-		(result.typeMapping.mappings.get(2)).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
-		(result.typeMapping.mappings.get(3)).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
-		assertTrue(issues.length == 2)
+		result.typeMapping.mappings.get(2).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
+		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
+		result.typeMapping.assertWarning(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		assertTrue(issues.length == 3)
 	}
 }

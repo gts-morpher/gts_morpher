@@ -28,6 +28,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val DUPLICATE_CLASS_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_CLASS_MAPPING'
 	public static val DUPLICATE_REFERENCE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_REFERENCE_MAPPING'
 	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
+	public static val INCOMPLETE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_TYPE_GRAPH_MAPPING'
 
 	/**
 	 * Check that no source EClass or EReference is mapped more than once in the given mapping.
@@ -50,11 +51,24 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 						findFirst[m|m.source == i.sourceModelElement],
 						XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
 				} else if (i.sourceModelElement instanceof EReference) {
-					error(i.message, mapping.mappings.filter(ReferenceMapping).
-						findFirst[m|m.source == i.sourceModelElement],
-						XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+					error(i.message, mapping.mappings.filter(ReferenceMapping).findFirst [ m |
+						m.source == i.sourceModelElement
+					], XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
 				}
 			]
+		}
+	}
+
+	/**
+	 * Check that the given mapping is complete
+	 */
+	@Check
+	def checkIsCompleteMapping(TypeGraphMapping mapping) {
+		val _mapping = mapping.extractMapping
+
+		if (mapping.source.eAllContents.exists[me|!_mapping.containsKey(me)]) {
+			warning("Incomplete mapping. Ensure all elements of the source metamodel are mapped.", mapping,
+				XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING__SOURCE, INCOMPLETE_TYPE_GRAPH_MAPPING)
 		}
 	}
 
