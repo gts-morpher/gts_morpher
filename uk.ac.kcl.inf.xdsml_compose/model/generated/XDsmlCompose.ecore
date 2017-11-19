@@ -3,6 +3,7 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="xDsmlCompose" nsURI="http://www.ac.uk/kcl/inf/XDsmlCompose"
     nsPrefix="xDsmlCompose">
   <eClassifiers xsi:type="ecore:EClass" name="GTSMapping">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="autoComplete" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="typeMapping" eType="#//TypeGraphMapping"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="behaviourMapping" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
