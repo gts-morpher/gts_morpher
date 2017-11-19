@@ -47,7 +47,7 @@ class XDsmlComposeParsingAndValidationTests {
 	 * Tests basic parsing and linking for a sunshine case
 	 */
 	@Test
-	def void loadModel() {	
+	def void parsingBasic() {	
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
@@ -72,6 +72,26 @@ class XDsmlComposeParsingAndValidationTests {
 
 		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+	}
+	
+	/**
+	 * Test basic parsing with auto-complete annotation.
+	 */
+	@Test
+	def void parsingAutoComplete() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete map {
+					type_mapping from "server" to "devsmm" {
+						class server.Server => devsmm.Machine
+						reference server.Server.Out => devsmm.Machine.out
+					}
+				}
+			''',
+			createResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 	}
 	
 	/**
