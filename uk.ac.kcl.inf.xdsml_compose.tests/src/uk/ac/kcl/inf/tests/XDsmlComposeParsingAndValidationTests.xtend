@@ -62,6 +62,8 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
+		assertTrue("Set to auto-complete", !result.autoComplete)
+
 		assertNotNull("No type mapping", result.typeMapping)
 
 		assertNotNull("Did not load source package", result.typeMapping.source.name)
@@ -92,6 +94,8 @@ class XDsmlComposeParsingAndValidationTests {
 			createResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertTrue("Not set to auto-complete", result.autoComplete)
 	}
 	
 	/**
