@@ -33,7 +33,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	 */
 	private def generateCompleteMorphism(GTSMapping mapping) '''
 	map {
-		type_mapping from "«mapping.typeMapping.source.nsURI»" to "«mapping.typeMapping.target.nsURI»" {
+		type_mapping from "«mapping.typeMapping.source.name»" to "«mapping.typeMapping.target.name»" {
 			«mapping.typeMapping.completedMapping.entrySet.map[e | '''«e.key.name» => «e.value.name»'''].join('\n')»
 		} 
 	}
