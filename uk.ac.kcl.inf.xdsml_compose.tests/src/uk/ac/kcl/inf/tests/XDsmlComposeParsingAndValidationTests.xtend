@@ -96,6 +96,7 @@ class XDsmlComposeParsingAndValidationTests {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 		
 		assertTrue("Not set to auto-complete", result.autoComplete)
+		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
 	}
 	
 	/**
@@ -118,6 +119,7 @@ class XDsmlComposeParsingAndValidationTests {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 		
 		assertTrue("Not set to auto-complete", result.autoComplete)
+		assertTrue("Not set to unique auto-complete", result.uniqueCompletion)
 	}
 
 	/**
