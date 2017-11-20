@@ -79,7 +79,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	@Check
 	def checkCanAutoCompleteMapping(GTSMapping mapping) {
 		if (mapping.autoComplete) {
-			// TODO Check we can auto-complete type mapping
+			// Check we can auto-complete type mapping
 			val typeMapping = mapping.typeMapping
 			val _mapping = typeMapping.extractMapping
 			if (typeMapping.isInCompleteMapping) {
