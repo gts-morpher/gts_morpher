@@ -25,7 +25,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		if ((resource.allContents.head as GTSMapping).autoComplete) {
-			fsa.generateFile(resource.URI.lastSegment + '.complete.lang_compose',
+			fsa.generateFile(resource.URI.trimFileExtension.lastSegment + '.complete.lang_compose',
 				(resource.allContents.head as GTSMapping).generateCompleteMorphism())
 		}
 	}
