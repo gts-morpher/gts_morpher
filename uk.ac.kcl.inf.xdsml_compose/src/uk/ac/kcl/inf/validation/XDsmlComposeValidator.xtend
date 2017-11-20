@@ -115,11 +115,12 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		}
 
 		val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
-			override error(String message, EObject source, EStructuralFeature feature, String code, String... issueData) {
+			override error(String message, EObject source, EStructuralFeature feature, String code,
+				String... issueData) {
 				XDsmlComposeValidator.this.error(message, source, feature, code, issueData)
 			}
 		})
-		
+
 		context.put(TYPE_MAPPINGS, _mapping)
 
 		_mapping
@@ -130,6 +131,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	private def isInCompleteMapping(TypeGraphMapping mapping) {
 		val _mapping = mapping.extractMapping
-		mapping.source.eAllContents.exists[me|!_mapping.containsKey(me)]
+		mapping.source.eAllContents.filter[me|me instanceof EClassifier || me instanceof EReference].exists [me|
+			!_mapping.containsKey(me)
+		]
 	}
 }
