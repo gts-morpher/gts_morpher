@@ -237,6 +237,7 @@ class XDsmlComposeParsingAndValidationTests {
 				auto-complete unique map {
 					type_mapping from "server" to "devsmm" {
 						class server.Server => devsmm.Machine
+						class server.Queue => devsmm.Tray
 					}
 				}
 			''',
