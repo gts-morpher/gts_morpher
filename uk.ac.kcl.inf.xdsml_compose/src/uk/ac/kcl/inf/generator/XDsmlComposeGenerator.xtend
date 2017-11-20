@@ -46,7 +46,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 		val completer = new TypeMorphismCompleter(_mapping, mapping.source, mapping.target)
 		if (completer.tryCompleteTypeMorphism == 0) {
 			// Found morphism
-			completer.typeMapping
+			completer.completedMappings.get(0)
 		} else {
 			// We have a problem
 			_mapping

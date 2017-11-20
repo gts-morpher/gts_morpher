@@ -18,9 +18,13 @@ import static extension uk.ac.kcl.inf.util.EMFHelper.*
 /**
  * Helper for completing type mappings into clan morphisms 
  */
-// TODO This probably will live better in a different package outside the validation tree
 class TypeMorphismCompleter {
+	/**
+	 * This will contain the results, if any
+	 */
 	@Accessors(PUBLIC_GETTER)
+	private var List<Map<EObject, EObject>> completedMappings = new ArrayList
+
 	private var Map<EObject, EObject> typeMapping
 	private var EPackage srcPackage
 	private var EPackage tgtPackage
@@ -48,14 +52,34 @@ class TypeMorphismCompleter {
 	 * by incrementally adding elements until clan-morphism rules are broken.
 	 * 
 	 * Reports back the number of unmatched elements for the biggest mapping found.
-	 * If a full morphism has been found, {@link #typeMapping} shows this mapping.
-	 * Otherwise, {@link #typeMapping} is unchanged when this method returns (but it
-	 * will change during the execution of the method).
+	 * If a full morphism has been found, {@link #typeMapping} shows this mapping, which can also be found in {@link #completedMappings}.
+	 * Otherwise, {@link #typeMapping} is unchanged when this method returns (but it will change during the execution of the method).
 	 * 
 	 * @return the number of unmatched elements in the biggest morphism-like mapping
 	 *         found
 	 */
 	def int tryCompleteTypeMorphism() {
+		findMorphismCompletions(false)
+	}
+
+	/**
+	 * Attempts to complete the model mapping between the source and target packages
+	 * by incrementally adding elements until clan-morphism rules are broken.
+	 * 
+	 * Reports back the number of unmatched elements for the biggest mapping found.
+	 * If a full morphism has been found, {@link #typeMapping} shows this mapping, which can also be found in {@link #completedMappings}.
+	 * Otherwise, {@link #typeMapping} is unchanged when this method returns (but it will change during the execution of the method). If 
+	 * findAll is true, all morphism completions will be found and will be stored in {@link #completedMappings}. In this case, 
+	 * {@link #typeMapping} will be left unchanged at the end.
+	 * 
+	 * @param findAll if true, and a completion can be found, all completions will be found
+	 *  
+	 * @return the number of unmatched elements in the biggest morphism-like mapping
+	 *         found
+	 */
+	def int findMorphismCompletions(boolean findAll) {
+		completedMappings = new ArrayList
+
 		var List<EObject> unmatchedList = unmatched
 
 		// check if the map contains the package, if not add
@@ -72,13 +96,15 @@ class TypeMorphismCompleter {
 			// Otherwise, check if we're already done and have mapped everything
 			if (unmatchedList.empty) {
 				// TODO We can probably do better than this
-				System.out.println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
+				System.out.
+					println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
+				completedMappings.add(new HashMap(typeMapping))
 				return 0
 			}
 		}
 
 		// get first priority list and search all objects
-		doTryCompleteTypeMorphism(unmatchedList, unmatchedList.firstPriorityList)
+		doTryCompleteTypeMorphism(unmatchedList, unmatchedList.firstPriorityList, findAll)
 	}
 
 	/**
@@ -90,9 +116,11 @@ class TypeMorphismCompleter {
 	 *            - a list of unmatched elements
 	 * @param priorityList
 	 *            - a list of priority unmatched elements
+	 * @param findAll
+	 *            - if true, find all morphism completions, if any
 	 * @return the number of unmatched elements in the model morphism
 	 */
-	private def int doTryCompleteTypeMorphism(List<EObject> unmatchedList, List<EObject> _priorityList) {
+	private def int doTryCompleteTypeMorphism(List<EObject> unmatchedList, List<EObject> _priorityList, boolean findAll) {
 		// If the mapping is already not a morphism, return the number of unmatched elements
 		if (!checkValidMaybeIncompleteClanMorphism(typeMapping, null)) {
 			// There's already at least one element too many in the map
@@ -101,7 +129,9 @@ class TypeMorphismCompleter {
 			// Otherwise, check if we're already done and have mapped everything
 			if (unmatchedList.empty) {
 				// TODO Better logging
-				System.out.println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
+				System.out.
+					println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
+				completedMappings.add(new HashMap(typeMapping))
 				return 0
 			}
 		}
@@ -124,9 +154,9 @@ class TypeMorphismCompleter {
 		// go through all possible objects and recursively find matches for further objects
 		for (EObject o : possible) {
 			typeMapping.put(pick, o)
-			val int numUnmatchedInDescend = doTryCompleteTypeMorphism(unmatchedList, priorityList)
+			val int numUnmatchedInDescend = doTryCompleteTypeMorphism(unmatchedList, priorityList, findAll)
 			// make sure count reflects the minimum found count
-			if (numUnmatchedInDescend == 0) {
+			if (!findAll && (numUnmatchedInDescend == 0)) {
 				return 0
 			} else {
 				if (numUnmatchedInDescend < numUnmatched) {
