@@ -3,6 +3,7 @@
  */
 package uk.ac.kcl.inf.generator
 
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
@@ -24,22 +25,23 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		if ((resource.allContents.head as GTSMapping).autoComplete) {
-			fsa.generateFile(resource.URI.lastSegment + '.complete.lang_compose', (resource.allContents.head as GTSMapping).generateCompleteMorphism())
+			fsa.generateFile(resource.URI.lastSegment + '.complete.lang_compose',
+				(resource.allContents.head as GTSMapping).generateCompleteMorphism())
 		}
 	}
-	
+
 	/**
 	 * Assume mapping has the autocomplete option set and generate a new representation of the mapping where all source elements have been mapped
 	 */
 	private def generateCompleteMorphism(GTSMapping mapping) '''
-	map {
-		type_mapping from "«mapping.typeMapping.source.name»" to "«mapping.typeMapping.target.name»" {
-			«mapping.typeMapping.completedMapping.entrySet.map[e | '''«e.key.name» => «e.value.name»'''].join('\n')»
-		} 
-	}
+		map {
+			type_mapping from "«mapping.typeMapping.source.name»" to "«mapping.typeMapping.target.name»" {
+				«mapping.typeMapping.completedMapping.entrySet.map[e | '''«if (e.key instanceof EClass) '''class''' else '''reference'''» «e.key.name» => «e.value.name»'''].join('\n')»
+			} 
+		}
 	'''
-	
-	private static def getCompletedMapping (TypeGraphMapping mapping) {
+
+	private static def getCompletedMapping(TypeGraphMapping mapping) {
 		val _mapping = extractMapping(mapping, null)
 		val completer = new TypeMorphismCompleter(_mapping, mapping.source, mapping.target)
 		if (completer.tryCompleteTypeMorphism == 0) {
