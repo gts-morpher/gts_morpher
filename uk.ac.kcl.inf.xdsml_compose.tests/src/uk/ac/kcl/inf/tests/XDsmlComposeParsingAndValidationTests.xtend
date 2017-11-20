@@ -223,4 +223,31 @@ class XDsmlComposeParsingAndValidationTests {
 		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
 		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 	}
+	
+	/**
+	 * Tests that completeness check works correctly for complete mappings
+	 */
+	@Test
+	def void validateCompletenessPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					type_mapping from "server" to "devsmm" {
+						class server.Element => devsmm.Part
+						class server.Queue => devsmm.Tray
+						class server.Server => devsmm.Machine
+						class server.Input => devsmm.Part
+						class server.Output => devsmm.Part
+						reference server.Server.In => devsmm.Machine.in
+						reference server.Server.Out => devsmm.Machine.in
+						reference server.Queue.elts => devsmm.Container.parts
+					} 
+				}
+			''',
+			createResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)		
+	}
 }
