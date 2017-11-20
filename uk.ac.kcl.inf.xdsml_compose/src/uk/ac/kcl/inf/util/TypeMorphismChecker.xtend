@@ -1,4 +1,4 @@
-package uk.ac.kcl.inf.validation.checkers
+package uk.ac.kcl.inf.util
 
 import java.util.List
 import java.util.Map

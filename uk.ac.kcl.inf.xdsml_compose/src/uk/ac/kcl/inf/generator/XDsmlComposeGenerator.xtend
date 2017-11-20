@@ -7,6 +7,13 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import uk.ac.kcl.inf.util.TypeMorphismCompleter
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
+
+import static uk.ac.kcl.inf.util.BasicMappingChecker.*
+
+import static extension uk.ac.kcl.inf.util.EMFHelper.*
 
 /**
  * Generates code from your model files on save.
@@ -16,10 +23,31 @@ import org.eclipse.xtext.generator.IGeneratorContext
 class XDsmlComposeGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+		if ((resource.allContents.head as GTSMapping).autoComplete) {
+			fsa.generateFile(resource.URI.lastSegment + '.complete.lang_compose', (resource.allContents.head as GTSMapping).generateCompleteMorphism())
+		}
+	}
+	
+	/**
+	 * Assume mapping has the autocomplete option set and generate a new representation of the mapping where all source elements have been mapped
+	 */
+	private def generateCompleteMorphism(GTSMapping mapping) '''
+	map {
+		type_mapping from "«mapping.typeMapping.source.nsURI»" to "«mapping.typeMapping.target.nsURI»" {
+			«mapping.typeMapping.completedMapping.entrySet.map[e | '''«e.key.name» => «e.value.name»'''].join('\n')»
+		} 
+	}
+	'''
+	
+	private static def getCompletedMapping (TypeGraphMapping mapping) {
+		val _mapping = extractMapping(mapping, null)
+		val completer = new TypeMorphismCompleter(_mapping, mapping.source, mapping.target)
+		if (completer.tryCompleteTypeMorphism == 0) {
+			// Found morphism
+			completer.typeMapping
+		} else {
+			// We have a problem
+			_mapping
+		}
 	}
 }

@@ -4,22 +4,25 @@
 package uk.ac.kcl.inf.validation
 
 import java.util.ArrayList
-import java.util.HashMap
 import java.util.List
 import java.util.Map
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.xtext.validation.Check
-import uk.ac.kcl.inf.validation.checkers.TypeMorphismChecker.Issue
+import uk.ac.kcl.inf.util.BasicMappingChecker
+import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
+import uk.ac.kcl.inf.util.TypeMorphismChecker.Issue
+import uk.ac.kcl.inf.util.TypeMorphismCompleter
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
-import static uk.ac.kcl.inf.validation.checkers.TypeMorphismChecker.*
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-import uk.ac.kcl.inf.validation.checkers.TypeMorphismCompleter
+import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
+import static uk.ac.kcl.inf.util.BasicMappingChecker.*
+import org.eclipse.emf.ecore.EStructuralFeature
 
 /**
  * This class contains custom validation rules. 
@@ -27,8 +30,8 @@ import uk.ac.kcl.inf.validation.checkers.TypeMorphismCompleter
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
-	public static val DUPLICATE_CLASS_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_CLASS_MAPPING'
-	public static val DUPLICATE_REFERENCE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_REFERENCE_MAPPING'
+	public static val DUPLICATE_CLASS_MAPPING = BasicMappingChecker.DUPLICATE_CLASS_MAPPING
+	public static val DUPLICATE_REFERENCE_MAPPING = BasicMappingChecker.DUPLICATE_REFERENCE_MAPPING
 	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
 	public static val INCOMPLETE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_TYPE_GRAPH_MAPPING'
 	public static val UNCOMPLETABLE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_TYPE_GRAPH_MAPPING'
@@ -111,24 +114,12 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			return context.get(TYPE_MAPPINGS) as Map<EObject, EObject>
 		}
 
-		val Map<EObject, EObject> _mapping = new HashMap
-		mapping.mappings.filter(ClassMapping).forEach [ cm |
-			if (_mapping.containsKey(cm.source)) {
-				error('''Duplicate mapping for EClassifier «cm.source.name».''', cm,
-					XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, DUPLICATE_CLASS_MAPPING)
-			} else {
-				_mapping.put(cm.source, cm.target)
+		val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
+			override error(String message, EObject source, EStructuralFeature feature, String code, String... issueData) {
+				XDsmlComposeValidator.this.error(message, source, feature, code, issueData)
 			}
-		]
-		mapping.mappings.filter(ReferenceMapping).forEach [ cm |
-			if (_mapping.containsKey(cm.source)) {
-				error('''Duplicate mapping for EReference «cm.source.name».''', cm,
-					XDsmlComposePackage.Literals.REFERENCE_MAPPING__SOURCE, DUPLICATE_REFERENCE_MAPPING)
-			} else {
-				_mapping.put(cm.source, cm.target)
-			}
-		]
-
+		})
+		
 		context.put(TYPE_MAPPINGS, _mapping)
 
 		_mapping

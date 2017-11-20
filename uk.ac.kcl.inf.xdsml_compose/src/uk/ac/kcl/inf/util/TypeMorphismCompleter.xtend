@@ -1,4 +1,4 @@
-package uk.ac.kcl.inf.validation.checkers
+package uk.ac.kcl.inf.util
 
 import java.util.ArrayList
 import java.util.Collections
@@ -10,14 +10,17 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.xtend.lib.annotations.Accessors
 
-import static uk.ac.kcl.inf.validation.checkers.TypeMorphismChecker.*
+import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
+import static extension uk.ac.kcl.inf.util.EMFHelper.*
 
 /**
  * Helper for completing type mappings into clan morphisms 
  */
 // TODO This probably will live better in a different package outside the validation tree
 class TypeMorphismCompleter {
+	@Accessors(PUBLIC_GETTER)
 	private var Map<EObject, EObject> typeMapping
 	private var EPackage srcPackage
 	private var EPackage tgtPackage
@@ -367,10 +370,4 @@ class TypeMorphismCompleter {
 
 		clan
 	}
-	
-	private static dispatch def getName(EObject eo) ''''''
-	
-	private static dispatch def getName(EClass ec) { ec.name }
-	
-	private static dispatch def getName(EReference er) { er.name }
 }
