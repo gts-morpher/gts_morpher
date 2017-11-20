@@ -100,7 +100,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 						error("Cannot uniquely complete type mapping to a valid morphism", mapping,
 							XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION)
 					} else if (mapping.uniqueCompletion && (!checkMode.shouldCheck(CheckType.EXPENSIVE))) {
-						warning("Uniqueness of mapping has not been checked. Please run explicit validation from menu to check this.", mapping,
+						warning("Uniqueness of mapping has not been checked. Please run explicit validation from editor context menu to check this.", mapping,
 							XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, UNIQUE_COMPLETION_NOT_CHECKED)
 					}
 				}
