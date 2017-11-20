@@ -99,6 +99,28 @@ class XDsmlComposeParsingAndValidationTests {
 	}
 	
 	/**
+	 * Test basic parsing with unique auto-complete annotation.
+	 */
+	@Test
+	def void parsingUniqueAutoComplete() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique map {
+					type_mapping from "server" to "devsmm" {
+						class server.Server => devsmm.Machine
+						reference server.Server.Out => devsmm.Machine.out
+					}
+				}
+			''',
+			createResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertTrue("Not set to auto-complete", result.autoComplete)
+	}
+
+	/**
 	 * Tests that we get the correct error messages when a type mapping is the wrong way around
 	 */
 	@Test
