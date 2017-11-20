@@ -227,6 +227,29 @@ class XDsmlComposeParsingAndValidationTests {
 	}
 
 	/**
+	 * Tests that unique auto-completion validation works in negative case
+	 */
+	@Test
+	def void validateUniqueAutoCompleteNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique map {
+					type_mapping from "server" to "devsmm" {
+						class server.Server => devsmm.Machine
+					}
+				}
+			''',
+			createResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		
+		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.NO_UNIQUE_COMPLETION)
+	}
+
+	/**
 	 * Tests that auto-completion validation works in the negative case
 	 */
 	@Test

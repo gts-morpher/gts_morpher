@@ -35,6 +35,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
 	public static val INCOMPLETE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_TYPE_GRAPH_MAPPING'
 	public static val UNCOMPLETABLE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_TYPE_GRAPH_MAPPING'
+	public static val NO_UNIQUE_COMPLETION = 'uk.ac.kcl.inf.xdsml_compose.NO_UNIQUE_COMPLETION'
 
 	/**
 	 * Check that no source EClass or EReference is mapped more than once in the given mapping.
@@ -89,12 +90,14 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				if (checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
 					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.typeMapping.source,
 						mapping.typeMapping.target)
-					if (morphismCompleter.tryCompleteTypeMorphism != 0) {
+					if (morphismCompleter.findMorphismCompletions(mapping.uniqueCompletion) != 0) {
 						error("Cannot complete type mapping to a valid morphism", mapping,
 							XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+					} else if (morphismCompleter.completedMappings.size > 1) {
+						// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
+						error("Cannot uniquely complete type mapping to a valid morphism", mapping,
+							XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION)
 					}
-
-				// TODO Check we can auto-complete behaviour mapping
 				}
 			} else {
 				warning("Type morphism is already complete", mapping,
@@ -131,7 +134,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	private def isInCompleteMapping(TypeGraphMapping mapping) {
 		val _mapping = mapping.extractMapping
-		mapping.source.eAllContents.filter[me|me instanceof EClassifier || me instanceof EReference].exists [me|
+		mapping.source.eAllContents.filter[me|me instanceof EClassifier || me instanceof EReference].exists [ me |
 			!_mapping.containsKey(me)
 		]
 	}
