@@ -4,92 +4,26 @@
 package uk.ac.kcl.inf.tests
 
 import com.google.inject.Inject
-import com.google.inject.Provider
-import org.eclipse.emf.common.util.URI
-import org.eclipse.xtext.diagnostics.Diagnostic
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.testing.util.ParseHelper
-import org.eclipse.xtext.testing.validation.ValidationTestHelper
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
-import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
-import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
-
-import static org.junit.Assert.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
 class XDsmlComposeParsingTest {
 	@Inject
 	ParseHelper<GTSMapping> parseHelper
-
-	@Inject 
-	extension ValidationTestHelper
-	
-	@Inject
-	private Provider<XtextResourceSet> resourceSetProvider;
-	
-	private def createResourceSet() {
-		val resourceSet = resourceSetProvider.get
-		val serverURI = URI.createFileURI(XDsmlComposeParsingTest.getResource("server.ecore").path)
-		resourceSet.getResource(serverURI, true)
-		val devsmmURI = URI.createFileURI(XDsmlComposeParsingTest.getResource("DEVSMM.ecore").path)
-		resourceSet.getResource(devsmmURI, true)
-		resourceSet
-	}
 	
 	@Test
-	def void loadModel() {	
-		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use «serverURI.toString» etc. below
+	def void loadModel() {
 		val result = parseHelper.parse('''
-				map {
-					type_mapping from "server" to "devsmm" {
-						class server.Server => devsmm.Machine
-						reference server.Server.Out => devsmm.Machine.out
-					}
-				}
-			''',
-			createResourceSet)
-		assertNotNull("Did not produce parse result", result)
-		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-
-		assertNotNull("No type mapping", result.typeMapping)
-
-		assertNotNull("Did not load source package", result.typeMapping.source.name)
-		assertNotNull("Did not load target package", result.typeMapping.target.name)
-
-		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
-		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
-
-		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
-		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
-	}
-	
-	@Test
-	def void referenceFail() {
-		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use «serverURI.toString» etc. below
-		val result = parseHelper.parse('''
-				map {
-					type_mapping from "server" to "devsmm" {
-						class devsmm.Machine => server.Server 
-						reference server.Server.Out => devsmm.Machine.out
-					}
-				}
-			''',
-			createResourceSet)
-
-		assertNotNull("Did not produce parse result", result)
-		// Expecting validation errors as source and target are switched in the class mapping
-		val issues = result.validate()
-		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
-//		(result.typeMapping.mappings.get(0) as ClassMapping).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
-		assertTrue(issues.length == 2)
-		
+			Hello Xtext!
+		''')
+		Assert.assertNotNull(result)
+		Assert.assertTrue(result.eResource.errors.isEmpty)
 	}
 }
