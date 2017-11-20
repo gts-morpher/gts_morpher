@@ -18,6 +18,8 @@ import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
 import static uk.ac.kcl.inf.validation.checkers.TypeMorphismChecker.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.validation.checkers.TypeMorphismCompleter
 
 /**
  * This class contains custom validation rules. 
@@ -29,6 +31,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val DUPLICATE_REFERENCE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_REFERENCE_MAPPING'
 	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
 	public static val INCOMPLETE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_TYPE_GRAPH_MAPPING'
+	public static val UNCOMPLETABLE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_TYPE_GRAPH_MAPPING'
 
 	/**
 	 * Check that no source EClass or EReference is mapped more than once in the given mapping.
@@ -64,11 +67,36 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkIsCompleteMapping(TypeGraphMapping mapping) {
-		val _mapping = mapping.extractMapping
-
-		if (mapping.source.eAllContents.exists[me|!_mapping.containsKey(me)]) {
+		if (mapping.isInCompleteMapping && !(mapping.eContainer as GTSMapping).autoComplete) {
 			warning("Incomplete mapping. Ensure all elements of the source metamodel are mapped.", mapping,
 				XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING__SOURCE, INCOMPLETE_TYPE_GRAPH_MAPPING)
+		}
+	}
+
+	/**
+	 * Check that we can auto-complete, if requested to do so
+	 */
+	@Check
+	def checkCanAutoCompleteMapping(GTSMapping mapping) {
+		if (mapping.autoComplete) {
+			// TODO Check we can auto-complete type mapping
+			val typeMapping = mapping.typeMapping
+			val _mapping = typeMapping.extractMapping
+			if (typeMapping.isInCompleteMapping) {
+				if (checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
+					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.typeMapping.source,
+						mapping.typeMapping.target)
+					if (morphismCompleter.tryCompleteTypeMorphism != 0) {
+						error("Cannot complete type mapping to a valid morphism", mapping,
+							XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+					}
+
+				// TODO Check we can auto-complete behaviour mapping
+				}
+			} else {
+				warning("Type morphism is already complete", mapping,
+					XDsmlComposePackage.Literals.GTS_MAPPING__AUTO_COMPLETE)
+			}
 		}
 	}
 
@@ -104,5 +132,13 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		context.put(TYPE_MAPPINGS, _mapping)
 
 		_mapping
+	}
+
+	/**
+	 * Return true if the given mapping is incomplete
+	 */
+	private def isInCompleteMapping(TypeGraphMapping mapping) {
+		val _mapping = mapping.extractMapping
+		mapping.source.eAllContents.exists[me|!_mapping.containsKey(me)]
 	}
 }
