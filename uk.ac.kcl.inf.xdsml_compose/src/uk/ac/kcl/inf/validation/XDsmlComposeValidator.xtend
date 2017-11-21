@@ -4,12 +4,18 @@
 package uk.ac.kcl.inf.validation
 
 import java.util.ArrayList
+import java.util.HashMap
+import java.util.HashSet
 import java.util.List
 import java.util.Map
+import java.util.Set
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.xtext.validation.Check
+import org.eclipse.xtext.validation.CheckType
 import uk.ac.kcl.inf.util.BasicMappingChecker
 import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
 import uk.ac.kcl.inf.util.TypeMorphismChecker.Issue
@@ -20,10 +26,10 @@ import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
-import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
 import static uk.ac.kcl.inf.util.BasicMappingChecker.*
-import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.xtext.validation.CheckType
+import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
+
+import static extension uk.ac.kcl.inf.util.EMFHelper.*
 
 /**
  * This class contains custom validation rules. 
@@ -97,7 +103,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 							XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
 					} else if (morphismCompleter.completedMappings.size > 1) {
 						// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
-						error("Cannot uniquely complete type mapping to a valid morphism", mapping,
+						error(morphismCompleter.generateUniquenessMessage.toString, mapping,
 							XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION)
 					} else if (mapping.uniqueCompletion && (!checkMode.shouldCheck(CheckType.EXPENSIVE))) {
 						warning("Uniqueness of mapping has not been checked. Please run explicit validation from editor context menu to check this.", mapping,
@@ -110,6 +116,31 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			}
 		}
 	}
+
+	private def generateUniquenessMessage(TypeMorphismCompleter morphismCompleter) '''
+		Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «morphismCompleter.bestImprover» to improve uniqueness.
+	'''
+	
+	private def bestImprover(TypeMorphismCompleter morphismCompleter) {
+		// Find the element with the most different mappings and report back as a user-friendly string
+		val allMappings = morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [_acc, mp |
+			mp.entrySet.fold(_acc, [acc, e |
+				if (!acc.containsKey(e.key)) {
+					acc.put(e.key, new HashSet<EObject>)
+				}
+				acc.get(e.key).add(e.value)
+
+				acc
+			])
+		])
+		
+		val _bestImprover = allMappings.entrySet.sortWith[e1, e2 | -(e1.value.size <=> e2.value.size)].head
+		val _bestImproverKey = _bestImprover.key
+		
+		'''«if (_bestImproverKey instanceof EClass) {'''class'''} else {'''reference'''}» «_bestImproverKey.qualifiedName» to any of [«_bestImprover.value.map[eo | eo.qualifiedName].join(', ')»]'''
+	}
+	
+	
 
 	private static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
 
