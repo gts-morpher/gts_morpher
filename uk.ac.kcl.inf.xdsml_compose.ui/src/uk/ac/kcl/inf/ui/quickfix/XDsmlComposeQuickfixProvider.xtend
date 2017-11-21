@@ -32,8 +32,10 @@ class XDsmlComposeQuickfixProvider extends DefaultQuickfixProvider {
 			val source = _second_split.get(0)
 			val target = _second_split.get(1)
 
+			val quickFixText = '''Add a mapping from «classOrReference» «source» to «target».'''
+
 			acceptor.accept(issue,
-				"Add a type mapping", '''Add a mapping from «classOrReference» «source» to «target».''', null, [element, context |
+				quickFixText, quickFixText, null, [element, context |
 				val gtsMapping = element as GTSMapping
 				val typeMapping = gtsMapping.typeMapping
 				
