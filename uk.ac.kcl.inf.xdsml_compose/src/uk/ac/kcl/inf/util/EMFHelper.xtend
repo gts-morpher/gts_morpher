@@ -1,5 +1,6 @@
 package uk.ac.kcl.inf.util
 
+import java.util.ArrayList
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
@@ -25,7 +26,7 @@ class EMFHelper {
 	}
 
 	static def EObject findWithQualifiedName(EPackage pck, String qualifiedName) {
-		val nameSegments = qualifiedName.split('\\.')
+		var nameSegments = new ArrayList<String> (qualifiedName.split('\\.'))
 		var currentPackage = pck
 
 		if (!pck.name.equals(nameSegments.remove(0))) {
