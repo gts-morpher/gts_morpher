@@ -3,10 +3,19 @@
  */
 package uk.ac.kcl.inf.generator
 
+import java.util.Map
+import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import uk.ac.kcl.inf.util.TypeMorphismCompleter
+import uk.ac.kcl.inf.util.ValueHolder
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+
+import static uk.ac.kcl.inf.util.BasicMappingChecker.*
+import static extension uk.ac.kcl.inf.util.EMFHelper.*
 
 /**
  * Generates code from your model files on save.
@@ -16,10 +25,39 @@ import org.eclipse.xtext.generator.IGeneratorContext
 class XDsmlComposeGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+		val mapping = resource.allContents.head as GTSMapping
+		if (mapping.autoComplete) {
+			val completedMappings = mapping.completedMappings
+			val idx = new ValueHolder<Integer>(0)
+						
+			completedMappings.forEach [mp |
+				fsa.generateFile(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose',
+					mapping.generateCompleteMorphism(mp))
+				idx.value = idx.value + 1
+			]
+		}
+	}
+
+	/**
+	 * Assume mapping has the autocomplete option set and generate a new representation of the mapping where all source elements have been mapped
+	 */
+	private def generateCompleteMorphism(GTSMapping mapping, Map<EObject, EObject> mp) '''
+		map {
+			type_mapping from "«mapping.typeMapping.source.name»" to "«mapping.typeMapping.target.name»" {
+				«mp.entrySet.map[e | '''«if (e.key instanceof EClass) '''class''' else '''reference'''» «e.key.qualifiedName» => «e.value.qualifiedName»'''].join('\n')»
+			}
+		}
+	'''
+
+	private static def getCompletedMappings(GTSMapping mapping) {
+		val _mapping = extractMapping(mapping.typeMapping, null)
+		val completer = new TypeMorphismCompleter(_mapping, mapping.typeMapping.source, mapping.typeMapping.target)
+		if (completer.findMorphismCompletions(true) == 0) {
+			// Found morphism(s)
+			completer.completedMappings
+		} else {
+			// We have a problem
+			#[]
+		}
 	}
 }

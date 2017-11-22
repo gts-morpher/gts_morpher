@@ -8,6 +8,7 @@
       fileExtensions="lang_compose" ecorePackage="XDsmlCompose.ecore#/">
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSMapping">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/autoComplete"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/uniqueCompletion"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/typeMapping"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/behaviourMapping"/>
     </genClasses>

@@ -96,8 +96,32 @@ class XDsmlComposeParsingAndValidationTests {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 		
 		assertTrue("Not set to auto-complete", result.autoComplete)
+		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
 	}
 	
+	/**
+	 * Test basic parsing with unique auto-complete annotation.
+	 */
+	@Test
+	def void parsingUniqueAutoComplete() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique map {
+					type_mapping from "server" to "devsmm" {
+						class server.Server => devsmm.Machine
+						reference server.Server.Out => devsmm.Machine.out
+					}
+				}
+			''',
+			createResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertTrue("Not set to auto-complete", result.autoComplete)
+		assertTrue("Not set to unique auto-complete", result.uniqueCompletion)
+	}
+
 	/**
 	 * Tests that we get the correct error messages when a type mapping is the wrong way around
 	 */
@@ -203,6 +227,30 @@ class XDsmlComposeParsingAndValidationTests {
 	}
 
 	/**
+	 * Tests that unique auto-completion validation works in negative case
+	 */
+	@Test
+	def void validateUniqueAutoCompleteNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique map {
+					type_mapping from "server" to "devsmm" {
+						class server.Server => devsmm.Machine
+						class server.Queue => devsmm.Tray
+					}
+				}
+			''',
+			createResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		
+		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.NO_UNIQUE_COMPLETION)
+	}
+
+	/**
 	 * Tests that auto-completion validation works in the negative case
 	 */
 	@Test
@@ -222,5 +270,32 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
 		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+	}
+	
+	/**
+	 * Tests that completeness check works correctly for complete mappings
+	 */
+	@Test
+	def void validateCompletenessPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					type_mapping from "server" to "devsmm" {
+						class server.Element => devsmm.Part
+						class server.Queue => devsmm.Tray
+						class server.Server => devsmm.Machine
+						class server.Input => devsmm.Part
+						class server.Output => devsmm.Part
+						reference server.Server.In => devsmm.Machine.in
+						reference server.Server.Out => devsmm.Machine.in
+						reference server.Queue.elts => devsmm.Container.parts
+					} 
+				}
+			''',
+			createResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)		
 	}
 }
