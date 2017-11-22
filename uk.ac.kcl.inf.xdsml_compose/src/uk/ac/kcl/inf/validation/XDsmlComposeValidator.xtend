@@ -102,11 +102,14 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 					if (morphismCompleter.tryCompleteTypeMorphism != 0) {
 						error("Cannot complete type mapping to a valid morphism", mapping,
 							XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
-					} else if (mapping.uniqueCompletion && (!checkMode.shouldCheck(CheckType.EXPENSIVE))) {
-						warning(
-							"Uniqueness of mapping has not been checked. Please run explicit validation from editor context menu to check this.",
-							mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION,
-							UNIQUE_COMPLETION_NOT_CHECKED)
+					} else if (mapping.uniqueCompletion) {
+						// TODO It would be good to remove this warning again when we're running the expensive check. The Eclipse API isn't available from here, for good reason. Not sure how to do this with Xtext means
+						if (!checkMode.shouldCheck(CheckType.EXPENSIVE)) {
+							warning(
+								"Uniqueness of mapping has not been checked. Please run explicit validation from editor context menu to check this.",
+								mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION,
+								UNIQUE_COMPLETION_NOT_CHECKED)							
+						}
 					}
 				}
 			} else {
