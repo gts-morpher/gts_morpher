@@ -5,13 +5,18 @@
   <eClassifiers xsi:type="ecore:EClass" name="GTSMapping">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="autoComplete" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uniqueCompletion" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="#//GTSSpecification"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//GTSSpecification"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="typeMapping" eType="#//TypeGraphMapping"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="behaviourMapping" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GTSSpecification">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="metamodel" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TypeGraphMapping">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="mappings" upperBound="-1"
         eType="#//TypeMapping" containment="true"/>
   </eClassifiers>

@@ -14,6 +14,7 @@ import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 
 import static org.eclipse.xtext.scoping.Scopes.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 /**
  * This class contains custom scoping description.
@@ -48,10 +49,10 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	def IScope sourceScope (TypeGraphMapping tgm) {
-		scopeFor([tgm.source.eAllContents], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+		scopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 
 	def IScope targetScope (TypeGraphMapping tgm) {
-		scopeFor([tgm.target.eAllContents], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+		scopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 }

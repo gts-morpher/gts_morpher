@@ -52,7 +52,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Server => devsmm.Machine
 						reference server.Server.Out => devsmm.Machine.out
 					}
@@ -66,8 +73,8 @@ class XDsmlComposeParsingAndValidationTests {
 
 		assertNotNull("No type mapping", result.typeMapping)
 
-		assertNotNull("Did not load source package", result.typeMapping.source.name)
-		assertNotNull("Did not load target package", result.typeMapping.target.name)
+		assertNotNull("Did not load source package", result.source.metamodel.name)
+		assertNotNull("Did not load target package", result.target.metamodel.name)
 
 		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
 		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
@@ -85,7 +92,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Server => devsmm.Machine
 						reference server.Server.Out => devsmm.Machine.out
 					}
@@ -108,7 +122,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Server => devsmm.Machine
 						reference server.Server.Out => devsmm.Machine.out
 					}
@@ -131,7 +152,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class devsmm.Machine => server.Server 
 						reference devsmm.Machine.out => server.Server.Out
 					}
@@ -145,7 +173,7 @@ class XDsmlComposeParsingAndValidationTests {
 		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 //		(result.typeMapping.mappings.get(0) as ClassMapping).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
-		result.typeMapping.assertWarning(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		assertTrue(issues.length == 5)	
 	}
 	
@@ -158,7 +186,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Server => devsmm.Machine 
 						class server.Server => devsmm.Assemble 
 						reference server.Server.Out => devsmm.Machine.out 
@@ -173,7 +208,7 @@ class XDsmlComposeParsingAndValidationTests {
 		val issues = result.validate()
 		result.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
 		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference Out.")
-		result.typeMapping.assertWarning(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		assertTrue(issues.length == 3)
 	} 
 	
@@ -186,7 +221,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Server => devsmm.Machine
 						class server.Queue => devsmm.Container
 						reference server.Server.Out => devsmm.Machine.out
@@ -201,7 +243,7 @@ class XDsmlComposeParsingAndValidationTests {
 		val issues = result.validate()
 		result.typeMapping.mappings.get(2).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
 		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
-		result.typeMapping.assertWarning(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		assertTrue(issues.length == 3)
 	}
 
@@ -214,7 +256,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Server => devsmm.Machine
 					}
 				}
@@ -235,7 +284,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Server => devsmm.Machine
 						class server.Queue => devsmm.Tray
 					}
@@ -259,7 +315,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Server => devsmm.Machine
 						class server.Queue => devsmm.Container
 					}
@@ -281,7 +344,14 @@ class XDsmlComposeParsingAndValidationTests {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				map {
-					type_mapping from "server" to "devsmm" {
+					from {
+						metamodel: "server"
+					}
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
 						class server.Element => devsmm.Part
 						class server.Queue => devsmm.Tray
 						class server.Server => devsmm.Machine
