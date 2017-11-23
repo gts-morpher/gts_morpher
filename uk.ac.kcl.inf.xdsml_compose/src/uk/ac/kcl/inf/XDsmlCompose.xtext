@@ -18,7 +18,7 @@ GTSMapping:
 GTSSpecification:
 	"{"
 		"metamodel" ":" metamodel = [ecore::EPackage | STRING]
-		"behaviour" ":" behaviour = [henshin::Module | STRING]
+		("behaviour" ":" behaviour = [henshin::Module | STRING])?
 	"}"
 ;
 
