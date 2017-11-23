@@ -80,7 +80,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkIsCompleteMapping(GTSMapping mapping) {
-		if (mapping.typeMapping.isInCompleteMapping && !(mapping.eContainer as GTSMapping).autoComplete) {
+		if (mapping.typeMapping.isInCompleteMapping && !mapping.autoComplete) {
 			warning("Incomplete mapping. Ensure all elements of the source metamodel are mapped.", mapping,
 				XDsmlComposePackage.Literals.GTS_MAPPING__SOURCE, INCOMPLETE_TYPE_GRAPH_MAPPING)
 		}
