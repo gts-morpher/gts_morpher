@@ -66,8 +66,8 @@ class XDsmlComposeParsingAndValidationTests {
 
 		assertNotNull("No type mapping", result.typeMapping)
 
-		assertNotNull("Did not load source package", result.typeMapping.source.name)
-		assertNotNull("Did not load target package", result.typeMapping.target.name)
+		assertNotNull("Did not load source package", result.source.metamodel.name)
+		assertNotNull("Did not load target package", result.target.metamodel.name)
 
 		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
 		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)

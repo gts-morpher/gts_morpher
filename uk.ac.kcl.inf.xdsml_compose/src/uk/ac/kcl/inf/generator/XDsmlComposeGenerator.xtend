@@ -43,7 +43,14 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	 */
 	private def generateCompleteMorphism(GTSMapping mapping, Map<EObject, EObject> mp) '''
 		map {
-			type_mapping from "«mapping.typeMapping.source.name»" to "«mapping.typeMapping.target.name»" {
+			from {
+				metamodel: "«mapping.source.metamodel.name»"
+			}
+			to {
+				metamodel: "«mapping.target.metamodel.name»"
+			}
+			
+			type_mapping {
 				«mp.entrySet.map[e | '''«if (e.key instanceof EClass) '''class''' else '''reference'''» «e.key.qualifiedName» => «e.value.qualifiedName»'''].join('\n')»
 			}
 		}
@@ -51,7 +58,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 
 	private static def getCompletedMappings(GTSMapping mapping) {
 		val _mapping = extractMapping(mapping.typeMapping, null)
-		val completer = new TypeMorphismCompleter(_mapping, mapping.typeMapping.source, mapping.typeMapping.target)
+		val completer = new TypeMorphismCompleter(_mapping, mapping.source.metamodel, mapping.target.metamodel)
 		if (completer.findMorphismCompletions(true) == 0) {
 			// Found morphism(s)
 			completer.completedMappings

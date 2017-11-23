@@ -9,12 +9,15 @@
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSMapping">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/autoComplete"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/uniqueCompletion"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/source"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/typeMapping"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/behaviourMapping"/>
     </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//GTSSpecification">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecification/metamodel"/>
+    </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//TypeGraphMapping">
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//TypeGraphMapping/source"/>
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//TypeGraphMapping/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//TypeGraphMapping/mappings"/>
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//TypeMapping"/>

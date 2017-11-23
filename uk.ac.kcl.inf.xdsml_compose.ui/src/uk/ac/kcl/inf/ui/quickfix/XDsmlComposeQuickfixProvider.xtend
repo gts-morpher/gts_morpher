@@ -41,13 +41,13 @@ class XDsmlComposeQuickfixProvider extends DefaultQuickfixProvider {
 				
 				if (classOrReference.equals("class")) {
 					val classMapping = XDsmlComposeFactory.eINSTANCE.createClassMapping
-					classMapping.source = typeMapping.source.findWithQualifiedName (source) as EClass
-					classMapping.target = typeMapping.target.findWithQualifiedName (target) as EClass
+					classMapping.source = gtsMapping.source.metamodel.findWithQualifiedName (source) as EClass
+					classMapping.target = gtsMapping.target.metamodel.findWithQualifiedName (target) as EClass
 					typeMapping.mappings.add(classMapping)
 				} else {
 					val referenceMapping = XDsmlComposeFactory.eINSTANCE.createReferenceMapping
-					referenceMapping.source = typeMapping.source.findWithQualifiedName (source) as EReference
-					referenceMapping.target = typeMapping.target.findWithQualifiedName (target) as EReference
+					referenceMapping.source = gtsMapping.source.metamodel.findWithQualifiedName (source) as EReference
+					referenceMapping.target = gtsMapping.target.metamodel.findWithQualifiedName (target) as EReference
 					typeMapping.mappings.add(referenceMapping)					
 				}
 			])

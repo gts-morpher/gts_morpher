@@ -79,10 +79,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Check that the given mapping is complete
 	 */
 	@Check
-	def checkIsCompleteMapping(TypeGraphMapping mapping) {
-		if (mapping.isInCompleteMapping && !(mapping.eContainer as GTSMapping).autoComplete) {
+	def checkIsCompleteMapping(GTSMapping mapping) {
+		if (mapping.typeMapping.isInCompleteMapping && !(mapping.eContainer as GTSMapping).autoComplete) {
 			warning("Incomplete mapping. Ensure all elements of the source metamodel are mapped.", mapping,
-				XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING__SOURCE, INCOMPLETE_TYPE_GRAPH_MAPPING)
+				XDsmlComposePackage.Literals.GTS_MAPPING__SOURCE, INCOMPLETE_TYPE_GRAPH_MAPPING)
 		}
 	}
 
@@ -97,8 +97,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			val _mapping = typeMapping.extractMapping
 			if (typeMapping.isInCompleteMapping) {
 				if (checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.typeMapping.source,
-						mapping.typeMapping.target)
+					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.source.metamodel,
+						mapping.target.metamodel)
 					if (morphismCompleter.tryCompleteTypeMorphism != 0) {
 						error("Cannot complete type mapping to a valid morphism", mapping,
 							XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
@@ -129,8 +129,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			val typeMapping = mapping.typeMapping
 			val _mapping = typeMapping.extractMapping
 			if (typeMapping.isInCompleteMapping && checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-				val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.typeMapping.source,
-					mapping.typeMapping.target)
+				val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.source.metamodel,
+					mapping.target.metamodel)
 
 				if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
 					(morphismCompleter.completedMappings.size > 1)) {
@@ -195,8 +195,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Return true if the given mapping is incomplete
 	 */
 	private def isInCompleteMapping(TypeGraphMapping mapping) {
-		val _mapping = mapping.extractMapping
-		mapping.source.eAllContents.filter[me|me instanceof EClassifier || me instanceof EReference].exists [ me |
+		val _mapping = mapping.extractMapping;
+		(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter[me|me instanceof EClassifier || me instanceof EReference].exists [ me |
 			!_mapping.containsKey(me)
 		]
 	}
