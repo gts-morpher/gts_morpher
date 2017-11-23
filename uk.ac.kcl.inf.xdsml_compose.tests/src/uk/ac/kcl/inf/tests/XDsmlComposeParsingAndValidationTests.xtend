@@ -6,6 +6,8 @@ package uk.ac.kcl.inf.tests
 import com.google.inject.Inject
 import com.google.inject.Provider
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.henshin.model.HenshinPackage
+import org.eclipse.emf.henshin.model.resource.HenshinResourceFactory
 import org.eclipse.xtext.diagnostics.Diagnostic
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
@@ -36,10 +38,14 @@ class XDsmlComposeParsingAndValidationTests {
 	
 	private def createResourceSet() {
 		val resourceSet = resourceSetProvider.get
-		val serverURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource("server.ecore").path)
-		resourceSet.getResource(serverURI, true)
-		val devsmmURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource("DEVSMM.ecore").path)
-		resourceSet.getResource(devsmmURI, true)
+		resourceSet.packageRegistry.put (HenshinPackage.eINSTANCE.nsURI, HenshinPackage.eINSTANCE)
+		resourceSet.resourceFactoryRegistry.extensionToFactoryMap.put("henshin", new HenshinResourceFactory())
+		
+		#["server.ecore", "DEVSMM.ecore", "server.henshin", "devsmm.henshin"].forEach[ file | 
+			val fileURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource(file).path)
+			resourceSet.getResource(fileURI, true)
+		]
+
 		resourceSet
 	}
 	
