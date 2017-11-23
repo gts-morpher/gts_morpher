@@ -32,6 +32,8 @@ Workflow {
 			name = "uk.ac.kcl.inf.XDsmlCompose"
 			fileExtensions = "lang_compose"
 
+			referencedResource = "platform:/resource/org.eclipse.emf.henshin.model/model/henshin.genmodel"
+
 			serializer = {
 				generateStub = false
 			}
