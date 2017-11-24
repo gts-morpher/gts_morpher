@@ -1,4 +1,4 @@
-package uk.ac.kcl.inf.henshin;
+package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.xtextsupport;
 
 import org.eclipse.xtext.ISetup;
 import org.eclipse.xtext.resource.generic.AbstractGenericResourceSupport;
@@ -8,15 +8,15 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 /**
- * Class meant to be used from MWE workflows or standalone setups to register Henshin support services.
+ * Class meant to be used from MWE workflows or standalone setups to register behaviour adaptation support services.
  * 
  * @author k1074611
  */
-public class HenshinSupport extends AbstractGenericResourceSupport implements ISetup {
+public class BehaviourAdaptationSupport extends AbstractGenericResourceSupport implements ISetup {
 
 	@Override
 	protected Module createGuiceModule() {
-		return new HenshinRuntimeModule();
+		return new BehaviourAdaptationRuntimeModule();
 	}
 
 	/**

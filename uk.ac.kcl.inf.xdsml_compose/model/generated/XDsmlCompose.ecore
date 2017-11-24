@@ -15,7 +15,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="GTSSpecification">
     <eStructuralFeatures xsi:type="ecore:EReference" name="metamodel" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="behaviour" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Module"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="behaviour" eType="ecore:EClass platform:/resource/uk.ac.kcl.inf.xdsml_compose.behaviour_abstraction/model/adaptation.ecore#//Module"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TypeGraphMapping">
     <eStructuralFeatures xsi:type="ecore:EReference" name="mappings" upperBound="-1"

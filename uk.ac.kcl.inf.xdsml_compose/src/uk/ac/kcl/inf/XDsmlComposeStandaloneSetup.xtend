@@ -5,7 +5,7 @@ package uk.ac.kcl.inf
 
 import com.google.inject.Injector
 import org.eclipse.xtext.ecore.EcoreSupport
-import uk.ac.kcl.inf.henshin.HenshinSupport
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.xtextsupport.BehaviourAdaptationSupport
 
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
@@ -19,6 +19,6 @@ class XDsmlComposeStandaloneSetup extends XDsmlComposeStandaloneSetupGenerated {
 	override register(Injector injector) {
         super.register(injector);
         new EcoreSupport().registerServices(true);
-        new HenshinSupport().registerServices(true);
+        new BehaviourAdaptationSupport().registerServices(true);
     }
 }
