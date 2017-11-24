@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated adaptation -->
+      <package
+            uri="http://www.inf.kcl.ac.uk/xdsml_compose/2017/adaptation/1.0"
+            class="uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPackage"
+            genModel="model/adaptation.genmodel"/>
+   </extension>
+
+</plugin>

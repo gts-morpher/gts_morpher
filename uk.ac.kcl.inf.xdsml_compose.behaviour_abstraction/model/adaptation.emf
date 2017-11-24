@@ -1,0 +1,44 @@
+@namespace(uri="http://www.inf.kcl.ac.uk/xdsml_compose/2017/adaptation/1.0", prefix="adaptation")
+package behaviour_adaptation;
+
+import "http://www.eclipse.org/emf/2002/Ecore";
+
+/**
+ * The general interface providing access to the wrapped element from the base language
+ */
+abstract class WrappingElement {
+	transient ref EObject wrappedElement; 
+}
+
+abstract class NamedElement extends WrappingElement {
+	attr EString name;
+}
+
+class Module extends NamedElement {
+	val Module[*] subModules;
+	val Rule[*] rules;
+}
+
+class Rule extends NamedElement {
+	val Pattern lhs;
+	val Pattern rhs;
+}
+
+class Pattern extends NamedElement {
+	val Object[*] objects;
+	val Link[*] links;
+}
+
+class Object extends NamedElement {
+	ref EClass type;
+	ref Link[*]#source outgoing;
+	ref Link[*]#target incoming;
+}
+
+class Link extends NamedElement {
+	// Really, this should be EReference, but for some reason the editor cannot resolve that type, even with the explicit import above
+	ref EObject type;
+	
+	ref Object#outgoing source;
+	ref Object#incoming target;
+}
