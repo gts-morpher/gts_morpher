@@ -19,6 +19,8 @@ import org.junit.runner.RunWith
 import uk.ac.kcl.inf.validation.XDsmlComposeValidator
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
+import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
@@ -173,6 +175,14 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
 		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
+		
+		val ruleMap = result.behaviourMapping.mappings.get(0)
+		#[0, 1].forEach[i | 
+			assertNotNull ("Did not find source object " + i, (ruleMap.element_mappings.get(i) as ObjectMapping).source.name)
+			assertNotNull ("Did not find target object " + i, (ruleMap.element_mappings.get(i) as ObjectMapping).target.name)
+		]
+		assertNotNull ("Did not find source link", (ruleMap.element_mappings.get(2) as LinkMapping).source.name)
+		assertNotNull ("Did not find target link", (ruleMap.element_mappings.get(2) as LinkMapping).target.name)
 	}
 	
 	/**
