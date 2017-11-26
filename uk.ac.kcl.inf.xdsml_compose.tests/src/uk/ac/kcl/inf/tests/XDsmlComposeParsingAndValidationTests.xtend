@@ -168,8 +168,11 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
-		assertNotNull("Did not load source behaviour", result.source.behaviour.name		)
+		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
 		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		
+		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
+		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
 	}
 	
 	/**

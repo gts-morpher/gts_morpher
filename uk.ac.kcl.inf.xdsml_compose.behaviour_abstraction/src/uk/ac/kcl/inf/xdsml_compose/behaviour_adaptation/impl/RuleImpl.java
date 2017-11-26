@@ -271,12 +271,12 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 
 	@Override
 	public String getName() {
-		return ((Graph) wrappedElement).getName();
+		return ((org.eclipse.emf.henshin.model.Rule) wrappedElement).getName();
 	}
 
 	@Override
 	protected void internalSetName(String newname) {
-		((Graph) wrappedElement).setName(newname);
+		((org.eclipse.emf.henshin.model.Rule) wrappedElement).setName(newname);
 	}
 
 } // RuleImpl
