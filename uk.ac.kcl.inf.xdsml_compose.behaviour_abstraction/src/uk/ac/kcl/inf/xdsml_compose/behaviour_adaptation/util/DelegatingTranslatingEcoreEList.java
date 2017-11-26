@@ -1,11 +1,10 @@
 package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util;
 
 import java.util.AbstractList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.util.DelegatingEcoreEList;
 
@@ -15,20 +14,28 @@ import org.eclipse.emf.ecore.util.DelegatingEcoreEList;
  * @author k1074611
  */
 @SuppressWarnings("serial")
-public class DelegatingTranslatingEcoreEList<E, T> extends DelegatingEcoreEList<E> {
+public class DelegatingTranslatingEcoreEList<S extends EObject, T extends EObject> extends DelegatingEcoreEList<S> {
 
-	public static interface Translator<E, T> {
-		public E translate(T object);
+	/**
+	 * Function translating S objects into T objects. It is expected that for the
+	 * same S object, always the same T object is provided.
+	 * 
+	 * @author k1074611
+	 *
+	 * @param <S>
+	 * @param <T>
+	 */
+	public static interface Translator<S extends EObject, T extends EObject> {
+		public S translate(T object);
 	}
 
 	protected final int featureID;
 	private final EList<T> backingList;
-	private List<E> delegateList;
-	private final Map<T, E> translationCache = new HashMap<>();
-	private final Translator<E, T> translator;
+	private List<S> delegateList;
+	private final Translator<S, T> translator;
 
 	public DelegatingTranslatingEcoreEList(InternalEObject owner, int featureID, EList<T> backingList,
-			Translator<E, T> translator) {
+			Translator<S, T> translator) {
 		super(owner);
 
 		this.featureID = featureID;
@@ -42,13 +49,13 @@ public class DelegatingTranslatingEcoreEList<E, T> extends DelegatingEcoreEList<
 	}
 
 	@Override
-	protected List<E> delegateList() {
+	protected List<S> delegateList() {
 		if (delegateList == null) {
-			delegateList = new AbstractList<E>() {
+			delegateList = new AbstractList<S>() {
 
 				@Override
-				public E get(int index) {
-					return translate(backingList.get(index));
+				public S get(int index) {
+					return translator.translate(backingList.get(index));
 				}
 
 				@Override
@@ -59,13 +66,5 @@ public class DelegatingTranslatingEcoreEList<E, T> extends DelegatingEcoreEList<
 		}
 
 		return delegateList;
-	}
-
-	private E translate(T object) {
-		if (!translationCache.containsKey(object)) {
-			translationCache.put(object, translator.translate(object));
-		}
-
-		return translationCache.get(object);
 	}
 }
