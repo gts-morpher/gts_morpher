@@ -12,7 +12,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/source"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/typeMapping"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/behaviourMapping"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/behaviourMapping"/>
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSSpecification">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecification/metamodel"/>
@@ -29,6 +29,23 @@
     <genClasses ecoreClass="XDsmlCompose.ecore#//ReferenceMapping">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ReferenceMapping/source"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ReferenceMapping/target"/>
+    </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//BehaviourMapping">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//BehaviourMapping/mappings"/>
+    </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//RuleMapping">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/target"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/source"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/element_mappings"/>
+    </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//RuleElementMapping"/>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//ObjectMapping">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ObjectMapping/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ObjectMapping/target"/>
+    </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//LinkMapping">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//LinkMapping/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//LinkMapping/target"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

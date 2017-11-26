@@ -41,7 +41,31 @@ ReferenceMapping:
 ;
 
 BehaviourMapping:
-	"behaviour_mapping"
+	"behaviour_mapping" "{"
+		mappings += RuleMapping+
+	"}"
+;
+
+RuleMapping:
+	"rule" target=[gts::Rule | QualifiedName] "to" source=[gts::Rule | QualifiedName] "{"
+		element_mappings += RuleElementMapping+
+	"}"
+;
+
+RuleElementMapping:
+	ObjectMapping | LinkMapping
+;
+
+ObjectMapping:
+	"object" source = [gts::Object | ID] "=>" target = [gts::Object | ID]
+;
+
+LinkMapping:
+	"link" source = [gts::Link | LinkName] "=>" target = [gts::Link | LinkName]
+;
+
+LinkName :
+	"[" ID "->" ID ":" ID "]"
 ;
 
 QualifiedName:

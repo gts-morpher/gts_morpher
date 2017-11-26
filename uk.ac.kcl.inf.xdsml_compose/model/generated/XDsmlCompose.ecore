@@ -11,7 +11,8 @@
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="typeMapping" eType="#//TypeGraphMapping"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="behaviourMapping" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="behaviourMapping" eType="#//BehaviourMapping"
+        containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="GTSSpecification">
     <eStructuralFeatures xsi:type="ecore:EReference" name="metamodel" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
@@ -29,5 +30,24 @@
   <eClassifiers xsi:type="ecore:EClass" name="ReferenceMapping" eSuperTypes="#//TypeMapping">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EReference"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EReference"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BehaviourMapping">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="mappings" upperBound="-1"
+        eType="#//RuleMapping" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RuleMapping">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass platform:/resource/uk.ac.kcl.inf.xdsml_compose.behaviour_abstraction/model/adaptation.ecore#//Rule"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass platform:/resource/uk.ac.kcl.inf.xdsml_compose.behaviour_abstraction/model/adaptation.ecore#//Rule"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="element_mappings" upperBound="-1"
+        eType="#//RuleElementMapping" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RuleElementMapping"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ObjectMapping" eSuperTypes="#//RuleElementMapping">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass platform:/resource/uk.ac.kcl.inf.xdsml_compose.behaviour_abstraction/model/adaptation.ecore#//Object"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass platform:/resource/uk.ac.kcl.inf.xdsml_compose.behaviour_abstraction/model/adaptation.ecore#//Object"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="LinkMapping" eSuperTypes="#//RuleElementMapping">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass platform:/resource/uk.ac.kcl.inf.xdsml_compose.behaviour_abstraction/model/adaptation.ecore#//Link"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass platform:/resource/uk.ac.kcl.inf.xdsml_compose.behaviour_abstraction/model/adaptation.ecore#//Link"/>
   </eClassifiers>
 </ecore:EPackage>

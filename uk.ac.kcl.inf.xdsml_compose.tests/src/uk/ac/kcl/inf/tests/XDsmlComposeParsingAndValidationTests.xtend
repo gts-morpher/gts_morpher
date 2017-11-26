@@ -146,7 +146,7 @@ class XDsmlComposeParsingAndValidationTests {
 						rule devsmmRules.process to serverRules.process {
 							object input => in_part
 							object output => out_part
-							link [in-queue->input:elts] => [tray->in_part:parts]
+							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
 					}
 				}
