@@ -3,16 +3,16 @@
   <imports href="DEVSMM.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_J-gAkNBLEeeTmd7edEr5bw" name="process">
     <lhs xmi:id="_J-gAldBLEeeTmd7edEr5bw" name="Lhs">
-      <nodes xmi:id="_LvHpoNBLEeeTmd7edEr5bw" outgoing="_ZlHJENBLEeeTmd7edEr5bw _aTkKgNBLEeeTmd7edEr5bw">
+      <nodes xmi:id="_LvHpoNBLEeeTmd7edEr5bw" name="machine" outgoing="_ZlHJENBLEeeTmd7edEr5bw _aTkKgNBLEeeTmd7edEr5bw">
         <type href="DEVSMM.ecore#//Machine"/>
       </nodes>
-      <nodes xmi:id="_TG3TQNBLEeeTmd7edEr5bw" incoming="_aTkKgNBLEeeTmd7edEr5bw">
+      <nodes xmi:id="_TG3TQNBLEeeTmd7edEr5bw" name="conveyor" incoming="_aTkKgNBLEeeTmd7edEr5bw">
         <type href="DEVSMM.ecore#//Conveyor"/>
       </nodes>
-      <nodes xmi:id="_T8yOoNBLEeeTmd7edEr5bw" incoming="_ZlHJENBLEeeTmd7edEr5bw" outgoing="_Yx3uQNBLEeeTmd7edEr5bw">
+      <nodes xmi:id="_T8yOoNBLEeeTmd7edEr5bw" name="tray" incoming="_ZlHJENBLEeeTmd7edEr5bw" outgoing="_Yx3uQNBLEeeTmd7edEr5bw">
         <type href="DEVSMM.ecore#//Tray"/>
       </nodes>
-      <nodes xmi:id="_XzJcMNBLEeeTmd7edEr5bw" incoming="_Yx3uQNBLEeeTmd7edEr5bw">
+      <nodes xmi:id="_XzJcMNBLEeeTmd7edEr5bw" name="in_part" incoming="_Yx3uQNBLEeeTmd7edEr5bw">
         <type href="DEVSMM.ecore#//Part"/>
       </nodes>
       <edges xmi:id="_Yx3uQNBLEeeTmd7edEr5bw" source="_T8yOoNBLEeeTmd7edEr5bw" target="_XzJcMNBLEeeTmd7edEr5bw">
@@ -26,16 +26,16 @@
       </edges>
     </lhs>
     <rhs xmi:id="_J-gAltBLEeeTmd7edEr5bw" name="Rhs">
-      <nodes xmi:id="_LvHpodBLEeeTmd7edEr5bw" outgoing="_ZlHJEdBLEeeTmd7edEr5bw _aTkKgdBLEeeTmd7edEr5bw">
+      <nodes xmi:id="_LvHpodBLEeeTmd7edEr5bw" name="machine" outgoing="_ZlHJEdBLEeeTmd7edEr5bw _aTkKgdBLEeeTmd7edEr5bw">
         <type href="DEVSMM.ecore#//Machine"/>
       </nodes>
-      <nodes xmi:id="_TG3TQdBLEeeTmd7edEr5bw" incoming="_aTkKgdBLEeeTmd7edEr5bw" outgoing="_bgcNUNBLEeeTmd7edEr5bw">
+      <nodes xmi:id="_TG3TQdBLEeeTmd7edEr5bw" name="conveyor" incoming="_aTkKgdBLEeeTmd7edEr5bw" outgoing="_bgcNUNBLEeeTmd7edEr5bw">
         <type href="DEVSMM.ecore#//Conveyor"/>
       </nodes>
-      <nodes xmi:id="_T8yOodBLEeeTmd7edEr5bw" incoming="_ZlHJEdBLEeeTmd7edEr5bw">
+      <nodes xmi:id="_T8yOodBLEeeTmd7edEr5bw" name="tray" incoming="_ZlHJEdBLEeeTmd7edEr5bw">
         <type href="DEVSMM.ecore#//Tray"/>
       </nodes>
-      <nodes xmi:id="_VgmKwNBLEeeTmd7edEr5bw" incoming="_bgcNUNBLEeeTmd7edEr5bw">
+      <nodes xmi:id="_VgmKwNBLEeeTmd7edEr5bw" name="out_part" incoming="_bgcNUNBLEeeTmd7edEr5bw">
         <type href="DEVSMM.ecore#//Part"/>
       </nodes>
       <edges xmi:id="_ZlHJEdBLEeeTmd7edEr5bw" source="_LvHpodBLEeeTmd7edEr5bw" target="_T8yOodBLEeeTmd7edEr5bw">

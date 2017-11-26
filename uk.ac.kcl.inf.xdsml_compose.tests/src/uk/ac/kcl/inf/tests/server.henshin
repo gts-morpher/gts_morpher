@@ -3,16 +3,16 @@
   <imports href="server.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_XSG2kNBJEeeTmd7edEr5bw" name="process">
     <lhs xmi:id="_XStTgNBJEeeTmd7edEr5bw" name="Lhs">
-      <nodes xmi:id="_bMXFoNBJEeeTmd7edEr5bw" outgoing="_hW8YkNBJEeeTmd7edEr5bw _iUp-ANBJEeeTmd7edEr5bw">
+      <nodes xmi:id="_bMXFoNBJEeeTmd7edEr5bw" name="server" outgoing="_hW8YkNBJEeeTmd7edEr5bw _iUp-ANBJEeeTmd7edEr5bw">
         <type href="server.ecore#//Server"/>
       </nodes>
-      <nodes xmi:id="_cGnucNBJEeeTmd7edEr5bw" incoming="_hW8YkNBJEeeTmd7edEr5bw" outgoing="_hpHtsNBJEeeTmd7edEr5bw">
+      <nodes xmi:id="_cGnucNBJEeeTmd7edEr5bw" name="in_queue" incoming="_hW8YkNBJEeeTmd7edEr5bw" outgoing="_hpHtsNBJEeeTmd7edEr5bw">
         <type href="server.ecore#//Queue"/>
       </nodes>
-      <nodes xmi:id="_cdPesNBJEeeTmd7edEr5bw" incoming="_iUp-ANBJEeeTmd7edEr5bw">
+      <nodes xmi:id="_cdPesNBJEeeTmd7edEr5bw" name="out_queue" incoming="_iUp-ANBJEeeTmd7edEr5bw">
         <type href="server.ecore#//Queue"/>
       </nodes>
-      <nodes xmi:id="_dU8iwNBJEeeTmd7edEr5bw" incoming="_hpHtsNBJEeeTmd7edEr5bw">
+      <nodes xmi:id="_dU8iwNBJEeeTmd7edEr5bw" name="input" incoming="_hpHtsNBJEeeTmd7edEr5bw">
         <type href="server.ecore#//Input"/>
       </nodes>
       <edges xmi:id="_hW8YkNBJEeeTmd7edEr5bw" source="_bMXFoNBJEeeTmd7edEr5bw" target="_cGnucNBJEeeTmd7edEr5bw">
@@ -26,16 +26,16 @@
       </edges>
     </lhs>
     <rhs xmi:id="_XStTgdBJEeeTmd7edEr5bw" name="Rhs">
-      <nodes xmi:id="_bMXFodBJEeeTmd7edEr5bw" outgoing="_hW8YkdBJEeeTmd7edEr5bw _iUp-AdBJEeeTmd7edEr5bw">
+      <nodes xmi:id="_bMXFodBJEeeTmd7edEr5bw" name="server" outgoing="_hW8YkdBJEeeTmd7edEr5bw _iUp-AdBJEeeTmd7edEr5bw">
         <type href="server.ecore#//Server"/>
       </nodes>
-      <nodes xmi:id="_cGnucdBJEeeTmd7edEr5bw" incoming="_hW8YkdBJEeeTmd7edEr5bw">
+      <nodes xmi:id="_cGnucdBJEeeTmd7edEr5bw" name="in_queue" incoming="_hW8YkdBJEeeTmd7edEr5bw">
         <type href="server.ecore#//Queue"/>
       </nodes>
-      <nodes xmi:id="_cdPesdBJEeeTmd7edEr5bw" incoming="_iUp-AdBJEeeTmd7edEr5bw" outgoing="_ilczENBJEeeTmd7edEr5bw">
+      <nodes xmi:id="_cdPesdBJEeeTmd7edEr5bw" name="out_queue" incoming="_iUp-AdBJEeeTmd7edEr5bw" outgoing="_ilczENBJEeeTmd7edEr5bw">
         <type href="server.ecore#//Queue"/>
       </nodes>
-      <nodes xmi:id="_d2B2kNBJEeeTmd7edEr5bw" incoming="_ilczENBJEeeTmd7edEr5bw">
+      <nodes xmi:id="_d2B2kNBJEeeTmd7edEr5bw" name="output" incoming="_ilczENBJEeeTmd7edEr5bw">
         <type href="server.ecore#//Output"/>
       </nodes>
       <edges xmi:id="_hW8YkdBJEeeTmd7edEr5bw" source="_bMXFodBJEeeTmd7edEr5bw" target="_cGnucdBJEeeTmd7edEr5bw">

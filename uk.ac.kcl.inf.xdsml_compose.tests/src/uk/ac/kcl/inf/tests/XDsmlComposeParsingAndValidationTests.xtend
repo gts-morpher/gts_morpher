@@ -141,6 +141,14 @@ class XDsmlComposeParsingAndValidationTests {
 						class server.Server => devsmm.Machine
 						reference server.Server.Out => devsmm.Machine.out
 					}
+					
+					behaviour_mapping {
+						rule devsmmRules.process to serverRules.process {
+							object input => in_part
+							object output => out_part
+							link [in-queue->input:elts] => [tray->in_part:parts]
+						}
+					}
 				}
 			''',
 			createResourceSet)
