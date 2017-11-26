@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.resource.Resource;
 
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPackage;
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.WrappingElement;
@@ -154,4 +155,13 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 		return super.eIsSet(featureID);
 	}
 
+	/**
+	 * Take the resource from the wrapped object. This is a bit of a hack, but should hopefully be enough to convince Xtext that this is a legit object.
+	 * 
+	 * @generatedNot
+	 */
+	@Override
+	public Resource eResource() {
+		return (wrappedElement != null)?wrappedElement.eResource():super.eResource();
+	}
 } //WrappingElementImpl

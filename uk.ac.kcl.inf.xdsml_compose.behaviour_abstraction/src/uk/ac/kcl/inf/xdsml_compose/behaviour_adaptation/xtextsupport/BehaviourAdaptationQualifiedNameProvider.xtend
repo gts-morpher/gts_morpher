@@ -2,11 +2,11 @@ package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.xtextsupport
 
 import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.henshin.model.NamedElement
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.util.IResourceScopeCache
 import org.eclipse.xtext.util.Tuples
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.NamedElement
 
 class BehaviourAdaptationQualifiedNameProvider extends IQualifiedNameProvider.AbstractImpl {
 	
