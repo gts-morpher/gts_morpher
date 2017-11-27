@@ -224,14 +224,23 @@ class XDsmlComposeParsingAndValidationTests {
 				map {
 					from {
 						metamodel: "server"
+						behaviour: "serverRules"
 					}
 					to {
 						metamodel: "devsmm"
+						behaviour: "devsmmRules"
 					}
 					
 					type_mapping {
 						class devsmm.Machine => server.Server 
 						reference devsmm.Machine.out => server.Server.Out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.process to serverRules.process {
+							object in_part => input
+							link [tray->in_part:parts] => [in_queue->input:elts]
+						}
 					}
 				}
 			''',
@@ -240,11 +249,18 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as source and target are switched in the class mapping
 		val issues = result.validate()
+
 		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+
 //		(result.typeMapping.mappings.get(0) as ClassMapping).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+
 		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		assertTrue(issues.length == 5)	
+
+		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+
+		assertTrue(issues.length == 9)
 	}
 	
 	/**
