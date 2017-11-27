@@ -274,9 +274,11 @@ class XDsmlComposeParsingAndValidationTests {
 				map {
 					from {
 						metamodel: "server"
+						behaviour: "serverRules"
 					}
 					to {
 						metamodel: "devsmm"
+						behaviour: "devsmmRules"
 					}
 					
 					type_mapping {
@@ -285,6 +287,15 @@ class XDsmlComposeParsingAndValidationTests {
 						reference server.Server.Out => devsmm.Machine.out 
 						reference server.Server.Out => devsmm.Machine.in
 					}
+					
+					behaviour_mapping {
+						rule devsmmRules.process to serverRules.process {
+							object input => in_part
+							object input => out_part
+							link [in_queue->input:elts] => [tray->in_part:parts]
+							link [in_queue->input:elts] => [conveyor->out_part:parts]
+						}
+					}
 				}
 			''',
 			createResourceSet)
@@ -292,10 +303,17 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
+		
 		result.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
 		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference Out.")
+		
+		val ruleMapping = result.behaviourMapping.mappings.get(0)
+		ruleMapping.element_mappings.get(1).assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, XDsmlComposeValidator.DUPLICATE_OBJECT_MAPPING, "Duplicate mapping for Object input.")
+		ruleMapping.element_mappings.get(3).assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.DUPLICATE_LINK_MAPPING, "Duplicate mapping for Link [in_queue->input:elts].")
+
 		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		assertTrue(issues.length == 3)
+		
+		assertTrue(issues.length == 5)
 	} 
 	
 	/**
