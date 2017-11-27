@@ -147,7 +147,6 @@ class XDsmlComposeParsingAndValidationTests {
 					behaviour_mapping {
 						rule devsmmRules.process to serverRules.process {
 							object input => in_part
-							object output => out_part
 							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
 					}
@@ -177,12 +176,11 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
 		
 		val ruleMap = result.behaviourMapping.mappings.get(0)
-		#[0, 1].forEach[i | 
-			assertNotNull ("Did not find source object " + i, (ruleMap.element_mappings.get(i) as ObjectMapping).source.name)
-			assertNotNull ("Did not find target object " + i, (ruleMap.element_mappings.get(i) as ObjectMapping).target.name)
-		]
-		assertNotNull ("Did not find source link", (ruleMap.element_mappings.get(2) as LinkMapping).source.name)
-		assertNotNull ("Did not find target link", (ruleMap.element_mappings.get(2) as LinkMapping).target.name)
+		assertNotNull ("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+		assertNotNull ("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNotNull ("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+		assertNotNull ("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
 	}
 	
 	/**
