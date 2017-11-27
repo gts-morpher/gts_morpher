@@ -295,6 +295,8 @@ class XDsmlComposeParsingAndValidationTests {
 							link [in_queue->input:elts] => [tray->in_part:parts]
 							link [in_queue->input:elts] => [conveyor->out_part:parts]
 						}
+						rule devsmmRules.process to serverRules.process {
+						}
 					}
 				}
 			''',
@@ -306,6 +308,8 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		result.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
 		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference Out.")
+				
+		result.behaviourMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.DUPLICATE_RULE_MAPPING, "Duplicate mapping for Rule devsmmRules.process.")
 		
 		val ruleMapping = result.behaviourMapping.mappings.get(0)
 		ruleMapping.element_mappings.get(1).assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, XDsmlComposeValidator.DUPLICATE_OBJECT_MAPPING, "Duplicate mapping for Object input.")
