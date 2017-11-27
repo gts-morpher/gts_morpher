@@ -81,7 +81,8 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 		if (objects == null) {
 			objects = new DelegatingTranslatingEcoreEList<uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object, org.eclipse.emf.henshin.model.Node>(
 					this, Behaviour_adaptationPackage.PATTERN__OBJECTS,
-					((org.eclipse.emf.henshin.model.Graph) wrappedElement).getNodes(), (node) -> {
+					safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Graph) wrappedElement).getNodes(); }),
+					(node) -> {
 						return EObjectTranslator.INSTANCE.createObjectFor(node);
 					});
 		}
@@ -97,7 +98,8 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 		if (links == null) {
 			links = new DelegatingTranslatingEcoreEList<Link, org.eclipse.emf.henshin.model.Edge>(this,
 					Behaviour_adaptationPackage.PATTERN__LINKS,
-					((org.eclipse.emf.henshin.model.Graph) wrappedElement).getEdges(), (edge) -> {
+					safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Graph) wrappedElement).getEdges(); }),
+					(edge) -> {
 						return EObjectTranslator.INSTANCE.createLinkFor(edge);
 					});
 		}
@@ -107,7 +109,7 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @generated
+	 * @not-generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
@@ -123,7 +125,7 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @generated
+	 * @not-generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
@@ -139,7 +141,7 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @generated
+	 * @not-generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -161,7 +163,7 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @generated
+	 * @not-generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
@@ -179,27 +181,27 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @generated
+	 * @not-generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 		case Behaviour_adaptationPackage.PATTERN__OBJECTS:
-			return objects != null && !objects.isEmpty();
+			return getObjects() != null && !getObjects().isEmpty();
 		case Behaviour_adaptationPackage.PATTERN__LINKS:
-			return links != null && !links.isEmpty();
+			return getLinks() != null && !getLinks().isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
 
 	@Override
 	public String getName() {
-		return ((Graph) wrappedElement).getName();
+		return safeWrappeeAccess((wrappedElement) -> { return ((Graph) wrappedElement).getName(); });
 	}
 
 	@Override
 	protected void internalSetName(String newname) {
-		((Graph) wrappedElement).setName(newname);
+		safeWrappeeAccess((wrappedElement) -> { ((Graph) wrappedElement).setName(newname); });
 	}
 
 } // PatternImpl

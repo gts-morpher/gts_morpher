@@ -2,12 +2,12 @@ package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.xtextsupport
 
 import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.henshin.model.NamedElement
-import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.util.IResourceScopeCache
 import org.eclipse.xtext.util.Tuples
+
+import static extension uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.HenshinNameAdapter.*
 
 class BehaviourAdaptationQualifiedNameProvider extends IQualifiedNameProvider.AbstractImpl {
 	
@@ -37,9 +37,5 @@ class BehaviourAdaptationQualifiedNameProvider extends IQualifiedNameProvider.Ab
 				
 			}
 		])
-	}
-	
-	private dispatch def name(EObject eo) { null }
-	private dispatch def name(NamedElement ne) { ne.name }
-	private dispatch def name(Edge e) { '''[«e.source.name»->«e.target.name»:«e.type.name»]'''.toString }
+	}	
 }

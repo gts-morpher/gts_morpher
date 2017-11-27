@@ -80,7 +80,8 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 		if (subModules == null) {
 			subModules = new DelegatingTranslatingEcoreEList<Module, org.eclipse.emf.henshin.model.Module>(this,
 					Behaviour_adaptationPackage.MODULE__SUB_MODULES,
-					((org.eclipse.emf.henshin.model.Module) wrappedElement).getSubModules(), (henshinModule) -> {
+					safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getSubModules(); }),
+					(henshinModule) -> {
 						return EObjectTranslator.INSTANCE.createModuleFor(henshinModule);
 					});
 		}
@@ -96,7 +97,8 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 		if (rules == null) {
 			rules = new DelegatingTranslatingEcoreEList<Rule, org.eclipse.emf.henshin.model.Unit>(this,
 					Behaviour_adaptationPackage.MODULE__RULES,
-					((org.eclipse.emf.henshin.model.Module) wrappedElement).getUnits(), (unit) -> {
+					safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getUnits(); }),
+					(unit) -> {
 						if (unit instanceof org.eclipse.emf.henshin.model.Rule) {
 							return EObjectTranslator.INSTANCE.createRuleFor(unit);
 						} else {
@@ -196,12 +198,12 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 
 	@Override
 	public String getName() {
-		return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getName();
+		return safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getName(); });
 	}
 
 	@Override
 	protected void internalSetName(String newname) {
-		((org.eclipse.emf.henshin.model.Module) wrappedElement).setName(newname);
+		safeWrappeeAccess((wrappedElement) -> { ((org.eclipse.emf.henshin.model.Module) wrappedElement).setName(newname); });
 	}
 
 } // ModuleImpl

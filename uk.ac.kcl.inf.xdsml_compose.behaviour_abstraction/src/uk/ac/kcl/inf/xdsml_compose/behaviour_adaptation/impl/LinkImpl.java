@@ -17,6 +17,8 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPack
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Link;
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
 
+import static uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.HenshinNameAdapter.*;
+
 /**
  * <!-- begin-user-doc --> An implementation of the model object
  * '<em><b>Link</b></em>'. <!-- end-user-doc -->
@@ -64,7 +66,7 @@ public class LinkImpl extends NamedElementImpl implements Link {
 	 * @not-generated
 	 */
 	public EObject getType() {
-		return ((Edge) wrappedElement).getType();
+		return safeWrappeeAccess((wrappedElement) -> { return ((Edge) wrappedElement).getType(); });
 	}
 
 	/**
@@ -73,7 +75,7 @@ public class LinkImpl extends NamedElementImpl implements Link {
 	 * @not-generated
 	 */
 	public EObject basicGetType() {
-		return ((EdgeImpl) wrappedElement).basicGetType();
+		return safeWrappeeAccess((wrappedElement) -> { return ((EdgeImpl) wrappedElement).basicGetType(); });
 	}
 
 	/**
@@ -83,7 +85,7 @@ public class LinkImpl extends NamedElementImpl implements Link {
 	 */
 	public void setType(EObject newType) {
 		EObject oldType = getType();
-		((Edge) wrappedElement).setType((EReference) newType);
+		safeWrappeeAccess((wrappedElement) -> { ((Edge) wrappedElement).setType((EReference) newType); });
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.LINK__TYPE, oldType,
 					newType));
@@ -96,7 +98,7 @@ public class LinkImpl extends NamedElementImpl implements Link {
 	 */
 	public uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object getSource() {
 		if (source == null) {
-			source = EObjectTranslator.INSTANCE.createObjectFor(((Edge) wrappedElement).getSource());
+			source = safeWrappeeAccess((wrappedElement) -> { return EObjectTranslator.INSTANCE.createObjectFor(((Edge) wrappedElement).getSource()); });
 		}
 		return source;
 	}
@@ -107,7 +109,7 @@ public class LinkImpl extends NamedElementImpl implements Link {
 	 * @not-generated
 	 */
 	public uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object basicGetSource() {
-		Node n = ((EdgeImpl) wrappedElement).basicGetSource();
+		Node n = safeWrappeeAccess((wrappedElement) -> { return ((EdgeImpl) wrappedElement).basicGetSource(); });
 		if (n != null) {
 			return EObjectTranslator.INSTANCE.createObjectFor(n);
 		} else {
@@ -125,7 +127,8 @@ public class LinkImpl extends NamedElementImpl implements Link {
 		uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object oldSource = source;
 
 		source = newSource;
-		((EdgeImpl) wrappedElement).basicSetSource(((Node) ((ObjectImpl) newSource).wrappedElement), msgs);
+		final NotificationChain msgs2 = msgs;
+		msgs = safeWrappeeAccess((wrappedElement) -> { return ((EdgeImpl) wrappedElement).basicSetSource((Node) ((ObjectImpl) newSource).safeWrappeeAccess((wrappedElement2) -> { return wrappedElement2; }), msgs2); });
 
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET,
@@ -167,7 +170,7 @@ public class LinkImpl extends NamedElementImpl implements Link {
 	 */
 	public uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object getTarget() {
 		if (target == null) {
-			target = EObjectTranslator.INSTANCE.createObjectFor(((Edge) wrappedElement).getTarget());
+			target = safeWrappeeAccess((wrappedElement) -> { return EObjectTranslator.INSTANCE.createObjectFor(((Edge) wrappedElement).getTarget()); });
 		}
 		return target;
 	}
@@ -178,7 +181,7 @@ public class LinkImpl extends NamedElementImpl implements Link {
 	 * @not-generated
 	 */
 	public uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object basicGetTarget() {
-		Node n = ((EdgeImpl) wrappedElement).basicGetTarget();
+		Node n = safeWrappeeAccess((wrappedElement) -> { return ((EdgeImpl) wrappedElement).basicGetTarget(); });
 		if (n != null) {
 			return EObjectTranslator.INSTANCE.createObjectFor(n);
 		} else {
@@ -196,7 +199,8 @@ public class LinkImpl extends NamedElementImpl implements Link {
 		uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object oldTarget = target;
 
 		target = newTarget;
-		((EdgeImpl) wrappedElement).basicSetTarget((Node) ((ObjectImpl) newTarget).wrappedElement, msgs);
+		final NotificationChain msgs2 = msgs;
+		msgs = safeWrappeeAccess((wrappedElement) -> { return ((EdgeImpl) wrappedElement).basicSetTarget((Node) ((ObjectImpl) newTarget).safeWrappeeAccess((wrappedElement2) -> { return wrappedElement2; }), msgs2); });
 
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET,
@@ -355,7 +359,9 @@ public class LinkImpl extends NamedElementImpl implements Link {
 
 	@Override
 	public String getName() {
-		return ((Edge) wrappedElement).getIndex() + ":" + ((EReference) getType()).getName();
+		return safeWrappeeAccess((wrappedElement) -> { 
+			return name((Edge) wrappedElement);
+		});
 	}
 
 	@Override

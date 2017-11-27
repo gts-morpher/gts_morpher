@@ -84,7 +84,7 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 	 * @not-generated
 	 */
 	public EClass getType() {
-		return ((Node) wrappedElement).getType();
+		return safeWrappeeAccess((wrappedElement) -> { return ((Node) wrappedElement).getType(); });
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 	 * @not-generated
 	 */
 	public EClass basicGetType() {
-		return ((NodeImpl) wrappedElement).basicGetType();
+		return safeWrappeeAccess((wrappedElement) -> { return ((NodeImpl) wrappedElement).basicGetType(); });
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 	 */
 	public void setType(EClass newType) {
 		EClass oldType = getType();
-		((Node) wrappedElement).setType(newType);
+		safeWrappeeAccess((wrappedElement) -> { ((Node) wrappedElement).setType(newType); });
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.OBJECT__TYPE, oldType,
 					newType));
@@ -120,7 +120,9 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 			// to the correct Link instance such that forward and backward references are
 			// via the same objects
 			outgoing = new DelegatingTranslatingEcoreEList<Link, Edge>(this,
-					Behaviour_adaptationPackage.OBJECT__OUTGOING, ((Node) wrappedElement).getOutgoing(), (edge) -> {
+					Behaviour_adaptationPackage.OBJECT__OUTGOING, 
+					safeWrappeeAccess((wrappedElement) -> { return ((Node) wrappedElement).getOutgoing(); }),
+					(edge) -> {
 						return EObjectTranslator.INSTANCE.createLinkFor(edge);
 					});
 		}
@@ -138,7 +140,9 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 			// to the correct Link instance such that forward and backward references are
 			// via the same objects
 			incoming = new DelegatingTranslatingEcoreEList<Link, Edge>(this,
-					Behaviour_adaptationPackage.OBJECT__INCOMING, ((Node) wrappedElement).getIncoming(), (edge) -> {
+					Behaviour_adaptationPackage.OBJECT__INCOMING, 
+					safeWrappeeAccess((wrappedElement) -> { return ((Node) wrappedElement).getIncoming(); }),
+					(edge) -> {
 						return EObjectTranslator.INSTANCE.createLinkFor(edge);
 					});
 		}
@@ -263,12 +267,12 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 
 	@Override
 	public String getName() {
-		return ((Node) wrappedElement).getName();
+		return safeWrappeeAccess((wrappedElement) -> { return ((Node) wrappedElement).getName(); });
 	}
 
 	@Override
 	protected void internalSetName(String newname) {
-		((Node) wrappedElement).setName(newname);
+		safeWrappeeAccess((wrappedElement) -> { ((Node) wrappedElement).setName(newname); });
 	}
 
 } // ObjectImpl

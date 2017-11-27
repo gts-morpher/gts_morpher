@@ -76,8 +76,10 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 	 */
 	public Pattern getLhs() {
 		if (lhs == null) {
-			lhs = EObjectTranslator.INSTANCE
-					.createPatternFor(((org.eclipse.emf.henshin.model.Rule) wrappedElement).getLhs());
+			lhs = safeWrappeeAccess((wrappedElement) -> {
+				return EObjectTranslator.INSTANCE
+						.createPatternFor(((org.eclipse.emf.henshin.model.Rule) wrappedElement).getLhs());
+			});
 		}
 		return lhs;
 	}
@@ -90,8 +92,12 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 	public NotificationChain basicSetLhs(Pattern newLhs, NotificationChain msgs) {
 		Pattern oldLhs = lhs;
 
-		((org.eclipse.emf.henshin.model.Rule) wrappedElement)
-				.setLhs((newLhs != null) ? (Graph) ((PatternImpl) newLhs).wrappedElement : null);
+		safeWrappeeAccess((wrappedElement) -> {
+			((org.eclipse.emf.henshin.model.Rule) wrappedElement)
+					.setLhs((newLhs != null) ? (Graph) ((PatternImpl) newLhs).safeWrappeeAccess((wrappedElement2) -> {
+						return wrappedElement2;
+					}) : null);
+		});
 		lhs = newLhs;
 
 		if (eNotificationRequired()) {
@@ -134,8 +140,10 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 	 */
 	public Pattern getRhs() {
 		if (rhs == null) {
-			rhs = EObjectTranslator.INSTANCE
-					.createPatternFor(((org.eclipse.emf.henshin.model.Rule) wrappedElement).getRhs());
+			rhs = safeWrappeeAccess((wrappedElement) -> {
+				return EObjectTranslator.INSTANCE
+						.createPatternFor(((org.eclipse.emf.henshin.model.Rule) wrappedElement).getRhs());
+			});
 		}
 		return rhs;
 	}
@@ -148,8 +156,12 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 	public NotificationChain basicSetRhs(Pattern newRhs, NotificationChain msgs) {
 		Pattern oldRhs = rhs;
 
-		((org.eclipse.emf.henshin.model.Rule) wrappedElement)
-				.setRhs((newRhs != null) ? (Graph) ((PatternImpl) newRhs).wrappedElement : null);
+		safeWrappeeAccess((wrappedElement) -> {
+			((org.eclipse.emf.henshin.model.Rule) wrappedElement)
+					.setRhs((newRhs != null) ? (Graph) ((PatternImpl) newRhs).safeWrappeeAccess((wrappedElement2) -> {
+						return wrappedElement2;
+					}) : null);
+		});
 		rhs = newRhs;
 
 		if (eNotificationRequired()) {
@@ -271,12 +283,16 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 
 	@Override
 	public String getName() {
-		return ((org.eclipse.emf.henshin.model.Rule) wrappedElement).getName();
+		return safeWrappeeAccess((wrappedElement) -> {
+			return ((org.eclipse.emf.henshin.model.Rule) wrappedElement).getName();
+		});
 	}
 
 	@Override
 	protected void internalSetName(String newname) {
-		((org.eclipse.emf.henshin.model.Rule) wrappedElement).setName(newname);
+		safeWrappeeAccess((wrappedElement) -> {
+			((org.eclipse.emf.henshin.model.Rule) wrappedElement).setName(newname);
+		});
 	}
 
 } // RuleImpl
