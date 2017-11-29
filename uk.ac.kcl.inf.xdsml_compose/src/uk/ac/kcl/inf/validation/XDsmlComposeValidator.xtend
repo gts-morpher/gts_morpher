@@ -31,6 +31,8 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 /**
  * This class contains custom validation rules. 
@@ -55,6 +57,21 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	@Check
 	def checkMapsUniqueSources(TypeGraphMapping mapping) {
 		mapping.extractMapping
+	}
+
+	/**
+	 * Check that no rule is mapped more than once in the given mapping.
+	 */
+	@Check
+	def checkMapsUniqueRules(BehaviourMapping mapping) {
+		val ruleSet = new HashSet<Rule>
+
+		mapping.mappings.forEach [ rm |
+			if (!ruleSet.add(rm.target)) {
+				error("Duplicate mapping for Rule " + rm.target.name + ".", rm,
+					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
+			}
+		]
 	}
 
 	/**
@@ -111,96 +128,99 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 							warning(
 								"Uniqueness of mapping has not been checked. Please run explicit validation from editor context menu to check this.",
 								mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION,
-								UNIQUE_COMPLETION_NOT_CHECKED)							
+								UNIQUE_COMPLETION_NOT_CHECKED)
+							}
 						}
 					}
-				}
-			} else {
-				warning("Type morphism is already complete", mapping,
-					XDsmlComposePackage.Literals.GTS_MAPPING__AUTO_COMPLETE)
-			}
-		}
-	}
-
-	/**
-	 * Check that we can uniquely auto-complete, if requested to do so
-	 */
-	@Check(EXPENSIVE)
-	def checkCanUniqleyAutoCompleteMapping(GTSMapping mapping) {
-		if (mapping.autoComplete && mapping.uniqueCompletion) {
-			// Check we can auto-complete type mapping
-			val typeMapping = mapping.typeMapping
-			val _mapping = typeMapping.extractMapping
-			if (typeMapping.isInCompleteMapping && checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-				val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.source.metamodel,
-					mapping.target.metamodel)
-
-				if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
-					(morphismCompleter.completedMappings.size > 1)) {
-					// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
-					val sortedImprovements = morphismCompleter.findImprovementOptions
-
-					error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
-						mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
-						sortedImprovements.map [ e |
-							e.value.map[eo|e.key.issueData(eo).toString]
-						].flatten)
+				} else {
+					warning("Type morphism is already complete", mapping,
+						XDsmlComposePackage.Literals.GTS_MAPPING__AUTO_COMPLETE)
 				}
 			}
 		}
-	}
 
-	private def findImprovementOptions(TypeMorphismCompleter morphismCompleter) {
-		// Sort all newly mapped elements by number of potential mappings, descending
-		// and remove those elements with only one mapping
-		morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [ _acc, mp |
-			mp.entrySet.fold(_acc, [ acc, e |
-				if (!acc.containsKey(e.key)) {
-					acc.put(e.key, new HashSet<EObject>)
+		/**
+		 * Check that we can uniquely auto-complete, if requested to do so
+		 */
+		@Check(EXPENSIVE)
+		def checkCanUniqleyAutoCompleteMapping(GTSMapping mapping) {
+			if (mapping.autoComplete && mapping.uniqueCompletion) {
+				// Check we can auto-complete type mapping
+				val typeMapping = mapping.typeMapping
+				val _mapping = typeMapping.extractMapping
+				if (typeMapping.isInCompleteMapping && checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
+					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.source.metamodel,
+						mapping.target.metamodel)
+
+					if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
+						(morphismCompleter.completedMappings.size > 1)) {
+						// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
+						val sortedImprovements = morphismCompleter.findImprovementOptions
+
+						error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
+							mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
+							sortedImprovements.map [ e |
+								e.value.map[eo|e.key.issueData(eo).toString]
+							].flatten)
+					}
 				}
-				acc.get(e.key).add(e.value)
-
-				acc
-			])
-		]).entrySet.filter[e|e.value.size > 1].sortWith[e1, e2|-(e1.value.size <=> e2.value.size)]
-	}
-
-	private def mapMessage(Entry<EObject, Set<EObject>> mappingChoices) 
-		'''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''
-
-	private def issueData(EObject source, EObject target) 
-		'''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
-
-	private static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
-
-	/**
-	 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 
-	 * otherwise. Expects to be called in a validation context.
-	 */
-	private def extractMapping(TypeGraphMapping mapping) {
-		if (context.containsKey(TYPE_MAPPINGS)) {
-			return context.get(TYPE_MAPPINGS) as Map<EObject, EObject>
+			}
 		}
 
-		val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
-			override error(String message, EObject source, EStructuralFeature feature, String code,
-				String... issueData) {
-				XDsmlComposeValidator.this.error(message, source, feature, code, issueData)
+		private def findImprovementOptions(TypeMorphismCompleter morphismCompleter) {
+			// Sort all newly mapped elements by number of potential mappings, descending
+			// and remove those elements with only one mapping
+			morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [ _acc, mp |
+				mp.entrySet.fold(_acc, [ acc, e |
+					if (!acc.containsKey(e.key)) {
+						acc.put(e.key, new HashSet<EObject>)
+					}
+					acc.get(e.key).add(e.value)
+
+					acc
+				])
+			]).entrySet.filter[e|e.value.size > 1].sortWith[e1, e2|-(e1.value.size <=> e2.value.size)]
+		}
+
+		private def mapMessage(
+			Entry<EObject, Set<EObject>> mappingChoices) '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''
+
+		private def issueData(EObject source,
+			EObject target) '''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
+
+		private static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
+
+		/**
+		 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 
+		 * otherwise. Expects to be called in a validation context.
+		 */
+		private def extractMapping(TypeGraphMapping mapping) {
+			if (context.containsKey(TYPE_MAPPINGS)) {
+				return context.get(TYPE_MAPPINGS) as Map<EObject, EObject>
 			}
-		})
 
-		context.put(TYPE_MAPPINGS, _mapping)
+			val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
+				override error(String message, EObject source, EStructuralFeature feature, String code,
+					String... issueData) {
+					XDsmlComposeValidator.this.error(message, source, feature, code, issueData)
+				}
+			})
 
-		_mapping
+			context.put(TYPE_MAPPINGS, _mapping)
+
+			_mapping
+		}
+
+		/**
+		 * Return true if the given mapping is incomplete
+		 */
+		private def isInCompleteMapping(TypeGraphMapping mapping) {
+			val _mapping = mapping.extractMapping;
+			(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter [me|
+				me instanceof EClassifier || me instanceof EReference
+			].exists [ me |
+				!_mapping.containsKey(me)
+			]
+		}
 	}
-
-	/**
-	 * Return true if the given mapping is incomplete
-	 */
-	private def isInCompleteMapping(TypeGraphMapping mapping) {
-		val _mapping = mapping.extractMapping;
-		(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter[me|me instanceof EClassifier || me instanceof EReference].exists [ me |
-			!_mapping.containsKey(me)
-		]
-	}
-}
+	
