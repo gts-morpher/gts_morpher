@@ -21,8 +21,11 @@ import uk.ac.kcl.inf.util.BasicMappingChecker
 import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
 import uk.ac.kcl.inf.util.TypeMorphismChecker.Issue
 import uk.ac.kcl.inf.util.TypeMorphismCompleter
+import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
+import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
@@ -31,8 +34,6 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 /**
  * This class contains custom validation rules. 
@@ -72,6 +73,23 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
 			} else {
 				behaviourMapping.put(rm.target, rm.source)
+
+				rm.element_mappings.filter(ObjectMapping).forEach [ em |
+					if (behaviourMapping.containsKey(em.source)) {
+						error("Duplicate mapping for Object " + em.source.name + ".", em,
+							XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, DUPLICATE_OBJECT_MAPPING)
+					} else {
+						behaviourMapping.put (em.source, em.target)
+					}
+				]
+				rm.element_mappings.filter(LinkMapping).forEach [ em |
+					if (behaviourMapping.containsKey(em.source)) {
+						error("Duplicate mapping for Link " + em.source.name + ".", em,
+							XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, DUPLICATE_LINK_MAPPING)
+					} else {
+						behaviourMapping.put (em.source, em.target)
+					}
+				]
 			}
 		]
 	}
@@ -218,7 +236,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		 */
 		private def isInCompleteMapping(TypeGraphMapping mapping) {
 			val _mapping = mapping.extractMapping;
-			(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter [me|
+			(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter [ me |
 				me instanceof EClassifier || me instanceof EReference
 			].exists [ me |
 				!_mapping.containsKey(me)

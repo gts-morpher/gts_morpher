@@ -318,7 +318,7 @@ class XDsmlComposeParsingAndValidationTests {
 
 		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		
-		assertTrue(issues.length == 5)
+		assertTrue(issues.length == 6)
 	} 
 	
 	/**
