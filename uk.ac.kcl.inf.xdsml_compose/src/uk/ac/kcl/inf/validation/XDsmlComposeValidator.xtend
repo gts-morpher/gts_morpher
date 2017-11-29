@@ -64,12 +64,14 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkMapsUniqueRules(BehaviourMapping mapping) {
-		val ruleSet = new HashSet<Rule>
+		val behaviourMapping = new HashMap<EObject, EObject>
 
 		mapping.mappings.forEach [ rm |
-			if (!ruleSet.add(rm.target)) {
+			if (behaviourMapping.containsKey(rm.target)) {
 				error("Duplicate mapping for Rule " + rm.target.name + ".", rm,
 					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
+			} else {
+				behaviourMapping.put(rm.target, rm.source)
 			}
 		]
 	}
