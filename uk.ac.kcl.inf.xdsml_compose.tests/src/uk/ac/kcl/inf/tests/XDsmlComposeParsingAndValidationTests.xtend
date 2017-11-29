@@ -241,6 +241,9 @@ class XDsmlComposeParsingAndValidationTests {
 							object in_part => input
 							link [tray->in_part:parts] => [in_queue->input:elts]
 						}
+						rule serverRules.process to devsmmRules.process {
+							object in_part => input
+						}
 					}
 				}
 			''',
@@ -259,8 +262,10 @@ class XDsmlComposeParsingAndValidationTests {
 
 		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+		
+		result.assertError(XDsmlComposePackage.Literals.RULE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 
-		assertTrue(issues.length == 9)
+		assertTrue(issues.length == 11)
 	}
 	
 	/**

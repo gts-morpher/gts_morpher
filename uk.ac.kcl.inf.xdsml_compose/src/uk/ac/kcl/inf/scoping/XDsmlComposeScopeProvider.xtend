@@ -13,12 +13,14 @@ import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 import org.eclipse.xtext.scoping.impl.FilteringScope
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPackage
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 import static org.eclipse.xtext.scoping.Scopes.*
 
@@ -31,68 +33,86 @@ import static org.eclipse.xtext.scoping.Scopes.*
 class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 
 	def IScope scope_ClassMapping_source(ClassMapping context, EReference ref) {
-		new FilteringScope(
-			sourceScope(context.eContainer as TypeGraphMapping), 
-			[ eod | EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(eod.EClass)])
+		new FilteringScope(sourceScope(context.eContainer as TypeGraphMapping), [ eod |
+			EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(eod.EClass)
+		])
 	}
 
 	def IScope scope_ClassMapping_target(ClassMapping context, EReference ref) {
-		new FilteringScope(
-			targetScope(context.eContainer as TypeGraphMapping), 
-			[ eod | EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(eod.EClass)])
+		new FilteringScope(targetScope(context.eContainer as TypeGraphMapping), [ eod |
+			EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(eod.EClass)
+		])
 	}
-	
+
 	def IScope scope_ReferenceMapping_source(ReferenceMapping context, EReference ref) {
-		new FilteringScope(
-			sourceScope(context.eContainer as TypeGraphMapping), 
-			[ eod | eod.EClass == EcorePackage.Literals.EREFERENCE])
+		new FilteringScope(sourceScope(context.eContainer as TypeGraphMapping), [ eod |
+			eod.EClass == EcorePackage.Literals.EREFERENCE
+		])
 	}
 
 	def IScope scope_ReferenceMapping_target(ReferenceMapping context, EReference ref) {
-		new FilteringScope(
-			targetScope(context.eContainer as TypeGraphMapping), 
-			[ eod | eod.EClass == EcorePackage.Literals.EREFERENCE])
+		new FilteringScope(targetScope(context.eContainer as TypeGraphMapping), [ eod |
+			eod.EClass == EcorePackage.Literals.EREFERENCE
+		])
 	}
 
-	private def IScope sourceScope (TypeGraphMapping tgm) {
-		scopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+	private def IScope sourceScope(TypeGraphMapping tgm) {
+		scopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents],
+			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 
-	private def IScope targetScope (TypeGraphMapping tgm) {
-		scopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+	private def IScope targetScope(TypeGraphMapping tgm) {
+		scopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents],
+			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
-	
-	def IScope scope_ObjectMapping_source (ObjectMapping context, EReference ref) {
+
+	def IScope scope_RuleMapping_source(RuleMapping context, EReference ref) {
+		rm_scope((context.eContainer.eContainer as GTSMapping).source)
+	}
+
+	def IScope scope_RuleMapping_target(RuleMapping context, EReference ref) {
+		rm_scope((context.eContainer.eContainer as GTSMapping).target)
+	}
+
+	private def rm_scope(GTSSpecification gts) {
+		scopeFor([
+			gts.behaviour.eAllContents.filter[eo|
+				eo instanceof Rule
+			]
+		], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+	}
+
+	def IScope scope_ObjectMapping_source(ObjectMapping context, EReference ref) {
 		new FilteringScope(
 			sourceScope(context.eContainer as RuleMapping),
-			[eod | eod.EClass == Behaviour_adaptationPackage.Literals.OBJECT]
+			[eod|eod.EClass == Behaviour_adaptationPackage.Literals.OBJECT]
 		)
 	}
-	
-	def IScope scope_ObjectMapping_target (ObjectMapping context, EReference ref) {
+
+	def IScope scope_ObjectMapping_target(ObjectMapping context, EReference ref) {
 		new FilteringScope(
 			targetScope(context.eContainer as RuleMapping),
-			[eod | eod.EClass == Behaviour_adaptationPackage.Literals.OBJECT]
+			[eod|eod.EClass == Behaviour_adaptationPackage.Literals.OBJECT]
 		)
 	}
-	
-	def IScope scope_LinkMapping_source (LinkMapping context, EReference ref) {
+
+	def IScope scope_LinkMapping_source(LinkMapping context, EReference ref) {
 		new FilteringScope(
 			sourceScope(context.eContainer as RuleMapping),
-			[eod | eod.EClass == Behaviour_adaptationPackage.Literals.LINK]
+			[eod|eod.EClass == Behaviour_adaptationPackage.Literals.LINK]
 		)
 	}
-	
-	def IScope scope_LinkMapping_target (LinkMapping context, EReference ref) {
+
+	def IScope scope_LinkMapping_target(LinkMapping context, EReference ref) {
 		new FilteringScope(
 			targetScope(context.eContainer as RuleMapping),
-			[eod | eod.EClass == Behaviour_adaptationPackage.Literals.LINK]
+			[eod|eod.EClass == Behaviour_adaptationPackage.Literals.LINK]
 		)
 	}
 
 	@Inject
 	var SimpleNameProvider nameProvider;
-	
+
 	private def sourceScope(RuleMapping rm) {
 		// FIXME: This causes an exception down the line. I think the problem is that the scope contains Link objects, which don't have a name.
 		// Thus, the solution is to ensure Links are NamedElements and to move the naming rule from QualifiedNameProvider/the resource description strategy into the actual Link.

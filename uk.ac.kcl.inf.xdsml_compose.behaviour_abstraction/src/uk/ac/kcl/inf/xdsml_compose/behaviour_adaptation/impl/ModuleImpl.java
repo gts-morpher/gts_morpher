@@ -183,15 +183,15 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @generated
+	 * @not-generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-			return subModules != null && !subModules.isEmpty();
+			return getSubModules() != null && !getSubModules().isEmpty();
 		case Behaviour_adaptationPackage.MODULE__RULES:
-			return rules != null && !rules.isEmpty();
+			return getRules() != null && !getRules().isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
