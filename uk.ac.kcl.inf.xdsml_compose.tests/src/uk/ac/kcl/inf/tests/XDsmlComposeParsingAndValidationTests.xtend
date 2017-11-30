@@ -295,8 +295,11 @@ class XDsmlComposeParsingAndValidationTests {
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there is an invalid GTS specification
+		val issues = result.validate()
+		
 		result.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
-		result.target.assertNoError(XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
+		
+		assertTrue("Also failed check on target GTS", issues.length == 2) // There's also an incomplete mapping warning
 	} 
 
 	/**
