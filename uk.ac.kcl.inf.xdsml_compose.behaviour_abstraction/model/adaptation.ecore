@@ -10,6 +10,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Module" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="typeModel" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="subModules" upperBound="-1"
         eType="#//Module" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="rules" upperBound="-1"
@@ -28,7 +29,7 @@
         eType="#//Link" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Object" eSuperTypes="#//NamedElement">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EClass ../../org.eclipse.emf.ecore/model/Ecore.ecore#//EClass"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EClass"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="outgoing" upperBound="-1"
         eType="#//Link" eOpposite="#//Link/source"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="incoming" upperBound="-1"

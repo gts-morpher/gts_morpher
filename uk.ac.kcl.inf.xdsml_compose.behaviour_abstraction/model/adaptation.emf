@@ -15,6 +15,7 @@ abstract class NamedElement extends WrappingElement {
 }
 
 class Module extends NamedElement {
+	ref ecore.EPackage typeModel;
 	val Module[*] subModules;
 	val Rule[*] rules;
 }
