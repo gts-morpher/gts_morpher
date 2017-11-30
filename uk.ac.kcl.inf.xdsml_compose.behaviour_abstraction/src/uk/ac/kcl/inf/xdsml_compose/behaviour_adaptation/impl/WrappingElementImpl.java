@@ -25,8 +25,7 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.IWrapperFactory;
  * The following features are implemented:
  * </p>
  * <ul>
- * <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.WrappingElementImpl#getWrappedElement
- * <em>Wrapped Element</em>}</li>
+ *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.WrappingElementImpl#getWrappedElement <em>Wrapped Element</em>}</li>
  * </ul>
  *
  * @generated
@@ -44,7 +43,6 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected WrappingElementImpl() {
@@ -53,7 +51,6 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
@@ -63,18 +60,15 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public EObject getWrappedElement() {
 		if (wrappedElement != null && wrappedElement.eIsProxy()) {
-			InternalEObject oldWrappedElement = (InternalEObject) wrappedElement;
+			InternalEObject oldWrappedElement = (InternalEObject)wrappedElement;
 			wrappedElement = eResolveProxy(oldWrappedElement);
 			if (wrappedElement != oldWrappedElement) {
 				if (eNotificationRequired())
-					eNotify(new ENotificationImpl(this, Notification.RESOLVE,
-							Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT, oldWrappedElement,
-							wrappedElement));
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT, oldWrappedElement, wrappedElement));
 			}
 		}
 		return wrappedElement;
@@ -82,7 +76,6 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public EObject basicGetWrappedElement() {
@@ -91,15 +84,13 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setWrappedElement(EObject newWrappedElement) {
 		EObject oldWrappedElement = wrappedElement;
 		wrappedElement = newWrappedElement;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET,
-					Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT, oldWrappedElement, wrappedElement));
+			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT, oldWrappedElement, wrappedElement));
 	}
 
 	/**
@@ -151,60 +142,55 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
-			if (resolve)
-				return getWrappedElement();
-			return basicGetWrappedElement();
+			case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
+				if (resolve) return getWrappedElement();
+				return basicGetWrappedElement();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
-			setWrappedElement((EObject) newValue);
-			return;
+			case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
+				setWrappedElement((EObject)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
-			setWrappedElement((EObject) null);
-			return;
+			case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
+				setWrappedElement((EObject)null);
+				return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
-			return wrappedElement != null;
+			case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
+				return wrappedElement != null;
 		}
 		return super.eIsSet(featureID);
 	}

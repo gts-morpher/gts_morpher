@@ -40,9 +40,8 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
 public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object {
 
 	/**
-	 * The cached value of the '{@link #getOutgoing() <em>Outgoing</em>}' reference
-	 * list. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getOutgoing() <em>Outgoing</em>}' reference list.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getOutgoing()
 	 * @generated
 	 * @ordered
@@ -50,9 +49,8 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 	protected EList<Link> outgoing;
 
 	/**
-	 * The cached value of the '{@link #getIncoming() <em>Incoming</em>}' reference
-	 * list. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getIncoming() <em>Incoming</em>}' reference list.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getIncoming()
 	 * @generated
 	 * @ordered
@@ -61,7 +59,6 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected ObjectImpl() {
@@ -70,7 +67,6 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
@@ -151,98 +147,92 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-			return ((InternalEList<InternalEObject>) (InternalEList<?>) getOutgoing()).basicAdd(otherEnd, msgs);
-		case Behaviour_adaptationPackage.OBJECT__INCOMING:
-			return ((InternalEList<InternalEObject>) (InternalEList<?>) getIncoming()).basicAdd(otherEnd, msgs);
+			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getOutgoing()).basicAdd(otherEnd, msgs);
+			case Behaviour_adaptationPackage.OBJECT__INCOMING:
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getIncoming()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-			return ((InternalEList<?>) getOutgoing()).basicRemove(otherEnd, msgs);
-		case Behaviour_adaptationPackage.OBJECT__INCOMING:
-			return ((InternalEList<?>) getIncoming()).basicRemove(otherEnd, msgs);
+			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+				return ((InternalEList<?>)getOutgoing()).basicRemove(otherEnd, msgs);
+			case Behaviour_adaptationPackage.OBJECT__INCOMING:
+				return ((InternalEList<?>)getIncoming()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.OBJECT__TYPE:
-			if (resolve)
-				return getType();
-			return basicGetType();
-		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-			return getOutgoing();
-		case Behaviour_adaptationPackage.OBJECT__INCOMING:
-			return getIncoming();
+			case Behaviour_adaptationPackage.OBJECT__TYPE:
+				if (resolve) return getType();
+				return basicGetType();
+			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+				return getOutgoing();
+			case Behaviour_adaptationPackage.OBJECT__INCOMING:
+				return getIncoming();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.OBJECT__TYPE:
-			setType((EClass) newValue);
-			return;
-		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-			getOutgoing().clear();
-			getOutgoing().addAll((Collection<? extends Link>) newValue);
-			return;
-		case Behaviour_adaptationPackage.OBJECT__INCOMING:
-			getIncoming().clear();
-			getIncoming().addAll((Collection<? extends Link>) newValue);
-			return;
+			case Behaviour_adaptationPackage.OBJECT__TYPE:
+				setType((EClass)newValue);
+				return;
+			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+				getOutgoing().clear();
+				getOutgoing().addAll((Collection<? extends Link>)newValue);
+				return;
+			case Behaviour_adaptationPackage.OBJECT__INCOMING:
+				getIncoming().clear();
+				getIncoming().addAll((Collection<? extends Link>)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.OBJECT__TYPE:
-			setType((EClass) null);
-			return;
-		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-			getOutgoing().clear();
-			return;
-		case Behaviour_adaptationPackage.OBJECT__INCOMING:
-			getIncoming().clear();
-			return;
+			case Behaviour_adaptationPackage.OBJECT__TYPE:
+				setType((EClass)null);
+				return;
+			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+				getOutgoing().clear();
+				return;
+			case Behaviour_adaptationPackage.OBJECT__INCOMING:
+				getIncoming().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}

@@ -4,10 +4,13 @@ package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl;
 
 import java.util.Collection;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPackage;
@@ -33,9 +36,18 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
  */
 public class ModuleImpl extends NamedElementImpl implements Module {
 	/**
-	 * The cached value of the '{@link #getSubModules() <em>Sub Modules</em>}'
-	 * containment reference list. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getTypeModel() <em>Type Model</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getTypeModel()
+	 * @generated
+	 * @ordered
+	 */
+	protected EPackage typeModel;
+
+	/**
+	 * The cached value of the '{@link #getSubModules() <em>Sub Modules</em>}' containment reference list.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getSubModules()
 	 * @generated
 	 * @ordered
@@ -43,9 +55,8 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	protected EList<Module> subModules;
 
 	/**
-	 * The cached value of the '{@link #getRules() <em>Rules</em>}' containment
-	 * reference list. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getRules() <em>Rules</em>}' containment reference list.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getRules()
 	 * @generated
 	 * @ordered
@@ -54,7 +65,6 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected ModuleImpl() {
@@ -63,12 +73,49 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	protected EClass eStaticClass() {
 		return Behaviour_adaptationPackage.Literals.MODULE;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EPackage getTypeModel() {
+		if (typeModel != null && typeModel.eIsProxy()) {
+			InternalEObject oldTypeModel = (InternalEObject)typeModel;
+			typeModel = (EPackage)eResolveProxy(oldTypeModel);
+			if (typeModel != oldTypeModel) {
+				if (eNotificationRequired())
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, Behaviour_adaptationPackage.MODULE__TYPE_MODEL, oldTypeModel, typeModel));
+			}
+		}
+		return typeModel;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EPackage basicGetTypeModel() {
+		return typeModel;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setTypeModel(EPackage newTypeModel) {
+		EPackage oldTypeModel = typeModel;
+		typeModel = newTypeModel;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.MODULE__TYPE_MODEL, oldTypeModel, typeModel));
 	}
 
 	/**
@@ -111,71 +158,76 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-			return ((InternalEList<?>) getSubModules()).basicRemove(otherEnd, msgs);
-		case Behaviour_adaptationPackage.MODULE__RULES:
-			return ((InternalEList<?>) getRules()).basicRemove(otherEnd, msgs);
+			case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
+				return ((InternalEList<?>)getSubModules()).basicRemove(otherEnd, msgs);
+			case Behaviour_adaptationPackage.MODULE__RULES:
+				return ((InternalEList<?>)getRules()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-			return getSubModules();
-		case Behaviour_adaptationPackage.MODULE__RULES:
-			return getRules();
+			case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
+				if (resolve) return getTypeModel();
+				return basicGetTypeModel();
+			case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
+				return getSubModules();
+			case Behaviour_adaptationPackage.MODULE__RULES:
+				return getRules();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-			getSubModules().clear();
-			getSubModules().addAll((Collection<? extends Module>) newValue);
-			return;
-		case Behaviour_adaptationPackage.MODULE__RULES:
-			getRules().clear();
-			getRules().addAll((Collection<? extends Rule>) newValue);
-			return;
+			case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
+				setTypeModel((EPackage)newValue);
+				return;
+			case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
+				getSubModules().clear();
+				getSubModules().addAll((Collection<? extends Module>)newValue);
+				return;
+			case Behaviour_adaptationPackage.MODULE__RULES:
+				getRules().clear();
+				getRules().addAll((Collection<? extends Rule>)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-			getSubModules().clear();
-			return;
-		case Behaviour_adaptationPackage.MODULE__RULES:
-			getRules().clear();
-			return;
+			case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
+				setTypeModel((EPackage)null);
+				return;
+			case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
+				getSubModules().clear();
+				return;
+			case Behaviour_adaptationPackage.MODULE__RULES:
+				getRules().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -188,6 +240,8 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
+		case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
+			return getTypeModel() != null;
 		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
 			return getSubModules() != null && !getSubModules().isEmpty();
 		case Behaviour_adaptationPackage.MODULE__RULES:

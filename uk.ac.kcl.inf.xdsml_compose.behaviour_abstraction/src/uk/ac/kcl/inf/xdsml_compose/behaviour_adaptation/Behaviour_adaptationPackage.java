@@ -168,13 +168,22 @@ public interface Behaviour_adaptationPackage extends EPackage {
 	int MODULE__NAME = NAMED_ELEMENT__NAME;
 
 	/**
+	 * The feature id for the '<em><b>Type Model</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MODULE__TYPE_MODEL = NAMED_ELEMENT_FEATURE_COUNT + 0;
+
+	/**
 	 * The feature id for the '<em><b>Sub Modules</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int MODULE__SUB_MODULES = NAMED_ELEMENT_FEATURE_COUNT + 0;
+	int MODULE__SUB_MODULES = NAMED_ELEMENT_FEATURE_COUNT + 1;
 
 	/**
 	 * The feature id for the '<em><b>Rules</b></em>' containment reference list.
@@ -183,7 +192,7 @@ public interface Behaviour_adaptationPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int MODULE__RULES = NAMED_ELEMENT_FEATURE_COUNT + 1;
+	int MODULE__RULES = NAMED_ELEMENT_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of structural features of the '<em>Module</em>' class.
@@ -192,7 +201,7 @@ public interface Behaviour_adaptationPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int MODULE_FEATURE_COUNT = NAMED_ELEMENT_FEATURE_COUNT + 2;
+	int MODULE_FEATURE_COUNT = NAMED_ELEMENT_FEATURE_COUNT + 3;
 
 	/**
 	 * The number of operations of the '<em>Module</em>' class.
@@ -531,6 +540,17 @@ public interface Behaviour_adaptationPackage extends EPackage {
 	EClass getModule();
 
 	/**
+	 * Returns the meta object for the reference '{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module#getTypeModel <em>Type Model</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Type Model</em>'.
+	 * @see uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module#getTypeModel()
+	 * @see #getModule()
+	 * @generated
+	 */
+	EReference getModule_TypeModel();
+
+	/**
 	 * Returns the meta object for the containment reference list '{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module#getSubModules <em>Sub Modules</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -770,6 +790,14 @@ public interface Behaviour_adaptationPackage extends EPackage {
 		 * @generated
 		 */
 		EClass MODULE = eINSTANCE.getModule();
+
+		/**
+		 * The meta object literal for the '<em><b>Type Model</b></em>' reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference MODULE__TYPE_MODEL = eINSTANCE.getModule_TypeModel();
 
 		/**
 		 * The meta object literal for the '<em><b>Sub Modules</b></em>' containment reference list feature.

@@ -185,7 +185,7 @@ public class Behaviour_adaptationPackageImpl extends EPackageImpl implements Beh
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getModule_SubModules() {
+	public EReference getModule_TypeModel() {
 		return (EReference)moduleEClass.getEStructuralFeatures().get(0);
 	}
 
@@ -194,8 +194,17 @@ public class Behaviour_adaptationPackageImpl extends EPackageImpl implements Beh
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getModule_Rules() {
+	public EReference getModule_SubModules() {
 		return (EReference)moduleEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getModule_Rules() {
+		return (EReference)moduleEClass.getEStructuralFeatures().get(2);
 	}
 
 	/**
@@ -359,6 +368,7 @@ public class Behaviour_adaptationPackageImpl extends EPackageImpl implements Beh
 		createEAttribute(namedElementEClass, NAMED_ELEMENT__NAME);
 
 		moduleEClass = createEClass(MODULE);
+		createEReference(moduleEClass, MODULE__TYPE_MODEL);
 		createEReference(moduleEClass, MODULE__SUB_MODULES);
 		createEReference(moduleEClass, MODULE__RULES);
 
@@ -424,6 +434,7 @@ public class Behaviour_adaptationPackageImpl extends EPackageImpl implements Beh
 		initEAttribute(getNamedElement_Name(), ecorePackage.getEString(), "name", null, 0, 1, NamedElement.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(moduleEClass, Module.class, "Module", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getModule_TypeModel(), ecorePackage.getEPackage(), null, "typeModel", null, 0, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getModule_SubModules(), this.getModule(), null, "subModules", null, 0, -1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getModule_Rules(), this.getRule(), null, "rules", null, 0, -1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 

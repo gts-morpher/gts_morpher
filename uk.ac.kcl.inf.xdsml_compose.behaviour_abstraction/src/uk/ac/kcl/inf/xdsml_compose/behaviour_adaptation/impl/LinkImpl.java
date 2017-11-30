@@ -43,7 +43,6 @@ public class LinkImpl extends NamedElementImpl implements Link {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected LinkImpl() {
@@ -52,7 +51,6 @@ public class LinkImpl extends NamedElementImpl implements Link {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
@@ -143,24 +141,20 @@ public class LinkImpl extends NamedElementImpl implements Link {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setSource(uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object newSource) {
 		if (newSource != source) {
 			NotificationChain msgs = null;
 			if (source != null)
-				msgs = ((InternalEObject) source).eInverseRemove(this, Behaviour_adaptationPackage.OBJECT__OUTGOING,
-						uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
+				msgs = ((InternalEObject)source).eInverseRemove(this, Behaviour_adaptationPackage.OBJECT__OUTGOING, uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
 			if (newSource != null)
-				msgs = ((InternalEObject) newSource).eInverseAdd(this, Behaviour_adaptationPackage.OBJECT__OUTGOING,
-						uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
+				msgs = ((InternalEObject)newSource).eInverseAdd(this, Behaviour_adaptationPackage.OBJECT__OUTGOING, uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
 			msgs = basicSetSource(newSource, msgs);
-			if (msgs != null)
-				msgs.dispatch();
-		} else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.LINK__SOURCE, newSource,
-					newSource));
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.LINK__SOURCE, newSource, newSource));
 	}
 
 	/**
@@ -215,126 +209,112 @@ public class LinkImpl extends NamedElementImpl implements Link {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setTarget(uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object newTarget) {
 		if (newTarget != target) {
 			NotificationChain msgs = null;
 			if (target != null)
-				msgs = ((InternalEObject) target).eInverseRemove(this, Behaviour_adaptationPackage.OBJECT__INCOMING,
-						uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
+				msgs = ((InternalEObject)target).eInverseRemove(this, Behaviour_adaptationPackage.OBJECT__INCOMING, uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
 			if (newTarget != null)
-				msgs = ((InternalEObject) newTarget).eInverseAdd(this, Behaviour_adaptationPackage.OBJECT__INCOMING,
-						uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
+				msgs = ((InternalEObject)newTarget).eInverseAdd(this, Behaviour_adaptationPackage.OBJECT__INCOMING, uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
 			msgs = basicSetTarget(newTarget, msgs);
-			if (msgs != null)
-				msgs.dispatch();
-		} else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.LINK__TARGET, newTarget,
-					newTarget));
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.LINK__TARGET, newTarget, newTarget));
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.LINK__SOURCE:
-			if (source != null)
-				msgs = ((InternalEObject) source).eInverseRemove(this, Behaviour_adaptationPackage.OBJECT__OUTGOING,
-						uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
-			return basicSetSource((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object) otherEnd, msgs);
-		case Behaviour_adaptationPackage.LINK__TARGET:
-			if (target != null)
-				msgs = ((InternalEObject) target).eInverseRemove(this, Behaviour_adaptationPackage.OBJECT__INCOMING,
-						uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
-			return basicSetTarget((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object) otherEnd, msgs);
+			case Behaviour_adaptationPackage.LINK__SOURCE:
+				if (source != null)
+					msgs = ((InternalEObject)source).eInverseRemove(this, Behaviour_adaptationPackage.OBJECT__OUTGOING, uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
+				return basicSetSource((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object)otherEnd, msgs);
+			case Behaviour_adaptationPackage.LINK__TARGET:
+				if (target != null)
+					msgs = ((InternalEObject)target).eInverseRemove(this, Behaviour_adaptationPackage.OBJECT__INCOMING, uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object.class, msgs);
+				return basicSetTarget((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object)otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.LINK__SOURCE:
-			return basicSetSource(null, msgs);
-		case Behaviour_adaptationPackage.LINK__TARGET:
-			return basicSetTarget(null, msgs);
+			case Behaviour_adaptationPackage.LINK__SOURCE:
+				return basicSetSource(null, msgs);
+			case Behaviour_adaptationPackage.LINK__TARGET:
+				return basicSetTarget(null, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.LINK__TYPE:
-			if (resolve)
-				return getType();
-			return basicGetType();
-		case Behaviour_adaptationPackage.LINK__SOURCE:
-			if (resolve)
-				return getSource();
-			return basicGetSource();
-		case Behaviour_adaptationPackage.LINK__TARGET:
-			if (resolve)
-				return getTarget();
-			return basicGetTarget();
+			case Behaviour_adaptationPackage.LINK__TYPE:
+				if (resolve) return getType();
+				return basicGetType();
+			case Behaviour_adaptationPackage.LINK__SOURCE:
+				if (resolve) return getSource();
+				return basicGetSource();
+			case Behaviour_adaptationPackage.LINK__TARGET:
+				if (resolve) return getTarget();
+				return basicGetTarget();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.LINK__TYPE:
-			setType((EObject) newValue);
-			return;
-		case Behaviour_adaptationPackage.LINK__SOURCE:
-			setSource((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object) newValue);
-			return;
-		case Behaviour_adaptationPackage.LINK__TARGET:
-			setTarget((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object) newValue);
-			return;
+			case Behaviour_adaptationPackage.LINK__TYPE:
+				setType((EObject)newValue);
+				return;
+			case Behaviour_adaptationPackage.LINK__SOURCE:
+				setSource((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object)newValue);
+				return;
+			case Behaviour_adaptationPackage.LINK__TARGET:
+				setTarget((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.LINK__TYPE:
-			setType((EObject) null);
-			return;
-		case Behaviour_adaptationPackage.LINK__SOURCE:
-			setSource((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object) null);
-			return;
-		case Behaviour_adaptationPackage.LINK__TARGET:
-			setTarget((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object) null);
-			return;
+			case Behaviour_adaptationPackage.LINK__TYPE:
+				setType((EObject)null);
+				return;
+			case Behaviour_adaptationPackage.LINK__SOURCE:
+				setSource((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object)null);
+				return;
+			case Behaviour_adaptationPackage.LINK__TARGET:
+				setTarget((uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object)null);
+				return;
 		}
 		super.eUnset(featureID);
 	}

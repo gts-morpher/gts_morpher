@@ -31,9 +31,8 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
  */
 public class RuleImpl extends NamedElementImpl implements Rule {
 	/**
-	 * The cached value of the '{@link #getLhs() <em>Lhs</em>}' containment
-	 * reference. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getLhs() <em>Lhs</em>}' containment reference.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getLhs()
 	 * @generated
 	 * @ordered
@@ -41,9 +40,8 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 	protected Pattern lhs;
 
 	/**
-	 * The cached value of the '{@link #getRhs() <em>Rhs</em>}' containment
-	 * reference. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getRhs() <em>Rhs</em>}' containment reference.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getRhs()
 	 * @generated
 	 * @ordered
@@ -52,7 +50,6 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected RuleImpl() {
@@ -61,7 +58,6 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
@@ -113,24 +109,20 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setLhs(Pattern newLhs) {
 		if (newLhs != lhs) {
 			NotificationChain msgs = null;
 			if (lhs != null)
-				msgs = ((InternalEObject) lhs).eInverseRemove(this,
-						EOPPOSITE_FEATURE_BASE - Behaviour_adaptationPackage.RULE__LHS, null, msgs);
+				msgs = ((InternalEObject)lhs).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Behaviour_adaptationPackage.RULE__LHS, null, msgs);
 			if (newLhs != null)
-				msgs = ((InternalEObject) newLhs).eInverseAdd(this,
-						EOPPOSITE_FEATURE_BASE - Behaviour_adaptationPackage.RULE__LHS, null, msgs);
+				msgs = ((InternalEObject)newLhs).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Behaviour_adaptationPackage.RULE__LHS, null, msgs);
 			msgs = basicSetLhs(newLhs, msgs);
-			if (msgs != null)
-				msgs.dispatch();
-		} else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.RULE__LHS, newLhs,
-					newLhs));
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.RULE__LHS, newLhs, newLhs));
 	}
 
 	/**
@@ -177,90 +169,82 @@ public class RuleImpl extends NamedElementImpl implements Rule {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setRhs(Pattern newRhs) {
 		if (newRhs != rhs) {
 			NotificationChain msgs = null;
 			if (rhs != null)
-				msgs = ((InternalEObject) rhs).eInverseRemove(this,
-						EOPPOSITE_FEATURE_BASE - Behaviour_adaptationPackage.RULE__RHS, null, msgs);
+				msgs = ((InternalEObject)rhs).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Behaviour_adaptationPackage.RULE__RHS, null, msgs);
 			if (newRhs != null)
-				msgs = ((InternalEObject) newRhs).eInverseAdd(this,
-						EOPPOSITE_FEATURE_BASE - Behaviour_adaptationPackage.RULE__RHS, null, msgs);
+				msgs = ((InternalEObject)newRhs).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Behaviour_adaptationPackage.RULE__RHS, null, msgs);
 			msgs = basicSetRhs(newRhs, msgs);
-			if (msgs != null)
-				msgs.dispatch();
-		} else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.RULE__RHS, newRhs,
-					newRhs));
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.RULE__RHS, newRhs, newRhs));
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.RULE__LHS:
-			return basicSetLhs(null, msgs);
-		case Behaviour_adaptationPackage.RULE__RHS:
-			return basicSetRhs(null, msgs);
+			case Behaviour_adaptationPackage.RULE__LHS:
+				return basicSetLhs(null, msgs);
+			case Behaviour_adaptationPackage.RULE__RHS:
+				return basicSetRhs(null, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.RULE__LHS:
-			return getLhs();
-		case Behaviour_adaptationPackage.RULE__RHS:
-			return getRhs();
+			case Behaviour_adaptationPackage.RULE__LHS:
+				return getLhs();
+			case Behaviour_adaptationPackage.RULE__RHS:
+				return getRhs();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.RULE__LHS:
-			setLhs((Pattern) newValue);
-			return;
-		case Behaviour_adaptationPackage.RULE__RHS:
-			setRhs((Pattern) newValue);
-			return;
+			case Behaviour_adaptationPackage.RULE__LHS:
+				setLhs((Pattern)newValue);
+				return;
+			case Behaviour_adaptationPackage.RULE__RHS:
+				setRhs((Pattern)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case Behaviour_adaptationPackage.RULE__LHS:
-			setLhs((Pattern) null);
-			return;
-		case Behaviour_adaptationPackage.RULE__RHS:
-			setRhs((Pattern) null);
-			return;
+			case Behaviour_adaptationPackage.RULE__LHS:
+				setLhs((Pattern)null);
+				return;
+			case Behaviour_adaptationPackage.RULE__RHS:
+				setRhs((Pattern)null);
+				return;
 		}
 		super.eUnset(featureID);
 	}

@@ -24,19 +24,16 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
  * The following features are implemented:
  * </p>
  * <ul>
- * <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.PatternImpl#getObjects
- * <em>Objects</em>}</li>
- * <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.PatternImpl#getLinks
- * <em>Links</em>}</li>
+ *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.PatternImpl#getObjects <em>Objects</em>}</li>
+ *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.PatternImpl#getLinks <em>Links</em>}</li>
  * </ul>
  *
  * @generated
  */
 public class PatternImpl extends NamedElementImpl implements Pattern {
 	/**
-	 * The cached value of the '{@link #getObjects() <em>Objects</em>}' containment
-	 * reference list. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getObjects() <em>Objects</em>}' containment reference list.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getObjects()
 	 * @generated
 	 * @ordered
@@ -44,9 +41,8 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	protected EList<uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object> objects;
 
 	/**
-	 * The cached value of the '{@link #getLinks() <em>Links</em>}' containment
-	 * reference list. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getLinks() <em>Links</em>}' containment reference list.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getLinks()
 	 * @generated
 	 * @ordered
@@ -55,7 +51,6 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected PatternImpl() {
@@ -64,7 +59,6 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override

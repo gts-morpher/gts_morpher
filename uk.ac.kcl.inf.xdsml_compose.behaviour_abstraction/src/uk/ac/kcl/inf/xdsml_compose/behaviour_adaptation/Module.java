@@ -3,6 +3,7 @@
 package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EPackage;
 
 /**
  * <!-- begin-user-doc -->
@@ -13,6 +14,7 @@ import org.eclipse.emf.common.util.EList;
  * The following features are supported:
  * </p>
  * <ul>
+ *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module#getTypeModel <em>Type Model</em>}</li>
  *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module#getSubModules <em>Sub Modules</em>}</li>
  *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module#getRules <em>Rules</em>}</li>
  * </ul>
@@ -22,6 +24,32 @@ import org.eclipse.emf.common.util.EList;
  * @generated
  */
 public interface Module extends NamedElement {
+	/**
+	 * Returns the value of the '<em><b>Type Model</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Type Model</em>' reference isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Type Model</em>' reference.
+	 * @see #setTypeModel(EPackage)
+	 * @see uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPackage#getModule_TypeModel()
+	 * @model
+	 * @generated
+	 */
+	EPackage getTypeModel();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module#getTypeModel <em>Type Model</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Type Model</em>' reference.
+	 * @see #getTypeModel()
+	 * @generated
+	 */
+	void setTypeModel(EPackage value);
+
 	/**
 	 * Returns the value of the '<em><b>Sub Modules</b></em>' containment reference list.
 	 * The list contents are of type {@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module}.
