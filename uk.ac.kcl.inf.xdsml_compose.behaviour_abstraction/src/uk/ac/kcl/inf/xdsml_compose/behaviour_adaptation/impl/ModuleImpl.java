@@ -91,7 +91,7 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @generated
+	 * @not-generated
 	 */
 	public EList<Rule> getRules() {
 		if (rules == null) {
