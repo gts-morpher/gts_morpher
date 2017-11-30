@@ -218,4 +218,14 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 	public Resource eResource() {
 		return (wrappedElement != null) ? wrappedElement.eResource() : super.eResource();
 	}
+	
+	/**
+	 * Use the container from the wrapped element, if any
+	 * 
+	 * @generatedNot
+	 */
+	@Override
+	public EObject eContainer() {
+		return safeWrappeeAccess((wrappedElement) -> { return wrappedElement.eContainer(); });
+	}
 } // WrappingElementImpl
