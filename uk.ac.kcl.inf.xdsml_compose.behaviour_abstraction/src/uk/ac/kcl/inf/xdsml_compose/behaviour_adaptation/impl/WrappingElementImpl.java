@@ -15,6 +15,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPackage;
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.WrappingElement;
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.HenshinWrapperFactory;
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.IWrapperFactory;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model object
@@ -130,7 +132,7 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 	protected <T> T safeWrappeeAccess(Function<EObject, T> func) {
 		return safeWrappeeAccess(null, func);
 	}
-	
+
 	/**
 	 * Allow safe access to features of the wrapped element. If there is a wrapped
 	 * element (we are not a proxy), then calls func with it.
@@ -144,9 +146,8 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 			} else {
 				func.accept(wrappedElement);
 			}
-		}		
+		}
 	}
-	
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -218,7 +219,10 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 	public Resource eResource() {
 		return (wrappedElement != null) ? wrappedElement.eResource() : super.eResource();
 	}
-	
+
+	// FIXME: Should really inject this
+	private IWrapperFactory wrapperFactory = new HenshinWrapperFactory();
+
 	/**
 	 * Use the container from the wrapped element, if any
 	 * 
@@ -226,6 +230,13 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 	 */
 	@Override
 	public EObject eContainer() {
-		return safeWrappeeAccess((wrappedElement) -> { return wrappedElement.eContainer(); });
+		return safeWrappeeAccess((wrappedElement) -> {
+			EObject container = wrappedElement.eContainer();
+			if (container != null) {
+				return wrapperFactory.createWrapperFor(container);
+			} else {
+				return null;
+			}
+		});
 	}
 } // WrappingElementImpl
