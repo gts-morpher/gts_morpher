@@ -4,13 +4,11 @@ package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl;
 
 import java.util.Collection;
 
-import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPackage;
@@ -35,16 +33,6 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
  * @not-generated
  */
 public class ModuleImpl extends NamedElementImpl implements Module {
-	/**
-	 * The cached value of the '{@link #getTypeModel() <em>Type Model</em>}' reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getTypeModel()
-	 * @generated
-	 * @ordered
-	 */
-	protected EPackage typeModel;
-
 	/**
 	 * The cached value of the '{@link #getSubModules() <em>Sub Modules</em>}' containment reference list.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -83,39 +71,32 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @not-generated
 	 */
 	public EPackage getTypeModel() {
-		if (typeModel != null && typeModel.eIsProxy()) {
-			InternalEObject oldTypeModel = (InternalEObject)typeModel;
-			typeModel = (EPackage)eResolveProxy(oldTypeModel);
-			if (typeModel != oldTypeModel) {
-				if (eNotificationRequired())
-					eNotify(new ENotificationImpl(this, Notification.RESOLVE, Behaviour_adaptationPackage.MODULE__TYPE_MODEL, oldTypeModel, typeModel));
-			}
-		}
-		return typeModel;
+		return safeWrappeeAccess((wrappedElement) -> {
+			return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getImports().get(0);
+		});
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @not-generated
 	 */
 	public EPackage basicGetTypeModel() {
-		return typeModel;
+		return safeWrappeeAccess((wrappedElement) -> {
+			return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getImports().get(0);
+		});
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @not-generated
 	 */
 	public void setTypeModel(EPackage newTypeModel) {
-		EPackage oldTypeModel = typeModel;
-		typeModel = newTypeModel;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.MODULE__TYPE_MODEL, oldTypeModel, typeModel));
+		throw new UnsupportedOperationException();
 	}
 
 	/**
