@@ -265,7 +265,7 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		result.assertError(XDsmlComposePackage.Literals.RULE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 
-		assertTrue(issues.length == 11)
+		assertTrue(issues.length == 13)
 	}
 	
 	/**
