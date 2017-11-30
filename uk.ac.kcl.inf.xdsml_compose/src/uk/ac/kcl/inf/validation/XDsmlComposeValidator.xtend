@@ -34,6 +34,7 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 
 /**
  * This class contains custom validation rules. 
@@ -52,6 +53,19 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val DUPLICATE_OBJECT_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_OBJECT_MAPPING'
 	public static val DUPLICATE_LINK_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_LINK_MAPPING'
 	public static val INVALID_BEHAVIOUR_SPEC = 'uk.ac.kcl.inf.xdsml_compose.INVALID_BEHAVIOUR_SPEC'
+
+	/**
+	 * Check that the rules in a GTS specification refer to the metamodel package
+	 */
+	@Check
+	def checkGTSSpecConsistent(GTSSpecification gts) {
+		if (gts.behaviour !== null) {
+			if (gts.behaviour.typeModel !== gts.metamodel) {
+				error("Inconsistent GTS specification: Rules need to be typed over metamodel.",
+					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INVALID_BEHAVIOUR_SPEC)
+			}
+		}
+	}
 
 	/**
 	 * Check that no source EClass or EReference is mapped more than once in the given mapping.
@@ -80,7 +94,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 						error("Duplicate mapping for Object " + em.source.name + ".", em,
 							XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, DUPLICATE_OBJECT_MAPPING)
 					} else {
-						behaviourMapping.put (em.source, em.target)
+						behaviourMapping.put(em.source, em.target)
 					}
 				]
 				rm.element_mappings.filter(LinkMapping).forEach [ em |
@@ -88,7 +102,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 						error("Duplicate mapping for Link " + em.source.name + ".", em,
 							XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, DUPLICATE_LINK_MAPPING)
 					} else {
-						behaviourMapping.put (em.source, em.target)
+						behaviourMapping.put(em.source, em.target)
 					}
 				]
 			}

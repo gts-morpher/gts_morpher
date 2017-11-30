@@ -296,6 +296,7 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there is an invalid GTS specification
 		result.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
+		result.target.assertNoError(XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
 	} 
 
 	/**
