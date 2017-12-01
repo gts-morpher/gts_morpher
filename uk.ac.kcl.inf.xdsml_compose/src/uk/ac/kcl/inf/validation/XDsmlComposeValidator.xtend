@@ -24,8 +24,7 @@ import uk.ac.kcl.inf.util.TypeMorphismCompleter
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
-import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
@@ -34,7 +33,6 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 
 /**
  * This class contains custom validation rules. 
@@ -49,9 +47,9 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val UNCOMPLETABLE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_TYPE_GRAPH_MAPPING'
 	public static val NO_UNIQUE_COMPLETION = 'uk.ac.kcl.inf.xdsml_compose.NO_UNIQUE_COMPLETION'
 	public static val UNIQUE_COMPLETION_NOT_CHECKED = 'uk.ac.kcl.inf.xdsml_compose.UNIQUE_COMPLETION_NOT_CHECKED'
-	public static val DUPLICATE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_RULE_MAPPING'
-	public static val DUPLICATE_OBJECT_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_OBJECT_MAPPING'
-	public static val DUPLICATE_LINK_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_LINK_MAPPING'
+	public static val DUPLICATE_RULE_MAPPING = BasicMappingChecker.DUPLICATE_RULE_MAPPING
+	public static val DUPLICATE_OBJECT_MAPPING = BasicMappingChecker.DUPLICATE_OBJECT_MAPPING
+	public static val DUPLICATE_LINK_MAPPING = BasicMappingChecker.DUPLICATE_LINK_MAPPING
 	public static val INVALID_BEHAVIOUR_SPEC = 'uk.ac.kcl.inf.xdsml_compose.INVALID_BEHAVIOUR_SPEC'
 	public static val NOT_A_RULE_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_RULE_MORPHISM'
 
@@ -81,33 +79,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkMapsUniqueRules(BehaviourMapping mapping) {
-		val behaviourMapping = new HashMap<EObject, EObject>
-
-		mapping.mappings.forEach [ rm |
-			if (behaviourMapping.containsKey(rm.target)) {
-				error("Duplicate mapping for Rule " + rm.target.name + ".", rm,
-					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
-			} else {
-				behaviourMapping.put(rm.target, rm.source)
-
-				rm.element_mappings.filter(ObjectMapping).forEach [ em |
-					if (behaviourMapping.containsKey(em.source)) {
-						error("Duplicate mapping for Object " + em.source.name + ".", em,
-							XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, DUPLICATE_OBJECT_MAPPING)
-					} else {
-						behaviourMapping.put(em.source, em.target)
-					}
-				]
-				rm.element_mappings.filter(LinkMapping).forEach [ em |
-					if (behaviourMapping.containsKey(em.source)) {
-						error("Duplicate mapping for Link " + em.source.name + ".", em,
-							XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, DUPLICATE_LINK_MAPPING)
-					} else {
-						behaviourMapping.put(em.source, em.target)
-					}
-				]
-			}
-		]
+		mapping.extractMapping
 	}
 
 	/**
@@ -225,6 +197,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			EObject target) '''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
 
 		private static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
+		private static val RULE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".ruleMappings"
 
 		/**
 		 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 
@@ -243,6 +216,27 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			})
 
 			context.put(TYPE_MAPPINGS, _mapping)
+
+			_mapping
+		}
+
+		/**
+		 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 
+		 * otherwise. Expects to be called in a validation context.
+		 */
+		private def extractMapping(BehaviourMapping mapping) {
+			if (context.containsKey(RULE_MAPPINGS)) {
+				return context.get(RULE_MAPPINGS) as Map<EObject, EObject>
+			}
+
+			val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
+				override error(String message, EObject source, EStructuralFeature feature, String code,
+					String... issueData) {
+					XDsmlComposeValidator.this.error(message, source, feature, code, issueData)
+				}
+			})
+
+			context.put(RULE_MAPPINGS, _mapping)
 
 			_mapping
 		}
