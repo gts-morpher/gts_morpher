@@ -396,6 +396,89 @@ class XDsmlComposeParsingAndValidationTests {
 	}
 
 	/**
+	 * Tests validation against mappings that are behaviour morphisms
+	 */
+	@Test
+	def void morphismBehaviourMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "server"
+						behaviour: "serverRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.GenHandle
+						class server.Queue => devsmm.Conveyor
+						reference server.Server.Out => devsmm.Machine.out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.generateHandle to serverRules.produce {
+							object s => g
+						}
+					}
+				}
+			''',
+			createResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+		// Incomplete mapping error 
+		assertTrue(issues.length == 1)
+	}
+
+	/**
+	 * Tests validation against mappings that are not behaviour morphisms
+	 */
+	@Test
+	def void nonMorphismBehaviourMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "server"
+						behaviour: "serverRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.GenHandle
+						class server.Queue => devsmm.Conveyor
+						reference server.Server.Out => devsmm.Machine.out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.generateHandle to serverRules.produce {
+							object s => g
+							object q => c
+							link [s->q:Out] => [c->h:parts]
+						}
+					}
+				}
+			''',
+			createResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+		
+		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
+		
+		// Incomplete mapping error 
+		assertTrue(issues.length == 2)
+	}
+
+	/**
 	 * Tests that auto-completion validation works in positive case
 	 */
 	@Test
