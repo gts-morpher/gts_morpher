@@ -86,21 +86,22 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Check that the given mappings do not violate the rules for clan morphisms
 	 */
 	@Check
-	def checkIsMorphismMaybeIncomplete(TypeGraphMapping mapping) {
+	def checkIsMorphismMaybeIncomplete(GTSMapping mapping) {
 		val List<Issue> issues = new ArrayList
-		if (!checkValidMaybeIncompleteClanMorphism(extractMapping(mapping), issues)) {
+		var typeMapping = extractMapping(mapping.typeMapping)
+		if (!checkValidMaybeIncompleteClanMorphism(typeMapping, issues)) {
 			issues.forEach [ i |
 				if (i.sourceModelElement instanceof EClassifier) {
-					error(i.message, mapping.mappings.filter(ClassMapping).
+					error(i.message, mapping.typeMapping.mappings.filter(ClassMapping).
 						findFirst[m|m.source == i.sourceModelElement],
 						XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
 				} else if (i.sourceModelElement instanceof EReference) {
-					error(i.message, mapping.mappings.filter(ReferenceMapping).findFirst [ m |
+					error(i.message, mapping.typeMapping.mappings.filter(ReferenceMapping).findFirst [ m |
 						m.source == i.sourceModelElement
 					], XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
 				}
 			]
-		}
+		} //else if (!checkValidMaybeIncompleteBehaviourMorphism(typeMapping, ))
 	}
 
 	/**
