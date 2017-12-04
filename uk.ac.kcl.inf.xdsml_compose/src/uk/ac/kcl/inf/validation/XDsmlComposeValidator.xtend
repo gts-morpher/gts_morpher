@@ -19,7 +19,7 @@ import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
 import uk.ac.kcl.inf.util.BasicMappingChecker
 import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
-import uk.ac.kcl.inf.util.TypeMorphismChecker.Issue
+import uk.ac.kcl.inf.util.MorphismChecker.Issue
 import uk.ac.kcl.inf.util.TypeMorphismCompleter
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
@@ -28,11 +28,12 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 import static uk.ac.kcl.inf.util.BasicMappingChecker.*
-import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 /**
  * This class contains custom validation rules. 
@@ -101,7 +102,15 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 					], XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
 				}
 			]
-		} //else if (!checkValidMaybeIncompleteBehaviourMorphism(typeMapping, ))
+		} else if (!checkValidMaybeIncompleteBehaviourMorphism(typeMapping, extractMapping(mapping.behaviourMapping), issues)) {
+			issues.forEach [ i |
+				if (i.sourceModelElement instanceof Rule) {
+					error(i.message, mapping.behaviourMapping.mappings.
+						findFirst[rm | rm.source == i.sourceModelElement as Rule],
+						XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+				}
+			]
+		}
 	}
 
 	/**

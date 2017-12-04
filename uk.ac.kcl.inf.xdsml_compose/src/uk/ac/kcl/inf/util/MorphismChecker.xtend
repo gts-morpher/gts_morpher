@@ -14,7 +14,7 @@ import uk.ac.kcl.inf.util.ValueHolder
  * 
  * Based on code by Kinga Bojarczuk
  */
-class TypeMorphismChecker {
+class MorphismChecker {
 
 	/**
 	 * Instances of Issue will be used to report any issues found during checking
@@ -24,7 +24,7 @@ class TypeMorphismChecker {
 		private EObject sourceModelElement
 		private String message
 	}
-	
+
 	/**
 	 * Check that the given mapping does not break the rules of clan morphisms. The objects 
 	 * in the map may be EClassifiers or EReferences. All objects in <code>mapping.keySet</code> 
@@ -44,6 +44,28 @@ class TypeMorphismChecker {
 	static def boolean checkValidMaybeIncompleteClanMorphism(Map<EObject, EObject> mapping, List<Issue> issues) {
 		mapping.checkModelInheritance(issues) && mapping.checkModelAssociations(issues) &&
 			mapping.checkModelAttributes(issues)
+	}
+
+	/**
+	 * Check that the given mapping does not break the rules of behaviour morphisms (i.e., sets of rule morphisms). The objects 
+	 * in the map may be Rules, Objects, or Links. All non-Rule objects in <code>mapping.keySet</code> 
+	 * are assumed to be from a source GTS, all those in the value set are expected to 
+	 * be from a target GTS. Rule objects are expected to be the other way around. There may be elements that are not 
+	 * yet mapped by the given mapping. This will be accepted by the checker and the checker 
+	 * will return true as long as the mappings provided do not break morphism constraints.
+	 * 
+	 * TODO: Provide reference to paper with morphism definition as part of the documentation
+	 * 
+	 * @param typeMapping the meta-model--mapping information. Assumed to be valid wrt clan-morphism rules
+	 * @param behaviourMapping the mapping information to be validated
+	 * @param issues an, initially empty, list to which to add information about any issues to report. 
+	 * Can be <code>null</code> to prevent issue reporting.
+	 * 
+	 * @return true if all checks succeeded  
+	 */
+	static def boolean checkValidMaybeIncompleteBehaviourMorphism(Map<EObject, EObject> typeMapping,
+		Map<EObject, EObject> behaviourMapping, List<Issue> issues) {
+		false
 	}
 
 	/**
@@ -96,11 +118,11 @@ class TypeMorphismChecker {
 			]
 		} else {
 			// Slower check finding all issues
-			val result = new ValueHolder<Boolean> (true)
+			val result = new ValueHolder<Boolean>(true)
 			mapping.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
 				if (!mapping.checkReferenceMapping(e.key as EReference, e.value as EReference, issues)) {
 					result.value = false
-				} 
+				}
 			]
 			result.value
 		}
