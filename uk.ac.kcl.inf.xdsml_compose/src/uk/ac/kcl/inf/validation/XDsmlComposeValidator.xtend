@@ -3,10 +3,8 @@
  */
 package uk.ac.kcl.inf.validation
 
-import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
-import java.util.List
 import java.util.Map
 import java.util.Map.Entry
 import java.util.Set
@@ -19,21 +17,24 @@ import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
 import uk.ac.kcl.inf.util.BasicMappingChecker
 import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
-import uk.ac.kcl.inf.util.MorphismChecker.Issue
 import uk.ac.kcl.inf.util.TypeMorphismCompleter
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
+import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Link
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 import static uk.ac.kcl.inf.util.BasicMappingChecker.*
+import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 /**
  * This class contains custom validation rules. 
@@ -88,28 +89,34 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkIsMorphismMaybeIncomplete(GTSMapping mapping) {
-		val List<Issue> issues = new ArrayList
 		var typeMapping = extractMapping(mapping.typeMapping)
-		if (!checkValidMaybeIncompleteClanMorphism(typeMapping, issues)) {
-			issues.forEach [ i |
-				if (i.sourceModelElement instanceof EClassifier) {
-					error(i.message, mapping.typeMapping.mappings.filter(ClassMapping).
-						findFirst[m|m.source == i.sourceModelElement],
-						XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
-				} else if (i.sourceModelElement instanceof EReference) {
-					error(i.message, mapping.typeMapping.mappings.filter(ReferenceMapping).findFirst [ m |
-						m.source == i.sourceModelElement
-					], XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+		val isValidTypeMorphism = checkValidMaybeIncompleteClanMorphism(typeMapping, [ object, message |
+			if (object instanceof EClassifier) {
+				error(message, mapping.typeMapping.mappings.filter(ClassMapping).findFirst[m|m.source == object],
+					XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+			} else if (object instanceof EReference) {
+				error(message, mapping.typeMapping.mappings.filter(ReferenceMapping).findFirst [ m |
+					m.source == object
+				], XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+			}
+		])
+
+		if (isValidTypeMorphism) {
+			checkValidMaybeIncompleteBehaviourMorphism(typeMapping, extractMapping(mapping.behaviourMapping), [object, message |
+				if (object instanceof Rule) {
+					error(message, mapping.behaviourMapping.mappings.findFirst [rm |
+						rm.source == object as Rule
+					], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+				} else if (object instanceof Link) {
+					error(message, mapping.behaviourMapping.mappings.map[rm | rm.element_mappings.filter(LinkMapping)].flatten.findFirst [lm |
+						lm.source == object as Link
+					], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+				} else if (object instanceof Object) {
+					error(message, mapping.behaviourMapping.mappings.map[rm | rm.element_mappings.filter(ObjectMapping)].flatten.findFirst [om |
+						om.source == object as Object
+					], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
 				}
-			]
-		} else if (!checkValidMaybeIncompleteBehaviourMorphism(typeMapping, extractMapping(mapping.behaviourMapping), issues)) {
-			issues.forEach [ i |
-				if (i.sourceModelElement instanceof Rule) {
-					error(i.message, mapping.behaviourMapping.mappings.
-						findFirst[rm | rm.source == i.sourceModelElement as Rule],
-						XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
-				}
-			]
+			])
 		}
 	}
 

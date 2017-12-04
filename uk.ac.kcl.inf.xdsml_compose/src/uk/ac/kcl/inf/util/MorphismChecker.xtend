@@ -1,13 +1,14 @@
 package uk.ac.kcl.inf.util
 
-import java.util.List
 import java.util.Map
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
-import org.eclipse.xtend.lib.annotations.Data
-import uk.ac.kcl.inf.util.ValueHolder
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Link
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Pattern
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 /**
  * Utility class to check type mappings for morphism properties.
@@ -16,13 +17,8 @@ import uk.ac.kcl.inf.util.ValueHolder
  */
 class MorphismChecker {
 
-	/**
-	 * Instances of Issue will be used to report any issues found during checking
-	 */
-	@Data
-	public static class Issue {
-		private EObject sourceModelElement
-		private String message
+	public static interface IssueAcceptor {
+		def void issue(EObject object, String message)
 	}
 
 	/**
@@ -36,12 +32,11 @@ class MorphismChecker {
 	 * TODO: Provide reference to paper with clan-morphism definition as part of the documentation
 	 * 
 	 * @param mapping the mapping information to be validated
-	 * @param issues an, initially empty, list to which to add information about any issues to report. 
-	 * Can be <code>null</code> to prevent issue reporting.
+	 * @param issues an acceptor for reporting any issues in more detail. Can be <code>null</code> to prevent issue reporting.
 	 * 
 	 * @return true if all checks succeeded  
 	 */
-	static def boolean checkValidMaybeIncompleteClanMorphism(Map<EObject, EObject> mapping, List<Issue> issues) {
+	static def boolean checkValidMaybeIncompleteClanMorphism(Map<EObject, EObject> mapping, IssueAcceptor issues) {
 		mapping.checkModelInheritance(issues) && mapping.checkModelAssociations(issues) &&
 			mapping.checkModelAttributes(issues)
 	}
@@ -58,20 +53,21 @@ class MorphismChecker {
 	 * 
 	 * @param typeMapping the meta-model--mapping information. Assumed to be valid wrt clan-morphism rules
 	 * @param behaviourMapping the mapping information to be validated
-	 * @param issues an, initially empty, list to which to add information about any issues to report. 
-	 * Can be <code>null</code> to prevent issue reporting.
+	 * @param issues an acceptor for reporting any issues in more detail. Can be <code>null</code> to prevent issue reporting.
 	 * 
 	 * @return true if all checks succeeded  
 	 */
 	static def boolean checkValidMaybeIncompleteBehaviourMorphism(Map<EObject, EObject> typeMapping,
-		Map<EObject, EObject> behaviourMapping, List<Issue> issues) {
-		false
+		Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+		!behaviourMapping.keySet.filter(Rule).exists [ r |
+			!checkRuleMorphism(r, behaviourMapping.get(r) as Rule, typeMapping, behaviourMapping, issues)
+		]
 	}
 
 	/**
 	 * Check whether inheritance is preserved in the model mapping
 	 */
-	static private def boolean checkModelInheritance(Map<EObject, EObject> mapping, List<Issue> issues) {
+	static private def boolean checkModelInheritance(Map<EObject, EObject> mapping, IssueAcceptor issues) {
 		!mapping.entrySet.filter[e|e.key instanceof EClass].exists [ e |
 			!mapping.checkClassInheritance(e.key as EClass, e.value as EClass, issues)
 		]
@@ -81,7 +77,7 @@ class MorphismChecker {
 	 * Check whether a single EClass mapping is valid according to inheritance rules
 	 */
 	static private def boolean checkClassInheritance(Map<EObject, EObject> mapping, EClass source, EClass target,
-		List<Issue> issues) {
+		IssueAcceptor issues) {
 		if (issues === null) {
 			// Do quick check
 			(target !== null) && (!source.ESuperTypes.filter[c|mapping.containsKey(c)].exists [ c |
@@ -94,14 +90,13 @@ class MorphismChecker {
 				source.ESuperTypes.filter[c|mapping.containsKey(c)].forEach [ c |
 					if (!checkInClanOf(target, mapping.get(c) as EClass)) {
 						result.value = false
-						issues.add(
-							new Issue(source,
-								"Target class's inheritance hierarchy not compatible with mapped parts of source class's inheritance hierarchy"))
+						issues.issue(source,
+							"Target class's inheritance hierarchy not compatible with mapped parts of source class's inheritance hierarchy")
 					}
 				]
 				result.value
 			} else {
-				issues.add(new Issue(source, "No target mapping"))
+				issues.issue(source, "No target mapping")
 				false
 			}
 		}
@@ -110,7 +105,7 @@ class MorphismChecker {
 	/**
 	 * Check whether associations are preserved in the model mapping
 	 */
-	static private def boolean checkModelAssociations(Map<EObject, EObject> mapping, List<Issue> issues) {
+	static private def boolean checkModelAssociations(Map<EObject, EObject> mapping, IssueAcceptor issues) {
 		if (issues === null) {
 			// Fast check
 			!mapping.entrySet.filter[e|e.key instanceof EReference].exists [ e |
@@ -132,10 +127,10 @@ class MorphismChecker {
 	 * Check whether a mapping between the two references satisfies the rules for a clan morphism.
 	 */
 	static private def boolean checkReferenceMapping(Map<EObject, EObject> mapping, EReference srcReference,
-		EReference tgtReference, List<Issue> issues) {
+		EReference tgtReference, IssueAcceptor issues) {
 		if (tgtReference === null) {
 			if (issues !== null) {
-				issues.add(new Issue(srcReference, "No target mapping"))
+				issues.issue(srcReference, "No target mapping")
 			}
 			return false
 		}
@@ -151,7 +146,7 @@ class MorphismChecker {
 			val EClass srcSrcClassMapping = mapping.get(srcSrcClass) as EClass
 			if (!checkInClanOf(srcSrcClassMapping, tgtSrcClass)) {
 				if (issues !== null) {
-					issues.add(new Issue(srcReference, "Source class mapping does not respect inheritance hierarchy"))
+					issues.issue(srcReference, "Source class mapping does not respect inheritance hierarchy")
 				}
 				return false
 			}
@@ -162,7 +157,7 @@ class MorphismChecker {
 			val EClass srcTgtClassMapping = mapping.get(srcTgtClass) as EClass
 			if (!checkInClanOf(srcTgtClassMapping, tgtTgtClass)) {
 				if (issues !== null) {
-					issues.add(new Issue(srcReference, "Target class mapping does not respect inheritance hierarchy"))
+					issues.issue(srcReference, "Target class mapping does not respect inheritance hierarchy")
 				}
 				return false
 			}
@@ -174,17 +169,17 @@ class MorphismChecker {
 	/**
 	 * Checks whether attributes are preserved in the model mapping
 	 */
-	static private def boolean checkModelAttributes(Map<EObject, EObject> mapping, List<Issue> issues) {
+	static private def boolean checkModelAttributes(Map<EObject, EObject> mapping, IssueAcceptor issues) {
 		!mapping.entrySet.filter[e|e.key instanceof EAttribute].exists [ e |
 			!mapping.checkAttributeMapping(e.key as EAttribute, e.value as EAttribute, issues)
 		]
 	}
 
 	static private def boolean checkAttributeMapping(Map<EObject, EObject> mapping, EAttribute srcAttribute,
-		EAttribute tgtAttribute, List<Issue> issues) {
+		EAttribute tgtAttribute, IssueAcceptor issues) {
 		if (tgtAttribute === null) {
 			if (issues !== null) {
-				issues.add(new Issue(srcAttribute, "No target mapping"))
+				issues.issue(srcAttribute, "No target mapping")
 			}
 			return false
 		}
@@ -201,8 +196,7 @@ class MorphismChecker {
 			val EClass srcContainingClassMapping = mapping.get(srcContainingClass) as EClass
 			if (!checkInClanOf(srcContainingClassMapping, tgtContainingClass)) {
 				if (issues !== null) {
-					issues.add(
-						new Issue(srcAttribute, "Containing class mapping does not respect inheritance hierarchy"))
+					issues.issue(srcAttribute, "Containing class mapping does not respect inheritance hierarchy")
 				}
 				return false
 			}
@@ -212,7 +206,7 @@ class MorphismChecker {
 		// FIXME This check might not actually work
 		if (!srcType.equals(tgtType)) {
 			if (issues !== null) {
-				issues.add(new Issue(srcAttribute, "Attribute type mapping error"))
+				issues.issue(srcAttribute, "Attribute type mapping error")
 			}
 			return false
 		}
@@ -229,5 +223,105 @@ class MorphismChecker {
 		(clazz == clanClass) || // go through all supertypes of clazz and their supertypes and check if any of
 		// them are equal to clanClass
 		clazz.ESuperTypes.exists[sc|checkInClanOf(sc, clanClass)]
+	}
+
+	/**
+	 * Check if tgtRule -> srcRule is a valid mapping (i.e., the mapped elements do not stop srcRule -> tgtRule from being a rule morphism). List any issues in the issues list provided.
+	 */
+	static private def boolean checkRuleMorphism(Rule tgtRule, Rule srcRule, Map<EObject, EObject> typeMapping,
+		Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+
+		val srcLhsPattern = srcRule.lhs
+		val srcRhsPattern = srcRule.rhs
+		val tgtLhsPattern = tgtRule.lhs
+		val tgtRhsPattern = tgtRule.rhs
+
+		// TODO: Consider adding checks for the actual patterns. We don't explicitly map them at the moment (and this only really makes sense for NACs/PACs, but Kinga's original code checked this nonetheless
+		checkPatternMorphism(srcLhsPattern, tgtLhsPattern, typeMapping, behaviourMapping, issues) &&
+			checkPatternMorphism(srcRhsPattern, tgtRhsPattern, typeMapping, behaviourMapping, issues) &&
+			checkKPatternMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues)
+	}
+
+	static private def boolean checkPatternMorphism(Pattern srcPattern, Pattern tgtPattern,
+		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+
+		srcPattern.objects.filter[o|behaviourMapping.containsKey(o)].fold(true, [ acc, o |
+			checkObjectMorphism(o, behaviourMapping.get(o) as Object,
+				srcPattern, tgtPattern, typeMapping, behaviourMapping, issues) && acc
+		]) && srcPattern.links.filter[l|behaviourMapping.containsKey(l)].fold(true, [ acc, l |
+			checkLinkMorphism(l, behaviourMapping.get(l) as Link, srcPattern, tgtPattern, typeMapping, behaviourMapping,
+				issues) && acc
+		])
+	}
+
+	static private def boolean checkObjectMorphism(Object srcObject,
+		Object tgtObject, Pattern srcPattern, Pattern tgtPattern,
+		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+		if (tgtObject === null) {
+			return false
+		}
+
+		if (!tgtPattern.objects.contains(tgtObject)) {
+			if (issues !== null) {
+				issues.issue(srcObject, "Mapped object is in a different rule pattern.")				
+			}
+			return false
+		}
+
+		val srcClassMap = typeMapping.get(srcObject.type)
+
+		if (srcClassMap === null) {
+			if (issues !== null) {
+				issues.issue(srcObject, "Type of object not mapped by type mapping.")				
+			}
+			return false
+		}
+
+		if (srcClassMap !== tgtObject.type) {
+			if (issues !== null) {
+				issues.issue(srcObject, "Types of mapped objects don't match according to type mapping.")				
+			}
+			return false;
+		}
+
+		true
+	}
+
+	static private def boolean checkLinkMorphism(Link srcLink, Link tgtLink, Pattern srcPattern, Pattern tgtPattern,
+		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+		if (tgtLink === null) {
+			return false;
+		}
+
+		if (!tgtPattern.links.contains(tgtLink)) {
+			if (issues !== null) {
+				issues.issue(srcLink, "Mapped link is in a different rule pattern.")				
+			}
+			return false
+		}
+
+		val srcRefMap = typeMapping.get(srcLink.type)
+
+		if (srcRefMap === null) {
+			if (issues !== null) {
+				issues.issue(srcLink, "Type of link not mapped by type mapping.")				
+			}
+			return false
+		}
+
+		if (srcRefMap !== tgtLink.type) {
+			if (issues !== null) {
+				issues.issue(srcLink, "Types of mapped links don't match according to type mapping.")				
+			}
+			return false;
+		}
+
+		true
+	}
+
+	static private def boolean checkKPatternMorphism(Rule srcRule, Rule tgtRule, Map<EObject, EObject> typeMapping,
+		Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+		// FIXME: What's needed here with the new encoding?
+		true
 	}
 }
