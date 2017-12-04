@@ -11,6 +11,8 @@ import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Pattern
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 /**
  * Basic util methods for handling mappings
@@ -80,6 +82,22 @@ class BasicMappingChecker {
 						}
 					} else {
 						_mapping.put(em.source, em.target)
+						val srcPattern = em.source.eContainer as Pattern
+						val srcRule = srcPattern.eContainer as Rule
+						val tgtRule = em.target.eContainer.eContainer as Rule
+						if (srcPattern == srcRule.lhs) {
+							// Also add corresponding RHS object, if any
+							_mapping.put(
+								srcRule.rhs.objects.findFirst[o|o.name.equals(em.source.name)],
+								tgtRule.rhs.objects.findFirst[o|o.name.equals(em.target.name)]
+							)
+						} else if (srcPattern == srcRule.rhs) {
+							// Also add corresponding LHS object, if any							
+							_mapping.put(
+								srcRule.lhs.objects.findFirst[o|o.name.equals(em.source.name)],
+								tgtRule.lhs.objects.findFirst[o|o.name.equals(em.target.name)]
+							)
+						}
 					}
 				]
 				rm.element_mappings.filter(LinkMapping).forEach [ em |
@@ -90,6 +108,22 @@ class BasicMappingChecker {
 						}
 					} else {
 						_mapping.put(em.source, em.target)
+						val srcPattern = em.source.eContainer as Pattern
+						val srcRule = srcPattern.eContainer as Rule
+						val tgtRule = em.target.eContainer.eContainer as Rule
+						if (srcPattern == srcRule.lhs) {
+							// Also add corresponding RHS link, if any
+							_mapping.put(
+								srcRule.rhs.links.findFirst[o|o.name.equals(em.source.name)],
+								tgtRule.rhs.links.findFirst[o|o.name.equals(em.target.name)]
+							)
+						} else if (srcPattern == srcRule.rhs) {
+							// Also add corresponding LHS link, if any							
+							_mapping.put(
+								srcRule.lhs.links.findFirst[o|o.name.equals(em.source.name)],
+								tgtRule.lhs.links.findFirst[o|o.name.equals(em.target.name)]
+							)
+						}
 					}
 				]
 			}
