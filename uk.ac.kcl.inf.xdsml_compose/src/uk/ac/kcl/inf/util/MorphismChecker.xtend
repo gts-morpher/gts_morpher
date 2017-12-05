@@ -1,11 +1,13 @@
 package uk.ac.kcl.inf.util
 
+import java.util.HashMap
 import java.util.Map
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Link
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.NamedElement
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Pattern
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
@@ -246,24 +248,24 @@ class MorphismChecker {
 		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
 
 		srcPattern.objects.filter[o|behaviourMapping.containsKey(o)].fold(true, [ acc, o |
-			checkObjectMorphism(o, behaviourMapping.get(o) as Object,
-				srcPattern, tgtPattern, typeMapping, behaviourMapping, issues) && acc
+			checkObjectMorphism(o, behaviourMapping.get(o) as Object, srcPattern, tgtPattern, typeMapping,
+				behaviourMapping, issues) && acc
 		]) && srcPattern.links.filter[l|behaviourMapping.containsKey(l)].fold(true, [ acc, l |
 			checkLinkMorphism(l, behaviourMapping.get(l) as Link, srcPattern, tgtPattern, typeMapping, behaviourMapping,
 				issues) && acc
 		])
 	}
 
-	static private def boolean checkObjectMorphism(Object srcObject,
-		Object tgtObject, Pattern srcPattern, Pattern tgtPattern,
-		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+	static private def boolean checkObjectMorphism(Object srcObject, Object tgtObject, Pattern srcPattern,
+		Pattern tgtPattern, Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping,
+		IssueAcceptor issues) {
 		if (tgtObject === null) {
 			return false
 		}
 
 		if (!tgtPattern.objects.contains(tgtObject)) {
 			if (issues !== null) {
-				issues.issue(srcObject, "Mapped object is in a different rule pattern.")				
+				issues.issue(srcObject, "Mapped object is in a different rule pattern.")
 			}
 			return false
 		}
@@ -272,14 +274,14 @@ class MorphismChecker {
 
 		if (srcClassMap === null) {
 			if (issues !== null) {
-				issues.issue(srcObject, "Type of object not mapped by type mapping.")				
+				issues.issue(srcObject, "Type of object not mapped by type mapping.")
 			}
 			return false
 		}
 
 		if (srcClassMap !== tgtObject.type) {
 			if (issues !== null) {
-				issues.issue(srcObject, "Types of mapped objects don't match according to type mapping.")				
+				issues.issue(srcObject, "Types of mapped objects don't match according to type mapping.")
 			}
 			return false;
 		}
@@ -295,7 +297,7 @@ class MorphismChecker {
 
 		if (!tgtPattern.links.contains(tgtLink)) {
 			if (issues !== null) {
-				issues.issue(srcLink, "Mapped link is in a different rule pattern.")				
+				issues.issue(srcLink, "Mapped link is in a different rule pattern.")
 			}
 			return false
 		}
@@ -304,14 +306,14 @@ class MorphismChecker {
 
 		if (srcRefMap === null) {
 			if (issues !== null) {
-				issues.issue(srcLink, "Type of link not mapped by type mapping.")				
+				issues.issue(srcLink, "Type of link not mapped by type mapping.")
 			}
 			return false
 		}
 
 		if (srcRefMap !== tgtLink.type) {
 			if (issues !== null) {
-				issues.issue(srcLink, "Types of mapped links don't match according to type mapping.")				
+				issues.issue(srcLink, "Types of mapped links don't match according to type mapping.")
 			}
 			return false;
 		}
@@ -321,7 +323,67 @@ class MorphismChecker {
 
 	static private def boolean checkKPatternMorphism(Rule srcRule, Rule tgtRule, Map<EObject, EObject> typeMapping,
 		Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
-		// FIXME: What's needed here with the new encoding?
-		true
+		val srcKernel = srcRule.kernel
+		val tgtKernel = tgtRule.kernel
+
+		if (srcKernel.size != tgtKernel.size) {
+			if (issues !== null) {
+				issues.issue(srcRule, "General kernel mismatch")
+			}
+
+			return false
+		}
+
+		val _result = new ValueHolder(true)
+		srcKernel.entrySet.forEach [ e |
+			val srcO1 = e.value.key
+			val srcO2 = e.value.value
+
+			val srcO1Mapped = typeMapping.get(srcO1) as NamedElement
+			val srcO2Mapped = typeMapping.get(srcO2) as NamedElement
+
+			if ((srcO1Mapped !== null) && (srcO2Mapped !== null)) {
+				// If only one of them is null, we've constructed the mapping wrong
+				if (!srcO1Mapped.name.equals(srcO2Mapped.name)) {
+					if (issues !== null) {
+						issues.issue(srcO1, "Element of kernel rule mapped to different elements in target rule")
+						issues.issue(srcO2, "Element of kernel rule mapped to different elements in target rule")
+					}
+					_result.value = false
+				} else {
+					val tgtKernelElements = tgtKernel.get(srcO1Mapped.name)
+					if (!((tgtKernelElements !== null) &&
+						((tgtKernelElements.key == srcO1Mapped) && (tgtKernelElements.value == srcO2Mapped) ||
+							(tgtKernelElements.key == srcO2Mapped) && (tgtKernelElements.value == srcO1Mapped)))) {
+						if (issues !== null) {
+							issues.issue(srcO1, "Element of kernel rule mapped to non-kernel element in target rule")
+							issues.issue(srcO2, "Element of kernel rule mapped to non-kernel element in target rule")
+						}
+						_result.value = false
+					}
+				}
+			}
+		]
+
+		_result.value
+	}
+
+	static private def Map<String, Pair<NamedElement, NamedElement>> getKernel(Rule rule) {
+		val _kernel = new ValueHolder(new HashMap<String, Pair<NamedElement, NamedElement>>)
+
+		rule.lhs.objects.forEach [ lo |
+			val ro = rule.rhs.objects.findFirst[ro|ro.name.equals(lo.name)]
+			if (ro !== null) {
+				_kernel.value.put(lo.name, new Pair(lo, ro))
+			}
+		]
+		rule.lhs.links.forEach [ ll |
+			val rl = rule.rhs.links.findFirst[rl|rl.name.equals(ll.name)]
+			if (rl !== null) {
+				_kernel.value.put(ll.name, new Pair(ll, rl))
+			}
+		]
+
+		_kernel.value
 	}
 }
