@@ -34,8 +34,9 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
  */
 public class ModuleImpl extends NamedElementImpl implements Module {
 	/**
-	 * The cached value of the '{@link #getSubModules() <em>Sub Modules</em>}' containment reference list.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The cached value of the '{@link #getSubModules() <em>Sub Modules</em>}'
+	 * containment reference list. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getSubModules()
 	 * @generated
 	 * @ordered
@@ -43,8 +44,9 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	protected EList<Module> subModules;
 
 	/**
-	 * The cached value of the '{@link #getRules() <em>Rules</em>}' containment reference list.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The cached value of the '{@link #getRules() <em>Rules</em>}' containment
+	 * reference list. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getRules()
 	 * @generated
 	 * @ordered
@@ -53,6 +55,7 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	protected ModuleImpl() {
@@ -61,6 +64,7 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
@@ -69,8 +73,8 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @not-generated
 	 */
 	public EPackage getTypeModel() {
@@ -80,8 +84,8 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @not-generated
 	 */
 	public EPackage basicGetTypeModel() {
@@ -91,8 +95,8 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @not-generated
 	 */
 	public void setTypeModel(EPackage newTypeModel) {
@@ -106,12 +110,13 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	 */
 	public EList<Module> getSubModules() {
 		if (subModules == null) {
-			subModules = new DelegatingTranslatingEcoreEList<Module, org.eclipse.emf.henshin.model.Module>(this,
-					Behaviour_adaptationPackage.MODULE__SUB_MODULES,
-					safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getSubModules(); }),
-					(henshinModule) -> {
-						return EObjectTranslator.INSTANCE.createModuleFor(henshinModule);
-					});
+			subModules = safeWrappeeAccess((wrappedElement) -> {
+				return new DelegatingTranslatingEcoreEList<Module, org.eclipse.emf.henshin.model.Module>(this,
+						Behaviour_adaptationPackage.MODULE__SUB_MODULES,
+						((org.eclipse.emf.henshin.model.Module) wrappedElement).getSubModules(), (henshinModule) -> {
+							return EObjectTranslator.INSTANCE.createModuleFor(henshinModule);
+						});
+			});
 		}
 		return subModules;
 	}
@@ -123,92 +128,98 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 	 */
 	public EList<Rule> getRules() {
 		if (rules == null) {
-			rules = new DelegatingTranslatingEcoreEList<Rule, org.eclipse.emf.henshin.model.Unit>(this,
-					Behaviour_adaptationPackage.MODULE__RULES,
-					safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getUnits(); }),
-					(unit) -> {
-						if (unit instanceof org.eclipse.emf.henshin.model.Rule) {
-							return EObjectTranslator.INSTANCE.createRuleFor(unit);
-						} else {
-							return null;
-						}
-					});
+			rules = safeWrappeeAccess((wrappedElement) -> {
+				return new DelegatingTranslatingEcoreEList<Rule, org.eclipse.emf.henshin.model.Unit>(this,
+						Behaviour_adaptationPackage.MODULE__RULES,
+						((org.eclipse.emf.henshin.model.Module) wrappedElement).getUnits(), (unit) -> {
+							if (unit instanceof org.eclipse.emf.henshin.model.Rule) {
+								return EObjectTranslator.INSTANCE.createRuleFor(unit);
+							} else {
+								return null;
+							}
+						});
+			});
 		}
 		return rules;
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-				return ((InternalEList<?>)getSubModules()).basicRemove(otherEnd, msgs);
-			case Behaviour_adaptationPackage.MODULE__RULES:
-				return ((InternalEList<?>)getRules()).basicRemove(otherEnd, msgs);
+		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
+			return ((InternalEList<?>) getSubModules()).basicRemove(otherEnd, msgs);
+		case Behaviour_adaptationPackage.MODULE__RULES:
+			return ((InternalEList<?>) getRules()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
-				if (resolve) return getTypeModel();
-				return basicGetTypeModel();
-			case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-				return getSubModules();
-			case Behaviour_adaptationPackage.MODULE__RULES:
-				return getRules();
+		case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
+			if (resolve)
+				return getTypeModel();
+			return basicGetTypeModel();
+		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
+			return getSubModules();
+		case Behaviour_adaptationPackage.MODULE__RULES:
+			return getRules();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
-				setTypeModel((EPackage)newValue);
-				return;
-			case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-				getSubModules().clear();
-				getSubModules().addAll((Collection<? extends Module>)newValue);
-				return;
-			case Behaviour_adaptationPackage.MODULE__RULES:
-				getRules().clear();
-				getRules().addAll((Collection<? extends Rule>)newValue);
-				return;
+		case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
+			setTypeModel((EPackage) newValue);
+			return;
+		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
+			getSubModules().clear();
+			getSubModules().addAll((Collection<? extends Module>) newValue);
+			return;
+		case Behaviour_adaptationPackage.MODULE__RULES:
+			getRules().clear();
+			getRules().addAll((Collection<? extends Rule>) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
-				setTypeModel((EPackage)null);
-				return;
-			case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
-				getSubModules().clear();
-				return;
-			case Behaviour_adaptationPackage.MODULE__RULES:
-				getRules().clear();
-				return;
+		case Behaviour_adaptationPackage.MODULE__TYPE_MODEL:
+			setTypeModel((EPackage) null);
+			return;
+		case Behaviour_adaptationPackage.MODULE__SUB_MODULES:
+			getSubModules().clear();
+			return;
+		case Behaviour_adaptationPackage.MODULE__RULES:
+			getRules().clear();
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -233,12 +244,16 @@ public class ModuleImpl extends NamedElementImpl implements Module {
 
 	@Override
 	public String getName() {
-		return safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getName(); });
+		return safeWrappeeAccess((wrappedElement) -> {
+			return ((org.eclipse.emf.henshin.model.Module) wrappedElement).getName();
+		});
 	}
 
 	@Override
 	protected void internalSetName(String newname) {
-		safeWrappeeAccess((wrappedElement) -> { ((org.eclipse.emf.henshin.model.Module) wrappedElement).setName(newname); });
+		safeWrappeeAccess((wrappedElement) -> {
+			((org.eclipse.emf.henshin.model.Module) wrappedElement).setName(newname);
+		});
 	}
 
 } // ModuleImpl

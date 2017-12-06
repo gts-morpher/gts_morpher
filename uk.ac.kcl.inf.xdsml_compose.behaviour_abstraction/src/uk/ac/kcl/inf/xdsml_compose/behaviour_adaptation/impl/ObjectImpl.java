@@ -40,8 +40,9 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
 public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object {
 
 	/**
-	 * The cached value of the '{@link #getOutgoing() <em>Outgoing</em>}' reference list.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The cached value of the '{@link #getOutgoing() <em>Outgoing</em>}' reference
+	 * list. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getOutgoing()
 	 * @generated
 	 * @ordered
@@ -49,8 +50,9 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 	protected EList<Link> outgoing;
 
 	/**
-	 * The cached value of the '{@link #getIncoming() <em>Incoming</em>}' reference list.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The cached value of the '{@link #getIncoming() <em>Incoming</em>}' reference
+	 * list. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getIncoming()
 	 * @generated
 	 * @ordered
@@ -59,6 +61,7 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	protected ObjectImpl() {
@@ -67,6 +70,7 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
@@ -80,7 +84,9 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 	 * @not-generated
 	 */
 	public EClass getType() {
-		return safeWrappeeAccess((wrappedElement) -> { return ((Node) wrappedElement).getType(); });
+		return safeWrappeeAccess((wrappedElement) -> {
+			return ((Node) wrappedElement).getType();
+		});
 	}
 
 	/**
@@ -89,7 +95,9 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 	 * @not-generated
 	 */
 	public EClass basicGetType() {
-		return safeWrappeeAccess((wrappedElement) -> { return ((NodeImpl) wrappedElement).basicGetType(); });
+		return safeWrappeeAccess((wrappedElement) -> {
+			return ((NodeImpl) wrappedElement).basicGetType();
+		});
 	}
 
 	/**
@@ -99,7 +107,9 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 	 */
 	public void setType(EClass newType) {
 		EClass oldType = getType();
-		safeWrappeeAccess((wrappedElement) -> { ((Node) wrappedElement).setType(newType); });
+		safeWrappeeAccess((wrappedElement) -> {
+			((Node) wrappedElement).setType(newType);
+		});
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.OBJECT__TYPE, oldType,
 					newType));
@@ -115,12 +125,12 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 			// TODO: Need a slightly different list implementation that knows how to resolve
 			// to the correct Link instance such that forward and backward references are
 			// via the same objects
-			outgoing = new DelegatingTranslatingEcoreEList<Link, Edge>(this,
-					Behaviour_adaptationPackage.OBJECT__OUTGOING, 
-					safeWrappeeAccess((wrappedElement) -> { return ((Node) wrappedElement).getOutgoing(); }),
-					(edge) -> {
-						return EObjectTranslator.INSTANCE.createLinkFor(edge);
-					});
+			outgoing = safeWrappeeAccess((wrappedElement) -> {
+				return new DelegatingTranslatingEcoreEList<Link, Edge>(this,
+						Behaviour_adaptationPackage.OBJECT__OUTGOING, ((Node) wrappedElement).getOutgoing(), (edge) -> {
+							return EObjectTranslator.INSTANCE.createLinkFor(edge);
+						});
+			});
 		}
 		return outgoing;
 	}
@@ -135,104 +145,110 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 			// TODO: Need a slightly different list implementation that knows how to resolve
 			// to the correct Link instance such that forward and backward references are
 			// via the same objects
-			incoming = new DelegatingTranslatingEcoreEList<Link, Edge>(this,
-					Behaviour_adaptationPackage.OBJECT__INCOMING, 
-					safeWrappeeAccess((wrappedElement) -> { return ((Node) wrappedElement).getIncoming(); }),
-					(edge) -> {
-						return EObjectTranslator.INSTANCE.createLinkFor(edge);
-					});
+			incoming = safeWrappeeAccess((wrappedElement) -> {
+				return new DelegatingTranslatingEcoreEList<Link, Edge>(this,
+						Behaviour_adaptationPackage.OBJECT__INCOMING, ((Node) wrappedElement).getIncoming(), (edge) -> {
+							return EObjectTranslator.INSTANCE.createLinkFor(edge);
+						});
+			});
 		}
 		return incoming;
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-				return ((InternalEList<InternalEObject>)(InternalEList<?>)getOutgoing()).basicAdd(otherEnd, msgs);
-			case Behaviour_adaptationPackage.OBJECT__INCOMING:
-				return ((InternalEList<InternalEObject>)(InternalEList<?>)getIncoming()).basicAdd(otherEnd, msgs);
+		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+			return ((InternalEList<InternalEObject>) (InternalEList<?>) getOutgoing()).basicAdd(otherEnd, msgs);
+		case Behaviour_adaptationPackage.OBJECT__INCOMING:
+			return ((InternalEList<InternalEObject>) (InternalEList<?>) getIncoming()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-				return ((InternalEList<?>)getOutgoing()).basicRemove(otherEnd, msgs);
-			case Behaviour_adaptationPackage.OBJECT__INCOMING:
-				return ((InternalEList<?>)getIncoming()).basicRemove(otherEnd, msgs);
+		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+			return ((InternalEList<?>) getOutgoing()).basicRemove(otherEnd, msgs);
+		case Behaviour_adaptationPackage.OBJECT__INCOMING:
+			return ((InternalEList<?>) getIncoming()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.OBJECT__TYPE:
-				if (resolve) return getType();
-				return basicGetType();
-			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-				return getOutgoing();
-			case Behaviour_adaptationPackage.OBJECT__INCOMING:
-				return getIncoming();
+		case Behaviour_adaptationPackage.OBJECT__TYPE:
+			if (resolve)
+				return getType();
+			return basicGetType();
+		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+			return getOutgoing();
+		case Behaviour_adaptationPackage.OBJECT__INCOMING:
+			return getIncoming();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.OBJECT__TYPE:
-				setType((EClass)newValue);
-				return;
-			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-				getOutgoing().clear();
-				getOutgoing().addAll((Collection<? extends Link>)newValue);
-				return;
-			case Behaviour_adaptationPackage.OBJECT__INCOMING:
-				getIncoming().clear();
-				getIncoming().addAll((Collection<? extends Link>)newValue);
-				return;
+		case Behaviour_adaptationPackage.OBJECT__TYPE:
+			setType((EClass) newValue);
+			return;
+		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+			getOutgoing().clear();
+			getOutgoing().addAll((Collection<? extends Link>) newValue);
+			return;
+		case Behaviour_adaptationPackage.OBJECT__INCOMING:
+			getIncoming().clear();
+			getIncoming().addAll((Collection<? extends Link>) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.OBJECT__TYPE:
-				setType((EClass)null);
-				return;
-			case Behaviour_adaptationPackage.OBJECT__OUTGOING:
-				getOutgoing().clear();
-				return;
-			case Behaviour_adaptationPackage.OBJECT__INCOMING:
-				getIncoming().clear();
-				return;
+		case Behaviour_adaptationPackage.OBJECT__TYPE:
+			setType((EClass) null);
+			return;
+		case Behaviour_adaptationPackage.OBJECT__OUTGOING:
+			getOutgoing().clear();
+			return;
+		case Behaviour_adaptationPackage.OBJECT__INCOMING:
+			getIncoming().clear();
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -257,12 +273,16 @@ public class ObjectImpl extends NamedElementImpl implements uk.ac.kcl.inf.xdsml_
 
 	@Override
 	public String getName() {
-		return safeWrappeeAccess((wrappedElement) -> { return ((Node) wrappedElement).getName(); });
+		return safeWrappeeAccess((wrappedElement) -> {
+			return ((Node) wrappedElement).getName();
+		});
 	}
 
 	@Override
 	protected void internalSetName(String newname) {
-		safeWrappeeAccess((wrappedElement) -> { ((Node) wrappedElement).setName(newname); });
+		safeWrappeeAccess((wrappedElement) -> {
+			((Node) wrappedElement).setName(newname);
+		});
 	}
 
 } // ObjectImpl

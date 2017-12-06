@@ -24,16 +24,19 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.EObjectTranslator;
  * The following features are implemented:
  * </p>
  * <ul>
- *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.PatternImpl#getObjects <em>Objects</em>}</li>
- *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.PatternImpl#getLinks <em>Links</em>}</li>
+ * <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.PatternImpl#getObjects
+ * <em>Objects</em>}</li>
+ * <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.PatternImpl#getLinks
+ * <em>Links</em>}</li>
  * </ul>
  *
  * @generated
  */
 public class PatternImpl extends NamedElementImpl implements Pattern {
 	/**
-	 * The cached value of the '{@link #getObjects() <em>Objects</em>}' containment reference list.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The cached value of the '{@link #getObjects() <em>Objects</em>}' containment
+	 * reference list. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getObjects()
 	 * @generated
 	 * @ordered
@@ -41,8 +44,9 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	protected EList<uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object> objects;
 
 	/**
-	 * The cached value of the '{@link #getLinks() <em>Links</em>}' containment reference list.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The cached value of the '{@link #getLinks() <em>Links</em>}' containment
+	 * reference list. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getLinks()
 	 * @generated
 	 * @ordered
@@ -51,6 +55,7 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	protected PatternImpl() {
@@ -59,6 +64,7 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
@@ -73,12 +79,13 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	 */
 	public EList<uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object> getObjects() {
 		if (objects == null) {
-			objects = new DelegatingTranslatingEcoreEList<uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object, org.eclipse.emf.henshin.model.Node>(
-					this, Behaviour_adaptationPackage.PATTERN__OBJECTS,
-					safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Graph) wrappedElement).getNodes(); }),
-					(node) -> {
-						return EObjectTranslator.INSTANCE.createObjectFor(node);
-					});
+			objects = safeWrappeeAccess((wrappedElement) -> {
+				return new DelegatingTranslatingEcoreEList<uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object, org.eclipse.emf.henshin.model.Node>(
+						this, Behaviour_adaptationPackage.PATTERN__OBJECTS,
+						((org.eclipse.emf.henshin.model.Graph) wrappedElement).getNodes(), (node) -> {
+							return EObjectTranslator.INSTANCE.createObjectFor(node);
+						});
+			});
 		}
 		return objects;
 	}
@@ -90,12 +97,13 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 	 */
 	public EList<Link> getLinks() {
 		if (links == null) {
-			links = new DelegatingTranslatingEcoreEList<Link, org.eclipse.emf.henshin.model.Edge>(this,
-					Behaviour_adaptationPackage.PATTERN__LINKS,
-					safeWrappeeAccess((wrappedElement) -> { return ((org.eclipse.emf.henshin.model.Graph) wrappedElement).getEdges(); }),
-					(edge) -> {
-						return EObjectTranslator.INSTANCE.createLinkFor(edge);
-					});
+			links = safeWrappeeAccess((wrappedElement) -> {
+				return new DelegatingTranslatingEcoreEList<Link, org.eclipse.emf.henshin.model.Edge>(this,
+						Behaviour_adaptationPackage.PATTERN__LINKS,
+						((org.eclipse.emf.henshin.model.Graph) wrappedElement).getEdges(), (edge) -> {
+							return EObjectTranslator.INSTANCE.createLinkFor(edge);
+						});
+			});
 		}
 		return links;
 	}
@@ -190,12 +198,16 @@ public class PatternImpl extends NamedElementImpl implements Pattern {
 
 	@Override
 	public String getName() {
-		return safeWrappeeAccess((wrappedElement) -> { return ((Graph) wrappedElement).getName(); });
+		return safeWrappeeAccess((wrappedElement) -> {
+			return ((Graph) wrappedElement).getName();
+		});
 	}
 
 	@Override
 	protected void internalSetName(String newname) {
-		safeWrappeeAccess((wrappedElement) -> { ((Graph) wrappedElement).setName(newname); });
+		safeWrappeeAccess((wrappedElement) -> {
+			((Graph) wrappedElement).setName(newname);
+		});
 	}
 
 } // PatternImpl
