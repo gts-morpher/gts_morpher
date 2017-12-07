@@ -14,4 +14,12 @@
             genModel="model/adaptation.genmodel"/>
    </extension>
 
-</plugin>
+	<!-- register the Xtext UI language services for the adaptation language to Xtext's registry -->
+   	<extension
+         point="org.eclipse.xtext.extension_resourceServiceProvider">
+	    <resourceServiceProvider
+	          class="uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.xtextsupport.ui.BehaviourAdaptationExecutableExtensionFactory:org.eclipse.xtext.ui.resource.generic.EmfResourceUIServiceProvider"
+	          uriExtension="henshin">
+	    </resourceServiceProvider>
+   	</extension>
+ </plugin>
