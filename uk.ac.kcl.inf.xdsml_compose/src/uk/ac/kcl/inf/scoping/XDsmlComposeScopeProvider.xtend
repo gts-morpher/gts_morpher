@@ -75,11 +75,15 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	private def rm_scope(GTSSpecification gts) {
-		scopeFor([
-			gts.behaviour.eAllContents.filter[eo|
-				eo instanceof Rule
-			]
-		], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+		if (gts.behaviour !== null) {
+			scopeFor([
+				gts.behaviour.eAllContents.filter [ eo |
+					eo instanceof Rule
+				]
+			], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+		} else {
+			IScope.NULLSCOPE
+		}
 	}
 
 	def IScope scope_ObjectMapping_source(ObjectMapping context, EReference ref) {
