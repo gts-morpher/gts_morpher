@@ -5,6 +5,7 @@ package uk.ac.kcl.inf.validation
 
 import java.util.HashMap
 import java.util.HashSet
+import java.util.List
 import java.util.Map
 import java.util.Map.Entry
 import java.util.Set
@@ -25,6 +26,8 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
+import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
+import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Link
@@ -54,6 +57,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val DUPLICATE_LINK_MAPPING = BasicMappingChecker.DUPLICATE_LINK_MAPPING
 	public static val INVALID_BEHAVIOUR_SPEC = 'uk.ac.kcl.inf.xdsml_compose.INVALID_BEHAVIOUR_SPEC'
 	public static val NOT_A_RULE_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_RULE_MORPHISM'
+	public static val INCOMPLETE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_RULE_MAPPING'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -102,33 +106,60 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		])
 
 		if (isValidTypeMorphism) {
-			checkValidMaybeIncompleteBehaviourMorphism(typeMapping, extractMapping(mapping.behaviourMapping), [object, message |
-				if (object instanceof Rule) {
-					error(message, mapping.behaviourMapping.mappings.findFirst [rm |
-						rm.source == object as Rule
-					], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
-				} else if (object instanceof Link) {
-					error(message, mapping.behaviourMapping.mappings.map[rm | rm.element_mappings.filter(LinkMapping)].flatten.findFirst [lm |
-						lm.source == object as Link
-					], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
-				} else if (object instanceof Object) {
-					error(message, mapping.behaviourMapping.mappings.map[rm | rm.element_mappings.filter(ObjectMapping)].flatten.findFirst [om |
-						om.source == object as Object
-					], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
-				}
-			])
+			checkValidMaybeIncompleteBehaviourMorphism(typeMapping,
+				extractMapping(mapping.behaviourMapping), [ object, message |
+					if (object instanceof Rule) {
+						error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
+							rm.source == object as Rule
+						], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+					} else if (object instanceof Link) {
+						error(message, mapping.behaviourMapping.mappings.
+							map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
+								lm.source == object as Link
+							], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+					} else if (object instanceof Object) {
+						error(message, mapping.behaviourMapping.mappings.map [ rm |
+							rm.element_mappings.filter(ObjectMapping)
+						].flatten.findFirst [ om |
+							om.source == object as Object
+						], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+					}
+				])
 		}
 	}
 
 	/**
-	 * Check that the given mapping is complete
+	 * Check that the given mapping is a complete type mapping
 	 */
 	@Check
-	def checkIsCompleteMapping(GTSMapping mapping) {
+	def checkIsCompleteTypeMapping(GTSMapping mapping) {
 		if (mapping.typeMapping.isInCompleteMapping && !mapping.autoComplete) {
 			warning("Incomplete mapping. Ensure all elements of the source metamodel are mapped.", mapping,
 				XDsmlComposePackage.Literals.GTS_MAPPING__SOURCE, INCOMPLETE_TYPE_GRAPH_MAPPING)
 		}
+	}
+
+	/**
+	 * Check that the given rule mapping is complete
+	 */
+	@Check
+	def checkIsCompleteRuleMapping(RuleMapping mapping) {
+		if (!(mapping.eContainer.eContainer as GTSMapping).autoComplete) {
+			if (!checkAllMapped(mapping.source.lhs.objects, mapping.element_mappings) ||
+				!checkAllMapped(mapping.source.lhs.links, mapping.element_mappings) ||
+				!checkAllMapped(mapping.source.rhs.objects, mapping.element_mappings) ||
+				!checkAllMapped(mapping.source.rhs.links, mapping.element_mappings)) {
+				warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
+					XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
+			}
+		}
+	}
+
+	private def checkAllMapped(List<? extends EObject> objects, List<RuleElementMapping> mappings) {
+		objects.forall [o |
+			mappings.filter(ObjectMapping).exists[om|om.source == o] || 
+			mappings.filter(LinkMapping).exists  [lm|lm.source == o]
+		]
 	}
 
 	/**
