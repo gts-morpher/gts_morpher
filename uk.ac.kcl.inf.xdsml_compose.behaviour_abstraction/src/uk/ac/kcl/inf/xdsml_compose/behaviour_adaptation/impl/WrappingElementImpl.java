@@ -2,8 +2,6 @@
  */
 package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl;
 
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -19,7 +17,7 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPack
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.WrappingElement;
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.HenshinWrapperFactory;
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.IWrapperFactory;
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.TranslatingResource;
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.ResourceCache;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model object
@@ -212,19 +210,6 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 		return super.eIsSet(featureID);
 	}
 
-	private static class ResourceCache {
-		private Map<Resource, Resource> cache = new WeakHashMap<>();
-
-		public Resource get(Resource srcResource, Function<Resource, Resource> creator) {
-			if (!cache.containsKey(srcResource)) {
-				cache.put(srcResource, creator.apply(srcResource));
-			}
-			return cache.get(srcResource);
-		}
-	}
-
-	private static ResourceCache resourceCache = new ResourceCache();
-
 	/**
 	 * Take the resource from the wrapped object and wrap it.
 	 * 
@@ -237,10 +222,7 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 		});
 
 		if (resource != null) {
-			resource = resourceCache.get(resource, (res) -> {
-				System.out.println("Providing translating resource");
-				return new TranslatingResource(res);
-			});
+			resource = ResourceCache.get(resource);
 		}
 
 		return resource;
