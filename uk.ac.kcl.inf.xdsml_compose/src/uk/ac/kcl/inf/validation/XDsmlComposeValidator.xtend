@@ -9,6 +9,7 @@ import java.util.List
 import java.util.Map
 import java.util.Map.Entry
 import java.util.Set
+import java.util.function.Function
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
@@ -31,6 +32,7 @@ import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Link
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
@@ -58,6 +60,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val INVALID_BEHAVIOUR_SPEC = 'uk.ac.kcl.inf.xdsml_compose.INVALID_BEHAVIOUR_SPEC'
 	public static val NOT_A_RULE_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_RULE_MORPHISM'
 	public static val INCOMPLETE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_RULE_MAPPING'
+	public static val INCOMPLETE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_BEHAVIOUR_MAPPING'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -156,10 +159,46 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	}
 
 	private def checkAllMapped(List<? extends EObject> objects, List<RuleElementMapping> mappings) {
-		objects.forall [o |
-			mappings.filter(ObjectMapping).exists[om|om.source == o] || 
-			mappings.filter(LinkMapping).exists  [lm|lm.source == o]
+		objects.forall [ o |
+			mappings.filter(ObjectMapping).exists[om|om.source == o] || mappings.filter(LinkMapping).exists [lm|
+				lm.source == o
+			]
 		]
+	}
+
+	/**
+	 * Check that the given behaviour mapping maps all rules
+	 */
+	@Check
+	def checkIsCompleteBehaviourMapping(GTSMapping mapping) {
+		if (!mapping.autoComplete) {
+			if (mapping.target.behaviour !== null) {
+				checkIsCompletelyCovered(mapping.target, mapping.behaviourMapping, [rm|rm.target])
+			}
+			if (mapping.source.behaviour !== null) {
+				checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source])
+			}
+		}
+	}
+
+	private def checkIsCompletelyCovered(GTSSpecification gts, BehaviourMapping behaviourMapping,
+		Function<RuleMapping, Rule> ruleGetter) {
+		val Iterable<Rule> rules = gts.behaviour.rules
+		if (rules.empty) {
+			return
+		}
+		
+		if (behaviourMapping === null) {
+			// Really should have some behaviour mappings if there are any rules at all...
+			warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
+					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)
+		}
+		
+		val mappedRules = behaviourMapping.mappings.map[rm | ruleGetter.apply(rm)].toList
+		if (rules.exists[r | !mappedRules.contains(r)]) {
+			warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
+					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)			
+		}
 	}
 
 	/**
