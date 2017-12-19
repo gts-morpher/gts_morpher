@@ -2,6 +2,8 @@
  */
 package uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl;
 
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -17,6 +19,7 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPack
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.WrappingElement;
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.HenshinWrapperFactory;
 import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.IWrapperFactory;
+import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.TranslatingResource;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model object
@@ -25,7 +28,8 @@ import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.util.IWrapperFactory;
  * The following features are implemented:
  * </p>
  * <ul>
- *   <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.WrappingElementImpl#getWrappedElement <em>Wrapped Element</em>}</li>
+ * <li>{@link uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.impl.WrappingElementImpl#getWrappedElement
+ * <em>Wrapped Element</em>}</li>
  * </ul>
  *
  * @generated
@@ -43,6 +47,7 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	protected WrappingElementImpl() {
@@ -51,6 +56,7 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
@@ -60,15 +66,18 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public EObject getWrappedElement() {
 		if (wrappedElement != null && wrappedElement.eIsProxy()) {
-			InternalEObject oldWrappedElement = (InternalEObject)wrappedElement;
+			InternalEObject oldWrappedElement = (InternalEObject) wrappedElement;
 			wrappedElement = eResolveProxy(oldWrappedElement);
 			if (wrappedElement != oldWrappedElement) {
 				if (eNotificationRequired())
-					eNotify(new ENotificationImpl(this, Notification.RESOLVE, Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT, oldWrappedElement, wrappedElement));
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE,
+							Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT, oldWrappedElement,
+							wrappedElement));
 			}
 		}
 		return wrappedElement;
@@ -76,6 +85,7 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public EObject basicGetWrappedElement() {
@@ -84,13 +94,15 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setWrappedElement(EObject newWrappedElement) {
 		EObject oldWrappedElement = wrappedElement;
 		wrappedElement = newWrappedElement;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT, oldWrappedElement, wrappedElement));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT, oldWrappedElement, wrappedElement));
 	}
 
 	/**
@@ -100,7 +112,7 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 	 * 
 	 * @generatedNot
 	 */
-	protected <T> T safeWrappeeAccess(T defaultValue, Function<EObject, T> func) {
+	public <T> T safeWrappeeAccess(T defaultValue, Function<EObject, T> func) {
 		if (!eIsProxy()) {
 			if (wrappedElement == null) {
 				System.err.println("No wrapped element, but not a proxy!");
@@ -120,7 +132,7 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 	 * 
 	 * @generatedNot
 	 */
-	protected <T> T safeWrappeeAccess(Function<EObject, T> func) {
+	public <T> T safeWrappeeAccess(Function<EObject, T> func) {
 		return safeWrappeeAccess(null, func);
 	}
 
@@ -130,7 +142,7 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 	 * 
 	 * @generatedNot
 	 */
-	protected void safeWrappeeAccess(Consumer<EObject> func) {
+	public void safeWrappeeAccess(Consumer<EObject> func) {
 		if (!eIsProxy()) {
 			if (wrappedElement == null) {
 				System.err.println("No wrapped element, but not a proxy!");
@@ -142,68 +154,96 @@ public abstract class WrappingElementImpl extends MinimalEObjectImpl.Container i
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
-				if (resolve) return getWrappedElement();
-				return basicGetWrappedElement();
+		case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
+			if (resolve)
+				return getWrappedElement();
+			return basicGetWrappedElement();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
-				setWrappedElement((EObject)newValue);
-				return;
+		case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
+			setWrappedElement((EObject) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
-				setWrappedElement((EObject)null);
-				return;
+		case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
+			setWrappedElement((EObject) null);
+			return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
-				return wrappedElement != null;
+		case Behaviour_adaptationPackage.WRAPPING_ELEMENT__WRAPPED_ELEMENT:
+			return wrappedElement != null;
 		}
 		return super.eIsSet(featureID);
 	}
 
+	private static class ResourceCache {
+		private Map<Resource, Resource> cache = new WeakHashMap<>();
+
+		public Resource get(Resource srcResource, Function<Resource, Resource> creator) {
+			if (!cache.containsKey(srcResource)) {
+				cache.put(srcResource, creator.apply(srcResource));
+			}
+			return cache.get(srcResource);
+		}
+	}
+
+	private static ResourceCache resourceCache = new ResourceCache();
+
 	/**
-	 * Take the resource from the wrapped object. This is a bit of a hack, but
-	 * should hopefully be enough to convince Xtext that this is a legit object.
+	 * Take the resource from the wrapped object and wrap it.
 	 * 
 	 * @generatedNot
 	 */
 	@Override
 	public Resource eResource() {
-		return (wrappedElement != null) ? wrappedElement.eResource() : super.eResource();
+		Resource resource = safeWrappeeAccess(super.eResource(), (wrappedElement) -> {
+			return wrappedElement.eResource();
+		});
+
+		if (resource != null) {
+			resource = resourceCache.get(resource, (res) -> {
+				System.out.println("Providing translating resource");
+				return new TranslatingResource(res);
+			});
+		}
+
+		return resource;
 	}
 
 	// FIXME: Should really inject this
