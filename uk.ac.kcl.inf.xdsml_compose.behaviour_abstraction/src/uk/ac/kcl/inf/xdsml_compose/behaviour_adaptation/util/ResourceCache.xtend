@@ -9,7 +9,7 @@ class ResourceCache {
 
 	static def Resource get(Resource srcResource) {
 		if (!cache.containsKey(srcResource)) {
-			println("Providing translating resource");
+			println("Providing translating resource. ResourceSet is a " + srcResource.resourceSet.class.name);
 			cache.put(srcResource, new TranslatingResource(srcResource));
 		}
 
