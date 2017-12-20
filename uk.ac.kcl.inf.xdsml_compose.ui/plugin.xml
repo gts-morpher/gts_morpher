@@ -407,4 +407,9 @@
 			type="text">
 		</fileTypes>
 	</extension>
+	<!--
+	<extension point="org.eclipse.xtext.ui.shared.overridingGuiceModule">
+	  <module class="uk.ac.kcl.inf.ui.ResourceModule">
+     </module>
+  </extension>-->
 </plugin>
