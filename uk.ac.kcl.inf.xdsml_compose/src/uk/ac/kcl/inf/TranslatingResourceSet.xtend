@@ -31,10 +31,10 @@ class TranslatingResourceSet extends SynchronizedXtextResourceSet {
 			println("Asking to be given translated resource")
 			val translatedResource = ResourceCache.get(r)
 
-			if (!resources.contains(translatedResource)) {
-				resources.remove(r)
-				resources.add(translatedResource)
-			}
+//			if (!resources.contains(translatedResource)) {
+//				resources.remove(r)
+//				resources.add(translatedResource)
+//			}
 
 			return translatedResource
 		} else {

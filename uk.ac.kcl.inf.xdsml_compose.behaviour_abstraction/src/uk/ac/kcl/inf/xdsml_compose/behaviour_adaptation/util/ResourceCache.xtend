@@ -13,6 +13,15 @@ class ResourceCache {
 			cache.put(srcResource, new TranslatingResource(srcResource));
 		}
 
-		cache.get(srcResource)
+		val result = cache.get(srcResource)
+		val resourceSetResources = srcResource.resourceSet.resources
+		
+		if (!resourceSetResources.contains(result)) {
+			println("Fixng resource list in resource set")
+			resourceSetResources.remove(srcResource)
+			resourceSetResources.add(result)
+		}
+		
+		result
 	}
 }
