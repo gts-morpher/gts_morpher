@@ -6,11 +6,13 @@ import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Link
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.NamedElement
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Pattern
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
+import org.eclipse.emf.henshin.model.Edge
+import org.eclipse.emf.henshin.model.Graph
+import org.eclipse.emf.henshin.model.ModelElement
+import org.eclipse.emf.henshin.model.Node
+import org.eclipse.emf.henshin.model.Rule
+
+import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 /**
  * Utility class to check type mappings for morphism properties.
@@ -244,26 +246,26 @@ class MorphismChecker {
 			checkKPatternMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues)
 	}
 
-	static private def boolean checkPatternMorphism(Pattern srcPattern, Pattern tgtPattern,
+	static private def boolean checkPatternMorphism(Graph srcPattern, Graph tgtPattern,
 		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
 
-		srcPattern.objects.filter[o|behaviourMapping.containsKey(o)].fold(true, [ acc, o |
-			checkObjectMorphism(o, behaviourMapping.get(o) as Object, srcPattern, tgtPattern, typeMapping,
+		srcPattern.nodes.filter[o|behaviourMapping.containsKey(o)].fold(true, [ acc, o |
+			checkObjectMorphism(o, behaviourMapping.get(o) as Node, srcPattern, tgtPattern, typeMapping,
 				behaviourMapping, issues) && acc
-		]) && srcPattern.links.filter[l|behaviourMapping.containsKey(l)].fold(true, [ acc, l |
-			checkLinkMorphism(l, behaviourMapping.get(l) as Link, srcPattern, tgtPattern, typeMapping, behaviourMapping,
+		]) && srcPattern.edges.filter[l|behaviourMapping.containsKey(l)].fold(true, [ acc, l |
+			checkLinkMorphism(l, behaviourMapping.get(l) as Edge, srcPattern, tgtPattern, typeMapping, behaviourMapping,
 				issues) && acc
 		])
 	}
 
-	static private def boolean checkObjectMorphism(Object srcObject, Object tgtObject, Pattern srcPattern,
-		Pattern tgtPattern, Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping,
+	static private def boolean checkObjectMorphism(Node srcObject, Node tgtObject, Graph srcPattern,
+		Graph tgtPattern, Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping,
 		IssueAcceptor issues) {
 		if (tgtObject === null) {
 			return false
 		}
 
-		if (!tgtPattern.objects.contains(tgtObject)) {
+		if (!tgtPattern.nodes.contains(tgtObject)) {
 			if (issues !== null) {
 				issues.issue(srcObject, "Mapped object is in a different rule pattern.")
 			}
@@ -289,13 +291,13 @@ class MorphismChecker {
 		true
 	}
 
-	static private def boolean checkLinkMorphism(Link srcLink, Link tgtLink, Pattern srcPattern, Pattern tgtPattern,
+	static private def boolean checkLinkMorphism(Edge srcLink, Edge tgtLink, Graph srcPattern, Graph tgtPattern,
 		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
 		if (tgtLink === null) {
 			return false;
 		}
 
-		if (!tgtPattern.links.contains(tgtLink)) {
+		if (!tgtPattern.edges.contains(tgtLink)) {
 			if (issues !== null) {
 				issues.issue(srcLink, "Mapped link is in a different rule pattern.")
 			}
@@ -339,8 +341,8 @@ class MorphismChecker {
 			val srcO1 = e.value.key
 			val srcO2 = e.value.value
 
-			val srcO1Mapped = typeMapping.get(srcO1) as NamedElement
-			val srcO2Mapped = typeMapping.get(srcO2) as NamedElement
+			val srcO1Mapped = typeMapping.get(srcO1)
+			val srcO2Mapped = typeMapping.get(srcO2)
 
 			if ((srcO1Mapped !== null) && (srcO2Mapped !== null)) {
 				// If only one of them is null, we've constructed the mapping wrong
@@ -368,17 +370,17 @@ class MorphismChecker {
 		_result.value
 	}
 
-	static private def Map<String, Pair<NamedElement, NamedElement>> getKernel(Rule rule) {
-		val _kernel = new ValueHolder(new HashMap<String, Pair<NamedElement, NamedElement>>)
+	static private def Map<String, Pair<ModelElement, ModelElement>> getKernel(Rule rule) {
+		val _kernel = new ValueHolder(new HashMap<String, Pair<ModelElement, ModelElement>>)
 
-		rule.lhs.objects.forEach [ lo |
-			val ro = rule.rhs.objects.findFirst[ro|ro.name.equals(lo.name)]
+		rule.lhs.nodes.forEach [ lo |
+			val ro = rule.rhs.nodes.findFirst[ro|ro.name.equals(lo.name)]
 			if (ro !== null) {
 				_kernel.value.put(lo.name, new Pair(lo, ro))
 			}
 		]
-		rule.lhs.links.forEach [ ll |
-			val rl = rule.rhs.links.findFirst[rl|rl.name.equals(ll.name)]
+		rule.lhs.edges.forEach [ ll |
+			val rl = rule.rhs.edges.findFirst[rl|rl.name.equals(ll.name)]
 			if (rl !== null) {
 				_kernel.value.put(ll.name, new Pair(ll, rl))
 			}

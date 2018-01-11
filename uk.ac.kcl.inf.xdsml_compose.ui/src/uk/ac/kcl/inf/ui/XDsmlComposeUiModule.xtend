@@ -4,15 +4,10 @@
 package uk.ac.kcl.inf.ui
 
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
-import org.eclipse.xtext.resource.XtextResourceSet
-import uk.ac.kcl.inf.TranslatingResourceSet
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
  */
 @FinalFieldsConstructor
 class XDsmlComposeUiModule extends AbstractXDsmlComposeUiModule {
-	def Class<? extends XtextResourceSet> bindXtextResourceSet() {
-		TranslatingResourceSet
-	}
 }

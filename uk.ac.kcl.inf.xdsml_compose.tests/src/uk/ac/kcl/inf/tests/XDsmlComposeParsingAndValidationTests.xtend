@@ -26,6 +26,8 @@ import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
 import static org.junit.Assert.*
 
+import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
 class XDsmlComposeParsingAndValidationTests {
@@ -265,7 +267,7 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		result.assertError(XDsmlComposePackage.Literals.RULE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 
-		assertTrue(issues.length == 13)
+		assertTrue(issues.length == 16)
 	}
 	
 	/**
@@ -299,9 +301,9 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		result.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
 		
-		assertTrue("Also failed check on target GTS", issues.length == 2) // There's also an incomplete mapping warning
-	} 
-
+		assertTrue("Also failed check on target GTS", issues.length == 3) // There's also an incomplete mapping warning
+	}
+	
 	/**
 	 * Tests validation against duplicate mappings
 	 */
@@ -358,7 +360,7 @@ class XDsmlComposeParsingAndValidationTests {
 
 		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		
-		assertTrue(issues.length == 6)
+		assertTrue(issues.length == 10)
 	} 
 	
 	/**
@@ -431,8 +433,8 @@ class XDsmlComposeParsingAndValidationTests {
 
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
-		// Incomplete mapping error 
-		assertTrue(issues.length == 1)
+		// Incomplete mapping errors 
+		assertTrue(issues.length == 4)
 	}
 
 	/**
@@ -475,8 +477,8 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
 		
-		// Incomplete mapping error 
-		assertTrue(issues.length == 2)
+		// Various incomplete mapping errors 
+		assertTrue(issues.length == 5)
 	}
 
 	/**

@@ -15,6 +15,8 @@ import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.henshin.model.Edge
+import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
 import uk.ac.kcl.inf.util.BasicMappingChecker
@@ -31,10 +33,6 @@ import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Link
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Module
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Object
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
@@ -68,7 +66,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	@Check
 	def checkGTSSpecConsistent(GTSSpecification gts) {
 		if (gts.behaviour !== null) {
-			if (gts.behaviour.typeModel !== gts.metamodel) {
+			if (!gts.behaviour.imports.contains(gts.metamodel)) {
 				error("Inconsistent GTS specification: Rules need to be typed over metamodel.",
 					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INVALID_BEHAVIOUR_SPEC)
 			}
@@ -115,10 +113,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 						error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
 							rm.source == object as Rule
 						], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
-					} else if (object instanceof Link) {
+					} else if (object instanceof Edge) {
 						error(message, mapping.behaviourMapping.mappings.
 							map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
-								lm.source == object as Link
+								lm.source == object as Edge
 							], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
 					} else if (object instanceof Object) {
 						error(message, mapping.behaviourMapping.mappings.map [ rm |
@@ -148,10 +146,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	@Check
 	def checkIsCompleteRuleMapping(RuleMapping mapping) {
 		if (!(mapping.eContainer.eContainer as GTSMapping).autoComplete) {
-			if (!checkAllMapped(mapping.source.lhs.objects, mapping.element_mappings) ||
-				!checkAllMapped(mapping.source.lhs.links, mapping.element_mappings) ||
-				!checkAllMapped(mapping.source.rhs.objects, mapping.element_mappings) ||
-				!checkAllMapped(mapping.source.rhs.links, mapping.element_mappings)) {
+			if (!checkAllMapped(mapping.source.lhs.nodes, mapping.element_mappings) ||
+				!checkAllMapped(mapping.source.lhs.edges, mapping.element_mappings) ||
+				!checkAllMapped(mapping.source.rhs.nodes, mapping.element_mappings) ||
+				!checkAllMapped(mapping.source.rhs.edges, mapping.element_mappings)) {
 				warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
 					XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
 			}
@@ -183,7 +181,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 
 	private def checkIsCompletelyCovered(GTSSpecification gts, BehaviourMapping behaviourMapping,
 		Function<RuleMapping, Rule> ruleGetter) {
-		val Iterable<Rule> rules = gts.behaviour.rules
+		val Iterable<Rule> rules = gts.behaviour.units.filter(Rule)
 		if (rules.empty) {
 			return
 		}

@@ -4,6 +4,8 @@ import java.util.HashMap
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.henshin.model.Graph
+import org.eclipse.emf.henshin.model.Rule
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
@@ -11,8 +13,8 @@ import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Pattern
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
+
+import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 /**
  * Basic util methods for handling mappings
@@ -82,20 +84,20 @@ class BasicMappingChecker {
 						}
 					} else {
 						_mapping.put(em.source, em.target)
-						val srcPattern = em.source.eContainer as Pattern
+						val srcPattern = em.source.eContainer as Graph
 						val srcRule = srcPattern.eContainer as Rule
 						val tgtRule = em.target.eContainer.eContainer as Rule
 						if (srcPattern == srcRule.lhs) {
 							// Also add corresponding RHS object, if any
 							_mapping.put(
-								srcRule.rhs.objects.findFirst[o|o.name.equals(em.source.name)],
-								tgtRule.rhs.objects.findFirst[o|o.name.equals(em.target.name)]
+								srcRule.rhs.nodes.findFirst[o|o.name.equals(em.source.name)],
+								tgtRule.rhs.nodes.findFirst[o|o.name.equals(em.target.name)]
 							)
 						} else if (srcPattern == srcRule.rhs) {
 							// Also add corresponding LHS object, if any							
 							_mapping.put(
-								srcRule.lhs.objects.findFirst[o|o.name.equals(em.source.name)],
-								tgtRule.lhs.objects.findFirst[o|o.name.equals(em.target.name)]
+								srcRule.lhs.edges.findFirst[o|o.name.equals(em.source.name)],
+								tgtRule.lhs.edges.findFirst[o|o.name.equals(em.target.name)]
 							)
 						}
 					}
@@ -108,20 +110,20 @@ class BasicMappingChecker {
 						}
 					} else {
 						_mapping.put(em.source, em.target)
-						val srcPattern = em.source.eContainer as Pattern
+						val srcPattern = em.source.eContainer as Graph
 						val srcRule = srcPattern.eContainer as Rule
 						val tgtRule = em.target.eContainer.eContainer as Rule
 						if (srcPattern == srcRule.lhs) {
 							// Also add corresponding RHS link, if any
 							_mapping.put(
-								srcRule.rhs.links.findFirst[o|o.name.equals(em.source.name)],
-								tgtRule.rhs.links.findFirst[o|o.name.equals(em.target.name)]
+								srcRule.rhs.edges.findFirst[o|o.name.equals(em.source.name)],
+								tgtRule.rhs.edges.findFirst[o|o.name.equals(em.target.name)]
 							)
 						} else if (srcPattern == srcRule.rhs) {
 							// Also add corresponding LHS link, if any							
 							_mapping.put(
-								srcRule.lhs.links.findFirst[o|o.name.equals(em.source.name)],
-								tgtRule.lhs.links.findFirst[o|o.name.equals(em.target.name)]
+								srcRule.lhs.edges.findFirst[o|o.name.equals(em.source.name)],
+								tgtRule.lhs.edges.findFirst[o|o.name.equals(em.target.name)]
 							)
 						}
 					}

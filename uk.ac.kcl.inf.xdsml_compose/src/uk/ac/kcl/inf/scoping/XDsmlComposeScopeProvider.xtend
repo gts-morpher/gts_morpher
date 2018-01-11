@@ -3,14 +3,18 @@
  */
 package uk.ac.kcl.inf.scoping
 
-import com.google.inject.Inject
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.emf.henshin.model.HenshinPackage
+import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
-import org.eclipse.xtext.naming.SimpleNameProvider
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 import org.eclipse.xtext.scoping.impl.FilteringScope
+import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
@@ -19,8 +23,6 @@ import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Behaviour_adaptationPackage
-import uk.ac.kcl.inf.xdsml_compose.behaviour_adaptation.Rule
 
 import static org.eclipse.xtext.scoping.Scopes.*
 
@@ -89,39 +91,48 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	def IScope scope_ObjectMapping_source(ObjectMapping context, EReference ref) {
 		new FilteringScope(
 			sourceScope(context.eContainer as RuleMapping),
-			[eod|eod.EClass == Behaviour_adaptationPackage.Literals.OBJECT]
+			[eod|eod.EClass == HenshinPackage.Literals.NODE]
 		)
 	}
 
 	def IScope scope_ObjectMapping_target(ObjectMapping context, EReference ref) {
 		new FilteringScope(
 			targetScope(context.eContainer as RuleMapping),
-			[eod|eod.EClass == Behaviour_adaptationPackage.Literals.OBJECT]
+			[eod|eod.EClass == HenshinPackage.Literals.NODE]
 		)
 	}
 
 	def IScope scope_LinkMapping_source(LinkMapping context, EReference ref) {
 		new FilteringScope(
 			sourceScope(context.eContainer as RuleMapping),
-			[eod|eod.EClass == Behaviour_adaptationPackage.Literals.LINK]
+			[eod|eod.EClass == HenshinPackage.Literals.EDGE]
 		)
 	}
 
 	def IScope scope_LinkMapping_target(LinkMapping context, EReference ref) {
 		new FilteringScope(
 			targetScope(context.eContainer as RuleMapping),
-			[eod|eod.EClass == Behaviour_adaptationPackage.Literals.LINK]
+			[eod|eod.EClass == HenshinPackage.Literals.EDGE]
 		)
 	}
 
-	@Inject
-	var SimpleNameProvider nameProvider;
+	// An adapted variant of SimpleNameProvider that handles Henshin naming graciously
+	val nameProvider = new IQualifiedNameProvider.AbstractImpl {
+
+		private val delegate = new HenshinQualifiedNameProvider
+
+		override getFullyQualifiedName(EObject obj) {
+			val name = delegate.getFullyQualifiedName(obj)
+			if (name === null) {
+				null
+			} else {
+				QualifiedName.create(name.lastSegment)
+			}
+		}
+
+	}
 
 	private def sourceScope(RuleMapping rm) {
-		// FIXME: This causes an exception down the line. I think the problem is that the scope contains Link objects, which don't have a name.
-		// Thus, the solution is to ensure Links are NamedElements and to move the naming rule from QualifiedNameProvider/the resource description strategy into the actual Link.
-		// Hmm, just did a quick check and it appears that Links are named and produce some sort of name (if not what we need yet). So maybe that isn't the problem after all.
-		// Need to debug into what rm.source.eAllContents produces. May need to pre-filter this...
 		scopeFor([
 			rm.source.eAllContents
 		], nameProvider, IScope.NULLSCOPE)
