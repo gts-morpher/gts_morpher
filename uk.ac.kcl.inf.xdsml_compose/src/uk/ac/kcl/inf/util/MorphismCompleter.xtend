@@ -18,7 +18,7 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 /**
  * Helper for completing type mappings into clan morphisms 
  */
-class TypeMorphismCompleter {
+class MorphismCompleter {
 	/**
 	 * This will contain the results, if any
 	 */

@@ -10,12 +10,12 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import uk.ac.kcl.inf.util.TypeMorphismCompleter
 import uk.ac.kcl.inf.util.ValueHolder
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import uk.ac.kcl.inf.util.MorphismCompleter
 
 /**
  * Generates code from your model files on save.
@@ -58,7 +58,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 
 	private static def getCompletedMappings(GTSMapping mapping) {
 		val _mapping = extractMapping(mapping.typeMapping, null)
-		val completer = new TypeMorphismCompleter(_mapping, mapping.source.metamodel, mapping.target.metamodel)
+		val completer = new MorphismCompleter(_mapping, mapping.source.metamodel, mapping.target.metamodel)
 		if (completer.findMorphismCompletions(true) == 0) {
 			// Found morphism(s)
 			completer.completedMappings

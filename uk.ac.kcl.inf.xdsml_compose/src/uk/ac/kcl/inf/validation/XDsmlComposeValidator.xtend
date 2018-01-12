@@ -21,7 +21,6 @@ import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
 import uk.ac.kcl.inf.util.BasicMappingChecker
 import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
-import uk.ac.kcl.inf.util.TypeMorphismCompleter
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
@@ -38,6 +37,7 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import uk.ac.kcl.inf.util.MorphismCompleter
 
 /**
  * This class contains custom validation rules. 
@@ -210,7 +210,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			val _mapping = typeMapping.extractMapping
 			if (typeMapping.isInCompleteMapping) {
 				if (checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.source.metamodel,
+					val morphismCompleter = new MorphismCompleter(_mapping, mapping.source.metamodel,
 						mapping.target.metamodel)
 					if (morphismCompleter.tryCompleteTypeMorphism != 0) {
 						error("Cannot complete type mapping to a valid morphism", mapping,
@@ -242,7 +242,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				val typeMapping = mapping.typeMapping
 				val _mapping = typeMapping.extractMapping
 				if (typeMapping.isInCompleteMapping && checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.source.metamodel,
+					val morphismCompleter = new MorphismCompleter(_mapping, mapping.source.metamodel,
 						mapping.target.metamodel)
 
 					if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
@@ -260,7 +260,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			}
 		}
 
-		private def findImprovementOptions(TypeMorphismCompleter morphismCompleter) {
+		private def findImprovementOptions(MorphismCompleter morphismCompleter) {
 			// Sort all newly mapped elements by number of potential mappings, descending
 			// and remove those elements with only one mapping
 			morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [ _acc, mp |
