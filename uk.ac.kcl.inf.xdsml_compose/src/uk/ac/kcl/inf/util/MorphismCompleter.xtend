@@ -204,10 +204,17 @@ class MorphismCompleter {
 			return unmatchedBehaviourElements.size + 1
 		}
 
-		// TODO Try to complete behaviour mapping
-		// FIXME: Replace the code below with code trying to complete behaviour mappings
-		completedMappings.add(new HashMap(typeMapping))
-		return 0
+		// Try to complete behaviour mapping
+		if (behaviourMapping.containsKey(srcModule)) {
+			if (behaviourMapping.get(srcModule) != tgtModule) {
+				println ("Weird behaviour mapping.")
+				return unmatchedBehaviourElements.size + 1
+			}
+		}
+		behaviourMapping.put(srcModule, tgtModule)
+		unmatchedBehaviourElements.remove (srcModule)
+		
+		return tryMapRules(unmatchedBehaviourElements, findAll)
 	}
 
 	/**
@@ -420,6 +427,11 @@ class MorphismCompleter {
 		result
 	}
 
+	private def tryMapRules (List<EObject> unmappedBehaviourElements, boolean findAll) {
+		// FIXME: Replace me with actual search through rules
+		completedMappings.add(new HashMap(typeMapping))
+		return 0
+	}
 
 	/**
 	 * Returns a list of all elements in the EPackage
