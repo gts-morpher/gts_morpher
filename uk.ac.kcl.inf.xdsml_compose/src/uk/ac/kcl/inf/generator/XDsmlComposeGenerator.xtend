@@ -57,8 +57,11 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	'''
 
 	private static def getCompletedMappings(GTSMapping mapping) {
-		val _mapping = extractMapping(mapping.typeMapping, null)
-		val completer = new MorphismCompleter(_mapping, mapping.source.metamodel, mapping.target.metamodel)
+		val _typeMapping = extractMapping(mapping.typeMapping, null)
+		val _behaviourMapping = extractMapping(mapping.behaviourMapping, null)
+				
+		val completer = new MorphismCompleter(_typeMapping, mapping.source.metamodel, mapping.target.metamodel, 
+			                                  _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
 		if (completer.findMorphismCompletions(true) == 0) {
 			// Found morphism(s)
 			completer.completedMappings

@@ -10,10 +10,13 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.henshin.model.Module
 import org.eclipse.xtend.lib.annotations.Accessors
 
-import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
+
+import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import org.eclipse.emf.henshin.model.Rule
 
 /**
  * Helper for completing type mappings into clan morphisms 
@@ -33,7 +36,14 @@ class MorphismCompleter {
 	private var List<EClass> allTgtClasses
 	private var List<EReference> allTgtReferences
 
-	new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage) {
+	private var Map<EObject, EObject> behaviourMapping
+	private var Module srcModule
+	private var Module tgtModule
+	private List<EObject> allSrcBehaviorElements
+	private List<EObject> allTgtBehaviorElements
+
+	new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage,
+	    Map<EObject, EObject> behaviourMapping, Module srcModule, Module tgtModule) {
 		this.typeMapping = new HashMap<EObject, EObject>(typeMapping)
 		this.srcPackage = srcPackage
 		this.tgtPackage = tgtPackage
@@ -45,47 +55,56 @@ class MorphismCompleter {
 		allTgtReferences = allTgtModelElements.filter(EReference).toList
 		allTgtClasses = Collections.unmodifiableList(allTgtClasses)
 		allTgtReferences = Collections.unmodifiableList(allTgtReferences)
+		
+		this.behaviourMapping = behaviourMapping
+		this.srcModule = srcModule
+		this.tgtModule = tgtModule
+		allSrcBehaviorElements = srcModule.allContents
+		allTgtBehaviorElements = tgtModule.allContents
 	}
 
 	/**
-	 * Attempts to complete the model mapping between the source and target packages
-	 * by incrementally adding elements until clan-morphism rules are broken.
+	 * Attempts to complete the mapping between the source and target GTSs
+	 * by incrementally adding elements until morphism rules are broken.
 	 * 
 	 * Reports back the number of unmatched elements for the biggest mapping found.
-	 * If a full morphism has been found, {@link #typeMapping} shows this mapping, which can also be found in {@link #completedMappings}.
-	 * Otherwise, {@link #typeMapping} is unchanged when this method returns (but it will change during the execution of the method).
+	 * If a full morphism has been found, {@link #typeMapping} and {@link behaviourMapping} show
+	 * this mapping, which can also be found in {@link #completedMappings}. Otherwise, 
+	 * {@link #typeMapping} and {@link behaviourMapping} are unchanged when this method returns 
+	 * (but will change during the execution of the method).
 	 * 
-	 * @return the number of unmatched elements in the biggest morphism-like mapping
-	 *         found
+	 * @return the number of unmatched elements in the biggest morphism-like mapping found, 0 if morphism(s) can be found
 	 */
-	def int tryCompleteTypeMorphism() {
+	def int tryCompleteMorphism() {
 		findMorphismCompletions(false)
 	}
 
 	/**
-	 * Attempts to complete the model mapping between the source and target packages
-	 * by incrementally adding elements until clan-morphism rules are broken.
+	 * Attempts to complete the mapping between the source and target GTSs
+	 * by incrementally adding elements until morphism rules are broken.
 	 * 
 	 * Reports back the number of unmatched elements for the biggest mapping found.
-	 * If a full morphism has been found, {@link #typeMapping} shows this mapping, which can also be found in {@link #completedMappings}.
-	 * Otherwise, {@link #typeMapping} is unchanged when this method returns (but it will change during the execution of the method). If 
-	 * findAll is true, all morphism completions will be found and will be stored in {@link #completedMappings}. In this case, 
+	 * If a full morphism has been found, {@link #typeMapping} and {@link behaviourMapping} show
+	 * this mapping, which can also be found in {@link #completedMappings}. Otherwise, 
+	 * {@link #typeMapping} and {@link behaviourMapping} are unchanged when this method returns 
+	 * (but will change during the execution of the method). If findAll is true, all morphism 
+	 * completions will be found and will be stored in {@link #completedMappings}. In this case, 
 	 * {@link #typeMapping} will be left unchanged at the end.
 	 * 
 	 * @param findAll if true, and a completion can be found, all completions will be found
 	 *  
-	 * @return the number of unmatched elements in the biggest morphism-like mapping
-	 *         found
+	 * @return the number of unmatched elements in the biggest morphism-like mapping found, 0 if morphism(s) can be found
 	 */
 	def int findMorphismCompletions(boolean findAll) {
 		completedMappings = new ArrayList
 
-		var List<EObject> unmatchedList = unmatched
+		var List<EObject> unmatchedTGElements = unmatchedTGElements
+		var List<EObject> unmatchedBehaviourElements = unmatchedBehaviourElements
 
 		// check if the map contains the package, if not add
-		if (unmatchedList.contains(srcPackage)) {
+		if (unmatchedTGElements.contains(srcPackage)) {
 			typeMapping.put(srcPackage, tgtPackage)
-			unmatchedList.remove(srcPackage)
+			unmatchedTGElements.remove(srcPackage)
 		}
 
 		// If the mapping is already not a morphism, return the maximum size of
@@ -94,17 +113,13 @@ class MorphismCompleter {
 			return allSrcModelElements.size()
 		} else {
 			// Otherwise, check if we're already done and have mapped everything
-			if (unmatchedList.empty) {
-				// TODO We can probably do better than this
-				System.out.
-					println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
-				completedMappings.add(new HashMap(typeMapping))
-				return 0
+			if (unmatchedTGElements.empty) {
+				return handleFoundTGMorphism(unmatchedBehaviourElements, findAll)
 			}
 		}
 
 		// get first priority list and search all objects
-		doTryCompleteTypeMorphism(unmatchedList, unmatchedList.firstPriorityList, findAll)
+		doTryCompleteTypeMorphism(unmatchedTGElements, unmatchedTGElements.firstPriorityList, unmatchedBehaviourElements, findAll)
 	}
 
 	/**
@@ -112,49 +127,47 @@ class MorphismCompleter {
 	 * the smallest number of unmatched elements before breaking morphism rules
 	 * found so far.
 	 * 
-	 * @param unmatchedList
-	 *            - a list of unmatched elements
+	 * @param unmatchedTGElements
+	 *            - a list of unmatched TG elements
+	 * @param unmatchedBehaviourElements
+	 *            - a list of unmatched behaviour elements
 	 * @param priorityList
 	 *            - a list of priority unmatched elements
 	 * @param findAll
 	 *            - if true, find all morphism completions, if any
 	 * @return the number of unmatched elements in the model morphism
 	 */
-	private def int doTryCompleteTypeMorphism(List<EObject> unmatchedList, List<EObject> _priorityList, boolean findAll) {
+	private def int doTryCompleteTypeMorphism(List<EObject> unmatchedTGElements, List<EObject> _priorityList, List<EObject> unmatchedBehaviourElements, boolean findAll) {
 		// If the mapping is already not a morphism, return the number of unmatched elements
 		if (!checkValidMaybeIncompleteClanMorphism(typeMapping, null)) {
 			// There's already at least one element too many in the map
-			return unmatchedList.size() + 1
+			return unmatchedTGElements.size + unmatchedBehaviourElements.size + 1
 		} else {
 			// Otherwise, check if we're already done and have mapped everything
-			if (unmatchedList.empty) {
-				// TODO Better logging
-				System.out.
-					println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
-				completedMappings.add(new HashMap(typeMapping))
-				return 0
+			if (unmatchedTGElements.empty) {
+				return handleFoundTGMorphism(unmatchedBehaviourElements, findAll)
 			}
 		}
 
 		// Pick an unmatched object either from priority list or general list
 		var EObject pick = null
 		if (_priorityList.empty) {
-			pick = unmatchedList.remove(0)
+			pick = unmatchedTGElements.remove(0)
 		} else {
 			pick = _priorityList.remove(0)
-			unmatchedList.remove(pick)
+			unmatchedTGElements.remove(pick)
 		}
 
-		var priorityList = pick.getPriorityModelObjects(unmatchedList, _priorityList)
+		var priorityList = pick.getPriorityModelObjects(unmatchedTGElements, _priorityList)
 		// Need to add one because we don't actually know yet if this will be able to
 		// make a morphism
-		var int numUnmatched = unmatchedList.size() + 1
+		var int numUnmatched = unmatchedTGElements.size + unmatchedBehaviourElements.size + 1
 
 		var List<? extends EObject> possible = pick.getPossibleMatches()
 		// go through all possible objects and recursively find matches for further objects
 		for (EObject o : possible) {
 			typeMapping.put(pick, o)
-			val int numUnmatchedInDescend = doTryCompleteTypeMorphism(unmatchedList, priorityList, findAll)
+			val int numUnmatchedInDescend = doTryCompleteTypeMorphism(unmatchedTGElements, priorityList, unmatchedBehaviourElements, findAll)
 			// make sure count reflects the minimum found count
 			if (!findAll && (numUnmatchedInDescend == 0)) {
 				return 0
@@ -166,8 +179,35 @@ class MorphismCompleter {
 		}
 
 		typeMapping.remove(pick)
-		unmatchedList.add(pick)
+		unmatchedTGElements.add(pick)
 		return numUnmatched
+	}
+
+	/**
+	 * Called whenever we've found a TG morphism. Try to complete it by a behaviour morphism.
+	 * 
+	 * @return the minimal number of elements that could not be mapped
+	 */	
+	private def int handleFoundTGMorphism(List<EObject> unmatchedBehaviourElements, boolean findAll) {
+		// TODO Better logging
+		println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
+
+		// Check if we need to do any behaviour mapping
+		if ((srcModule === null) && (tgtModule === null)) {
+			completedMappings.add(new HashMap(typeMapping))
+			return 0
+		}
+
+		// Check if we stand a chance of completing the behaviour mapping at all
+		if (!checkValidMaybeIncompleteBehaviourMorphism(typeMapping, behaviourMapping, null)) {
+			println("Behaviour mapping is already not a morphism under this TG morphism.")
+			return unmatchedBehaviourElements.size + 1
+		}
+
+		// TODO Try to complete behaviour mapping
+		// FIXME: Replace the code below with code trying to complete behaviour mappings
+		completedMappings.add(new HashMap(typeMapping))
+		return 0
 	}
 
 	/**
@@ -361,11 +401,25 @@ class MorphismCompleter {
 	 * 
 	 * @return a list of elements that are not yet matched in the {@code typeMapping}
 	 */
-	private def List<EObject> getUnmatched() {
+	private def List<EObject> getUnmatchedTGElements() {
 		allSrcModelElements.filter [ eo |
 			!typeMapping.containsKey(eo)
 		].toList
 	}
+
+	/**
+	 * Returns a list of elements not yet matched in the {@link behaviourMapping}.
+	 */
+	private def List<EObject> getUnmatchedBehaviourElements() {
+		var result = allSrcBehaviorElements.reject[eo | eo instanceof Rule].toList
+		result.removeAll(behaviourMapping.keySet)
+		if (tgtModule !== null) {
+			result.addAll(tgtModule.units.filter(Rule).reject[r | behaviourMapping.containsKey(r)])			
+		}
+		
+		result
+	}
+
 
 	/**
 	 * Returns a list of all elements in the EPackage
@@ -380,6 +434,31 @@ class MorphismCompleter {
 			// TODO: Why not? 
 			!eo.eClass().getName().equals("EGenericType")
 		].toList
+	}
+	
+	private static def getAllContents(Module module) {
+		if (module !== null) {
+			var result = module.units.filter(Rule).map[r | 
+				var List<EObject> result = new ArrayList<EObject>()
+				result.add(r)
+				result.add(r.lhs)
+				result.add(r.rhs)
+				
+				result.addAll(r.lhs.nodes)
+				result.addAll(r.rhs.nodes)
+	
+				result.addAll(r.lhs.edges)
+				result.addAll(r.rhs.edges)
+				 
+				result
+			].flatten.toList
+			
+			result.add(module)
+			
+			result			
+		} else {
+			Collections.EMPTY_LIST
+		}
 	}
 
 	/**
@@ -400,4 +479,6 @@ class MorphismCompleter {
 
 		clan
 	}
+	
+	
 }

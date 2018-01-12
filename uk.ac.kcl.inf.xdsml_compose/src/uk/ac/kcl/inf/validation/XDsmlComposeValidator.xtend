@@ -134,7 +134,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkIsCompleteTypeMapping(GTSMapping mapping) {
-		if (mapping.typeMapping.isInCompleteMapping && !mapping.autoComplete) {
+		if (!mapping.autoComplete && mapping.typeMapping.isInCompleteMapping) {
 			warning("Incomplete mapping. Ensure all elements of the source metamodel are mapped.", mapping,
 				XDsmlComposePackage.Literals.GTS_MAPPING__SOURCE, INCOMPLETE_TYPE_GRAPH_MAPPING)
 		}
@@ -207,12 +207,15 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		if (mapping.autoComplete) {
 			// Check we can auto-complete type mapping
 			val typeMapping = mapping.typeMapping
-			val _mapping = typeMapping.extractMapping
+			val behaviourMapping = mapping.behaviourMapping
+			val _typeMapping = typeMapping.extractMapping
+			val _behaviourMapping = behaviourMapping.extractMapping
+			// TODO Also check for incomplete behaviour mapping here
 			if (typeMapping.isInCompleteMapping) {
-				if (checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-					val morphismCompleter = new MorphismCompleter(_mapping, mapping.source.metamodel,
-						mapping.target.metamodel)
-					if (morphismCompleter.tryCompleteTypeMorphism != 0) {
+				if (checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
+					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
+						mapping.target.metamodel,_behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
+					if (morphismCompleter.tryCompleteMorphism != 0) {
 						error("Cannot complete type mapping to a valid morphism", mapping,
 							XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
 					} else if (mapping.uniqueCompletion) {
@@ -240,10 +243,13 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			if (mapping.autoComplete && mapping.uniqueCompletion) {
 				// Check we can auto-complete type mapping
 				val typeMapping = mapping.typeMapping
-				val _mapping = typeMapping.extractMapping
-				if (typeMapping.isInCompleteMapping && checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-					val morphismCompleter = new MorphismCompleter(_mapping, mapping.source.metamodel,
-						mapping.target.metamodel)
+				val behaviourMapping = mapping.behaviourMapping
+				val _typeMapping = typeMapping.extractMapping
+				val _behaviourMapping = behaviourMapping.extractMapping
+				// TODO Also check for incomplete behaviour mapping here
+				if (typeMapping.isInCompleteMapping && checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
+					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
+						mapping.target.metamodel, _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
 
 					if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
 						(morphismCompleter.completedMappings.size > 1)) {
