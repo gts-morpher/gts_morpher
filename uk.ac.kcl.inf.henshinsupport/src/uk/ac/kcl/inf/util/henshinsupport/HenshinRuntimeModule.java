@@ -12,7 +12,7 @@ public class HenshinRuntimeModule extends AbstractGenericResourceRuntimeModule {
 
 	@Override
 	protected String getFileExtensions() {
-		return "henshin"; 
+		return "henshin";
 	}
 		
 	@Override

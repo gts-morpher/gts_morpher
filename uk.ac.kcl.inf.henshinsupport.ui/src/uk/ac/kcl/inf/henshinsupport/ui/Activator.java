@@ -6,6 +6,7 @@ import org.osgi.framework.BundleContext;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import com.google.inject.util.Modules;
 
 import uk.ac.kcl.inf.util.henshinsupport.HenshinRuntimeModule;
