@@ -12,8 +12,8 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.xtend.lib.annotations.Accessors
 
-import static uk.ac.kcl.inf.util.TypeMorphismChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 /**
  * Helper for completing type mappings into clan morphisms 

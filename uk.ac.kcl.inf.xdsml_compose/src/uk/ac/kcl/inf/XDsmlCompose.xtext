@@ -3,6 +3,7 @@ grammar uk.ac.kcl.inf.XDsmlCompose with org.eclipse.xtext.common.Terminals
 generate xDsmlCompose "http://www.ac.uk/kcl/inf/XDsmlCompose"
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+import "http://www.eclipse.org/emf/2011/Henshin" as gts
 
 GTSMapping:
 	(autoComplete ?= "auto-complete" (uniqueCompletion ?= "unique")?)? "map" "{"
@@ -17,6 +18,7 @@ GTSMapping:
 GTSSpecification:
 	"{"
 		"metamodel" ":" metamodel = [ecore::EPackage | STRING]
+		("behaviour" ":" behaviour = [gts::Module | STRING])?
 	"}"
 ;
 
@@ -39,7 +41,31 @@ ReferenceMapping:
 ;
 
 BehaviourMapping:
-	"behaviour_mapping"
+	"behaviour_mapping" "{"
+		mappings += RuleMapping+
+	"}"
+;
+
+RuleMapping:
+	"rule" target=[gts::Rule | QualifiedName] "to" source=[gts::Rule | QualifiedName] "{"
+		element_mappings += RuleElementMapping+
+	"}"
+;
+
+RuleElementMapping:
+	ObjectMapping | LinkMapping
+;
+
+ObjectMapping:
+	"object" source = [gts::Node | ID] "=>" target = [gts::Node | ID]
+;
+
+LinkMapping:
+	"link" source = [gts::Edge | LinkName] "=>" target = [gts::Edge | LinkName]
+;
+
+LinkName :
+	"[" ID "->" ID ":" ID "]"
 ;
 
 QualifiedName:

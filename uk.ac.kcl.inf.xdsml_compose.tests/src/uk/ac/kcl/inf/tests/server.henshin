@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_KHvuENBJEeeTmd7edEr5bw" name="serverRules">
+  <imports href="server.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_XSG2kNBJEeeTmd7edEr5bw" name="process">
+    <lhs xmi:id="_XStTgNBJEeeTmd7edEr5bw" name="Lhs">
+      <nodes xmi:id="_bMXFoNBJEeeTmd7edEr5bw" name="server" outgoing="_hW8YkNBJEeeTmd7edEr5bw _iUp-ANBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_cGnucNBJEeeTmd7edEr5bw" name="in_queue" incoming="_hW8YkNBJEeeTmd7edEr5bw" outgoing="_hpHtsNBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_cdPesNBJEeeTmd7edEr5bw" name="out_queue" incoming="_iUp-ANBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_dU8iwNBJEeeTmd7edEr5bw" name="input" incoming="_hpHtsNBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Input"/>
+      </nodes>
+      <edges xmi:id="_hW8YkNBJEeeTmd7edEr5bw" source="_bMXFoNBJEeeTmd7edEr5bw" target="_cGnucNBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Server/In"/>
+      </edges>
+      <edges xmi:id="_hpHtsNBJEeeTmd7edEr5bw" source="_cGnucNBJEeeTmd7edEr5bw" target="_dU8iwNBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Queue/elts"/>
+      </edges>
+      <edges xmi:id="_iUp-ANBJEeeTmd7edEr5bw" source="_bMXFoNBJEeeTmd7edEr5bw" target="_cdPesNBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Server/Out"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_XStTgdBJEeeTmd7edEr5bw" name="Rhs">
+      <nodes xmi:id="_bMXFodBJEeeTmd7edEr5bw" name="server" outgoing="_hW8YkdBJEeeTmd7edEr5bw _iUp-AdBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_cGnucdBJEeeTmd7edEr5bw" name="in_queue" incoming="_hW8YkdBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_cdPesdBJEeeTmd7edEr5bw" name="out_queue" incoming="_iUp-AdBJEeeTmd7edEr5bw" outgoing="_ilczENBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_d2B2kNBJEeeTmd7edEr5bw" name="output" incoming="_ilczENBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Output"/>
+      </nodes>
+      <edges xmi:id="_hW8YkdBJEeeTmd7edEr5bw" source="_bMXFodBJEeeTmd7edEr5bw" target="_cGnucdBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Server/In"/>
+      </edges>
+      <edges xmi:id="_iUp-AdBJEeeTmd7edEr5bw" source="_bMXFodBJEeeTmd7edEr5bw" target="_cdPesdBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Server/Out"/>
+      </edges>
+      <edges xmi:id="_ilczENBJEeeTmd7edEr5bw" source="_cdPesdBJEeeTmd7edEr5bw" target="_d2B2kNBJEeeTmd7edEr5bw">
+        <type href="server.ecore#//Queue/elts"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_bMXFotBJEeeTmd7edEr5bw" origin="_bMXFoNBJEeeTmd7edEr5bw" image="_bMXFodBJEeeTmd7edEr5bw"/>
+    <mappings xmi:id="_cGnuctBJEeeTmd7edEr5bw" origin="_cGnucNBJEeeTmd7edEr5bw" image="_cGnucdBJEeeTmd7edEr5bw"/>
+    <mappings xmi:id="_cdPestBJEeeTmd7edEr5bw" origin="_cdPesNBJEeeTmd7edEr5bw" image="_cdPesdBJEeeTmd7edEr5bw"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="_v8eGMNXpEeeMk9UuorL5Hg" name="produce">
+    <lhs xmi:id="_v80EcNXpEeeMk9UuorL5Hg" name="Lhs">
+      <nodes xmi:id="_xbvgkNXpEeeMk9UuorL5Hg" name="s" outgoing="_1tTcYNXpEeeMk9UuorL5Hg">
+        <type href="server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_yoavENXpEeeMk9UuorL5Hg" name="q" incoming="_1tTcYNXpEeeMk9UuorL5Hg">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <edges xmi:id="_1tTcYNXpEeeMk9UuorL5Hg" source="_xbvgkNXpEeeMk9UuorL5Hg" target="_yoavENXpEeeMk9UuorL5Hg">
+        <type href="server.ecore#//Server/Out"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_v80rgNXpEeeMk9UuorL5Hg" name="Rhs">
+      <nodes xmi:id="_xbvgkdXpEeeMk9UuorL5Hg" name="s" outgoing="_1tTcYdXpEeeMk9UuorL5Hg">
+        <type href="server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_yoavEdXpEeeMk9UuorL5Hg" name="q" incoming="_1tTcYdXpEeeMk9UuorL5Hg" outgoing="_2CXtcNXpEeeMk9UuorL5Hg">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_0RXC0NXpEeeMk9UuorL5Hg" name="o" incoming="_2CXtcNXpEeeMk9UuorL5Hg">
+        <type href="server.ecore#//Output"/>
+      </nodes>
+      <edges xmi:id="_1tTcYdXpEeeMk9UuorL5Hg" source="_xbvgkdXpEeeMk9UuorL5Hg" target="_yoavEdXpEeeMk9UuorL5Hg">
+        <type href="server.ecore#//Server/Out"/>
+      </edges>
+      <edges xmi:id="_2CXtcNXpEeeMk9UuorL5Hg" source="_yoavEdXpEeeMk9UuorL5Hg" target="_0RXC0NXpEeeMk9UuorL5Hg">
+        <type href="server.ecore#//Queue/elts"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_xbvgktXpEeeMk9UuorL5Hg" origin="_xbvgkNXpEeeMk9UuorL5Hg" image="_xbvgkdXpEeeMk9UuorL5Hg"/>
+    <mappings xmi:id="_yoavEtXpEeeMk9UuorL5Hg" origin="_yoavENXpEeeMk9UuorL5Hg" image="_yoavEdXpEeeMk9UuorL5Hg"/>
+  </units>
+</henshin:Module>

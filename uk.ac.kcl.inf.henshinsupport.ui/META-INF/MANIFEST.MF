@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ui
+Bundle-SymbolicName: uk.ac.kcl.inf.henshinsupport.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.kcl.inf.henshinsupport.ui.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.google.inject;bundle-version="3.0.0",
+ uk.ac.kcl.inf.henshinsupport;bundle-version="1.0.0",
+ org.eclipse.xtext.ui.shared;bundle-version="2.12.0",
+ org.eclipse.xtext;bundle-version="2.12.0",
+ org.eclipse.xtext.ui;bundle-version="2.12.0",
+ org.eclipse.xtext.xbase.lib;bundle-version="2.12.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

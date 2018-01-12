@@ -6,6 +6,8 @@ package uk.ac.kcl.inf.tests
 import com.google.inject.Inject
 import com.google.inject.Provider
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.henshin.model.HenshinPackage
+import org.eclipse.emf.henshin.model.resource.HenshinResourceFactory
 import org.eclipse.xtext.diagnostics.Diagnostic
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
@@ -17,10 +19,14 @@ import org.junit.runner.RunWith
 import uk.ac.kcl.inf.validation.XDsmlComposeValidator
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
+import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
 import static org.junit.Assert.*
+
+import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -36,10 +42,14 @@ class XDsmlComposeParsingAndValidationTests {
 	
 	private def createResourceSet() {
 		val resourceSet = resourceSetProvider.get
-		val serverURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource("server.ecore").path)
-		resourceSet.getResource(serverURI, true)
-		val devsmmURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource("DEVSMM.ecore").path)
-		resourceSet.getResource(devsmmURI, true)
+		resourceSet.packageRegistry.put (HenshinPackage.eINSTANCE.nsURI, HenshinPackage.eINSTANCE)
+		resourceSet.resourceFactoryRegistry.extensionToFactoryMap.put("henshin", new HenshinResourceFactory())
+		
+		#["server.ecore", "DEVSMM.ecore", "server.henshin", "devsmm.henshin"].forEach[ file | 
+			val fileURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource(file).path)
+			resourceSet.getResource(fileURI, true)
+		]
+
 		resourceSet
 	}
 	
@@ -114,6 +124,68 @@ class XDsmlComposeParsingAndValidationTests {
 	}
 	
 	/**
+	 * Tests basic parsing and linking with behaviour mapping
+	 */
+	@Test
+	def void parsingBasicWithBehaviour() {	
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "server"
+						behaviour: "serverRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine
+						reference server.Server.Out => devsmm.Machine.out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.process to serverRules.process {
+							object input => in_part
+							link [in_queue->input:elts] => [tray->in_part:parts]
+						}
+					}
+				}
+			''',
+			createResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Set to auto-complete", !result.autoComplete)
+
+		assertNotNull("No type mapping", result.typeMapping)
+
+		assertNotNull("Did not load source package", result.source.metamodel.name)
+		assertNotNull("Did not load target package", result.target.metamodel.name)
+
+		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
+
+		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+
+		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		
+		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
+		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
+		
+		val ruleMap = result.behaviourMapping.mappings.get(0)
+		assertNotNull ("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+		assertNotNull ("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNotNull ("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+		assertNotNull ("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
+	}
+	
+	/**
 	 * Test basic parsing with unique auto-complete annotation.
 	 */
 	@Test
@@ -154,14 +226,26 @@ class XDsmlComposeParsingAndValidationTests {
 				map {
 					from {
 						metamodel: "server"
+						behaviour: "serverRules"
 					}
 					to {
 						metamodel: "devsmm"
+						behaviour: "devsmmRules"
 					}
 					
 					type_mapping {
 						class devsmm.Machine => server.Server 
 						reference devsmm.Machine.out => server.Server.Out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.process to serverRules.process {
+							object in_part => input
+							link [tray->in_part:parts] => [in_queue->input:elts]
+						}
+						rule serverRules.process to devsmmRules.process {
+							object in_part => input
+						}
 					}
 				}
 			''',
@@ -170,11 +254,54 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as source and target are switched in the class mapping
 		val issues = result.validate()
+
 		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+
 //		(result.typeMapping.mappings.get(0) as ClassMapping).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+
 		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		assertTrue(issues.length == 5)	
+
+		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+		
+		result.assertError(XDsmlComposePackage.Literals.RULE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
+
+		assertTrue(issues.length == 16)
+	}
+	
+	/**
+	 * Tests validation of GTS specifications
+	 */
+	@Test
+	def void invalidGTSSpecification() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "server"
+						behaviour: "devsmmRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine 
+					}
+				}
+			''',
+			createResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		// Expecting validation errors as there is an invalid GTS specification
+		val issues = result.validate()
+		
+		result.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
+		
+		assertTrue("Also failed check on target GTS", issues.length == 3) // There's also an incomplete mapping warning
 	}
 	
 	/**
@@ -188,16 +315,31 @@ class XDsmlComposeParsingAndValidationTests {
 				map {
 					from {
 						metamodel: "server"
+						behaviour: "serverRules"
 					}
 					to {
 						metamodel: "devsmm"
+						behaviour: "devsmmRules"
 					}
 					
 					type_mapping {
 						class server.Server => devsmm.Machine 
 						class server.Server => devsmm.Assemble 
-						reference server.Server.Out => devsmm.Machine.out 
-						reference server.Server.Out => devsmm.Machine.in
+						reference server.Server.In => devsmm.Machine.in 
+						reference server.Server.In => devsmm.Machine.out
+						reference server.Queue.elts => devsmm.Container.parts
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.process to serverRules.process {
+							object server => machine
+							object server => machine
+							link [in_queue->input:elts] => [tray->in_part:parts]
+							link [in_queue->input:elts] => [tray->in_part:parts]
+						}
+						rule devsmmRules.process to serverRules.process {
+							object input => in_part
+						}
 					}
 				}
 			''',
@@ -206,10 +348,19 @@ class XDsmlComposeParsingAndValidationTests {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
+		
 		result.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
-		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference Out.")
+		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference In.")
+				
+		result.behaviourMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.DUPLICATE_RULE_MAPPING, "Duplicate mapping for Rule process.")
+		
+		val ruleMapping = result.behaviourMapping.mappings.get(0)
+		ruleMapping.element_mappings.get(1).assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, XDsmlComposeValidator.DUPLICATE_OBJECT_MAPPING, "Duplicate mapping for Object server.")
+		ruleMapping.element_mappings.get(3).assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.DUPLICATE_LINK_MAPPING, "Duplicate mapping for Link [in_queue->input:elts].")
+
 		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		assertTrue(issues.length == 3)
+		
+		assertTrue(issues.length == 10)
 	} 
 	
 	/**
@@ -245,6 +396,89 @@ class XDsmlComposeParsingAndValidationTests {
 		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
 		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		assertTrue(issues.length == 3)
+	}
+
+	/**
+	 * Tests validation against mappings that are behaviour morphisms
+	 */
+	@Test
+	def void morphismBehaviourMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "server"
+						behaviour: "serverRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.GenHandle
+						class server.Queue => devsmm.Conveyor
+						reference server.Server.Out => devsmm.Machine.out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.generateHandle to serverRules.produce {
+							object s => g
+						}
+					}
+				}
+			''',
+			createResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+		// Incomplete mapping errors 
+		assertTrue(issues.length == 4)
+	}
+
+	/**
+	 * Tests validation against mappings that are not behaviour morphisms
+	 */
+	@Test
+	def void nonMorphismBehaviourMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "server"
+						behaviour: "serverRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.GenHandle
+						class server.Queue => devsmm.Conveyor
+						reference server.Server.Out => devsmm.Machine.out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.generateHandle to serverRules.produce {
+							object s => g
+							object q => c
+							link [s->q:Out] => [c->h:parts]
+						}
+					}
+				}
+			''',
+			createResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+		
+		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
+		
+		// Various incomplete mapping errors 
+		assertTrue(issues.length == 5)
 	}
 
 	/**

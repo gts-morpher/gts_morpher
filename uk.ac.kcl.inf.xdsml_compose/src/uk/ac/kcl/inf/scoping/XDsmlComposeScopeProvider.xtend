@@ -3,18 +3,28 @@
  */
 package uk.ac.kcl.inf.scoping
 
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.emf.henshin.model.HenshinPackage
+import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 import org.eclipse.xtext.scoping.impl.FilteringScope
+import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
+import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
+import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 
 import static org.eclipse.xtext.scoping.Scopes.*
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 /**
  * This class contains custom scoping description.
@@ -25,34 +35,110 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 
 	def IScope scope_ClassMapping_source(ClassMapping context, EReference ref) {
-		new FilteringScope(
-			sourceScope(context.eContainer as TypeGraphMapping), 
-			[ eod | EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(eod.EClass)])
+		new FilteringScope(sourceScope(context.eContainer as TypeGraphMapping), [ eod |
+			EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(eod.EClass)
+		])
 	}
 
 	def IScope scope_ClassMapping_target(ClassMapping context, EReference ref) {
-		new FilteringScope(
-			targetScope(context.eContainer as TypeGraphMapping), 
-			[ eod | EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(eod.EClass)])
+		new FilteringScope(targetScope(context.eContainer as TypeGraphMapping), [ eod |
+			EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(eod.EClass)
+		])
 	}
-	
+
 	def IScope scope_ReferenceMapping_source(ReferenceMapping context, EReference ref) {
-		new FilteringScope(
-			sourceScope(context.eContainer as TypeGraphMapping), 
-			[ eod | eod.EClass == EcorePackage.Literals.EREFERENCE])
+		new FilteringScope(sourceScope(context.eContainer as TypeGraphMapping), [ eod |
+			eod.EClass == EcorePackage.Literals.EREFERENCE
+		])
 	}
 
 	def IScope scope_ReferenceMapping_target(ReferenceMapping context, EReference ref) {
+		new FilteringScope(targetScope(context.eContainer as TypeGraphMapping), [ eod |
+			eod.EClass == EcorePackage.Literals.EREFERENCE
+		])
+	}
+
+	private def IScope sourceScope(TypeGraphMapping tgm) {
+		scopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents],
+			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+	}
+
+	private def IScope targetScope(TypeGraphMapping tgm) {
+		scopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents],
+			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+	}
+
+	def IScope scope_RuleMapping_source(RuleMapping context, EReference ref) {
+		rm_scope((context.eContainer.eContainer as GTSMapping).source)
+	}
+
+	def IScope scope_RuleMapping_target(RuleMapping context, EReference ref) {
+		rm_scope((context.eContainer.eContainer as GTSMapping).target)
+	}
+
+	private def rm_scope(GTSSpecification gts) {
+		if (gts.behaviour !== null) {
+			scopeFor([
+				gts.behaviour.eAllContents.filter [ eo |
+					eo instanceof Rule
+				]
+			], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+		} else {
+			IScope.NULLSCOPE
+		}
+	}
+
+	def IScope scope_ObjectMapping_source(ObjectMapping context, EReference ref) {
 		new FilteringScope(
-			targetScope(context.eContainer as TypeGraphMapping), 
-			[ eod | eod.EClass == EcorePackage.Literals.EREFERENCE])
+			sourceScope(context.eContainer as RuleMapping),
+			[eod|eod.EClass == HenshinPackage.Literals.NODE]
+		)
 	}
 
-	def IScope sourceScope (TypeGraphMapping tgm) {
-		scopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+	def IScope scope_ObjectMapping_target(ObjectMapping context, EReference ref) {
+		new FilteringScope(
+			targetScope(context.eContainer as RuleMapping),
+			[eod|eod.EClass == HenshinPackage.Literals.NODE]
+		)
 	}
 
-	def IScope targetScope (TypeGraphMapping tgm) {
-		scopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+	def IScope scope_LinkMapping_source(LinkMapping context, EReference ref) {
+		new FilteringScope(
+			sourceScope(context.eContainer as RuleMapping),
+			[eod|eod.EClass == HenshinPackage.Literals.EDGE]
+		)
+	}
+
+	def IScope scope_LinkMapping_target(LinkMapping context, EReference ref) {
+		new FilteringScope(
+			targetScope(context.eContainer as RuleMapping),
+			[eod|eod.EClass == HenshinPackage.Literals.EDGE]
+		)
+	}
+
+	// An adapted variant of SimpleNameProvider that handles Henshin naming graciously
+	val nameProvider = new IQualifiedNameProvider.AbstractImpl {
+
+		private val delegate = new HenshinQualifiedNameProvider
+
+		override getFullyQualifiedName(EObject obj) {
+			val name = delegate.getFullyQualifiedName(obj)
+			if (name === null) {
+				null
+			} else {
+				QualifiedName.create(name.lastSegment)
+			}
+		}
+
+	}
+
+	private def sourceScope(RuleMapping rm) {
+		scopeFor([
+			rm.source.eAllContents
+		], nameProvider, IScope.NULLSCOPE)
+	}
+
+	private def targetScope(RuleMapping rm) {
+		scopeFor([rm.target.eAllContents], nameProvider, IScope.NULLSCOPE)
 	}
 }
