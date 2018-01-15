@@ -570,6 +570,48 @@ class XDsmlComposeParsingAndValidationTests {
 	}
 	
 	/**
+	 * Tests auto-completion of behaviour morphisms
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete map {
+					from {
+						metamodel: "server"
+						behaviour: "serverRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.GenHandle
+						class server.Queue => devsmm.Conveyor
+						reference server.Server.Out => devsmm.Machine.out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.generateHandle to serverRules.produce {
+							object s => g
+						}
+					}
+				}
+			''',
+			createResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		// For now 
+		// TODO: update with proper size
+		assertTrue(issues.empty)		
+		// TODO Add more meaningful tests
+	}
+	
+	/**
 	 * Tests that completeness check works correctly for complete mappings
 	 */
 	@Test
