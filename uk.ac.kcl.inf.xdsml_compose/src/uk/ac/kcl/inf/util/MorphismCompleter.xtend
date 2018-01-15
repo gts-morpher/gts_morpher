@@ -665,7 +665,7 @@ class MorphismCompleter {
 		// TODO Check we're using the right clan relation here 
 		val pickTgtClan = (typeMapping.get((pick as Node).type) as EClass).getClan(allTgtClasses)
 		tgtPattern.nodes.filter [ n |
-			pickTgtClan.contains(n.eClass)
+			pickTgtClan.contains(n.type)
 		].toList
 	}
 
