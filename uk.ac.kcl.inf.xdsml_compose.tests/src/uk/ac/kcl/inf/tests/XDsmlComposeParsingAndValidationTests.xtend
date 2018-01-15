@@ -583,19 +583,17 @@ class XDsmlComposeParsingAndValidationTests {
 						behaviour: "serverRules"
 					}
 					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
+						metamodel: "server"
+						behaviour: "serverRules"
 					}
 					
 					type_mapping {
-						class server.Server => devsmm.GenHandle
-						class server.Queue => devsmm.Conveyor
-						reference server.Server.Out => devsmm.Machine.out
+						class server.Server => server.Server
 					}
 					
 					behaviour_mapping {
-						rule devsmmRules.generateHandle to serverRules.produce {
-							object s => g
+						rule serverRules.process to serverRules.process {
+							object server => server
 						}
 					}
 				}

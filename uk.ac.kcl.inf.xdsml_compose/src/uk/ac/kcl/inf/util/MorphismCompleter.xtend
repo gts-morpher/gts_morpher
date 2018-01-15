@@ -24,6 +24,8 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import uk.ac.kcl.inf.util.MorphismCompleter.MorphismOrNonmatchedCount
 
+import static extension org.eclipse.core.runtime.Assert.*
+
 /**
  * Helper for completing type mappings into clan morphisms 
  */
@@ -653,7 +655,7 @@ class MorphismCompleter {
 
 	private dispatch def List<Node> findPossibleMatchesInPattern(Node pick, Graph tgtPattern) {
 		// TODO Check we're using the right clan relation here 
-		val pickTgtClan = (behaviourMapping.get((pick as Node).type) as EClass).getClan(allTgtClasses)
+		val pickTgtClan = (typeMapping.get((pick as Node).type) as EClass).getClan(allTgtClasses)
 		tgtPattern.nodes.filter [ n |
 			pickTgtClan.contains(n.eClass)
 		].toList
@@ -661,8 +663,8 @@ class MorphismCompleter {
 
 	private dispatch def List<Edge> findPossibleMatchesInPattern(Edge pick, Graph tgtPattern) {
 		// TODO Check we're using the right clan relation here 
-		val pickSrcTgtClan = (behaviourMapping.get((pick as Edge).source.type) as EClass).getClan(allTgtClasses)
-		val pickTgtTgtClan = (behaviourMapping.get((pick as Edge).target.type) as EClass).getClan(allTgtClasses)
+		val pickSrcTgtClan = (typeMapping.get((pick as Edge).source.type) as EClass).getClan(allTgtClasses)
+		val pickTgtTgtClan = (typeMapping.get((pick as Edge).target.type) as EClass).getClan(allTgtClasses)
 
 		tgtPattern.edges.filter [ e |
 			pickSrcTgtClan.contains(e.source.type) && pickTgtTgtClan.contains(e.target.type)
@@ -744,6 +746,8 @@ class MorphismCompleter {
 	 * @return a list of a clan members of {@code clazz}
 	 */
 	private static def List<EClass> getClan(EClass clazz, List<? extends EObject> allModelElements) {
+		isNotNull(clazz)
+		
 		var clan = new ArrayList<EClass>()
 		clan.add(clazz)
 
