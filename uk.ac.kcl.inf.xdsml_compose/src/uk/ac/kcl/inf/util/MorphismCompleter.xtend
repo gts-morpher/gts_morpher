@@ -599,7 +599,7 @@ class MorphismCompleter {
 		var Morphism morphism = null
 		val possibleMatches = findPossibleMatches(pick, tgtRule)
 
-		// FIXME: Should make sure kernel mappings are preserved a priori, too, to avoid overly many checks
+		// TODO: Should make sure kernel mappings are preserved a priori, too, to avoid overly many checks
 		for (currentMatch : possibleMatches) {
 			behaviourMapping.put(pick, currentMatch)
 
