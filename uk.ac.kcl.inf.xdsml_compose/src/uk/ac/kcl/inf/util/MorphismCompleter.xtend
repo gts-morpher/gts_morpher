@@ -478,7 +478,7 @@ class MorphismCompleter {
 			new HashMap<Rule, MorphismOrNonmatchedCount>(allTgtBehaviorElements.filter(Rule).size))
 
 		// 1. Check rules that are already mapped and try to complete their morphisms
-		behaviourMapping.keySet.filter(Rule).forEach [ r |
+		behaviourMapping.keySet.filter(Rule).toList.forEach [ r |
 			// Check rule morphism can be completed and find all possible completions and the minimum number of unmapped elements *within the rule*
 			resultData.value.put(r,
 				tryCompleteRuleMorphism(r, behaviourMapping.get(r) as Rule, unmappedBehaviourElements, findAll))
