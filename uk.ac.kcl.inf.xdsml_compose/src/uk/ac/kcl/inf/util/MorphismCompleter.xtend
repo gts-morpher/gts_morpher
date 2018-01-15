@@ -35,6 +35,12 @@ class MorphismCompleter {
 	 */
 	@Accessors(PUBLIC_GETTER)
 	private var List<Map<? extends EObject, ? extends EObject>> completedMappings = new ArrayList
+	
+	/**
+	 * If true, then we were able to at least complete a type mapping.
+	 */
+	@Accessors(PUBLIC_GETTER)
+	private var boolean completedTypeMapping = false
 
 	private var Map<EObject, EObject> typeMapping
 	private var EPackage srcPackage
@@ -105,6 +111,7 @@ class MorphismCompleter {
 	 */
 	def int findMorphismCompletions(boolean findAll) {
 		completedMappings = new ArrayList
+		completedTypeMapping = false
 
 		var List<EObject> unmatchedTGElements = unmatchedTGElements
 		var List<EObject> unmatchedBehaviourElements = unmatchedBehaviourElements
@@ -202,6 +209,7 @@ class MorphismCompleter {
 	private def int handleFoundTGMorphism(List<EObject> unmatchedBehaviourElements, boolean findAll) {
 		// TODO Better logging
 		println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
+		completedTypeMapping = true
 
 		// Check if we need to do any behaviour mapping
 		if ((srcModule === null) && (tgtModule === null)) {
