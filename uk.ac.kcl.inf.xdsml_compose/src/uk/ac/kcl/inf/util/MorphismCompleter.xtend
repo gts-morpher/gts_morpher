@@ -10,13 +10,19 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.henshin.model.Edge
+import org.eclipse.emf.henshin.model.Graph
+import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.Module
+import org.eclipse.emf.henshin.model.Node
+import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.eclipse.xtend.lib.annotations.Data
 
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import org.eclipse.emf.henshin.model.Rule
+import uk.ac.kcl.inf.util.MorphismCompleter.MorphismOrNonmatchedCount
 
 /**
  * Helper for completing type mappings into clan morphisms 
@@ -26,7 +32,7 @@ class MorphismCompleter {
 	 * This will contain the results, if any
 	 */
 	@Accessors(PUBLIC_GETTER)
-	private var List<Map<EObject, EObject>> completedMappings = new ArrayList
+	private var List<Map<? extends EObject, ? extends EObject>> completedMappings = new ArrayList
 
 	private var Map<EObject, EObject> typeMapping
 	private var EPackage srcPackage
@@ -43,7 +49,7 @@ class MorphismCompleter {
 	private List<EObject> allTgtBehaviorElements
 
 	new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage,
-	    Map<EObject, EObject> behaviourMapping, Module srcModule, Module tgtModule) {
+		Map<EObject, EObject> behaviourMapping, Module srcModule, Module tgtModule) {
 		this.typeMapping = new HashMap<EObject, EObject>(typeMapping)
 		this.srcPackage = srcPackage
 		this.tgtPackage = tgtPackage
@@ -55,7 +61,7 @@ class MorphismCompleter {
 		allTgtReferences = allTgtModelElements.filter(EReference).toList
 		allTgtClasses = Collections.unmodifiableList(allTgtClasses)
 		allTgtReferences = Collections.unmodifiableList(allTgtReferences)
-		
+
 		this.behaviourMapping = behaviourMapping
 		this.srcModule = srcModule
 		this.tgtModule = tgtModule
@@ -119,7 +125,8 @@ class MorphismCompleter {
 		}
 
 		// get first priority list and search all objects
-		doTryCompleteTypeMorphism(unmatchedTGElements, unmatchedTGElements.firstPriorityList, unmatchedBehaviourElements, findAll)
+		doTryCompleteTypeMorphism(unmatchedTGElements, unmatchedTGElements.firstPriorityList,
+			unmatchedBehaviourElements, findAll)
 	}
 
 	/**
@@ -137,7 +144,8 @@ class MorphismCompleter {
 	 *            - if true, find all morphism completions, if any
 	 * @return the number of unmatched elements in the model morphism
 	 */
-	private def int doTryCompleteTypeMorphism(List<EObject> unmatchedTGElements, List<EObject> _priorityList, List<EObject> unmatchedBehaviourElements, boolean findAll) {
+	private def int doTryCompleteTypeMorphism(List<EObject> unmatchedTGElements, List<EObject> _priorityList,
+		List<EObject> unmatchedBehaviourElements, boolean findAll) {
 		// If the mapping is already not a morphism, return the number of unmatched elements
 		if (!checkValidMaybeIncompleteClanMorphism(typeMapping, null)) {
 			// There's already at least one element too many in the map
@@ -167,7 +175,8 @@ class MorphismCompleter {
 		// go through all possible objects and recursively find matches for further objects
 		for (EObject o : possible) {
 			typeMapping.put(pick, o)
-			val int numUnmatchedInDescend = doTryCompleteTypeMorphism(unmatchedTGElements, priorityList, unmatchedBehaviourElements, findAll)
+			val int numUnmatchedInDescend = doTryCompleteTypeMorphism(unmatchedTGElements, priorityList,
+				unmatchedBehaviourElements, findAll)
 			// make sure count reflects the minimum found count
 			if (!findAll && (numUnmatchedInDescend == 0)) {
 				return 0
@@ -187,7 +196,7 @@ class MorphismCompleter {
 	 * Called whenever we've found a TG morphism. Try to complete it by a behaviour morphism.
 	 * 
 	 * @return the minimal number of elements that could not be mapped
-	 */	
+	 */
 	private def int handleFoundTGMorphism(List<EObject> unmatchedBehaviourElements, boolean findAll) {
 		// TODO Better logging
 		println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
@@ -207,13 +216,13 @@ class MorphismCompleter {
 		// Try to complete behaviour mapping
 		if (behaviourMapping.containsKey(srcModule)) {
 			if (behaviourMapping.get(srcModule) != tgtModule) {
-				println ("Weird behaviour mapping.")
+				println("Weird behaviour mapping.")
 				return unmatchedBehaviourElements.size + 1
 			}
 		}
 		behaviourMapping.put(srcModule, tgtModule)
-		unmatchedBehaviourElements.remove (srcModule)
-		
+		unmatchedBehaviourElements.remove(srcModule)
+
 		return tryMapRules(unmatchedBehaviourElements, findAll)
 	}
 
@@ -418,19 +427,272 @@ class MorphismCompleter {
 	 * Returns a list of elements not yet matched in the {@link behaviourMapping}.
 	 */
 	private def List<EObject> getUnmatchedBehaviourElements() {
-		var result = allSrcBehaviorElements.reject[eo | eo instanceof Rule].toList
+		var result = allSrcBehaviorElements.reject[eo|eo instanceof Rule].toList
 		result.removeAll(behaviourMapping.keySet)
 		if (tgtModule !== null) {
-			result.addAll(tgtModule.units.filter(Rule).reject[r | behaviourMapping.containsKey(r)])			
+			result.addAll(tgtModule.units.filter(Rule).reject[r|behaviourMapping.containsKey(r)])
 		}
-		
+
 		result
 	}
 
-	private def tryMapRules (List<EObject> unmappedBehaviourElements, boolean findAll) {
-		// FIXME: Replace me with actual search through rules
-		completedMappings.add(new HashMap(typeMapping))
-		return 0
+	@Data
+	private static abstract class MorphismOrNonmatchedCount {
+	}
+
+	@Data
+	private static class Morphism extends MorphismOrNonmatchedCount {
+		private val List<Pair<Rule, List<Pair<EObject, EObject>>>> mappingVariants
+	}
+
+	@Data
+	private static class NonmatchedCount extends MorphismOrNonmatchedCount {
+		private val int numUnmatched
+	}
+
+	/**
+	 * Try to map all rules with complete rule morphisms. Return the minimum number of unmatched elements if no morphism completion can be found. Alternatively, store the complete 
+	 * mapping (including the type mapping) in {@link #completedMappings}. If findAll is true, find all possible completions. Otherwise, stop when the first completion has been found.
+	 */
+	private def tryMapRules(List<EObject> unmappedBehaviourElements, boolean findAll) {
+		// I don't think the code in Kinga's searchRules method is actually correctly doing a complete search of the possible rule completions
+		/*
+		 * Plan: 
+		 * 
+		 * 1. Check whether rule morphisms can be established. There may be many ways in which to complete a particular rule morphism, but at this level we're only interested in 
+		 *    whether a rule morphism can be established at all. We do this in two steps:
+		 * 
+		 *    1. Check the rules that have already been mapped. Here we just check whether these rule mappings can be meaningfully completed to rule morphisms.
+		 *    2. Check the rules that have not been mapped yet. Here we have more freedom to choose which rule to map to which, so we need to do a full recursive descend. For sanity, 
+		 *       we assume that there are no Object or Link mappings without a corresponding Rule mapping. Note that this will always be satisfied for mappings that come from the DSML.
+		 * 
+		 *    In each case, we call out to a function that tries to complete the rule morphism. If there are multiple options for completing the morphism, and findAll is true, this will 
+		 *    return all options. We use the resulting list to create all combinations once we have mapped all rules.
+		 * 
+		 * 2. Once all target rules are mapped, we need to check that we have mapped to all source rules. If not, we need to add in mappings from virtual nop rules --> TODO figure out what exactly we need to do here.
+		 * 
+		 * 3. Once all mappings have been established, create all recombinations to produce the full set of valid morphisms, if so required. Alternatively, just pick one and go with it :-)
+		 */
+		// This will store all possible rule mappings found for each target rule or the minimum number of unmatched elements for that rule
+		val resultData = new ValueHolder<Map<Rule, MorphismOrNonmatchedCount>>(
+			new HashMap<Rule, MorphismOrNonmatchedCount>(allTgtBehaviorElements.filter(Rule).size))
+
+		// 1. Check rules that are already mapped and try to complete their morphisms
+		behaviourMapping.keySet.filter(Rule).forEach [ r |
+			// Check rule morphism can be completed and find all possible completions and the minimum number of unmapped elements *within the rule*
+			resultData.value.put(r,
+				tryCompleteRuleMorphism(r, behaviourMapping.get(r) as Rule, unmappedBehaviourElements, findAll))
+		]
+
+		// 2. Check the rules that have not been mapped yet
+		var unmappedRules = unmappedBehaviourElements.filter(Rule).toList
+		doTryMapRules(unmappedRules, unmappedBehaviourElements, findAll, resultData.value)
+
+		// TODO: 3. Check all source rules have been mapped to, too
+		
+		// 4. Figure out mappings to return
+		if (resultData.value.values.exists[v|v instanceof NonmatchedCount]) {
+			// Didn't manage to produce a match for all rules
+			return resultData.value.values.filter(NonmatchedCount).fold(0, [acc, nmc|acc + nmc.numUnmatched])
+		} else {
+			// Matched all rules, now need to merge results
+			// No need to consider findAll; that's already been taken into account in the search
+			recombineFoundMappings(resultData.value)
+
+			return 0
+		}
+	}
+
+	/**
+	 * Try to map all remaining unmapped rules, placing the results into the result parameter.
+	 */
+	private def doTryMapRules(List<Rule> unmappedRules, List<EObject> unmappedBehaviourElements, boolean findAll,
+		Map<Rule, MorphismOrNonmatchedCount> result) {
+		unmappedRules.forEach[pick |
+			val ValueHolder<MorphismOrNonmatchedCount> resultForPick = new ValueHolder(null)
+			
+			allSrcBehaviorElements.filter(Rule).forEach [ r |
+				behaviourMapping.put(pick, r)
+				val possibleRuleMorphism = tryCompleteRuleMorphism(pick, r, unmappedBehaviourElements, findAll)
+			
+				if (resultForPick.value === null) {
+					resultForPick.value = possibleRuleMorphism
+				} else {
+					if (possibleRuleMorphism instanceof Morphism) {
+						// store
+						if (resultForPick.value instanceof Morphism) {
+							(resultForPick.value as Morphism).mappingVariants.addAll(possibleRuleMorphism.mappingVariants)
+						} else {
+							resultForPick.value = possibleRuleMorphism
+						}
+					} else {
+						if (resultForPick.value instanceof NonmatchedCount) {
+							if ((resultForPick.value as NonmatchedCount).numUnmatched > (possibleRuleMorphism as NonmatchedCount).numUnmatched) {
+								resultForPick.value = possibleRuleMorphism
+							}
+						}
+					}
+				}
+
+				behaviourMapping.remove(pick)
+			]
+			
+			result.put(pick, resultForPick.value)
+		]
+	}
+
+	/**
+	 * Try to complete the rule morphism between srcRule and tgtRule considering all unmapped elements in these rules.
+	 */
+	private def MorphismOrNonmatchedCount tryCompleteRuleMorphism(Rule tgtRule, Rule srcRule,
+		List<EObject> unmappedBehaviourElements, boolean findAll) {
+		val unmappedPatterns = unmappedBehaviourElements.filter(Graph).filter[g|g.eContainer == srcRule].toList
+		unmappedPatterns.forEach [ p |
+			if (p == srcRule.lhs) {
+				behaviourMapping.put(srcRule.lhs, tgtRule.lhs)
+				unmappedBehaviourElements.remove(p)
+			} else if (p == srcRule.rhs) {
+				behaviourMapping.put(srcRule.rhs, tgtRule.rhs)
+				unmappedBehaviourElements.remove(p)
+			}
+		]
+
+		val elementsToMap = unmappedBehaviourElements.filter(GraphElement).filter [ pe |
+			pe.eContainer.eContainer == srcRule
+		].toList
+		val result = doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)
+
+		// Restore unmapped patterns
+		unmappedPatterns.forEach [ p |
+			behaviourMapping.remove(p)
+			unmappedBehaviourElements.add(p)
+		]
+
+		result
+	}
+
+	/**
+	 * Map one more graph element and descend recursively if possible
+	 */
+	def MorphismOrNonmatchedCount doTryCompleteRuleMorphism(Rule srcRule, Rule tgtRule,
+		List<GraphElement> elementsToMap, boolean findAll) {
+		// Check it's still a rule morphism
+		if (!checkRuleMorphism(tgtRule, srcRule, typeMapping, behaviourMapping, null)) {
+			// We've mapped at least one element too many in this rule, already
+			return new NonmatchedCount(elementsToMap.size + 1)
+		}
+
+		// Check whether we're done and, if so, return appropriately
+		if (elementsToMap.empty) {
+			var mappingVariant = new ArrayList<Pair<Rule, List<Pair<EObject, EObject>>>>
+			mappingVariant.add(new Pair(tgtRule, behaviourMapping.filter [ src, tgt |
+				((src instanceof Graph) && (src.eContainer == srcRule)) ||
+					((src instanceof GraphElement) && (src.eContainer.eContainer == srcRule))
+			].entrySet.map[e|new Pair<EObject, EObject>(e.key, e.value)].toList))
+
+			return new Morphism(mappingVariant)
+		}
+
+		// Pick an element to map and find a mapping, then recursively descend
+		val pick = elementsToMap.remove(0)
+		var unmatchedCount = elementsToMap.size + 1
+		var Morphism morphism = null
+		val possibleMatches = findPossibleMatches(pick, tgtRule)
+
+		// FIXME: Should make sure kernel mappings are preserved a priori, too, to avoid overly many checks
+		for (currentMatch : possibleMatches) {
+			behaviourMapping.put(pick, currentMatch)
+
+			val descendResult = doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)
+			if (descendResult instanceof Morphism) {
+				unmatchedCount = 0
+
+				if (!findAll) {
+					return descendResult
+				} else {
+					// Extend current morphism, if any
+					if (morphism === null) {
+						morphism = descendResult
+					} else {
+						morphism.mappingVariants.addAll(descendResult.mappingVariants)
+					}
+				}
+			} else if (descendResult instanceof NonmatchedCount) {
+				if (unmatchedCount > descendResult.numUnmatched) {
+					unmatchedCount = descendResult.numUnmatched
+				}
+			}
+
+			behaviourMapping.remove(pick)
+		}
+
+		elementsToMap.add(0, pick)
+
+		if (morphism !== null) {
+			return morphism
+		} else {
+			return new NonmatchedCount(unmatchedCount)
+		}
+	}
+
+	private def List<? extends GraphElement> findPossibleMatches(GraphElement pick, Rule tgtRule) {
+		val Rule srcRule = pick.eContainer.eContainer as Rule
+		val srcPattern = pick.eContainer as Graph
+
+		if (srcPattern == srcRule.lhs) {
+			findPossibleMatchesInPattern(pick, tgtRule.lhs)
+		} else {
+			findPossibleMatchesInPattern(pick, tgtRule.rhs)
+		}
+	}
+
+	private dispatch def List<? extends GraphElement> findPossibleMatchesInPattern(GraphElement pick,
+		Graph tgtPattern) {
+		Collections.EMPTY_LIST
+	}
+
+	private dispatch def List<Node> findPossibleMatchesInPattern(Node pick, Graph tgtPattern) {
+		// TODO Check we're using the right clan relation here 
+		val pickTgtClan = (behaviourMapping.get(pick) as Node).eClass.getClan(allTgtClasses)
+		tgtPattern.nodes.filter [ n |
+			pickTgtClan.contains(n.eClass)
+		].toList
+	}
+
+	private dispatch def List<Edge> findPossibleMatchesInPattern(Edge pick, Graph tgtPattern) {
+		// TODO Check we're using the right clan relation here 
+		val pickSrcTgtClan = (behaviourMapping.get(pick) as Edge).source.type.getClan(allTgtClasses)
+		val pickTgtTgtClan = (behaviourMapping.get(pick) as Edge).target.type.getClan(allTgtClasses)
+
+		tgtPattern.edges.filter [ e |
+			pickSrcTgtClan.contains(pick.source.type) && pickTgtTgtClan.contains(pick.target.type)
+		].toList
+	}
+
+	/**
+	 * Recursively recombine all possible morphism mappings and add them to {@link completedMappings}.
+	 */
+	private def recombineFoundMappings(Map<Rule, MorphismOrNonmatchedCount> mappings) {
+		doRecombineFoundMappings(mappings.entrySet.toList, new HashMap(typeMapping))
+	}
+
+	private def void doRecombineFoundMappings(List<Map.Entry<Rule, MorphismOrNonmatchedCount>> remainingMappings,
+		Map<? extends EObject, ? extends EObject> recombinedMorphism) {
+		if (remainingMappings.empty) {
+			completedMappings.add(recombinedMorphism)
+			return
+		}
+
+		val pick = remainingMappings.remove(0)
+
+		(pick.value as Morphism).mappingVariants.forEach [ v |
+			val newMorphism = new HashMap(recombinedMorphism)
+			newMorphism.put(pick.key, v.key)
+			v.value.forEach[vv|newMorphism.put(vv.key, vv.value)]
+			doRecombineFoundMappings(remainingMappings, newMorphism)
+		]
+
+		remainingMappings.add(0, pick)
 	}
 
 	/**
@@ -447,27 +709,27 @@ class MorphismCompleter {
 			!eo.eClass().getName().equals("EGenericType")
 		].toList
 	}
-	
+
 	private static def getAllContents(Module module) {
 		if (module !== null) {
-			var result = module.units.filter(Rule).map[r | 
+			var result = module.units.filter(Rule).map [ r |
 				var List<EObject> result = new ArrayList<EObject>()
 				result.add(r)
 				result.add(r.lhs)
 				result.add(r.rhs)
-				
+
 				result.addAll(r.lhs.nodes)
 				result.addAll(r.rhs.nodes)
-	
+
 				result.addAll(r.lhs.edges)
 				result.addAll(r.rhs.edges)
-				 
+
 				result
 			].flatten.toList
-			
+
 			result.add(module)
-			
-			result			
+
+			result
 		} else {
 			Collections.EMPTY_LIST
 		}
@@ -491,6 +753,5 @@ class MorphismCompleter {
 
 		clan
 	}
-	
-	
+
 }

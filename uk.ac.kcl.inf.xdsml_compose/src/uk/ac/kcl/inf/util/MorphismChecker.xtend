@@ -232,7 +232,7 @@ class MorphismChecker {
 	/**
 	 * Check if tgtRule -> srcRule is a valid mapping (i.e., the mapped elements do not stop srcRule -> tgtRule from being a rule morphism). List any issues in the issues list provided.
 	 */
-	static private def boolean checkRuleMorphism(Rule tgtRule, Rule srcRule, Map<EObject, EObject> typeMapping,
+	static def boolean checkRuleMorphism(Rule tgtRule, Rule srcRule, Map<EObject, EObject> typeMapping,
 		Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
 
 		val srcLhsPattern = srcRule.lhs

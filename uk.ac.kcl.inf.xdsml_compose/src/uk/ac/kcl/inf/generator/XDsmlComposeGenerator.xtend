@@ -41,7 +41,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	/**
 	 * Assume mapping has the autocomplete option set and generate a new representation of the mapping where all source elements have been mapped
 	 */
-	private def generateCompleteMorphism(GTSMapping mapping, Map<EObject, EObject> mp) '''
+	private def generateCompleteMorphism(GTSMapping mapping, Map<? extends EObject, ? extends EObject> mp) '''
 		map {
 			from {
 				metamodel: "«mapping.source.metamodel.name»"
