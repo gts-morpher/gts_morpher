@@ -653,7 +653,7 @@ class MorphismCompleter {
 
 	private dispatch def List<Node> findPossibleMatchesInPattern(Node pick, Graph tgtPattern) {
 		// TODO Check we're using the right clan relation here 
-		val pickTgtClan = (behaviourMapping.get(pick) as Node).eClass.getClan(allTgtClasses)
+		val pickTgtClan = (behaviourMapping.get((pick as Node).type) as EClass).getClan(allTgtClasses)
 		tgtPattern.nodes.filter [ n |
 			pickTgtClan.contains(n.eClass)
 		].toList
@@ -661,11 +661,11 @@ class MorphismCompleter {
 
 	private dispatch def List<Edge> findPossibleMatchesInPattern(Edge pick, Graph tgtPattern) {
 		// TODO Check we're using the right clan relation here 
-		val pickSrcTgtClan = (behaviourMapping.get(pick) as Edge).source.type.getClan(allTgtClasses)
-		val pickTgtTgtClan = (behaviourMapping.get(pick) as Edge).target.type.getClan(allTgtClasses)
+		val pickSrcTgtClan = (behaviourMapping.get((pick as Edge).source.type) as EClass).getClan(allTgtClasses)
+		val pickTgtTgtClan = (behaviourMapping.get((pick as Edge).target.type) as EClass).getClan(allTgtClasses)
 
 		tgtPattern.edges.filter [ e |
-			pickSrcTgtClan.contains(pick.source.type) && pickTgtTgtClan.contains(pick.target.type)
+			pickSrcTgtClan.contains(e.source.type) && pickTgtTgtClan.contains(e.target.type)
 		].toList
 	}
 
