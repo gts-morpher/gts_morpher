@@ -6,6 +6,9 @@ import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.henshin.model.ModelElement
+
+import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 class EMFHelper {
 
@@ -16,12 +19,14 @@ class EMFHelper {
 	static dispatch def getName(EReference er) { er.name }
 
 	static dispatch def getName(EPackage ep) { ep.name }
+	
+	static dispatch def getName(ModelElement me) { me.name() }
 
 	static def CharSequence getQualifiedName(EObject eo) {
 		if (eo.eContainer !== null) {
-			'''«eo.eContainer.qualifiedName».«eo.name»'''
+			'''«eo.eContainer.qualifiedName».«eo.getName()»'''
 		} else {
-			eo.name
+			eo.getName()
 		}
 	}
 
@@ -39,7 +44,7 @@ class EMFHelper {
 			if (currentPackage === null) {
 				return null
 			}
-			next = currentPackage.eContents.findFirst[eo|eo.name.equals(segment)]
+			next = currentPackage.eContents.findFirst[eo|eo.getName().equals(segment)]
 
 			if (next === null) {
 				return null

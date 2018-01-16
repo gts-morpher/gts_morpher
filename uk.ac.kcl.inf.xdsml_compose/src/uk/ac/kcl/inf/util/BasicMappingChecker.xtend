@@ -67,6 +67,10 @@ class BasicMappingChecker {
 	public static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping, IssueAcceptor issues) {
 		val _mapping = new HashMap<EObject, EObject>
 
+		if (mapping === null) {
+			return _mapping
+		}
+
 		mapping.mappings.forEach [ rm |
 			if (_mapping.containsKey(rm.target)) {
 				if (issues !== null) {

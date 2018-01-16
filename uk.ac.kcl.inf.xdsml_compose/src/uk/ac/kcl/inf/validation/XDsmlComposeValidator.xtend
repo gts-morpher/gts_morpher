@@ -21,7 +21,7 @@ import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
 import uk.ac.kcl.inf.util.BasicMappingChecker
 import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
-import uk.ac.kcl.inf.util.TypeMorphismCompleter
+import uk.ac.kcl.inf.util.MorphismCompleter
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
@@ -50,6 +50,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
 	public static val INCOMPLETE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_TYPE_GRAPH_MAPPING'
 	public static val UNCOMPLETABLE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_TYPE_GRAPH_MAPPING'
+	public static val UNCOMPLETABLE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_BEHAVIOUR_MAPPING'
 	public static val NO_UNIQUE_COMPLETION = 'uk.ac.kcl.inf.xdsml_compose.NO_UNIQUE_COMPLETION'
 	public static val UNIQUE_COMPLETION_NOT_CHECKED = 'uk.ac.kcl.inf.xdsml_compose.UNIQUE_COMPLETION_NOT_CHECKED'
 	public static val DUPLICATE_RULE_MAPPING = BasicMappingChecker.DUPLICATE_RULE_MAPPING
@@ -134,7 +135,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkIsCompleteTypeMapping(GTSMapping mapping) {
-		if (mapping.typeMapping.isInCompleteMapping && !mapping.autoComplete) {
+		if (!mapping.autoComplete && mapping.typeMapping.isInCompleteMapping) {
 			warning("Incomplete mapping. Ensure all elements of the source metamodel are mapped.", mapping,
 				XDsmlComposePackage.Literals.GTS_MAPPING__SOURCE, INCOMPLETE_TYPE_GRAPH_MAPPING)
 		}
@@ -170,33 +171,51 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	@Check
 	def checkIsCompleteBehaviourMapping(GTSMapping mapping) {
 		if (!mapping.autoComplete) {
-			if (mapping.target.behaviour !== null) {
-				checkIsCompletelyCovered(mapping.target, mapping.behaviourMapping, [rm|rm.target])
-			}
-			if (mapping.source.behaviour !== null) {
-				checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source])
-			}
+			doCheckIsCompleteBehaviourMapping(mapping, this)
 		}
 	}
 
-	private def checkIsCompletelyCovered(GTSSpecification gts, BehaviourMapping behaviourMapping,
-		Function<RuleMapping, Rule> ruleGetter) {
+	private def doCheckIsCompleteBehaviourMapping(GTSMapping mapping, XDsmlComposeValidator validator) {
+		var result = true
+		
+		if (mapping.target.behaviour !== null) {
+			result = checkIsCompletelyCovered(mapping.target, mapping.behaviourMapping, [rm|rm.target], validator) && result
+		}
+		if (mapping.source.behaviour !== null) {
+			result = checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source], validator) && result
+		}
+		
+		result
+	}
+	
+	private def boolean checkIsCompletelyCovered(GTSSpecification gts, BehaviourMapping behaviourMapping,
+		Function<RuleMapping, Rule> ruleGetter, XDsmlComposeValidator validator) {
 		val Iterable<Rule> rules = gts.behaviour.units.filter(Rule)
 		if (rules.empty) {
-			return
+			return true
 		}
+		
+		var result = true
 		
 		if (behaviourMapping === null) {
 			// Really should have some behaviour mappings if there are any rules at all...
-			warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
+			if (validator !== null) {
+				validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
 					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)
+			}
+			result = false
 		}
 		
 		val mappedRules = behaviourMapping.mappings.map[rm | ruleGetter.apply(rm)].toList
 		if (rules.exists[r | !mappedRules.contains(r)]) {
-			warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
-					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)			
+			if (validator !== null) {
+				validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
+						XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)				
+			}
+			result = false
 		}
+		
+		result
 	}
 
 	/**
@@ -207,14 +226,21 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		if (mapping.autoComplete) {
 			// Check we can auto-complete type mapping
 			val typeMapping = mapping.typeMapping
-			val _mapping = typeMapping.extractMapping
-			if (typeMapping.isInCompleteMapping) {
-				if (checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.source.metamodel,
-						mapping.target.metamodel)
-					if (morphismCompleter.tryCompleteTypeMorphism != 0) {
-						error("Cannot complete type mapping to a valid morphism", mapping,
-							XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+			val behaviourMapping = mapping.behaviourMapping
+			val _typeMapping = typeMapping.extractMapping
+			val _behaviourMapping = behaviourMapping.extractMapping
+			if (typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) {
+				if (checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
+					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
+						mapping.target.metamodel,_behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
+					if (morphismCompleter.tryCompleteMorphism != 0) {
+						if (!morphismCompleter.completedTypeMapping) {
+							error("Cannot complete type mapping to a valid morphism", mapping,
+								XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)							
+						} else {
+							error("Cannot complete behaviour mapping to a valid morphism", mapping,
+								XDsmlComposePackage.Literals.GTS_MAPPING__BEHAVIOUR_MAPPING, UNCOMPLETABLE_BEHAVIOUR_MAPPING)
+						}
 					} else if (mapping.uniqueCompletion) {
 						// TODO It would be good to remove this warning again when we're running the expensive check. The Eclipse API isn't available from here, for good reason. Not sure how to do this with Xtext means
 						if (!checkMode.shouldCheck(CheckType.EXPENSIVE)) {
@@ -240,16 +266,19 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			if (mapping.autoComplete && mapping.uniqueCompletion) {
 				// Check we can auto-complete type mapping
 				val typeMapping = mapping.typeMapping
-				val _mapping = typeMapping.extractMapping
-				if (typeMapping.isInCompleteMapping && checkValidMaybeIncompleteClanMorphism(_mapping, null)) {
-					val morphismCompleter = new TypeMorphismCompleter(_mapping, mapping.source.metamodel,
-						mapping.target.metamodel)
+				val behaviourMapping = mapping.behaviourMapping
+				val _typeMapping = typeMapping.extractMapping
+				val _behaviourMapping = behaviourMapping.extractMapping
+				if ((typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) && checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
+					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
+						mapping.target.metamodel, _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
 
 					if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
 						(morphismCompleter.completedMappings.size > 1)) {
 						// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
 						val sortedImprovements = morphismCompleter.findImprovementOptions
 
+						// TODO Propose fixes for behaviour mapping completions, too
 						error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
 							mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
 							sortedImprovements.map [ e |
@@ -260,7 +289,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			}
 		}
 
-		private def findImprovementOptions(TypeMorphismCompleter morphismCompleter) {
+		private def findImprovementOptions(MorphismCompleter morphismCompleter) {
 			// Sort all newly mapped elements by number of potential mappings, descending
 			// and remove those elements with only one mapping
 			morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [ _acc, mp |
