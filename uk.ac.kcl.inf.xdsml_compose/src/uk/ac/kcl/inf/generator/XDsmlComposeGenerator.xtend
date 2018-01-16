@@ -20,7 +20,6 @@ import uk.ac.kcl.inf.util.MorphismCompleter
 import uk.ac.kcl.inf.util.ValueHolder
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
-import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 
 import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 
