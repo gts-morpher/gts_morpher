@@ -3,6 +3,7 @@
  */
 package uk.ac.kcl.inf.validation
 
+import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
 import java.util.List
@@ -16,12 +17,15 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Edge
+import org.eclipse.emf.henshin.model.Graph
+import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
 import uk.ac.kcl.inf.util.BasicMappingChecker
 import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
 import uk.ac.kcl.inf.util.MorphismCompleter
+import uk.ac.kcl.inf.util.ValueHolder
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
@@ -29,7 +33,6 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
-import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
@@ -142,31 +145,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	}
 
 	/**
-	 * Check that the given rule mapping is complete
-	 */
-	@Check
-	def checkIsCompleteRuleMapping(RuleMapping mapping) {
-		if (!(mapping.eContainer.eContainer as GTSMapping).autoComplete) {
-			if (!checkAllMapped(mapping.source.lhs.nodes, mapping.element_mappings) ||
-				!checkAllMapped(mapping.source.lhs.edges, mapping.element_mappings) ||
-				!checkAllMapped(mapping.source.rhs.nodes, mapping.element_mappings) ||
-				!checkAllMapped(mapping.source.rhs.edges, mapping.element_mappings)) {
-				warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
-					XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
-			}
-		}
-	}
-
-	private def checkAllMapped(List<? extends EObject> objects, List<RuleElementMapping> mappings) {
-		objects.forall [ o |
-			mappings.filter(ObjectMapping).exists[om|om.source == o] || mappings.filter(LinkMapping).exists [lm|
-				lm.source == o
-			]
-		]
-	}
-
-	/**
-	 * Check that the given behaviour mapping maps all rules
+	 * Check that the given behaviour mapping maps all rules and maps them completely
 	 */
 	@Check
 	def checkIsCompleteBehaviourMapping(GTSMapping mapping) {
@@ -176,16 +155,18 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	}
 
 	private def doCheckIsCompleteBehaviourMapping(GTSMapping mapping, XDsmlComposeValidator validator) {
-		var result = true
+		val result = new ValueHolder(true)
 		
 		if (mapping.target.behaviour !== null) {
-			result = checkIsCompletelyCovered(mapping.target, mapping.behaviourMapping, [rm|rm.target], validator) && result
+			result.value = checkIsCompletelyCovered(mapping.target, mapping.behaviourMapping, [rm|rm.target], validator) && result.value
 		}
 		if (mapping.source.behaviour !== null) {
-			result = checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source], validator) && result
+			result.value = checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source], validator) && result.value
 		}
 		
-		result
+		mapping.behaviourMapping.mappings.forEach[rm | result.value = rm.checkIsCompleteRuleMapping (validator) && result.value] 
+		
+		result.value
 	}
 	
 	private def boolean checkIsCompletelyCovered(GTSSpecification gts, BehaviourMapping behaviourMapping,
@@ -216,6 +197,47 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		}
 		
 		result
+	}
+
+	/**
+	 * Check that the given rule mapping is complete
+	 */
+	def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
+		if (!(mapping.eContainer.eContainer as GTSMapping).autoComplete) {
+			val elementIndex = new HashMap<String, List<GraphElement>>()
+			mapping.source.lhs.addAllUnique(elementIndex)
+			mapping.source.rhs.addAllUnique(elementIndex)
+			
+			val inComplete = elementIndex.entrySet.exists[e | 
+				!mapping.element_mappings.exists[em |
+					((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
+					((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source)))
+				]
+			]
+			
+			if (inComplete) {
+				if (validator !== null) {
+					validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
+						XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
+				}
+					
+				return false
+			}
+		}
+		
+		true
+	}
+	
+	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map) {
+		graph.eContents.forEach[eo | 
+			val ge = eo as GraphElement
+			var list = map.get(ge.name.toString)
+			if (list === null) {
+				list = new ArrayList<GraphElement>()
+				map.put(ge.name.toString, list)
+			}
+			list.add(ge)
+		]
 	}
 
 	/**
