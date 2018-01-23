@@ -62,7 +62,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	'''
 	
 	private def generate(GTSSpecification spec) '''
-		{
+		«if (spec.interface_mapping) '''interface_of '''»{
 			metamodel: "«spec.metamodel.name»"
 			«if (spec.behaviour !== null) '''behaviour: "«spec.behaviour.name»"'''»
 		}
