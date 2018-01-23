@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.GraphElement
+import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
@@ -65,6 +66,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val INCOMPLETE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_BEHAVIOUR_MAPPING'
 	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_CLASS_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -113,23 +116,31 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		])
 
 		if (isValidTypeMorphism) {
+			val srcIsInterface = mapping.source.interface_mapping
 			checkValidMaybeIncompleteBehaviourMorphism(typeMapping,
 				extractMapping(mapping.behaviourMapping), [ object, message |
 					if (object instanceof Rule) {
-						error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
-							rm.source == object as Rule
-						], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+						// Interface mapping may create spuriour kernel mismatch errors, which we shouldn't reflect to the user
+						if (!srcIsInterface || (message != GENERAL_KERNEL_MISMATCH)) {
+							error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
+								rm.source == object as Rule
+							], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+						}
 					} else if (object instanceof Edge) {
-						error(message, mapping.behaviourMapping.mappings.
-							map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
-								lm.source == object as Edge
-							], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
-					} else if (object instanceof Object) {
-						error(message, mapping.behaviourMapping.mappings.map [ rm |
-							rm.element_mappings.filter(ObjectMapping)
-						].flatten.findFirst [ om |
-							om.source == object as Object
-						], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+						if (!srcIsInterface || isInterfaceElement(object.type)) {
+							error(message, mapping.behaviourMapping.mappings.
+								map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
+									lm.source == object as Edge
+								], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)							
+						}
+					} else if (object instanceof Node) {
+						if (!srcIsInterface || isInterfaceElement(object.type)) {
+							error(message, mapping.behaviourMapping.mappings.map [ rm |
+								rm.element_mappings.filter(ObjectMapping)
+							].flatten.findFirst [ om |
+								om.source == object as Object
+							], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+						}
 					}
 				])
 		}

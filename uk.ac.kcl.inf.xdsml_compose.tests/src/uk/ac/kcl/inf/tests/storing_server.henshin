@@ -15,7 +15,7 @@
       <nodes xmi:id="_dU8iwNBJEeeTmd7edEr5bw" name="input" incoming="_hpHtsNBJEeeTmd7edEr5bw">
         <type href="storing_server.ecore#//Input"/>
       </nodes>
-      <nodes xmi:id="_jpVXAAAiEeiiFe5EZuOeYQ" outgoing="_mRS3wAAiEeiiFe5EZuOeYQ">
+      <nodes xmi:id="_jpVXAAAiEeiiFe5EZuOeYQ" name="so" outgoing="_mRS3wAAiEeiiFe5EZuOeYQ">
         <type href="storing_server.ecore#//ServerObserver"/>
       </nodes>
       <edges xmi:id="_hW8YkNBJEeeTmd7edEr5bw" source="_bMXFoNBJEeeTmd7edEr5bw" target="_cGnucNBJEeeTmd7edEr5bw">
@@ -44,7 +44,7 @@
       <nodes xmi:id="_d2B2kNBJEeeTmd7edEr5bw" name="output" incoming="_ilczENBJEeeTmd7edEr5bw _rb7woAAiEeiiFe5EZuOeYQ">
         <type href="storing_server.ecore#//Output"/>
       </nodes>
-      <nodes xmi:id="_jpWlIAAiEeiiFe5EZuOeYQ" outgoing="_mRS3wQAiEeiiFe5EZuOeYQ _rb7woAAiEeiiFe5EZuOeYQ">
+      <nodes xmi:id="_jpWlIAAiEeiiFe5EZuOeYQ" name="so" outgoing="_mRS3wQAiEeiiFe5EZuOeYQ _rb7woAAiEeiiFe5EZuOeYQ">
         <type href="storing_server.ecore#//ServerObserver"/>
       </nodes>
       <edges xmi:id="_hW8YkdBJEeeTmd7edEr5bw" source="_bMXFodBJEeeTmd7edEr5bw" target="_cGnucdBJEeeTmd7edEr5bw">

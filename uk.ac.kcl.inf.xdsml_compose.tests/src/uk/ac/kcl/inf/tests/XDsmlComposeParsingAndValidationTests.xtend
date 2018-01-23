@@ -742,13 +742,13 @@ class XDsmlComposeParsingAndValidationTests {
 						class server.ServerObserver => devsmm.Machine
 						reference server.ServerObserver.server => devsmm.Machine.out
 					}
-ллл					
-ллл					behaviour_mapping {
-ллл						rule devsmmRules.process to serverRules.process {
-ллл							object input => in_part
-ллл							link [in_queue->input:elts] => [tray->in_part:parts]
-ллл						}
-ллл					}
+					
+					behaviour_mapping {
+						rule devsmmRules.process to serverRules.process {
+							object so => machine
+							link [so->server:server] => [machine->conveyor:out]
+						}
+					}
 				}
 			''',
 			createInterfaceResourceSet)
@@ -756,5 +756,9 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
+
+		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, XDsmlComposeValidator.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
+		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.NON_INTERFACE_LINK_MAPPING_ATTEMPT)
+		result.assertNoError(XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
 	}
 }
