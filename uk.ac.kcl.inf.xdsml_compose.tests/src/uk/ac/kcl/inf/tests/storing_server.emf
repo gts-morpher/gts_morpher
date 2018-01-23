@@ -1,0 +1,34 @@
+@namespace(uri="http://server/1.0", prefix="server")
+package server;
+
+@Interface
+class Server {
+  @Interface
+  ref Queue[*] Out;
+  @Interface
+  ref Queue[*] In;
+}
+
+@Interface
+class Queue {
+  @Interface
+  ref Element[*] elts;
+}
+
+@Interface
+class Element {
+}
+
+@Interface
+class Input extends Element {
+}
+
+@Interface
+class Output extends Element {
+}
+
+class ServerObserver {
+  ref Server[1] server;
+  ref Element[*] produced;
+}
+

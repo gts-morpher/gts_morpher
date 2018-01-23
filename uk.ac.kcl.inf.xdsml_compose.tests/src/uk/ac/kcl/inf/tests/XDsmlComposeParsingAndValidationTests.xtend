@@ -40,19 +40,27 @@ class XDsmlComposeParsingAndValidationTests {
 	@Inject
 	private Provider<XtextResourceSet> resourceSetProvider;
 	
-	private def createResourceSet() {
+	private def createResourceSet(String[] fileNames) {
 		val resourceSet = resourceSetProvider.get
 		resourceSet.packageRegistry.put (HenshinPackage.eINSTANCE.nsURI, HenshinPackage.eINSTANCE)
 		resourceSet.resourceFactoryRegistry.extensionToFactoryMap.put("henshin", new HenshinResourceFactory())
 		
-		#["server.ecore", "DEVSMM.ecore", "server.henshin", "devsmm.henshin"].forEach[ file | 
+		fileNames.forEach[ file | 
 			val fileURI = URI.createFileURI(XDsmlComposeParsingAndValidationTests.getResource(file).path)
 			resourceSet.getResource(fileURI, true)
 		]
 
 		resourceSet
 	}
+
+	private def createNormalResourceSet() {
+		#["server.ecore", "DEVSMM.ecore", "server.henshin", "devsmm.henshin"].createResourceSet
+	}
 	
+	private def createInterfaceResourceSet() {
+		#["storing_server.ecore", "DEVSMM.ecore", "storing_server.henshin", "devsmm.henshin"].createResourceSet
+	}
+
 	/**
 	 * Tests basic parsing and linking for a sunshine case
 	 */
@@ -75,7 +83,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
@@ -115,7 +123,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 		
@@ -154,7 +162,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
@@ -186,6 +194,68 @@ class XDsmlComposeParsingAndValidationTests {
 	}
 	
 	/**
+	 * Tests basic parsing and linking with behaviour mapping for an interface-mapping
+	 */
+	@Test
+	def void parsingBasicWithBehaviourAndInterface() {	
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from interface_of {
+						metamodel: "server"
+						behaviour: "serverRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine
+						reference server.Server.Out => devsmm.Machine.out
+					}
+					
+					behaviour_mapping {
+						rule devsmmRules.process to serverRules.process {
+							object input => in_part
+							link [in_queue->input:elts] => [tray->in_part:parts]
+						}
+					}
+				}
+			''',
+			createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Set to auto-complete", !result.autoComplete)
+
+		assertNotNull("No type mapping", result.typeMapping)
+
+		assertNotNull("Did not load source package", result.source.metamodel.name)
+		assertNotNull("Did not load target package", result.target.metamodel.name)
+
+		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
+
+		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+
+		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		
+		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
+		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
+		
+		val ruleMap = result.behaviourMapping.mappings.get(0)
+		assertNotNull ("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+		assertNotNull ("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNotNull ("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+		assertNotNull ("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
+	}
+
+	/**
 	 * Test basic parsing with unique auto-complete annotation.
 	 */
 	@Test
@@ -207,7 +277,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 		
@@ -249,7 +319,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as source and target are switched in the class mapping
@@ -293,7 +363,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there is an invalid GTS specification
@@ -343,7 +413,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
@@ -387,7 +457,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
@@ -429,7 +499,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
@@ -470,7 +540,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
@@ -502,7 +572,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		
 		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
@@ -531,7 +601,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		
 		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
@@ -562,7 +632,7 @@ class XDsmlComposeParsingAndValidationTests {
 					}
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		
 		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
@@ -605,7 +675,7 @@ class XDsmlComposeParsingAndValidationTests {
 				}
 			}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
@@ -644,7 +714,7 @@ class XDsmlComposeParsingAndValidationTests {
 					} 
 				}
 			''',
-			createResourceSet)
+			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		
 		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)		
