@@ -3,6 +3,7 @@ package uk.ac.kcl.inf.util
 import java.util.ArrayList
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
+import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
@@ -60,5 +61,9 @@ class EMFHelper {
 		} else {
 			null
 		}
+	}
+
+	public static def isInterfaceElement(EModelElement em) {
+		em.EAnnotations.exists[a | a.source.equalsIgnoreCase("Interface")]
 	}
 }

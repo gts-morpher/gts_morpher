@@ -15,6 +15,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/behaviourMapping"/>
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSSpecification">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSSpecification/interface_mapping"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecification/metamodel"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecification/behaviour"/>
     </genClasses>

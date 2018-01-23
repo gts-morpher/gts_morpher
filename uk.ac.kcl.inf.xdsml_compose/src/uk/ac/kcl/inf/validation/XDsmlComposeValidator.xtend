@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.GraphElement
+import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
@@ -41,6 +42,7 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import org.eclipse.emf.ecore.EModelElement
 
 /**
  * This class contains custom validation rules. 
@@ -63,6 +65,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NOT_A_RULE_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_RULE_MORPHISM'
 	public static val INCOMPLETE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_RULE_MAPPING'
 	public static val INCOMPLETE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_BEHAVIOUR_MAPPING'
+	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_CLASS_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -111,23 +117,31 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		])
 
 		if (isValidTypeMorphism) {
+			val srcIsInterface = mapping.source.interface_mapping
 			checkValidMaybeIncompleteBehaviourMorphism(typeMapping,
 				extractMapping(mapping.behaviourMapping), [ object, message |
 					if (object instanceof Rule) {
-						error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
-							rm.source == object as Rule
-						], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+						// Interface mapping may create spuriour kernel mismatch errors, which we shouldn't reflect to the user
+						if (!srcIsInterface || (message != GENERAL_KERNEL_MISMATCH)) {
+							error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
+								rm.source == object as Rule
+							], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+						}
 					} else if (object instanceof Edge) {
-						error(message, mapping.behaviourMapping.mappings.
-							map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
-								lm.source == object as Edge
-							], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
-					} else if (object instanceof Object) {
-						error(message, mapping.behaviourMapping.mappings.map [ rm |
-							rm.element_mappings.filter(ObjectMapping)
-						].flatten.findFirst [ om |
-							om.source == object as Object
-						], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+						if (!srcIsInterface || isInterfaceElement(object.type)) {
+							error(message, mapping.behaviourMapping.mappings.
+								map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
+									lm.source == object as Edge
+								], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)							
+						}
+					} else if (object instanceof Node) {
+						if (!srcIsInterface || isInterfaceElement(object.type)) {
+							error(message, mapping.behaviourMapping.mappings.map [ rm |
+								rm.element_mappings.filter(ObjectMapping)
+							].flatten.findFirst [ om |
+								om.source == object as Object
+							], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+						}
 					}
 				])
 		}
@@ -202,11 +216,12 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	/**
 	 * Check that the given rule mapping is complete
 	 */
-	def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
+	private def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
 		if (!(mapping.eContainer.eContainer as GTSMapping).autoComplete) {
+			val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
 			val elementIndex = new HashMap<String, List<GraphElement>>()
-			mapping.source.lhs.addAllUnique(elementIndex)
-			mapping.source.rhs.addAllUnique(elementIndex)
+			mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
+			mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
 			
 			val inComplete = elementIndex.entrySet.exists[e | 
 				!mapping.element_mappings.exists[em |
@@ -228,8 +243,17 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		true
 	}
 	
-	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map) {
-		graph.eContents.forEach[eo | 
+	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map, boolean srcIsInterface) {
+		graph.eContents.filter[ge | 
+			!srcIsInterface ||
+			(if (ge instanceof Node) {
+				isInterfaceElement(ge.type)
+			} else if (ge instanceof Edge) {
+				isInterfaceElement(ge.type)
+			} else {
+				false
+			})
+		].forEach[eo | 
 			val ge = eo as GraphElement
 			var list = map.get(ge.name.toString)
 			if (list === null) {
@@ -254,7 +278,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			if (typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) {
 				if (checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
 					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
-						mapping.target.metamodel,_behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
+						mapping.target.metamodel,_behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
+						mapping.source.interface_mapping, mapping.target.interface_mapping)
 					if (morphismCompleter.tryCompleteMorphism != 0) {
 						if (!morphismCompleter.completedTypeMapping) {
 							error("Cannot complete type mapping to a valid morphism", mapping,
@@ -293,7 +318,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				val _behaviourMapping = behaviourMapping.extractMapping
 				if ((typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) && checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
 					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
-						mapping.target.metamodel, _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
+						mapping.target.metamodel, _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
+						mapping.source.interface_mapping, mapping.target.interface_mapping)
 
 					if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
 						(morphismCompleter.completedMappings.size > 1)) {
@@ -381,9 +407,11 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		 * Return true if the given mapping is incomplete
 		 */
 		private def isInCompleteMapping(TypeGraphMapping mapping) {
+			val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
 			val _mapping = mapping.extractMapping;
 			(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter [ me |
-				me instanceof EClassifier || me instanceof EReference
+				(me instanceof EClassifier || me instanceof EReference) &&
+				(!srcIsInterface || isInterfaceElement(me as EModelElement))
 			].exists [ me |
 				!_mapping.containsKey(me)
 			]

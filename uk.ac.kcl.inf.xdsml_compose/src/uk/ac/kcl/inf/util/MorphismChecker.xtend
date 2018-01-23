@@ -21,6 +21,8 @@ import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
  */
 class MorphismChecker {
 
+	public static val GENERAL_KERNEL_MISMATCH = "General kernel mismatch"
+
 	public static interface IssueAcceptor {
 		def void issue(EObject object, String message)
 	}
@@ -330,7 +332,7 @@ class MorphismChecker {
 
 		if (srcKernel.size != tgtKernel.size) {
 			if (issues !== null) {
-				issues.issue(srcRule, "General kernel mismatch")
+				issues.issue(srcRule, GENERAL_KERNEL_MISMATCH)
 			}
 
 			return false

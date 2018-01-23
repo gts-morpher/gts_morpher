@@ -7,6 +7,7 @@ import java.util.List
 import java.util.ListIterator
 import java.util.Map
 import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
@@ -19,12 +20,10 @@ import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.Data
 
+import static org.eclipse.core.runtime.Assert.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import uk.ac.kcl.inf.util.MorphismCompleter.MorphismOrNonmatchedCount
-
-import static extension org.eclipse.core.runtime.Assert.*
 
 /**
  * Helper for completing type mappings into clan morphisms 
@@ -57,12 +56,23 @@ class MorphismCompleter {
 	private List<EObject> allTgtBehaviorElements
 
 	new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage,
-		Map<EObject, EObject> behaviourMapping, Module srcModule, Module tgtModule) {
+		Map<EObject, EObject> behaviourMapping, Module srcModule, Module tgtModule,
+		boolean srcIsInterface, boolean tgtIsInterface) {
 		this.typeMapping = new HashMap<EObject, EObject>(typeMapping)
 		this.srcPackage = srcPackage
 		this.tgtPackage = tgtPackage
 		allSrcModelElements = srcPackage.allContents
+		if (srcIsInterface) {
+			allSrcModelElements = allSrcModelElements.filter[eo |
+				(eo as EModelElement).isInterfaceElement
+			].toList
+		}
 		allTgtModelElements = tgtPackage.allContents
+		if (tgtIsInterface) {
+			allTgtModelElements = allTgtModelElements.filter[eo |
+				(eo as EModelElement).isInterfaceElement
+			].toList
+		}
 
 		// Cache target classes and references for future lookups
 		allTgtClasses = allTgtModelElements.filter(EClass).toList
@@ -74,7 +84,29 @@ class MorphismCompleter {
 		this.srcModule = srcModule
 		this.tgtModule = tgtModule
 		allSrcBehaviorElements = srcModule.allContents
+		if (srcIsInterface) {
+			allSrcBehaviorElements = allSrcBehaviorElements.filter[eo |
+				if (eo instanceof Node) {
+					eo.type.isInterfaceElement
+				} else if (eo instanceof Edge) {
+					eo.type.isInterfaceElement					
+				} else {
+					true
+				}
+			].toList
+		}
 		allTgtBehaviorElements = tgtModule.allContents
+		if (tgtIsInterface) {
+			allTgtBehaviorElements = allTgtBehaviorElements.filter[eo |
+				if (eo instanceof Node) {
+					eo.type.isInterfaceElement
+				} else if (eo instanceof Edge) {
+					eo.type.isInterfaceElement					
+				} else {
+					true
+				}
+			].toList
+		}
 	}
 
 	/**

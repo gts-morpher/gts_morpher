@@ -16,6 +16,7 @@ GTSMapping:
 ;
 
 GTSSpecification:
+	(interface_mapping ?= "interface_of")?
 	"{"
 		"metamodel" ":" metamodel = [ecore::EPackage | STRING]
 		("behaviour" ":" behaviour = [gts::Module | STRING])?

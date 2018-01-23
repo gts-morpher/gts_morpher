@@ -62,7 +62,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	'''
 	
 	private def generate(GTSSpecification spec) '''
-		{
+		«if (spec.interface_mapping) '''interface_of '''»{
 			metamodel: "«spec.metamodel.name»"
 			«if (spec.behaviour !== null) '''behaviour: "«spec.behaviour.name»"'''»
 		}
@@ -100,7 +100,8 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 		val _behaviourMapping = extractMapping(mapping.behaviourMapping, null)
 				
 		val completer = new MorphismCompleter(_typeMapping, mapping.source.metamodel, mapping.target.metamodel, 
-			                                  _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
+			                                  _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
+											  mapping.source.interface_mapping, mapping.target.interface_mapping)
 		if (completer.findMorphismCompletions(true) == 0) {
 			// Found morphism(s)
 			completer.completedMappings
