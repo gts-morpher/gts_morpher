@@ -278,7 +278,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			if (typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) {
 				if (checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
 					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
-						mapping.target.metamodel,_behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
+						mapping.target.metamodel,_behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
+						mapping.source.interface_mapping, mapping.target.interface_mapping)
 					if (morphismCompleter.tryCompleteMorphism != 0) {
 						if (!morphismCompleter.completedTypeMapping) {
 							error("Cannot complete type mapping to a valid morphism", mapping,
@@ -317,7 +318,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				val _behaviourMapping = behaviourMapping.extractMapping
 				if ((typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) && checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
 					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
-						mapping.target.metamodel, _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour)
+						mapping.target.metamodel, _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
+						mapping.source.interface_mapping, mapping.target.interface_mapping)
 
 					if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
 						(morphismCompleter.completedMappings.size > 1)) {

@@ -2,7 +2,6 @@ package uk.ac.kcl.inf.util
 
 import java.util.HashMap
 import java.util.Map
-import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Graph
@@ -17,6 +16,8 @@ import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+
+import static extension uk.ac.kcl.inf.util.EMFHelper.isInterfaceElement
 
 /**
  * Basic util methods for handling mappings
@@ -83,10 +84,6 @@ class BasicMappingChecker {
 		_mapping
 	}
 	
-	public static def isInterfaceElement(EModelElement em) {
-		em.EAnnotations.exists[a | a.source.equalsIgnoreCase("Interface")]
-	}
-
 	/**
 	 * Extract the rule mapping specified as a map object. Report duplicate entries as errors via the IssueAcceptor provided, if any.
 	 */
