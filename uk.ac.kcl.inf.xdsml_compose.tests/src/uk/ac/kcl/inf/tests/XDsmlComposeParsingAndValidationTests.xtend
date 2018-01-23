@@ -717,7 +717,115 @@ class XDsmlComposeParsingAndValidationTests {
 			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		
-		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)		
+		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+	}
+
+	/**
+	 * Tests that completeness check works correctly for complete mappings with behaviour mappings
+	 */
+	@Test
+	def void validateBehaviourCompletenessPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping {
+					reference server.Queue.elts => server.Queue.elts
+					class server.Element => server.Element
+					class server.Input => server.Input
+					reference server.Server.Out => server.Server.Out
+					class server.Output => server.Output
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					reference server.Server.In => server.Server.In
+				}
+				behaviour_mapping {
+					rule serverRules.process to serverRules.process {
+						object output => output
+						object server => server
+						object input => input
+						object out_queue => in_queue
+						object in_queue => in_queue
+						link [out_queue->output:elts] => [out_queue->output:elts]
+						link [server->in_queue:In] => [server->in_queue:In]
+						link [server->out_queue:Out] => [server->out_queue:Out]
+						link [in_queue->input:elts] => [in_queue->input:elts]
+					}
+					
+					rule serverRules.produce to serverRules.produce {
+						link [q->o:elts] => [q->o:elts]
+						object q => q
+						object s => s
+						link [s->q:Out] => [s->q:Out]
+						object o => o
+					}
+				}
+			}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.assertNoIssue(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.INCOMPLETE_RULE_MAPPING)		
+	}
+
+	/**
+	 * Tests that completeness check works correctly for complete mappings with behaviour mappings in the presence of interface annotations
+	 */
+	@Test
+	def void validateBehaviourWithInterfaceCompletenessPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping {
+					reference server.Queue.elts => server.Queue.elts
+					class server.Element => server.Element
+					class server.Input => server.Input
+					reference server.Server.Out => server.Server.Out
+					class server.Output => server.Output
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					reference server.Server.In => server.Server.In
+				}
+				behaviour_mapping {
+					rule serverRules.process to serverRules.process {
+						object output => output
+						object server => server
+						object input => input
+						object out_queue => in_queue
+						object in_queue => in_queue
+						link [out_queue->output:elts] => [out_queue->output:elts]
+						link [server->in_queue:In] => [server->in_queue:In]
+						link [server->out_queue:Out] => [server->out_queue:Out]
+						link [in_queue->input:elts] => [in_queue->input:elts]
+					}
+				}
+			}
+			''',
+			createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.assertNoIssue(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.INCOMPLETE_RULE_MAPPING)		
 	}
 
 	/**
