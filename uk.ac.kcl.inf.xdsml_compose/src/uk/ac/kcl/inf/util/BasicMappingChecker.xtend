@@ -2,12 +2,14 @@ package uk.ac.kcl.inf.util
 
 import java.util.HashMap
 import java.util.Map
+import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.Rule
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
@@ -25,6 +27,9 @@ class BasicMappingChecker {
 	public static val DUPLICATE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_RULE_MAPPING'
 	public static val DUPLICATE_OBJECT_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_OBJECT_MAPPING'
 	public static val DUPLICATE_LINK_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_LINK_MAPPING'
+	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_CLASS_MAPPING_ATTEMPT'
+	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT'
+	
 
 	public static interface IssueAcceptor {
 		def void error(String message, EObject source, EStructuralFeature feature, String code, String... issueData)
@@ -35,6 +40,9 @@ class BasicMappingChecker {
 	 */
 	public static def Map<EObject, EObject> extractMapping(TypeGraphMapping mapping, IssueAcceptor issues) {
 		val Map<EObject, EObject> _mapping = new HashMap
+		
+		val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
+		val tgtIsInterface = (mapping.eContainer as GTSMapping).target.interface_mapping
 
 		mapping.mappings.filter(ClassMapping).forEach [ cm |
 			if (_mapping.containsKey(cm.source)) {
@@ -43,7 +51,15 @@ class BasicMappingChecker {
 						XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, DUPLICATE_CLASS_MAPPING)
 				}
 			} else {
-				_mapping.put(cm.source, cm.target)
+				if ((srcIsInterface) && (!cm.source.isInterfaceElement)) {
+					issues.error('''EClassifier «cm.source.name» must be annotated as interface to be mapped.''', cm,
+						XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
+				} else if ((tgtIsInterface) && (!cm.target.isInterfaceElement)) {
+					issues.error('''EClassifier «cm.target.name» must be annotated as interface to be mapped.''', cm,
+						XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
+				} else {
+					_mapping.put(cm.source, cm.target)
+				}
 			}
 		]
 
@@ -54,11 +70,23 @@ class BasicMappingChecker {
 						XDsmlComposePackage.Literals.REFERENCE_MAPPING__SOURCE, DUPLICATE_REFERENCE_MAPPING)
 				}
 			} else {
-				_mapping.put(cm.source, cm.target)
+				if ((srcIsInterface) && (!cm.source.isInterfaceElement)) {
+					issues.error('''EReference «cm.source.name» must be annotated as interface to be mapped.''', cm,
+						XDsmlComposePackage.Literals.REFERENCE_MAPPING__SOURCE, NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
+				} else if ((tgtIsInterface) && (!cm.target.isInterfaceElement)) {
+					issues.error('''EReference «cm.target.name» must be annotated as interface to be mapped.''', cm,
+						XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
+				} else {
+					_mapping.put(cm.source, cm.target)
+				}
 			}
 		]
 
 		_mapping
+	}
+	
+	private static def isInterfaceElement(EModelElement em) {
+		em.EAnnotations.exists[a | a.source.equalsIgnoreCase("Interface")]
 	}
 
 	/**

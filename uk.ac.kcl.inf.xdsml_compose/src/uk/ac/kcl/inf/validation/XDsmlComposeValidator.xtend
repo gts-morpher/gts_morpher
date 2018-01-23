@@ -63,8 +63,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NOT_A_RULE_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_RULE_MORPHISM'
 	public static val INCOMPLETE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_RULE_MAPPING'
 	public static val INCOMPLETE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_BEHAVIOUR_MAPPING'
-	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_CLASS_MAPPING_ATTEMPT'
-	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT'
+	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_CLASS_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
