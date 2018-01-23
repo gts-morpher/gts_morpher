@@ -42,6 +42,7 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import org.eclipse.emf.ecore.EModelElement
 
 /**
  * This class contains custom validation rules. 
@@ -215,11 +216,12 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	/**
 	 * Check that the given rule mapping is complete
 	 */
-	def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
+	private def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
 		if (!(mapping.eContainer.eContainer as GTSMapping).autoComplete) {
+			val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
 			val elementIndex = new HashMap<String, List<GraphElement>>()
-			mapping.source.lhs.addAllUnique(elementIndex)
-			mapping.source.rhs.addAllUnique(elementIndex)
+			mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
+			mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
 			
 			val inComplete = elementIndex.entrySet.exists[e | 
 				!mapping.element_mappings.exists[em |
@@ -241,8 +243,17 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		true
 	}
 	
-	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map) {
-		graph.eContents.forEach[eo | 
+	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map, boolean srcIsInterface) {
+		graph.eContents.filter[ge | 
+			!srcIsInterface ||
+			(if (ge instanceof Node) {
+				isInterfaceElement(ge.type)
+			} else if (ge instanceof Edge) {
+				isInterfaceElement(ge.type)
+			} else {
+				false
+			})
+		].forEach[eo | 
 			val ge = eo as GraphElement
 			var list = map.get(ge.name.toString)
 			if (list === null) {
@@ -394,9 +405,11 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		 * Return true if the given mapping is incomplete
 		 */
 		private def isInCompleteMapping(TypeGraphMapping mapping) {
+			val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
 			val _mapping = mapping.extractMapping;
 			(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter [ me |
-				me instanceof EClassifier || me instanceof EReference
+				(me instanceof EClassifier || me instanceof EReference) &&
+				(!srcIsInterface || isInterfaceElement(me as EModelElement))
 			].exists [ me |
 				!_mapping.containsKey(me)
 			]
