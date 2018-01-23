@@ -719,4 +719,42 @@ class XDsmlComposeParsingAndValidationTests {
 		
 		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)		
 	}
+
+	/**
+	 * Tests that in interface-mappings we cannot map non-interface elements
+	 */
+	@Test
+	def void validateNonInterfaceElementMappingAttempts() {	
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from interface_of {
+						metamodel: "server"
+						behaviour: "serverRules"
+					}
+					to {
+						metamodel: "devsmm"
+						behaviour: "devsmmRules"
+					}
+					
+					type_mapping {
+						class server.ServerObserver => devsmm.Machine
+						reference server.ServerObserver.server => devsmm.Machine.out
+					}
+«««					
+«««					behaviour_mapping {
+«««						rule devsmmRules.process to serverRules.process {
+«««							object input => in_part
+«««							link [in_queue->input:elts] => [tray->in_part:parts]
+«««						}
+«««					}
+				}
+			''',
+			createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
+		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
+	}
 }
