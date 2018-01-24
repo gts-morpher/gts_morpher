@@ -79,6 +79,7 @@ class XDsmlComposer {
 				put(e.key, composed)
 				put(e.value, composed)
 			]
+			// Because the mapping is a morphism, this must work :-)
 			tgMapping.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
 				val EReference composed = createEReference(e.key as EReference, '''«e.key.name»_«e.value.name»''')
 
@@ -125,7 +126,6 @@ class XDsmlComposer {
 			val EReference result = EcoreFactory.eINSTANCE.createEReference
 			result.name = name;
 
-			// Because the mapping is a morphism, this must work :-)
 			(get(source.EContainingClass) as EClass).EStructuralFeatures.add(result)
 			result.EType = get(source.EType) as EClass
 
