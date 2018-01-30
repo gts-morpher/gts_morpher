@@ -58,6 +58,9 @@ class XDsmlComposer {
 			// TODO Handle sub-packages?
 			val EPackage result = EcoreFactory.eINSTANCE.createEPackage
 			result.name = '''«mapping.source.metamodel.name»_«mapping.target.metamodel.name»'''
+			result.nsPrefix = '''«mapping.source.metamodel.nsPrefix»_«mapping.target.metamodel.nsPrefix»'''
+			// TODO We can probably do better here :-)
+			result.nsURI = '''https://metamodel.woven/«mapping.source.metamodel.nsPrefix»/«mapping.target.metamodel.nsPrefix»'''
 			put(mapping.source.metamodel, result)
 			put(mapping.target.metamodel, result)
 
