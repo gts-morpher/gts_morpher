@@ -1,7 +1,6 @@
 package uk.ac.kcl.inf.composer
 
 import java.util.HashMap
-import java.util.Iterator
 import java.util.Map
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
@@ -123,11 +122,23 @@ class XDsmlComposer {
 		}
 
 		private def createEReference(EReference source, String name) {
-			val EReference result = EcoreFactory.eINSTANCE.createEReference
-			result.name = name;
+			val EReference result = EcoreFactory.eINSTANCE.createEReference;
 
 			(get(source.EContainingClass) as EClass).EStructuralFeatures.add(result)
 			result.EType = get(source.EType) as EClass
+
+			result.name = name
+			result.changeable = source.changeable
+			result.containment = source.containment
+			result.derived = source.derived
+			result.EOpposite = get(source.EOpposite) as EReference
+			result.lowerBound = source.lowerBound
+			result.ordered = source.ordered
+			result.transient = source.transient
+			result.unique = source.unique
+			result.unsettable = source.unsettable
+			result.upperBound = source.upperBound
+			result.volatile = source.volatile
 
 			result
 		}
