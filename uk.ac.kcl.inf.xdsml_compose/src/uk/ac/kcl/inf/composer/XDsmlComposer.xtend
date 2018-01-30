@@ -41,7 +41,7 @@ class XDsmlComposer {
 
 		val tgWeaver = new TGWeaver
 		val composedTG = tgWeaver.weaveTG(mapping)
-		val composedTGResource = resource.resourceSet.getResource(fsa.getURI(resource.URI.trimFileExtension.lastSegment + "_composed_tg.ecore"), false)
+		val composedTGResource = resource.resourceSet.createResource(fsa.getURI(resource.URI.trimFileExtension.lastSegment + "_composed_tg.ecore"))
 		composedTGResource.contents.clear
 		composedTGResource.contents.add(composedTG)
 		composedTGResource.save(emptyMap)
