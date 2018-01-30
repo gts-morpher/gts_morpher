@@ -93,11 +93,11 @@ class XDsmlComposer {
 		private def weaveUnmappedElements(GTSMapping mapping, Map<EObject, EObject> tgMapping,
 			EPackage composedPackage) {
 			// Deal with unmapped source elements
-			mapping.source.metamodel.eAllContents.reject[eo|tgMapping.containsKey(eo)].
+			mapping.source.metamodel.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList.
 				doWeaveUnmappedElements(composedPackage, "source")
 
 			// Deal with unmapped target elements
-			mapping.target.metamodel.eAllContents.reject[eo|tgMapping.values.contains(eo)].
+			mapping.target.metamodel.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList.
 				doWeaveUnmappedElements(composedPackage, "target")
 
 		// TODO Also copy attributes, I guess :-)
@@ -110,7 +110,7 @@ class XDsmlComposer {
 			]
 		}
 
-		private def doWeaveUnmappedElements(Iterator<EObject> unmappedElements, EPackage composedPackage, String srcLabel) {
+		private def doWeaveUnmappedElements(Iterable<EObject> unmappedElements, EPackage composedPackage, String srcLabel) {
 			unmappedElements.filter(EClass).forEach[ec|put(ec, composedPackage.createEClass(srcLabel + "__" + ec.name))]
 			unmappedElements.filter(EReference).forEach[er|put(er, er.createEReference(srcLabel + "__" + er.name))]
 		}
