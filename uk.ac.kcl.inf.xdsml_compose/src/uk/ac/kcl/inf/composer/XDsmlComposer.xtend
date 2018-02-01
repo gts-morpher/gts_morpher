@@ -24,7 +24,6 @@ import org.eclipse.emf.henshin.model.Edge
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
  */
-// FIXME: The current mapping approach assumes that source and target GTS are strictly different models. If they're the same model (as in my simple test case), the mapping approach won't work properly
 class XDsmlComposer {
 
 	/**
@@ -92,8 +91,8 @@ class XDsmlComposer {
 		def EPackage weaveTG(GTSMapping mapping) {
 			// TODO Handle sub-packages?
 			val EPackage result = EcoreFactory.eINSTANCE.createEPackage
-			result.name = '''«mapping.source.metamodel.name»_«mapping.target.metamodel.name»'''
-			result.nsPrefix = '''«mapping.source.metamodel.nsPrefix»_«mapping.target.metamodel.nsPrefix»'''
+			result.name = weaveNames(mapping.source.metamodel.name, mapping.target.metamodel.name)
+			result.nsPrefix = weaveNames(mapping.source.metamodel.nsPrefix, mapping.target.metamodel.nsPrefix)
 			// TODO We can probably do better here :-)
 			result.nsURI = '''https://metamodel.woven/«mapping.source.metamodel.nsPrefix»/«mapping.target.metamodel.nsPrefix»'''
 			put(mapping.source.metamodel.sourceKey, result)
@@ -111,14 +110,14 @@ class XDsmlComposer {
 		
 		private def weaveMappedElements(Map<EObject, EObject> tgMapping, EPackage composedPackage) {
 			tgMapping.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
-				val EClass composed = composedPackage.createEClass('''«e.key.name»_«e.value.name»''')
+				val EClass composed = composedPackage.createEClass(weaveNames(e.key.name, e.value.name))
 
 				put(e.key.sourceKey, composed)
 				put(e.value.targetKey, composed)
 			]
 			// Because the mapping is a morphism, this must work :-)
 			tgMapping.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
-				val EReference composed = createEReference(e.key as EReference, '''«e.key.name»_«e.value.name»''')
+				val EReference composed = createEReference(e.key as EReference, weaveNames(e.key.name, e.value.name))
 
 				put(e.key.sourceKey, composed)
 				put(e.value.targetKey, composed)
@@ -151,8 +150,8 @@ class XDsmlComposer {
 
 		private def doWeaveUnmappedElements(Iterable<EObject> unmappedElements, EPackage composedPackage,
 			Origin origin) {
-			unmappedElements.filter(EClass).forEach[ec|put(ec.origKey(origin), composedPackage.createEClass(origin.label + "__" + ec.name))]
-			unmappedElements.filter(EReference).forEach[er|put(er.origKey(origin), er.createEReference(origin.label + "__" + er.name, origin))]
+			unmappedElements.filter(EClass).forEach[ec|put(ec.origKey(origin), composedPackage.createEClass(ec.name.originName(origin)))]
+			unmappedElements.filter(EReference).forEach[er|put(er.origKey(origin), er.createEReference(er.name.originName(origin), origin))]
 		}
 
 		private def createEClass(EPackage container, String name) {
@@ -206,9 +205,9 @@ class XDsmlComposer {
 		}
 
 		val result = HenshinFactory.eINSTANCE.createModule
-		result.description = '''Merged from «mapping.source.behaviour.description» and «mapping.target.behaviour.description».'''
+		result.description = weaveDescriptions(mapping.source.behaviour.description, mapping.target.behaviour.description)
 		result.imports.add(tgMapping.get(mapping.source.metamodel.sourceKey) as EPackage)
-		result.name = '''«mapping.source.behaviour.name»_«mapping.target.behaviour.name»'''
+		result.name = uk.ac.kcl.inf.composer.XDsmlComposer.weaveNames(mapping.source.behaviour.name, mapping.target.behaviour.name)
 
 		val _mapping = mapping.behaviourMapping.extractMapping(null)
 
@@ -221,8 +220,8 @@ class XDsmlComposer {
 		val srcRule = behaviourMapping.get(tgtRule) as Rule
 		val result = HenshinFactory.eINSTANCE.createRule
 
-		result.name = '''«tgtRule.name»_«srcRule.name»'''
-		result.description = '''Merged from «tgtRule.description» and «srcRule.description».'''
+		result.name = uk.ac.kcl.inf.composer.XDsmlComposer.weaveNames(tgtRule.name, srcRule.name)
+		result.description = weaveDescriptions(tgtRule.description, srcRule.description)
 		result.injectiveMatching = srcRule.injectiveMatching
 		// TODO Should probably copy parameters, too
 		result.lhs = new PatternWeaver(srcRule.lhs, tgtRule.lhs, behaviourMapping, tgMapping, "lhs").weavePattern
@@ -276,7 +275,7 @@ class XDsmlComposer {
 		private def weaveMappedElements() {
 			behaviourMapping.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.Node].forEach [ e |
 				val composed = createNode(
-					e.key as org.eclipse.emf.henshin.model.Node, '''«e.key.name»_«e.value.name»''')
+					e.key as org.eclipse.emf.henshin.model.Node, weaveNames(e.key.name, e.value.name))
 
 				put((e.key as org.eclipse.emf.henshin.model.Node).sourceKey, composed)
 				put((e.value as org.eclipse.emf.henshin.model.Node).targetKey, composed)
@@ -290,8 +289,8 @@ class XDsmlComposer {
 		}
 
 		private def weaveUnmappedElements() {
-			srcPattern.nodes.reject[n|behaviourMapping.containsKey(n)].forEach [n | put(n.sourceKey, n.createNode('''source__«n.name»''', Origin.SOURCE))]
-			tgtPattern.nodes.reject[n|behaviourMapping.values.contains(n)].forEach [n | put(n.targetKey, n.createNode('''target__«n.name»''', Origin.TARGET))]
+			srcPattern.nodes.reject[n|behaviourMapping.containsKey(n)].forEach [n | put(n.sourceKey, n.createNode(n.name.originName(Origin.SOURCE), Origin.SOURCE))]
+			tgtPattern.nodes.reject[n|behaviourMapping.values.contains(n)].forEach [n | put(n.targetKey, n.createNode(n.name.originName(Origin.TARGET), Origin.TARGET))]
 
 			srcPattern.edges.reject[e|behaviourMapping.containsKey(e)].forEach[e|put(e.sourceKey, e.createEdge(Origin.SOURCE))]
 			tgtPattern.edges.reject[e|behaviourMapping.values.contains(e)].forEach[e|put(e.targetKey, e.createEdge(Origin.TARGET))]
@@ -342,4 +341,30 @@ class XDsmlComposer {
 			}
 		}
 	}
+	
+	private static def String weaveNames(CharSequence sourceName, CharSequence targetName) {
+		if (sourceName === null) {
+			if (targetName !== null) {
+				targetName.toString				
+			} else {
+				null
+			}
+		} else if ((targetName === null) || (sourceName.equals(targetName))) {
+			sourceName.toString
+		} else '''«sourceName»_«targetName»'''
+	}
+	
+	private static def String weaveDescriptions(CharSequence sourceDescription, CharSequence targetDescription) {
+		if (sourceDescription === null) {
+			if (targetDescription !== null) {
+				targetDescription.toString
+			} else {
+				null
+			}
+		} else if ((targetDescription === null) || (sourceDescription.equals(targetDescription))) {
+			sourceDescription.toString
+		} else '''Merged from «sourceDescription» and «targetDescription».'''
+	}
+	
+	private static def String originName(String name, Origin origin) '''«origin.label»__«name»'''
 }
