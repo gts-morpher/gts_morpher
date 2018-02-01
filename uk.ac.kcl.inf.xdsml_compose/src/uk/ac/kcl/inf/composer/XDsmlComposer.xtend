@@ -48,7 +48,7 @@ class XDsmlComposer {
 			val tgWeaver = new TGWeaver
 			val composedTG = tgWeaver.weaveTG(mapping)
 			val composedTGResource = resource.resourceSet.createResource(
-				fsa.getURI(resource.URI.trimFileExtension.lastSegment + "_composed_tg.ecore"))
+				fsa.getURI(resource.URI.trimFileExtension.lastSegment + "_composed/tg.ecore"))
 			composedTGResource.contents.clear
 			composedTGResource.contents.add(composedTG)
 			composedTGResource.save(emptyMap)
@@ -56,7 +56,7 @@ class XDsmlComposer {
 			val composedModule = mapping.composeBehaviour(tgWeaver)
 			if (composedModule !== null) {
 				val composedBehaviourResource = resource.resourceSet.createResource(
-					fsa.getURI(resource.URI.trimFileExtension.lastSegment + "_composed_rules.henshin"))
+					fsa.getURI(resource.URI.trimFileExtension.lastSegment + "_composed/rules.henshin"))
 				composedBehaviourResource.contents.clear
 				composedBehaviourResource.contents.add(composedModule)
 				composedBehaviourResource.save(emptyMap)
