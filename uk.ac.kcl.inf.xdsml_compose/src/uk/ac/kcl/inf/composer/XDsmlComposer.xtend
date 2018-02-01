@@ -18,10 +18,10 @@ import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.generator.IFileSystemAccess2
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-import org.eclipse.xtext.validation.IResourceValidator
 import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.validation.CheckMode
+import org.eclipse.xtext.validation.IResourceValidator
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
@@ -103,21 +103,14 @@ class XDsmlComposer {
 					result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
 				} else {
 					// TODO Handle auto-complete and non-unique auto-completes
+					
 					val tgWeaver = new TGWeaver
 					val composedTG = tgWeaver.weaveTG(mapping)
-					val composedTGResource = resource.resourceSet.createResource(
-						fsa.getURI(resource.URI.trimFileExtension.lastSegment + "_composed/tg.ecore"))
-					composedTGResource.contents.clear
-					composedTGResource.contents.add(composedTG)
-					composedTGResource.save(emptyMap)
+					composedTG.saveModel(fsa, resource, "tg.ecore")
 
 					val composedModule = mapping.composeBehaviour(tgWeaver)
 					if (composedModule !== null) {
-						val composedBehaviourResource = resource.resourceSet.createResource(
-							fsa.getURI(resource.URI.trimFileExtension.lastSegment + "_composed/rules.henshin"))
-						composedBehaviourResource.contents.clear
-						composedBehaviourResource.contents.add(composedModule)
-						composedBehaviourResource.save(emptyMap)
+						composedModule.saveModel(fsa, resource, "rules.henshin")
 					}
 				}
 			}
@@ -127,6 +120,14 @@ class XDsmlComposer {
 		}
 
 		result
+	}
+	
+	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String fileName) {
+		val composedTGResource = baseResource.resourceSet.createResource(
+			fsa.getURI(baseResource.URI.trimFileExtension.lastSegment + "_composed/" + fileName))
+		composedTGResource.contents.clear
+		composedTGResource.contents.add(model)
+		composedTGResource.save(emptyMap)
 	}
 
 	private enum Origin {
