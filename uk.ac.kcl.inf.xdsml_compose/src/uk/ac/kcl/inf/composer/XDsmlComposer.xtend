@@ -22,6 +22,7 @@ import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.validation.CheckMode
 import org.eclipse.xtext.validation.IResourceValidator
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.util.MorphismCompleter
 
 import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
@@ -102,13 +103,39 @@ class XDsmlComposer {
 				if (mapping.target.interface_mapping) {
 					result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
 				} else {
-					// TODO Handle auto-complete and non-unique auto-completes
-					
+					var tgMapping = mapping.typeMapping.extractMapping(null)
+					var behaviourMapping = mapping.behaviourMapping.extractMapping(null)
+
+					if (mapping.autoComplete) {
+						if (!mapping.uniqueCompletion) {
+							result.add(new MessageIssue("Can only weave based on unique auto-completions."))
+							return result
+						}
+
+						// Auto-complete
+						val completer = new MorphismCompleter(tgMapping, mapping.source.metamodel, mapping.target.metamodel, 
+			                                  behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
+											  mapping.source.interface_mapping, mapping.target.interface_mapping)
+						if (completer.findMorphismCompletions(false) == 0) {
+							if (completer.completedMappings.size == 1) {
+								tgMapping = new HashMap(completer.completedMappings.head.filter[k, v | (k instanceof EClass) || (k instanceof EReference)] as Map<EObject, EObject>)
+								behaviourMapping = new HashMap(completer.completedMappings.head.filter[k, v | !((k instanceof EClass) || (k instanceof EReference))] as Map<EObject, EObject>)
+							} else {
+								result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
+								return result								
+							}
+						} else {
+							result.add(new MessageIssue("Was unable to auto-complete the morphism."))
+							return result
+						}
+					}
+
+					// Weave
 					val tgWeaver = new TGWeaver
-					val composedTG = tgWeaver.weaveTG(mapping)
+					val composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
 					composedTG.saveModel(fsa, resource, "tg.ecore")
 
-					val composedModule = mapping.composeBehaviour(tgWeaver)
+					val composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour, behaviourMapping, mapping.source.metamodel, tgWeaver)
 					if (composedModule !== null) {
 						composedModule.saveModel(fsa, resource, "rules.henshin")
 					}
@@ -157,20 +184,18 @@ class XDsmlComposer {
 		/**
 		 * Compose the two TGs, returning a mapping from old EObjects (EClass/EReference) to newly created corresponding element (if any). 
 		 */
-		def EPackage weaveTG(GTSMapping mapping) {
+		def EPackage weaveTG(Map<EObject, EObject> tgMapping, EPackage srcPackage, EPackage tgtPackage) {
 			// TODO Handle sub-packages?
 			val EPackage result = EcoreFactory.eINSTANCE.createEPackage
-			result.name = weaveNames(mapping.source.metamodel.name, mapping.target.metamodel.name)
-			result.nsPrefix = weaveNames(mapping.source.metamodel.nsPrefix, mapping.target.metamodel.nsPrefix)
+			result.name = weaveNames(srcPackage.name, tgtPackage.name)
+			result.nsPrefix = weaveNames(srcPackage.nsPrefix, tgtPackage.nsPrefix)
 			// TODO We can probably do better here :-)
-			result.nsURI = '''https://metamodel.woven/«mapping.source.metamodel.nsPrefix»/«mapping.target.metamodel.nsPrefix»'''
-			put(mapping.source.metamodel.sourceKey, result)
-			put(mapping.target.metamodel.targetKey, result)
-
-			val tgMapping = mapping.typeMapping.extractMapping(null)
+			result.nsURI = '''https://metamodel.woven/«srcPackage.nsPrefix»/«tgtPackage.nsPrefix»'''
+			put(srcPackage.sourceKey, result)
+			put(tgtPackage.targetKey, result)
 
 			weaveMappedElements(tgMapping, result)
-			weaveUnmappedElements(mapping, tgMapping, result)
+			weaveUnmappedElements(srcPackage, tgtPackage, tgMapping, result)
 
 			weaveInheritance
 
@@ -195,14 +220,14 @@ class XDsmlComposer {
 		// TODO Also copy attributes, I guess :-)
 		}
 
-		private def weaveUnmappedElements(GTSMapping mapping, Map<EObject, EObject> tgMapping,
+		private def weaveUnmappedElements(EPackage srcPackage, EPackage tgtPackage, Map<EObject, EObject> tgMapping,
 			EPackage composedPackage) {
 			// Deal with unmapped source elements
-			mapping.source.metamodel.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList.
+			srcPackage.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList.
 				doWeaveUnmappedElements(composedPackage, Origin.SOURCE)
 
 			// Deal with unmapped target elements
-			mapping.target.metamodel.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList.
+			tgtPackage.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList.
 				doWeaveUnmappedElements(composedPackage, Origin.TARGET)
 
 		// TODO Also copy attributes, I guess :-)
@@ -273,20 +298,18 @@ class XDsmlComposer {
 		}
 	}
 
-	private def Module composeBehaviour(GTSMapping mapping, Map<Pair<Origin, EObject>, EObject> tgMapping) {
-		if ((mapping.source.behaviour === null) || (mapping.target.behaviour === null)) {
+	private def Module composeBehaviour(Module srcBehaviour, Module tgtBehaviour, Map<EObject, EObject> behaviourMapping, EPackage srcPackage, Map<Pair<Origin, EObject>, EObject> tgMapping) {
+		if ((srcBehaviour === null) || (tgtBehaviour === null)) {
 			return null
 		}
 
 		val result = HenshinFactory.eINSTANCE.createModule
-		result.description = weaveDescriptions(mapping.source.behaviour.description,
-			mapping.target.behaviour.description)
-		result.imports.add(tgMapping.get(mapping.source.metamodel.sourceKey) as EPackage)
-		result.name = XDsmlComposer.weaveNames(mapping.source.behaviour.name, mapping.target.behaviour.name)
+		result.description = weaveDescriptions(srcBehaviour.description,
+			tgtBehaviour.description)
+		result.imports.add(tgMapping.get(srcPackage.sourceKey) as EPackage)
+		result.name = XDsmlComposer.weaveNames(srcBehaviour.name, tgtBehaviour.name)
 
-		val _mapping = mapping.behaviourMapping.extractMapping(null)
-
-		result.units.addAll(_mapping.keySet.filter(Rule).map[r|r.createComposed(_mapping, tgMapping)])
+		result.units.addAll(behaviourMapping.keySet.filter(Rule).map[r|r.createComposed(behaviourMapping, tgMapping)])
 
 		result
 	}
