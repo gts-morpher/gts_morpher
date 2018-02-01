@@ -23,6 +23,7 @@ import org.eclipse.xtext.validation.CheckMode
 import org.eclipse.xtext.validation.IResourceValidator
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.util.MorphismCompleter
+import uk.ac.kcl.inf.util.IProgressMonitor
 
 import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
@@ -90,10 +91,11 @@ class XDsmlComposer {
 	 * 
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
-	def List<Issue> doCompose(Resource resource, IFileSystemAccess2 fsa) {
+	def List<Issue> doCompose(Resource resource, IFileSystemAccess2 fsa, IProgressMonitor monitor) {
 		val result = new ArrayList<Issue>
+		val _monitor = monitor.convert(4)
 		try {
-			val issues = resourceValidator.validate(resource, CheckMode.ALL, CancelIndicator.NullImpl)
+			val issues = resourceValidator.validate(resource, CheckMode.ALL, _monitor.split("Validating resource.", 1))
 
 			if (!issues.empty) {
 				result.addAll(issues.map[i|new IssueIssue(i)])
@@ -107,6 +109,8 @@ class XDsmlComposer {
 					var behaviourMapping = mapping.behaviourMapping.extractMapping(null)
 
 					if (mapping.autoComplete) {
+						_monitor.split("Autocompleting.", 1)
+						
 						if (!mapping.uniqueCompletion) {
 							result.add(new MessageIssue("Can only weave based on unique auto-completions."))
 							return result
@@ -128,13 +132,17 @@ class XDsmlComposer {
 							result.add(new MessageIssue("Was unable to auto-complete the morphism."))
 							return result
 						}
+					} else {
+						_monitor.split("", 1)
 					}
 
 					// Weave
+					_monitor.split("Composing type graph.", 1)
 					val tgWeaver = new TGWeaver
 					val composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
 					composedTG.saveModel(fsa, resource, "tg.ecore")
 
+					_monitor.split("Composing rules.", 1)
 					val composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour, behaviourMapping, mapping.source.metamodel, tgWeaver)
 					if (composedModule !== null) {
 						composedModule.saveModel(fsa, resource, "rules.henshin")

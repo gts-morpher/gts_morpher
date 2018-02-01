@@ -7,11 +7,13 @@ import org.eclipse.core.commands.ExecutionEvent
 import org.eclipse.core.commands.ExecutionException
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.MultiStatus
 import org.eclipse.core.runtime.Status
+import org.eclipse.core.runtime.SubMonitor
+import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.emf.common.util.URI
-import org.eclipse.jface.dialogs.ErrorDialog
 import org.eclipse.jface.viewers.TreeSelection
 import org.eclipse.swt.widgets.Shell
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider
@@ -42,15 +44,34 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 		val selection = event.currentSelection
 		if (selection instanceof TreeSelection) {
 
-			selection.iterator.forEach [ f |
-				handleFile(f as IFile, event.activeShell)
-			]
+			val job = new Job("Composing xDSMLs") {
+				override protected run(IProgressMonitor monitor) {
+					val subMonitor = SubMonitor.convert(monitor, selection.size())
+
+					val status = selection.iterator.map [ f |
+						subMonitor.taskName = '''Composing xDSMLs mapped in «(f as IFile).name».'''
+						handleFile(f as IFile, event.activeShell, subMonitor.split(1))
+					].reject[s|s.OK].toList
+
+					if (status.empty) {
+						Status.OK_STATUS
+					} else {
+						new MultiStatus(Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, IStatus.ERROR, status,
+							"There have been issues composing some of the xDSMLs.", null)
+					}
+				}
+			}
+			job.schedule
 		}
 
 		null
 	}
 
-	private def handleFile(IFile f, Shell shell) {
+	private def handleFile(IFile f, Shell shell, IProgressMonitor monitor) {
+		val subMonitor = SubMonitor.convert(monitor, 2)
+
+		subMonitor.taskName = "Preparing..."
+		subMonitor.split(1)
 		val resourceSet = resourceSetProvider.get
 		val resource = resourceSet.getResource(URI.createPlatformResourceURI(f.fullPath.toString, false), true)
 
@@ -63,14 +84,16 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 //		refreshOutputFolders(context, outputConfigurations, subMonitor.newChild(1));
 		fileSystemAccess.outputConfigurations = outputConfigIndex
 
-		val issues = composer.doCompose(resource, fileSystemAccess)
+		subMonitor.taskName = "Composing..."
+		val issues = composer.doCompose(resource, fileSystemAccess, new EclipseProgressMonitor(subMonitor.split(1)))
 
 		if (!issues.empty) {
-			val status = new MultiStatus(Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, IStatus.ERROR, issues.map [i |
-				new Status(IStatus.ERROR, Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, i.message)
-			], "Please fix any issues with this morphism specification before attempting to weave xDSMLs from it.",
+			new MultiStatus(Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, IStatus.ERROR, issues.map [ i |
+					new Status(IStatus.ERROR, Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, i.message)
+				], '''Please fix any issues with the morphism specification in «f.name» before attempting to weave xDSMLs from it.''',
 				null)
-			ErrorDialog.openError(shell, "Error", "There was an error attempting to weave an xDSML from this morphism specification", status)
+		} else {
+			Status.OK_STATUS
 		}
 	}
 }
