@@ -45,17 +45,17 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 	override execute(ExecutionEvent event) throws ExecutionException {
 		val selection = event.currentSelection
 		if (selection instanceof TreeSelection) {
-			val resourceSet = resourceSetProvider.get
 			
 			selection.iterator.forEach [ f |
-				handleFile(f as IFile, resourceSet, event.activeShell)
+				handleFile(f as IFile, event.activeShell)
 			]
 		}
 
 		null
 	}
 
-	private def handleFile(IFile f, ResourceSet resourceSet, Shell shell) {
+	private def handleFile(IFile f, Shell shell) {
+		val resourceSet = resourceSetProvider.get
 		val resource = resourceSet.getResource(URI.createPlatformResourceURI(f.fullPath.toString, false), true)
 		val issues = resourceValidator.validate(resource, CheckMode.ALL, CancelIndicator.NullImpl)
 		if (!issues.empty) {
