@@ -67,11 +67,25 @@ class XDsmlComposer {
 		}
 	}
 
+	private enum Origin { SOURCE, TARGET }
+	
+	private static def getLabel(Origin origin) {
+		switch (origin) {
+			case SOURCE: return "source"
+			case TARGET: return "target"
+			default: return ""
+		}
+	}
+	
+	private static def <T extends EObject> Pair<Origin, T> sourceKey(T object) { object.origKey(Origin.SOURCE) }
+	private static def <T extends EObject> Pair<Origin, T> targetKey(T object) { object.origKey(Origin.TARGET) }
+	private static def <T extends EObject> Pair<Origin, T> origKey(T object, Origin origin) { new Pair(origin, object) }
+
 	/**
 	 * Helper class composing two TGs based on a morphism specification. Similar to EcoreUtil.Copier, the instance of this class used 
 	 * will act as a Map from source EObjects to the corresponding woven EObjects. 
 	 */
-	private static class TGWeaver extends HashMap<EObject, EObject> {
+	private static class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 		/**
 		 * Compose the two TGs, returning a mapping from old EObjects (EClass/EReference) to newly created corresponding element (if any). 
 		 */
@@ -82,8 +96,8 @@ class XDsmlComposer {
 			result.nsPrefix = '''«mapping.source.metamodel.nsPrefix»_«mapping.target.metamodel.nsPrefix»'''
 			// TODO We can probably do better here :-)
 			result.nsURI = '''https://metamodel.woven/«mapping.source.metamodel.nsPrefix»/«mapping.target.metamodel.nsPrefix»'''
-			put(mapping.source.metamodel, result)
-			put(mapping.target.metamodel, result)
+			put(mapping.source.metamodel.sourceKey, result)
+			put(mapping.target.metamodel.targetKey, result)
 
 			val tgMapping = mapping.typeMapping.extractMapping(null)
 
@@ -95,23 +109,19 @@ class XDsmlComposer {
 			return result
 		}
 		
-		override def put(EObject k, EObject v) {
-			super.put(k,v)
-		}
-
 		private def weaveMappedElements(Map<EObject, EObject> tgMapping, EPackage composedPackage) {
 			tgMapping.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
 				val EClass composed = composedPackage.createEClass('''«e.key.name»_«e.value.name»''')
 
-				put(e.key, composed)
-				put(e.value, composed)
+				put(e.key.sourceKey, composed)
+				put(e.value.targetKey, composed)
 			]
 			// Because the mapping is a morphism, this must work :-)
 			tgMapping.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
 				val EReference composed = createEReference(e.key as EReference, '''«e.key.name»_«e.value.name»''')
 
-				put(e.key, composed)
-				put(e.value, composed)
+				put(e.key.sourceKey, composed)
+				put(e.value.targetKey, composed)
 			]
 
 		// TODO Also copy attributes, I guess :-)
@@ -121,28 +131,28 @@ class XDsmlComposer {
 			EPackage composedPackage) {
 			// Deal with unmapped source elements
 			mapping.source.metamodel.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList.
-				doWeaveUnmappedElements(composedPackage, "source")
+				doWeaveUnmappedElements(composedPackage, Origin.SOURCE)
 
 			// Deal with unmapped target elements
 			mapping.target.metamodel.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList.
-				doWeaveUnmappedElements(composedPackage, "target")
+				doWeaveUnmappedElements(composedPackage, Origin.TARGET)
 
 		// TODO Also copy attributes, I guess :-)
 		}
 
 		private def weaveInheritance() {
-			keySet.filter(EClass).forEach [ ec |
-				val composed = get(ec) as EClass
-				composed.ESuperTypes.addAll(ec.ESuperTypes.map[ec2|get(ec2) as EClass].reject [ ec2 |
+			keySet.filter[p | p.value instanceof EClass].forEach [ p |
+				val composed = get(p) as EClass
+				composed.ESuperTypes.addAll((p.value as EClass).ESuperTypes.map[ec2|get(ec2.origKey(p.key)) as EClass].reject [ ec2 |
 					composed.ESuperTypes.contains(ec2)
 				])
 			]
 		}
 
 		private def doWeaveUnmappedElements(Iterable<EObject> unmappedElements, EPackage composedPackage,
-			String srcLabel) {
-			unmappedElements.filter(EClass).forEach[ec|put(ec, composedPackage.createEClass(srcLabel + "__" + ec.name))]
-			unmappedElements.filter(EReference).forEach[er|put(er, er.createEReference(srcLabel + "__" + er.name))]
+			Origin origin) {
+			unmappedElements.filter(EClass).forEach[ec|put(ec.origKey(origin), composedPackage.createEClass(origin.label + "__" + ec.name))]
+			unmappedElements.filter(EReference).forEach[er|put(er.origKey(origin), er.createEReference(origin.label + "__" + er.name, origin))]
 		}
 
 		private def createEClass(EPackage container, String name) {
@@ -153,16 +163,21 @@ class XDsmlComposer {
 		}
 
 		private def createEReference(EReference source, String name) {
+			// Origin doesn't matter in this case
+			createEReference(source, name, Origin.SOURCE)
+		}
+			
+		private def createEReference(EReference source, String name, Origin origin) {
 			val EReference result = EcoreFactory.eINSTANCE.createEReference;
 
-			(get(source.EContainingClass) as EClass).EStructuralFeatures.add(result)
-			result.EType = get(source.EType) as EClass
+			(get(source.EContainingClass.origKey(origin)) as EClass).EStructuralFeatures.add(result)
+			result.EType = get(source.EType.origKey(origin)) as EClass
 
 			result.name = name
 			result.changeable = source.changeable
 			result.containment = source.containment
 			result.derived = source.derived
-			result.EOpposite = get(source.EOpposite) as EReference
+			result.EOpposite = get(source.EOpposite.origKey(origin)) as EReference
 			result.lowerBound = source.lowerBound
 			result.ordered = source.ordered
 			result.transient = source.transient
@@ -173,16 +188,26 @@ class XDsmlComposer {
 
 			result
 		}
+		
+		override EObject get(Object key) {
+			if (key instanceof Pair) {
+				if ((key.key instanceof Origin) && (key.value instanceof EObject)) {
+					return super.get(key)
+				}
+			} else {
+				throw new IllegalArgumentException("Requiring a pair in call to get!")
+			}
+		}
 	}
 
-	private def Module composeBehaviour(GTSMapping mapping, Map<EObject, EObject> tgMapping) {
+	private def Module composeBehaviour(GTSMapping mapping, Map<Pair<Origin, EObject>, EObject> tgMapping) {
 		if ((mapping.source.behaviour === null) || (mapping.target.behaviour === null)) {
 			return null
 		}
 
 		val result = HenshinFactory.eINSTANCE.createModule
 		result.description = '''Merged from «mapping.source.behaviour.description» and «mapping.target.behaviour.description».'''
-		result.imports.add(tgMapping.get(mapping.source.metamodel) as EPackage)
+		result.imports.add(tgMapping.get(mapping.source.metamodel.sourceKey) as EPackage)
 		result.name = '''«mapping.source.behaviour.name»_«mapping.target.behaviour.name»'''
 
 		val _mapping = mapping.behaviourMapping.extractMapping(null)
@@ -192,7 +217,7 @@ class XDsmlComposer {
 		result
 	}
 
-	def Rule createComposed(Rule tgtRule, Map<EObject, EObject> behaviourMapping, Map<EObject, EObject> tgMapping) {
+	def Rule createComposed(Rule tgtRule, Map<EObject, EObject> behaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping) {
 		val srcRule = behaviourMapping.get(tgtRule) as Rule
 		val result = HenshinFactory.eINSTANCE.createRule
 
@@ -221,16 +246,16 @@ class XDsmlComposer {
 	/**
 	 * Helper class for weaving a rule pattern. Acts as a map remembering the mappings established. 
 	 */
-	private static class PatternWeaver extends HashMap<GraphElement, GraphElement> {
+	private static class PatternWeaver extends HashMap<Pair<Origin, GraphElement>, GraphElement> {
 
 		private var Graph srcPattern
 		private var Graph tgtPattern
 		private var Map<EObject, EObject> behaviourMapping
-		private var Map<EObject, EObject> tgMapping
+		private var Map<Pair<Origin, EObject>, EObject> tgMapping
 
 		private var Graph wovenGraph
 
-		new(Graph srcPattern, Graph tgtPattern, Map<EObject, EObject> behaviourMapping, Map<EObject, EObject> tgMapping,
+		new(Graph srcPattern, Graph tgtPattern, Map<EObject, EObject> behaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping,
 			String patternLabel) {
 			this.srcPattern = srcPattern
 			this.tgtPattern = tgtPattern
@@ -253,31 +278,37 @@ class XDsmlComposer {
 				val composed = createNode(
 					e.key as org.eclipse.emf.henshin.model.Node, '''«e.key.name»_«e.value.name»''')
 
-				put(e.key as org.eclipse.emf.henshin.model.Node, composed)
-				put(e.value as org.eclipse.emf.henshin.model.Node, composed)
+				put((e.key as org.eclipse.emf.henshin.model.Node).sourceKey, composed)
+				put((e.value as org.eclipse.emf.henshin.model.Node).targetKey, composed)
 			]
 			behaviourMapping.entrySet.filter[e|e.key instanceof Edge].forEach [ e |
 				val composed = createEdge(e.key as Edge)
 
-				put(e.key as Edge, composed)
-				put(e.value as Edge, composed)
+				put((e.key as Edge).sourceKey, composed)
+				put((e.value as Edge).targetKey, composed)
 			]
 		}
 
 		private def weaveUnmappedElements() {
-			srcPattern.nodes.reject[n|behaviourMapping.containsKey(n)].forEach [n | put(n, n.createNode('''source__«n.name»'''))]
-			tgtPattern.nodes.reject[n|behaviourMapping.values.contains(n)].forEach [n | put(n, n.createNode('''target__«n.name»'''))]
+			srcPattern.nodes.reject[n|behaviourMapping.containsKey(n)].forEach [n | put(n.sourceKey, n.createNode('''source__«n.name»''', Origin.SOURCE))]
+			tgtPattern.nodes.reject[n|behaviourMapping.values.contains(n)].forEach [n | put(n.targetKey, n.createNode('''target__«n.name»''', Origin.TARGET))]
 
-			srcPattern.edges.reject[e|behaviourMapping.containsKey(e)].forEach[e|put(e, e.createEdge)]
-			tgtPattern.edges.reject[e|behaviourMapping.values.contains(e)].forEach[e|put(e, e.createEdge)]
+			srcPattern.edges.reject[e|behaviourMapping.containsKey(e)].forEach[e|put(e.sourceKey, e.createEdge(Origin.SOURCE))]
+			tgtPattern.edges.reject[e|behaviourMapping.values.contains(e)].forEach[e|put(e.targetKey, e.createEdge(Origin.TARGET))]
 		}
 		
 		private def org.eclipse.emf.henshin.model.Node createNode(org.eclipse.emf.henshin.model.Node nSrc,
 			String name) {
+			// Origin doesn't matter for mapped elements
+			createNode(nSrc, name, Origin.SOURCE)	
+		}
+		
+		private def org.eclipse.emf.henshin.model.Node createNode(org.eclipse.emf.henshin.model.Node nSrc,
+			String name, Origin origin) {
 			val result = HenshinFactory.eINSTANCE.createNode
 
 			result.name = name
-			result.type = tgMapping.get(nSrc.type) as EClass
+			result.type = tgMapping.get(nSrc.type.origKey(origin)) as EClass
 
 			wovenGraph.nodes.add(result)
 
@@ -285,15 +316,30 @@ class XDsmlComposer {
 		}
 
 		private def Edge createEdge(Edge eSrc) {
+			// Origin doesn't matter for mapped elements
+			createEdge(eSrc, Origin.SOURCE)
+		}
+		
+		private def Edge createEdge(Edge eSrc, Origin origin) {
 			val result = HenshinFactory.eINSTANCE.createEdge
 
-			result.source = get(eSrc.source) as org.eclipse.emf.henshin.model.Node
-			result.target = get(eSrc.target) as org.eclipse.emf.henshin.model.Node
-			result.type = tgMapping.get(eSrc.type) as EReference
+			result.source = get(eSrc.source.origKey(origin)) as org.eclipse.emf.henshin.model.Node
+			result.target = get(eSrc.target.origKey(origin)) as org.eclipse.emf.henshin.model.Node
+			result.type = tgMapping.get(eSrc.type.origKey(origin)) as EReference
 
 			wovenGraph.edges.add(result)
 
 			result
+		}
+
+		override GraphElement get(Object key) {
+			if (key instanceof Pair) {
+				if ((key.key instanceof Origin) && (key.value instanceof GraphElement)) {
+					return super.get(key)
+				}
+			} else {
+				throw new IllegalArgumentException("Requiring a pair in call to get!")
+			}
 		}
 	}
 }
