@@ -3,10 +3,10 @@
   <imports href="AB.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_inx3gAgyEein1eZjhen2QA" name="process">
     <lhs xmi:id="_inx3hQgyEein1eZjhen2QA" name="Lhs">
-      <nodes xmi:id="_jsmKgAgyEein1eZjhen2QA" outgoing="_mLX6EAgyEein1eZjhen2QA">
+      <nodes xmi:id="_jsmKgAgyEein1eZjhen2QA" name="a1_b1" outgoing="_mLX6EAgyEein1eZjhen2QA">
         <type href="AB.ecore#//A1_B1"/>
       </nodes>
-      <nodes xmi:id="_kS7xwAgyEein1eZjhen2QA" incoming="_mLX6EAgyEein1eZjhen2QA">
+      <nodes xmi:id="_kS7xwAgyEein1eZjhen2QA" name="source__a2" incoming="_mLX6EAgyEein1eZjhen2QA">
         <type href="AB.ecore#//source__A2"/>
       </nodes>
       <edges xmi:id="_mLX6EAgyEein1eZjhen2QA" source="_jsmKgAgyEein1eZjhen2QA" target="_kS7xwAgyEein1eZjhen2QA">
@@ -14,13 +14,13 @@
       </edges>
     </lhs>
     <rhs xmi:id="_inx3hggyEein1eZjhen2QA" name="Rhs">
-      <nodes xmi:id="_jsmKgQgyEein1eZjhen2QA" incoming="_mqsTUAgyEein1eZjhen2QA" outgoing="_mLX6EQgyEein1eZjhen2QA">
+      <nodes xmi:id="_jsmKgQgyEein1eZjhen2QA" name="a1_b1" incoming="_mqsTUAgyEein1eZjhen2QA" outgoing="_mLX6EQgyEein1eZjhen2QA">
         <type href="AB.ecore#//A1_B1"/>
       </nodes>
-      <nodes xmi:id="_kS7xwQgyEein1eZjhen2QA" incoming="_mLX6EQgyEein1eZjhen2QA">
+      <nodes xmi:id="_kS7xwQgyEein1eZjhen2QA" name="source__a2" incoming="_mLX6EQgyEein1eZjhen2QA">
         <type href="AB.ecore#//source__A2"/>
       </nodes>
-      <nodes xmi:id="_kzikcAgyEein1eZjhen2QA" outgoing="_mqsTUAgyEein1eZjhen2QA">
+      <nodes xmi:id="_kzikcAgyEein1eZjhen2QA" name="target__b2" outgoing="_mqsTUAgyEein1eZjhen2QA">
         <type href="AB.ecore#//target__B2"/>
       </nodes>
       <edges xmi:id="_mLX6EQgyEein1eZjhen2QA" source="_jsmKgQgyEein1eZjhen2QA" target="_kS7xwQgyEein1eZjhen2QA">

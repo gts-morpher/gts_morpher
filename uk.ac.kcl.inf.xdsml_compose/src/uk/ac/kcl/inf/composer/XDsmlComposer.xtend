@@ -335,8 +335,8 @@ class XDsmlComposer {
 		result.description = weaveDescriptions(tgtRule.description, srcRule.description)
 		result.injectiveMatching = srcRule.injectiveMatching
 		// TODO Should probably copy parameters, too
-		result.lhs = new PatternWeaver(srcRule.lhs, tgtRule.lhs, behaviourMapping, tgMapping, "lhs").weavePattern
-		result.rhs = new PatternWeaver(srcRule.rhs, tgtRule.rhs, behaviourMapping, tgMapping, "rhs").weavePattern
+		result.lhs = new PatternWeaver(srcRule.lhs, tgtRule.lhs, behaviourMapping, tgMapping, "Lhs").weavePattern
+		result.rhs = new PatternWeaver(srcRule.rhs, tgtRule.rhs, behaviourMapping, tgMapping, "Rhs").weavePattern
 
 		// Weave kernel
 		result.lhs.nodes.map [ n |
