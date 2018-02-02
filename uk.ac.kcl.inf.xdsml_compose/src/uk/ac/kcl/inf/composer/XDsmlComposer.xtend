@@ -21,9 +21,9 @@ import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.validation.CheckMode
 import org.eclipse.xtext.validation.IResourceValidator
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-import uk.ac.kcl.inf.util.MorphismCompleter
 import uk.ac.kcl.inf.util.IProgressMonitor
+import uk.ac.kcl.inf.util.MorphismCompleter
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
@@ -283,7 +283,11 @@ class XDsmlComposer {
 			result.changeable = source.changeable
 			result.containment = source.containment
 			result.derived = source.derived
-			result.EOpposite = get(source.EOpposite.origKey(origin)) as EReference
+			val opposite = get(source.EOpposite.origKey(origin)) as EReference
+			if (opposite !== null) {
+				result.EOpposite = opposite
+				opposite.EOpposite = result			
+			}
 			result.lowerBound = source.lowerBound
 			result.ordered = source.ordered
 			result.transient = source.transient
