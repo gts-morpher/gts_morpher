@@ -61,12 +61,11 @@ class ComposerTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
-		val fsa = new TestFileSystemAccess
-		val issues = composer.doCompose(result.eResource, fsa, IProgressMonitor.NULL_IMPL)
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
 
-		// TODO check contents of generated resources and compare against oracle
+		// Check contents of generated resources and compare against oracle
 		val ecore = resourceSet.findComposedEcore
 		assertNotNull("Couldn't find composed ecore", ecore)
 		
@@ -76,7 +75,7 @@ class ComposerTests extends AbstractTest {
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
-	def findComposedEcore(ResourceSet resourceSet) {
+	private def findComposedEcore(ResourceSet resourceSet) {
 		resourceSet.resources.filter[r|TestURIHandlerImpl.TEST_URI_SCHEME.equals(r.URI.scheme)].filter [r |
 			"ecore".equals(r.URI.fileExtension)
 		].head
