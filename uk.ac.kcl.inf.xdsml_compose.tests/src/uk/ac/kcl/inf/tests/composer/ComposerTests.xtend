@@ -1,9 +1,14 @@
 package uk.ac.kcl.inf.tests.composer
 
 import com.google.inject.Inject
+import java.util.List
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.henshin.model.Module
+import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.testing.util.ParseHelper
@@ -16,9 +21,6 @@ import uk.ac.kcl.inf.util.IProgressMonitor
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static org.junit.Assert.*
-import java.util.List
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EReference
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -38,7 +40,7 @@ class ComposerTests extends AbstractTest {
 	}
 
 	private def createNormalResourceSet() {
-		#["A.ecore", "B.ecore", "AB.ecore"].createResourceSet
+		#["A.ecore", "B.ecore", "AB.ecore", "A.henshin", "B.henshin", "AB.henshin"].createResourceSet
 	}
 
 	@Test
@@ -75,9 +77,61 @@ class ComposerTests extends AbstractTest {
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
+	@Test
+	def testSimpleGTSMorphism() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "A"
+					behaviour: "ARules"
+				}
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+				
+				behaviour_mapping {
+					rule BRules.process to ARules.process {
+						object a1 => b1
+					}
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+
+		// Check contents of generated resources and compare against oracle
+		val henshin = resourceSet.findComposedHenshin
+		assertNotNull("Couldn't find composed Henshin rules", henshin)
+		
+		val composedLanguage = henshin.contents.head
+		EcoreUtil2.resolveAll(composedLanguage)
+		val composedOracle = resourceSet.getResource(createFileURI("AB.henshin"), true).contents.head as Module
+		EcoreUtil2.resolveAll(composedOracle)
+		
+		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+	}
+
 	private def findComposedEcore(ResourceSet resourceSet) {
+		resourceSet.findComposed("ecore")
+	}
+
+	private def findComposedHenshin(ResourceSet resourceSet) {
+		resourceSet.findComposed("henshin")
+	}
+		
+	private def findComposed(ResourceSet resourceSet, String ext) {
 		resourceSet.resources.filter[r|TestURIHandlerImpl.TEST_URI_SCHEME.equals(r.URI.scheme)].filter [r |
-			"ecore".equals(r.URI.fileExtension)
+			ext.equals(r.URI.fileExtension)
 		].head
 	}
 
