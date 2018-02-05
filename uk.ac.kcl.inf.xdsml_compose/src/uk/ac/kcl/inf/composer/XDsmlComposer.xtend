@@ -5,6 +5,7 @@ import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
 import java.util.Map
+import java.util.function.Function
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
@@ -18,7 +19,6 @@ import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.generator.IFileSystemAccess2
-import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.validation.CheckMode
 import org.eclipse.xtext.validation.IResourceValidator
 import uk.ac.kcl.inf.util.IProgressMonitor
@@ -37,7 +37,7 @@ class XDsmlComposer {
 		def String getMessage()
 	}
 
-	private static class ExceptionIssue implements Issue {
+	private static class ExceptionIssue implements XDsmlComposer.Issue {
 		val Exception exception
 
 		new(Exception e) {
@@ -47,7 +47,7 @@ class XDsmlComposer {
 		override getMessage() '''Exception occurred during language composition: «exception.message».'''
 	}
 
-	private static class IssueIssue implements Issue {
+	private static class IssueIssue implements XDsmlComposer.Issue {
 		val org.eclipse.xtext.validation.Issue issue
 
 		new(org.eclipse.xtext.validation.Issue issue) {
@@ -67,7 +67,7 @@ class XDsmlComposer {
 		}
 	}
 
-	private static class MessageIssue implements Issue {
+	private static class MessageIssue implements XDsmlComposer.Issue {
 		val String message
 
 		new(String message) {
@@ -91,8 +91,8 @@ class XDsmlComposer {
 	 * 
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
-	def List<Issue> doCompose(Resource resource, IFileSystemAccess2 fsa, IProgressMonitor monitor) {
-		val result = new ArrayList<Issue>
+	def List<XDsmlComposer.Issue> doCompose(Resource resource, IFileSystemAccess2 fsa, IProgressMonitor monitor) {
+		val result = new ArrayList<XDsmlComposer.Issue>
 		val _monitor = monitor.convert(4)
 		try {
 			val issues = resourceValidator.validate(resource, CheckMode.ALL, _monitor.split("Validating resource.", 1))
@@ -211,19 +211,39 @@ class XDsmlComposer {
 		}
 
 		private def weaveMappedElements(Map<EObject, EObject> tgMapping, EPackage composedPackage) {
-			tgMapping.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
-				val EClass composed = composedPackage.createEClass(weaveNames(e.key.name, e.value.name))
-
-				put(e.key.sourceKey, composed)
-				put(e.value.targetKey, composed)
+			// Build inverted index so that we can merge objects as required
+			val invertedIndex = new HashMap<EObject, List<EObject>>()
+			tgMapping.forEach[k, v|
+				invertedIndex.putIfAbsent(v, new ArrayList<EObject>)
+				invertedIndex.get(v).add(k)
 			]
+			
+			// Now build mappings from inverted index
+			invertedIndex.entrySet.filter[e | e.key instanceof EClass].forEach[e |
+				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [n | composedPackage.createEClass(n)])
+							
+				put(e.key.targetKey, composed)
+				e.value.forEach[eo | put(eo.sourceKey, composed)]
+			]
+//			tgMapping.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
+//				val EClass composed = composedPackage.createEClass(weaveNames(e.key.name, e.value.name))
+//
+//				put(e.key.sourceKey, composed)
+//				put(e.value.targetKey, composed)
+//			]
 			// Because the mapping is a morphism, this must work :-)
-			tgMapping.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
-				val EReference composed = createEReference(e.key as EReference, weaveNames(e.key.name, e.value.name))
-
-				put(e.key.sourceKey, composed)
-				put(e.value.targetKey, composed)
+			invertedIndex.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
+				val EReference composed = e.value.createWithWovenName(e.key.name.toString, [n | createEReference(e.key as EReference, n)])
+				
+				put(e.key.targetKey, composed)
+				e.value.forEach[eo | put(eo.sourceKey, composed)]
 			]
+//			tgMapping.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
+//				val EReference composed = createEReference(e.key as EReference, weaveNames(e.key.name, e.value.name))
+//
+//				put(e.key.sourceKey, composed)
+//				put(e.value.targetKey, composed)
+//			]
 
 		// TODO Also copy attributes, I guess :-)
 		}
@@ -261,6 +281,10 @@ class XDsmlComposer {
 			]
 		}
 
+		private def <T extends EObject> T createWithWovenName(List<? extends EObject> objects, String startName, Function<String, T> creator) {
+			creator.apply(objects.map[eo | eo.name.toString].sort.reverseView.fold(startName, [acc, n | weaveNames(n, acc)]))
+		}
+
 		private def createEClass(EPackage container, String name) {
 			val EClass result = EcoreFactory.eINSTANCE.createEClass
 			container.EClassifiers.add(result)
@@ -269,8 +293,8 @@ class XDsmlComposer {
 		}
 
 		private def createEReference(EReference source, String name) {
-			// Origin doesn't matter in this case
-			createEReference(source, name, Origin.SOURCE)
+			// Origin doesn't matter in this case, but must be TARGET because we've previously decided to copy from target references
+			createEReference(source, name, Origin.TARGET)
 		}
 
 		private def createEReference(EReference source, String name, Origin origin) {
