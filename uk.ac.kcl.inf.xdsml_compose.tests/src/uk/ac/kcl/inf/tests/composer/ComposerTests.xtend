@@ -40,7 +40,17 @@ class ComposerTests extends AbstractTest {
 	}
 
 	private def createNormalResourceSet() {
-		#["A.ecore", "B.ecore", "AB.ecore", "A.henshin", "B.henshin", "AB.henshin"].createResourceSet
+		#[
+			"A.ecore", 
+			"B.ecore", 
+			"AB.ecore", 
+			"A.henshin", 
+			"B.henshin", 
+			"AB.henshin",
+			"C.ecore",
+			"D.ecore",
+			"CD.ecore"
+		].createResourceSet
 	}
 
 	@Test
@@ -119,6 +129,42 @@ class ComposerTests extends AbstractTest {
 		EcoreUtil2.resolveAll(composedOracle)
 		
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+	}
+
+	@Test
+	def testNonInjectiveTGMorphism() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "C"
+				}
+				to {
+					metamodel: "D"
+				}
+				
+				type_mapping {
+					class C.C1 => D.D1
+					class C.C2 => D.D1
+					reference C.C2.c1 => D.D1.d1
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+
+		// Check contents of generated resources and compare against oracle
+		val ecore = resourceSet.findComposedEcore
+		assertNotNull("Couldn't find composed ecore", ecore)
+		
+		val composedLanguage = ecore.contents.head
+		val composedOracle = resourceSet.getResource(createFileURI("CD.ecore"), true).contents.head as EPackage
+		
+		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
 	private def findComposedEcore(ResourceSet resourceSet) {

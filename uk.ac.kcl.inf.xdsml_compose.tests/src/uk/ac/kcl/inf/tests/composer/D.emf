@@ -1,0 +1,6 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/D", prefix="d")
+package D;
+
+class D1 {
+	ref D1 d1;
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="C" nsURI="http://kcl.ac.uk/xdsml/C" nsPrefix="c">
+  <eClassifiers xsi:type="ecore:EClass" name="C1">
+    <eAnnotations source="Interface"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="bs" upperBound="-1" eType="#//C3"
+        containment="true" eOpposite="#//C3/a"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="C2">
+    <eAnnotations source="Interface"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="c1" eType="#//C1">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="c3" eType="#//C3" eOpposite="#//C3/c2s"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="C3">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="a" eType="#//C1" changeable="false"
+        eOpposite="#//C1/bs"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="c2s" upperBound="-1" eType="#//C2"
+        containment="true" eOpposite="#//C2/c3"/>
+  </eClassifiers>
+</ecore:EPackage>
