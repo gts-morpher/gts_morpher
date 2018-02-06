@@ -24,6 +24,7 @@ import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -264,6 +265,42 @@ class ParsingAndValidationTests extends AbstractTest {
 		
 		assertTrue("Not set to auto-complete", result.autoComplete)
 		assertTrue("Not set to unique auto-complete", result.uniqueCompletion)
+	}
+
+	/**
+	 * Test basic parsing with a GTS family specification
+	 */
+	@Test
+	def void parsingBasicGTSFamily() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						family: {
+							metamodel: "server"
+							transformers: "transformerRules"
+						}
+						
+						using [
+							addSubClass(server.Server, "Server1"),
+							addSubClass(server.Server, "Server2")
+						]
+					}
+					
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
+						class server.Server1 => devsmm.Machine
+						reference server.Server.Out => devsmm.Machine.out
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)		
 	}
 
 	/**

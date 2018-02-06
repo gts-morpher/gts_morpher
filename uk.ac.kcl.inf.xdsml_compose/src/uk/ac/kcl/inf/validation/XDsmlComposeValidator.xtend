@@ -42,6 +42,8 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+
 import org.eclipse.emf.ecore.EModelElement
 
 /**
@@ -78,7 +80,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		if (gts.behaviour !== null) {
 			if (!gts.behaviour.imports.contains(gts.metamodel)) {
 				error("Inconsistent GTS specification: Rules need to be typed over metamodel.",
-					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INVALID_BEHAVIOUR_SPEC)
+					XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INVALID_BEHAVIOUR_SPEC)
 			}
 		}
 	}
@@ -196,7 +198,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			// Really should have some behaviour mappings if there are any rules at all...
 			if (validator !== null) {
 				validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
-					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)
+					XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)
 			}
 			result = false
 		}
@@ -205,7 +207,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		if (rules.exists[r | !mappedRules.contains(r)]) {
 			if (validator !== null) {
 				validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
-						XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)				
+						XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)				
 			}
 			result = false
 		}

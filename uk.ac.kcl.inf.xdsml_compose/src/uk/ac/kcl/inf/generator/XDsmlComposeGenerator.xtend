@@ -23,6 +23,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 
 import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 
 /**

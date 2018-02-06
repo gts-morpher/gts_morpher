@@ -26,6 +26,9 @@ import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 
 import static org.eclipse.xtext.scoping.Scopes.*
 
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+
+
 /**
  * This class contains custom scoping description.
  * 
