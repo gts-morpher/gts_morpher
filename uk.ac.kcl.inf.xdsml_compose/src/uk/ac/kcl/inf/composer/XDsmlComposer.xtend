@@ -281,10 +281,6 @@ class XDsmlComposer {
 			]
 		}
 
-		private def <T extends EObject> T createWithWovenName(List<? extends EObject> objects, String startName, Function<String, T> creator) {
-			creator.apply(objects.map[eo | eo.name.toString].sort.reverseView.fold(startName, [acc, n | weaveNames(n, acc)]))
-		}
-
 		private def createEClass(EPackage container, String name) {
 			val EClass result = EcoreFactory.eINSTANCE.createEClass
 			container.EClassifiers.add(result)
@@ -408,19 +404,39 @@ class XDsmlComposer {
 		}
 
 		private def weaveMappedElements() {
-			behaviourMapping.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.Node].forEach [ e |
-				val composed = createNode(e.key as org.eclipse.emf.henshin.model.Node,
-					weaveNames(e.key.name, e.value.name))
-
-				put((e.key as org.eclipse.emf.henshin.model.Node).sourceKey, composed)
-				put((e.value as org.eclipse.emf.henshin.model.Node).targetKey, composed)
+			// TODO: Construct inverted index, then compose from that
+			val invertedIndex = new HashMap<EObject, List<EObject>>()
+			behaviourMapping.forEach[k, v|
+				invertedIndex.putIfAbsent(v, new ArrayList<EObject>)
+				invertedIndex.get(v).add(k)
 			]
-			behaviourMapping.entrySet.filter[e|e.key instanceof Edge].forEach [ e |
+			
+			invertedIndex.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.Node].forEach [ e |
+				val composed = e.value.createWithWovenName(e.key.name.toString, [n | createNode(e.key as org.eclipse.emf.henshin.model.Node, n)])
+							
+				put((e.key as org.eclipse.emf.henshin.model.Node).targetKey, composed)
+				e.value.forEach[eo | put((eo as org.eclipse.emf.henshin.model.Node).sourceKey, composed)]
+			]			
+//			behaviourMapping.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.Node].forEach [ e |
+//				val composed = createNode(e.key as org.eclipse.emf.henshin.model.Node,
+//					weaveNames(e.key.name, e.value.name))
+//
+//				put((e.key as org.eclipse.emf.henshin.model.Node).sourceKey, composed)
+//				put((e.value as org.eclipse.emf.henshin.model.Node).targetKey, composed)
+//			]
+
+			invertedIndex.entrySet.filter[e|e.key instanceof Edge].forEach [ e |
 				val composed = createEdge(e.key as Edge)
-
-				put((e.key as Edge).sourceKey, composed)
-				put((e.value as Edge).targetKey, composed)
+				
+				put((e.key as Edge).targetKey, composed)
+				e.value.forEach[eo | put((eo as Edge).sourceKey, composed)]
 			]
+//			behaviourMapping.entrySet.filter[e|e.key instanceof Edge].forEach [ e |
+//				val composed = createEdge(e.key as Edge)
+//
+//				put((e.key as Edge).sourceKey, composed)
+//				put((e.value as Edge).targetKey, composed)
+//			]
 		}
 
 		private def weaveUnmappedElements() {
@@ -441,8 +457,8 @@ class XDsmlComposer {
 
 		private def org.eclipse.emf.henshin.model.Node createNode(org.eclipse.emf.henshin.model.Node nSrc,
 			String name) {
-			// Origin doesn't matter for mapped elements
-			createNode(nSrc, name, Origin.SOURCE)
+			// Origin doesn't matter for mapped elements, must be target because we've decided to copy data from target TG
+			createNode(nSrc, name, Origin.TARGET)
 		}
 
 		private def org.eclipse.emf.henshin.model.Node createNode(org.eclipse.emf.henshin.model.Node nSrc, String name,
@@ -458,8 +474,8 @@ class XDsmlComposer {
 		}
 
 		private def Edge createEdge(Edge eSrc) {
-			// Origin doesn't matter for mapped elements
-			createEdge(eSrc, Origin.SOURCE)
+			// Origin doesn't matter for mapped elements, must be target because we've decided to copy data from target edge
+			createEdge(eSrc, Origin.TARGET)
 		}
 
 		private def Edge createEdge(Edge eSrc, Origin origin) {
@@ -483,6 +499,10 @@ class XDsmlComposer {
 				throw new IllegalArgumentException("Requiring a pair in call to get!")
 			}
 		}
+	}
+
+	private static def <T extends EObject> T createWithWovenName(List<? extends EObject> objects, String startName, Function<String, T> creator) {
+		creator.apply(objects.map[eo | eo.name.toString].sort.reverseView.fold(startName, [acc, n | weaveNames(n, acc)]))
 	}
 
 	private static def String weaveNames(CharSequence sourceName, CharSequence targetName) {
