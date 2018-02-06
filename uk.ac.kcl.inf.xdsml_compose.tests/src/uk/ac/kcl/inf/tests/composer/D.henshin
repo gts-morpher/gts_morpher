@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_V7tOEAsSEeigIeiDiP83tg" name="DRules">
+  <imports href="D.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_b3eB4AsSEeigIeiDiP83tg" name="resolveSelfReference">
+    <lhs xmi:id="_b3geIAsSEeigIeiDiP83tg" name="Lhs">
+      <nodes xmi:id="_d6RAEAsSEeigIeiDiP83tg" name="d1" incoming="_h50l4AsSEeigIeiDiP83tg" outgoing="_h50l4AsSEeigIeiDiP83tg">
+        <type href="D.ecore#//D1"/>
+      </nodes>
+      <nodes xmi:id="_ecaD0AsSEeigIeiDiP83tg" name="d1b">
+        <type href="D.ecore#//D1"/>
+      </nodes>
+      <edges xmi:id="_h50l4AsSEeigIeiDiP83tg" source="_d6RAEAsSEeigIeiDiP83tg" target="_d6RAEAsSEeigIeiDiP83tg">
+        <type href="D.ecore#//D1/d1"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_b3geIQsSEeigIeiDiP83tg" name="Rhs">
+      <nodes xmi:id="_d6RAEQsSEeigIeiDiP83tg" name="d1" outgoing="_igQTwAsSEeigIeiDiP83tg">
+        <type href="D.ecore#//D1"/>
+      </nodes>
+      <nodes xmi:id="_ecaD0QsSEeigIeiDiP83tg" name="d1b" incoming="_igQTwAsSEeigIeiDiP83tg">
+        <type href="D.ecore#//D1"/>
+      </nodes>
+      <edges xmi:id="_igQTwAsSEeigIeiDiP83tg" source="_d6RAEQsSEeigIeiDiP83tg" target="_ecaD0QsSEeigIeiDiP83tg">
+        <type href="D.ecore#//D1/d1"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_d6RAEgsSEeigIeiDiP83tg" origin="_d6RAEAsSEeigIeiDiP83tg" image="_d6RAEQsSEeigIeiDiP83tg"/>
+    <mappings xmi:id="_ecaD0gsSEeigIeiDiP83tg" origin="_ecaD0AsSEeigIeiDiP83tg" image="_ecaD0QsSEeigIeiDiP83tg"/>
+  </units>
+</henshin:Module>
