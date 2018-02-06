@@ -1,0 +1,11 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/A", prefix="a")
+package A;
+
+@Interface
+class A1 {
+	val A2[*]#a bs;
+}
+
+class A2 {
+	readonly ref A1#bs a;
+}

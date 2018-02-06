@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmi:id="_3ojYEAgxEein1eZjhen2QA" type="Henshin" measurementUnit="Pixel">
+  <children xmi:type="notation:Shape" xmi:id="_B0QXEAgyEein1eZjhen2QA" type="2001" fontName="Segoe UI" italic="true" lineColor="0">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_DA2tEAgyEein1eZjhen2QA" source="defaultAction">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_DA2tEQgyEein1eZjhen2QA" key="value" value="preserve"/>
+    </eAnnotations>
+    <children xmi:type="notation:DecorationNode" xmi:id="_B0eZgAgyEein1eZjhen2QA" type="5001"/>
+    <children xmi:type="notation:DecorationNode" xmi:id="_B0eZgQgyEein1eZjhen2QA" type="7001">
+      <children xmi:type="notation:Shape" xmi:id="_DA4iQAgyEein1eZjhen2QA" type="3001" fontName="Segoe UI">
+        <children xmi:type="notation:DecorationNode" xmi:id="_DA4iQggyEein1eZjhen2QA" type="5002"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_DA4iQwgyEein1eZjhen2QA" type="5003"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_DA7lkAgyEein1eZjhen2QA" type="7002">
+          <styles xmi:type="notation:SortingStyle" xmi:id="_DA7lkQgyEein1eZjhen2QA"/>
+          <styles xmi:type="notation:FilteringStyle" xmi:id="_DA7lkggyEein1eZjhen2QA"/>
+        </children>
+        <element xmi:type="henshin:Node" href="A.henshin#_DA034AgyEein1eZjhen2QA"/>
+        <layoutConstraint xmi:type="notation:Bounds" xmi:id="_DA4iQQgyEein1eZjhen2QA" x="97" y="19"/>
+      </children>
+      <children xmi:type="notation:Shape" xmi:id="_ENZ_wwgyEein1eZjhen2QA" type="3001" fontName="Segoe UI">
+        <children xmi:type="notation:DecorationNode" xmi:id="_ENZ_xQgyEein1eZjhen2QA" type="5002"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_ENZ_xggyEein1eZjhen2QA" type="5003"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_ENZ_xwgyEein1eZjhen2QA" type="7002">
+          <styles xmi:type="notation:SortingStyle" xmi:id="_ENZ_yAgyEein1eZjhen2QA"/>
+          <styles xmi:type="notation:FilteringStyle" xmi:id="_ENZ_yQgyEein1eZjhen2QA"/>
+        </children>
+        <element xmi:type="henshin:Node" href="A.henshin#_ENZ_wAgyEein1eZjhen2QA"/>
+        <layoutConstraint xmi:type="notation:Bounds" xmi:id="_ENZ_xAgyEein1eZjhen2QA" x="97" y="106"/>
+      </children>
+    </children>
+    <element xmi:type="henshin:Rule" href="A.henshin#_B0GmEAgyEein1eZjhen2QA"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_B0QXEQgyEein1eZjhen2QA" x="100" y="60"/>
+  </children>
+  <styles xmi:type="notation:DiagramStyle" xmi:id="_3ojYEQgxEein1eZjhen2QA"/>
+  <element xmi:type="henshin:Module" href="A.henshin#_trLI8AgxEein1eZjhen2QA"/>
+  <edges xmi:type="notation:Connector" xmi:id="_H1uxUggyEein1eZjhen2QA" type="4001" source="_DA4iQAgyEein1eZjhen2QA" target="_ENZ_wwgyEein1eZjhen2QA">
+    <children xmi:type="notation:DecorationNode" xmi:id="_H1uxVQgyEein1eZjhen2QA" type="6001">
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_H1uxVggyEein1eZjhen2QA" x="5" y="17"/>
+    </children>
+    <children xmi:type="notation:DecorationNode" xmi:id="_H1uxVwgyEein1eZjhen2QA" type="6002">
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_H1uxWAgyEein1eZjhen2QA" x="-10" y="38"/>
+    </children>
+    <styles xmi:type="notation:FontStyle" xmi:id="_H1uxUwgyEein1eZjhen2QA" fontName="Segoe UI"/>
+    <element xmi:type="henshin:Edge" href="A.henshin#_H1uxUAgyEein1eZjhen2QA"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_H1uxVAgyEein1eZjhen2QA" points="[2, 9, 0, -53]$[-3, 54, -5, -8]"/>
+    <sourceAnchor xmi:type="notation:IdentityAnchor" xmi:id="_H2LdQAgyEein1eZjhen2QA" id="(0.3442622950819672,0.7857142857142857)"/>
+    <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_H2LdQQgyEein1eZjhen2QA" id="(0.3770491803278688,0.19047619047619047)"/>
+  </edges>
+</notation:Diagram>

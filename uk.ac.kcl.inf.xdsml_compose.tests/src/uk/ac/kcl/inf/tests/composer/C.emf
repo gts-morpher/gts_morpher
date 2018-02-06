@@ -1,0 +1,19 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/C", prefix="c")
+package C;
+
+@Interface
+class C1 {
+	val C3[*]#a bs;
+}
+
+@Interface
+class C2 {
+	@Interface
+	ref C1 c1;
+	ref C3#c2s c3;
+}
+
+class C3 {
+	readonly ref C1#bs a;
+	val C2[*]#c3 c2s;
+}

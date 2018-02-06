@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="C_D" nsURI="https://metamodel.woven/c/d" nsPrefix="c_d">
+  <eClassifiers xsi:type="ecore:EClass" name="C1_C2_D1">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="c1_d1" eType="#//C1_C2_D1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source__bs" upperBound="-1"
+        eType="#//source__C3" containment="true" eOpposite="#//source__C3/source__a"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source__c3" eType="#//source__C3"
+        eOpposite="#//source__C3/source__c2s"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="source__C3">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source__a" eType="#//C1_C2_D1"
+        changeable="false" eOpposite="#//C1_C2_D1/source__bs"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source__c2s" upperBound="-1"
+        eType="#//C1_C2_D1" containment="true" eOpposite="#//C1_C2_D1/source__c3"/>
+  </eClassifiers>
+</ecore:EPackage>

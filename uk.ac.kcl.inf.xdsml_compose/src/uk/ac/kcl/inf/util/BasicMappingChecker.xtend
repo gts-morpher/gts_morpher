@@ -121,13 +121,13 @@ class BasicMappingChecker {
 						val tgtRule = em.target.eContainer.eContainer as Rule
 						if (srcPattern == srcRule.lhs) {
 							// Also add corresponding RHS object, if any
-							_mapping.put(
+							_mapping.putIfNotNull(
 								srcRule.rhs.nodes.findFirst[o|o.name.equals(em.source.name)],
 								tgtRule.rhs.nodes.findFirst[o|o.name.equals(em.target.name)]
 							)
 						} else if (srcPattern == srcRule.rhs) {
 							// Also add corresponding LHS object, if any							
-							_mapping.put(
+							_mapping.putIfNotNull(
 								srcRule.lhs.nodes.findFirst[o|o.name.equals(em.source.name)],
 								tgtRule.lhs.nodes.findFirst[o|o.name.equals(em.target.name)]
 							)
@@ -151,13 +151,13 @@ class BasicMappingChecker {
 						val tgtRule = em.target.eContainer.eContainer as Rule
 						if (srcPattern == srcRule.lhs) {
 							// Also add corresponding RHS link, if any
-							_mapping.put(
+							_mapping.putIfNotNull(
 								srcRule.rhs.edges.findFirst[o|o.name.equals(em.source.name)],
 								tgtRule.rhs.edges.findFirst[o|o.name.equals(em.target.name)]
 							)
 						} else if (srcPattern == srcRule.rhs) {
 							// Also add corresponding LHS link, if any							
-							_mapping.put(
+							_mapping.putIfNotNull(
 								srcRule.lhs.edges.findFirst[o|o.name.equals(em.source.name)],
 								tgtRule.lhs.edges.findFirst[o|o.name.equals(em.target.name)]
 							)
@@ -168,6 +168,12 @@ class BasicMappingChecker {
 		]
 
 		_mapping
+	}
+	
+	private static def <K, V> void putIfNotNull(HashMap<K, V> map, K key, V value) {
+		if ((key !== null) && (value !== null)) {
+			map.put(key, value)
+		}
 	}
 	
 	private static def void safeError(IssueAcceptor issues, String message, EObject source, EStructuralFeature feature, String code, String... issueData) {

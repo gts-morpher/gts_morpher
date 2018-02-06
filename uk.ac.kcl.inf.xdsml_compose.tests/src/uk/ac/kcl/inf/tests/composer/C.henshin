@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_LMa2UAsREeigIeiDiP83tg" name="CRules">
+  <imports href="C.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_V4D5oAsREeigIeiDiP83tg" name="change">
+    <lhs xmi:id="_V47cUAsREeigIeiDiP83tg" name="Lhs">
+      <nodes xmi:id="_cv4GAAsREeigIeiDiP83tg" name="c1" incoming="_gI0XwAsREeigIeiDiP83tg" outgoing="_FP7NQAsSEeigIeiDiP83tg">
+        <type href="C.ecore#//C1"/>
+      </nodes>
+      <nodes xmi:id="_eERtIAsREeigIeiDiP83tg" name="c2" incoming="_CfUG0AsSEeigIeiDiP83tg" outgoing="_gI0XwAsREeigIeiDiP83tg">
+        <type href="C.ecore#//C2"/>
+      </nodes>
+      <nodes xmi:id="_k0A7kAsREeigIeiDiP83tg" name="c1b">
+        <type href="C.ecore#//C1"/>
+      </nodes>
+      <nodes xmi:id="_xw96MAsREeigIeiDiP83tg" name="c3" incoming="_FP7NQAsSEeigIeiDiP83tg" outgoing="_CfUG0AsSEeigIeiDiP83tg">
+        <type href="C.ecore#//C3"/>
+      </nodes>
+      <edges xmi:id="_gI0XwAsREeigIeiDiP83tg" source="_eERtIAsREeigIeiDiP83tg" target="_cv4GAAsREeigIeiDiP83tg">
+        <type href="C.ecore#//C2/c1"/>
+      </edges>
+      <edges xmi:id="_CfUG0AsSEeigIeiDiP83tg" source="_xw96MAsREeigIeiDiP83tg" target="_eERtIAsREeigIeiDiP83tg">
+        <type href="C.ecore#//C3/c2s"/>
+      </edges>
+      <edges xmi:id="_FP7NQAsSEeigIeiDiP83tg" source="_cv4GAAsREeigIeiDiP83tg" target="_xw96MAsREeigIeiDiP83tg">
+        <type href="C.ecore#//C1/bs"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_V47cUQsREeigIeiDiP83tg" name="Rhs">
+      <nodes xmi:id="_cv4GAQsREeigIeiDiP83tg" name="c1">
+        <type href="C.ecore#//C1"/>
+      </nodes>
+      <nodes xmi:id="_eESUMAsREeigIeiDiP83tg" name="c2" incoming="_CfUt4AsSEeigIeiDiP83tg" outgoing="_oCjUIAsREeigIeiDiP83tg">
+        <type href="C.ecore#//C2"/>
+      </nodes>
+      <nodes xmi:id="_k0A7kQsREeigIeiDiP83tg" name="c1b" incoming="_oCjUIAsREeigIeiDiP83tg" outgoing="_FzChYAsSEeigIeiDiP83tg">
+        <type href="C.ecore#//C1"/>
+      </nodes>
+      <nodes xmi:id="_xw96MQsREeigIeiDiP83tg" name="c3" incoming="_FzChYAsSEeigIeiDiP83tg" outgoing="_CfUt4AsSEeigIeiDiP83tg">
+        <type href="C.ecore#//C3"/>
+      </nodes>
+      <edges xmi:id="_oCjUIAsREeigIeiDiP83tg" source="_eESUMAsREeigIeiDiP83tg" target="_k0A7kQsREeigIeiDiP83tg">
+        <type href="C.ecore#//C2/c1"/>
+      </edges>
+      <edges xmi:id="_CfUt4AsSEeigIeiDiP83tg" source="_xw96MQsREeigIeiDiP83tg" target="_eESUMAsREeigIeiDiP83tg">
+        <type href="C.ecore#//C3/c2s"/>
+      </edges>
+      <edges xmi:id="_FzChYAsSEeigIeiDiP83tg" source="_k0A7kQsREeigIeiDiP83tg" target="_xw96MQsREeigIeiDiP83tg">
+        <type href="C.ecore#//C1/bs"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_cv4tEAsREeigIeiDiP83tg" origin="_cv4GAAsREeigIeiDiP83tg" image="_cv4GAQsREeigIeiDiP83tg"/>
+    <mappings xmi:id="_eESUMQsREeigIeiDiP83tg" origin="_eERtIAsREeigIeiDiP83tg" image="_eESUMAsREeigIeiDiP83tg"/>
+    <mappings xmi:id="_k0A7kgsREeigIeiDiP83tg" origin="_k0A7kAsREeigIeiDiP83tg" image="_k0A7kQsREeigIeiDiP83tg"/>
+    <mappings xmi:id="_xw96MgsREeigIeiDiP83tg" origin="_xw96MAsREeigIeiDiP83tg" image="_xw96MQsREeigIeiDiP83tg"/>
+  </units>
+</henshin:Module>

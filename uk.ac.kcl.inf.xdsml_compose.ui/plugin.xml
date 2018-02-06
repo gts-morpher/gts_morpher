@@ -407,6 +407,35 @@
 			type="text">
 		</fileTypes>
 	</extension>
+ <extension
+       point="org.eclipse.ui.commands">
+    <command
+          defaultHandler="uk.ac.kcl.inf.ui.XDsmlComposeExecutableExtensionFactory:uk.ac.kcl.inf.ui.handlers.ComposeXDsmlsHandler"
+          id="uk.ac.kcl.inf.xdsml_compose.ui.command.ComposeXDSMLs"
+          name="Weave xDSMLs">
+    </command>
+ </extension>
+ <extension
+       point="org.eclipse.ui.menus">
+    <menuContribution
+            locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
+    	<command
+             commandId="uk.ac.kcl.inf.xdsml_compose.ui.command.ComposeXDSMLs"
+             style="push"
+             tooltip="Weave languages as per specification">
+                    <visibleWhen>
+				           <with variable="activeMenuSelection">
+				            <iterate
+				                 ifEmpty="false">
+				             <adapt type="org.eclipse.core.resources.IResource">
+				               <test property="org.eclipse.core.resources.name" value="*.lang_compose" />
+				             </adapt>
+				            </iterate>
+				           </with>
+         			</visibleWhen>
+            </command>
+      </menuContribution>
+ </extension>
 	<!--
 	<extension point="org.eclipse.xtext.ui.shared.overridingGuiceModule">
 	  <module class="uk.ac.kcl.inf.ui.ResourceModule">
