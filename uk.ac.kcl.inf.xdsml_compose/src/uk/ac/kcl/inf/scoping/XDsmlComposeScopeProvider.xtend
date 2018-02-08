@@ -3,6 +3,7 @@
  */
 package uk.ac.kcl.inf.scoping
 
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
@@ -11,11 +12,13 @@ import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.naming.SimpleNameProvider
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 import org.eclipse.xtext.scoping.impl.FilteringScope
 import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
@@ -23,11 +26,11 @@ import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
+import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 
 import static org.eclipse.xtext.scoping.Scopes.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-
 
 /**
  * This class contains custom scoping description.
@@ -36,6 +39,13 @@ import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
  * on how and when to use it.
  */
 class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
+
+	@Inject
+	val SimpleNameProvider simpleNameProvider = null
+
+	def IScope scope_UnitCall_unit(UnitCall context, EReference ref) {
+		scopeFor((context.eContainer.eContainer as GTSFamilyChoice).transformers.units, simpleNameProvider, IScope.NULLSCOPE)
+	}
 
 	def IScope scope_ClassMapping_source(ClassMapping context, EReference ref) {
 		new FilteringScope(sourceScope(context.eContainer as TypeGraphMapping), [ eod |

@@ -25,6 +25,8 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
+import com.google.common.collect.Iterables
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -34,6 +36,10 @@ class ParsingAndValidationTests extends AbstractTest {
 
 	@Inject 
 	extension ValidationTestHelper
+
+	protected override createResourceSet(String[] files) {
+		super.createResourceSet(Iterables.concat(files, #["transformers.henshin"]))
+	}
 
 	private def createNormalResourceSet() {
 		#["server.ecore", "DEVSMM.ecore", "server.henshin", "devsmm.henshin"].createResourceSet
@@ -300,7 +306,11 @@ class ParsingAndValidationTests extends AbstractTest {
 			''',
 			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
-		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertNotNull("Didn't manage to load transformers.", (result.source.gts as GTSFamilyChoice).transformers.name)
+		
+		assertNotNull("Didn't find transformer being invoked", (result.source.gts as GTSFamilyChoice).transformationSteps.steps.head.unit.name)
 	}
 
 	/**
