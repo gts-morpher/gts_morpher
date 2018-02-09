@@ -45,6 +45,9 @@ import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 import org.eclipse.emf.ecore.EModelElement
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
+import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.emf.henshin.model.HenshinPackage
 
 /**
  * This class contains custom validation rules. 
@@ -71,6 +74,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
+	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'	
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -338,6 +342,21 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				}
 			}
 		}
+
+	/**
+	 * Check transformer specification is a validly typed Henshin module.
+	 */
+	@Check
+	def checkValidTransformers(GTSFamilyChoice familyChoiceSpec) {
+		if (familyChoiceSpec.transformers !== null) {
+			if ((!familyChoiceSpec.transformers.imports.contains(EcorePackage.eINSTANCE)) ||
+				(!familyChoiceSpec.transformers.imports.contains(HenshinPackage.eINSTANCE)) ||
+				(familyChoiceSpec.transformers.imports.size > 2)) {
+				error ("Transformer rules must be typed over Henshin rules and Ecore metamodels only.", 
+					familyChoiceSpec, XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS, INVALID_TRANSFORMER_SPECIFICATION)
+			}
+		}
+	}
 
 		private def findImprovementOptions(MorphismCompleter morphismCompleter) {
 			// Sort all newly mapped elements by number of potential mappings, descending

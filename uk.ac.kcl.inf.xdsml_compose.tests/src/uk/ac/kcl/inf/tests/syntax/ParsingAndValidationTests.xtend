@@ -897,4 +897,78 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.NON_INTERFACE_LINK_MAPPING_ATTEMPT)
 		result.assertNoError(XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
 	}
+	
+	/**
+	 * Test validation of transformer rules with a GTS family specification
+	 */
+	@Test
+	def void validateBasicGTSFamilyNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						family: {
+							metamodel: "server"
+							transformers: "serverRules"
+						}
+						
+						using [
+							addSubClass(server.Server, "Server1"),
+							addSubClass(server.Server, "Server2")
+						]
+					}
+					
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		result.assertError(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE, XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
+	}
+
+	/**
+	 * Test validation of transformer rules with a GTS family specification
+	 */
+	@Test
+	def void validateBasicGTSFamilyPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						family: {
+							metamodel: "server"
+							transformers: "transformerRules"
+						}
+						
+						using [
+							addSubClass(server.Server, "Server1"),
+							addSubClass(server.Server, "Server2")
+						]
+					}
+					
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		result.assertNoError(XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
+	}
 }
