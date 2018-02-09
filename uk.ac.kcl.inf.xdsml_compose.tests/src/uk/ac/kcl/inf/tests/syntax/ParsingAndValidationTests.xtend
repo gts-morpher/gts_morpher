@@ -1009,5 +1009,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertNoError(XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
 		
 		result.assertError(XDsmlComposePackage.Literals.UNIT_CALL, XDsmlComposeValidator.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
+		result.assertError(XDsmlComposePackage.Literals.EOBJECT_REFERENCE_PARAMETER, XDsmlComposeValidator.INVALID_UNIT_CALL_PARAMETER_TYPE)
+		result.assertError(XDsmlComposePackage.Literals.STRING_PARAMETER, XDsmlComposeValidator.INVALID_UNIT_CALL_PARAMETER_TYPE)
 	}
 }

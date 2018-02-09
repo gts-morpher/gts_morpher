@@ -50,6 +50,7 @@ import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.henshin.model.HenshinPackage
 import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import org.eclipse.emf.henshin.model.ParameterKind
+import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 
 /**
  * This class contains custom validation rules. 
@@ -78,6 +79,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
 	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
+	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -366,9 +368,28 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkValidUnitCallParameters(UnitCall call) {
-		if (call.unit.parameters.filter[p | p.kind != ParameterKind.VAR].size != call.params.parameters.size) {
-			error('''Wrong number of parameters in transformer call. Was given «call.params.parameters.size» parameters, but expected «call.unit.parameters.filter[p | p.kind != ParameterKind.VAR].size».''',
+		val unitParams = call.unit.parameters.filter[p | p.kind != ParameterKind.VAR]
+		if (unitParams.size != call.params.parameters.size) {
+			error('''Wrong number of parameters in transformer call. Was given «call.params.parameters.size» parameters, but expected «unitParams.size».''',
 				call, XDsmlComposePackage.Literals.UNIT_CALL__PARAMS, WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
+		} else {
+			call.params.parameters.forEach[p1, idx|
+				val p2 = unitParams.get(idx)
+				if (p1 instanceof EObjectReferenceParameter) {
+					if ((!(p2.type instanceof EClass)) ||
+						((!EcorePackage.Literals.ESTRUCTURAL_FEATURE.isSuperTypeOf(p2.type as EClass)) &&
+						 (!EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(p2.type as EClass)))) {
+							error("Transformer requires to be called with a non-Ecore parameter in this positon.",
+								p1, XDsmlComposePackage.Literals.EOBJECT_REFERENCE_PARAMETER__QUALIFIED_NAME, INVALID_UNIT_CALL_PARAMETER_TYPE)
+						}
+				} else {
+					if (p2.type != EcorePackage.Literals.ESTRING) {
+						error ("Transformer requires to be called with a class or reference identifier in this position.", 
+							p1, XDsmlComposePackage.Literals.STRING_PARAMETER__VALUE, INVALID_UNIT_CALL_PARAMETER_TYPE
+						)
+					}
+				}
+			]
 		}
 	}
 
