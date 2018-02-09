@@ -48,6 +48,8 @@ import org.eclipse.emf.ecore.EModelElement
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.henshin.model.HenshinPackage
+import uk.ac.kcl.inf.xDsmlCompose.UnitCall
+import org.eclipse.emf.henshin.model.ParameterKind
 
 /**
  * This class contains custom validation rules. 
@@ -74,7 +76,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
-	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'	
+	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'
+	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -358,20 +361,31 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		}
 	}
 
-		private def findImprovementOptions(MorphismCompleter morphismCompleter) {
-			// Sort all newly mapped elements by number of potential mappings, descending
-			// and remove those elements with only one mapping
-			morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [ _acc, mp |
-				mp.entrySet.fold(_acc, [ acc, e |
-					if (!acc.containsKey(e.key)) {
-						acc.put(e.key, new HashSet<EObject>)
-					}
-					acc.get(e.key).add(e.value)
-
-					acc
-				])
-			]).entrySet.filter[e|e.value.size > 1].sortWith[e1, e2|-(e1.value.size <=> e2.value.size)]
+	/**
+	 * Check unit call parameter fit
+	 */
+	@Check
+	def checkValidUnitCallParameters(UnitCall call) {
+		if (call.unit.parameters.filter[p | p.kind != ParameterKind.VAR].size != call.params.parameters.size) {
+			error('''Wrong number of parameters in transformer call. Was given «call.params.parameters.size» parameters, but expected «call.unit.parameters.filter[p | p.kind != ParameterKind.VAR].size».''',
+				call, XDsmlComposePackage.Literals.UNIT_CALL__PARAMS, WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
 		}
+	}
+
+	private def findImprovementOptions(MorphismCompleter morphismCompleter) {
+		// Sort all newly mapped elements by number of potential mappings, descending
+		// and remove those elements with only one mapping
+		morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [ _acc, mp |
+			mp.entrySet.fold(_acc, [ acc, e |
+				if (!acc.containsKey(e.key)) {
+					acc.put(e.key, new HashSet<EObject>)
+				}
+				acc.get(e.key).add(e.value)
+				
+				acc
+			])
+		]).entrySet.filter[e|e.value.size > 1].sortWith[e1, e2|-(e1.value.size <=> e2.value.size)]
+	}
 
 		private def mapMessage(
 			Entry<EObject, Set<EObject>> mappingChoices) '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''

@@ -971,4 +971,43 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		result.assertNoError(XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
 	}
+
+	/**
+	 * Test validation of transformer unit calls with a GTS family specification
+	 */
+	@Test
+	def void validateBasicGTSFamilyUnitCalls() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						family: {
+							metamodel: "server"
+							transformers: "transformerRules"
+						}
+						
+						using [
+							addSubClass("Server1"),
+							addSubClass("Server2", server.Server)
+						]
+					}
+					
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		result.assertNoError(XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
+		
+		result.assertError(XDsmlComposePackage.Literals.UNIT_CALL, XDsmlComposeValidator.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
+	}
 }
