@@ -27,6 +27,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.

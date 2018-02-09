@@ -42,7 +42,15 @@ import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+
 import org.eclipse.emf.ecore.EModelElement
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
+import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.emf.henshin.model.HenshinPackage
+import uk.ac.kcl.inf.xDsmlCompose.UnitCall
+import org.eclipse.emf.henshin.model.ParameterKind
+import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 
 /**
  * This class contains custom validation rules. 
@@ -69,6 +77,9 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
+	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'
+	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
+	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -78,7 +89,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		if (gts.behaviour !== null) {
 			if (!gts.behaviour.imports.contains(gts.metamodel)) {
 				error("Inconsistent GTS specification: Rules need to be typed over metamodel.",
-					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INVALID_BEHAVIOUR_SPEC)
+					XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INVALID_BEHAVIOUR_SPEC)
 			}
 		}
 	}
@@ -196,7 +207,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			// Really should have some behaviour mappings if there are any rules at all...
 			if (validator !== null) {
 				validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
-					XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)
+					XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)
 			}
 			result = false
 		}
@@ -205,7 +216,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		if (rules.exists[r | !mappedRules.contains(r)]) {
 			if (validator !== null) {
 				validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
-						XDsmlComposePackage.Literals.GTS_SPECIFICATION__BEHAVIOUR, INCOMPLETE_BEHAVIOUR_MAPPING)				
+						XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)				
 			}
 			result = false
 		}
@@ -337,20 +348,65 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			}
 		}
 
-		private def findImprovementOptions(MorphismCompleter morphismCompleter) {
-			// Sort all newly mapped elements by number of potential mappings, descending
-			// and remove those elements with only one mapping
-			morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [ _acc, mp |
-				mp.entrySet.fold(_acc, [ acc, e |
-					if (!acc.containsKey(e.key)) {
-						acc.put(e.key, new HashSet<EObject>)
-					}
-					acc.get(e.key).add(e.value)
-
-					acc
-				])
-			]).entrySet.filter[e|e.value.size > 1].sortWith[e1, e2|-(e1.value.size <=> e2.value.size)]
+	/**
+	 * Check transformer specification is a validly typed Henshin module.
+	 */
+	@Check
+	def checkValidTransformers(GTSFamilyChoice familyChoiceSpec) {
+		if (familyChoiceSpec.transformers !== null) {
+			if ((!familyChoiceSpec.transformers.imports.contains(EcorePackage.eINSTANCE)) ||
+				(!familyChoiceSpec.transformers.imports.contains(HenshinPackage.eINSTANCE)) ||
+				(familyChoiceSpec.transformers.imports.size > 2)) {
+				error ("Transformer rules must be typed over Henshin rules and Ecore metamodels only.", 
+					familyChoiceSpec, XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS, INVALID_TRANSFORMER_SPECIFICATION)
+			}
 		}
+	}
+
+	/**
+	 * Check unit call parameter fit
+	 */
+	@Check
+	def checkValidUnitCallParameters(UnitCall call) {
+		val unitParams = call.unit.parameters.filter[p | p.kind != ParameterKind.VAR]
+		if (unitParams.size != call.params.parameters.size) {
+			error('''Wrong number of parameters in transformer call. Was given «call.params.parameters.size» parameters, but expected «unitParams.size».''',
+				call, XDsmlComposePackage.Literals.UNIT_CALL__PARAMS, WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
+		} else {
+			call.params.parameters.forEach[p1, idx|
+				val p2 = unitParams.get(idx)
+				if (p1 instanceof EObjectReferenceParameter) {
+					if ((!(p2.type instanceof EClass)) ||
+						((!EcorePackage.Literals.ESTRUCTURAL_FEATURE.isSuperTypeOf(p2.type as EClass)) &&
+						 (!EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(p2.type as EClass)))) {
+							error("Transformer requires to be called with a non-Ecore parameter in this positon.",
+								p1, XDsmlComposePackage.Literals.EOBJECT_REFERENCE_PARAMETER__QUALIFIED_NAME, INVALID_UNIT_CALL_PARAMETER_TYPE)
+						}
+				} else {
+					if (p2.type != EcorePackage.Literals.ESTRING) {
+						error ("Transformer requires to be called with a class or reference identifier in this position.", 
+							p1, XDsmlComposePackage.Literals.STRING_PARAMETER__VALUE, INVALID_UNIT_CALL_PARAMETER_TYPE
+						)
+					}
+				}
+			]
+		}
+	}
+
+	private def findImprovementOptions(MorphismCompleter morphismCompleter) {
+		// Sort all newly mapped elements by number of potential mappings, descending
+		// and remove those elements with only one mapping
+		morphismCompleter.completedMappings.fold(new HashMap<EObject, Set<EObject>>, [ _acc, mp |
+			mp.entrySet.fold(_acc, [ acc, e |
+				if (!acc.containsKey(e.key)) {
+					acc.put(e.key, new HashSet<EObject>)
+				}
+				acc.get(e.key).add(e.value)
+				
+				acc
+			])
+		]).entrySet.filter[e|e.value.size > 1].sortWith[e1, e2|-(e1.value.size <=> e2.value.size)]
+	}
 
 		private def mapMessage(
 			Entry<EObject, Set<EObject>> mappingChoices) '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''

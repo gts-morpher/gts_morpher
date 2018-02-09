@@ -18,9 +18,53 @@ GTSMapping:
 GTSSpecification:
 	(interface_mapping ?= "interface_of")?
 	"{"
-		"metamodel" ":" metamodel = [ecore::EPackage | STRING]
-		("behaviour" ":" behaviour = [gts::Module | STRING])?
+		gts = GTSSelection	
 	"}"
+;
+
+GTSSelection:
+	GTSLiteral |
+	GTSFamilyChoice
+;
+
+GTSLiteral:
+	"metamodel" ":" metamodel = [ecore::EPackage | STRING]
+	("behaviour" ":" behaviour = [gts::Module | STRING])?
+;
+
+GTSFamilyChoice:
+	"family" ":" "{"
+		root = GTSLiteral
+		"transformers" ":" transformers = [gts::Module | STRING]
+	"}"
+	
+	"using" "["
+		transformationSteps = UnitCallList
+	"]"
+;
+
+UnitCallList:
+	steps += UnitCall ("," steps += UnitCall)*
+;
+
+UnitCall:
+  unit = [gts::Unit | ID] "(" (params = UnitParameterList)? ")"
+;
+
+UnitParameterList:
+	parameters += UnitParameter ("," parameters += UnitParameter)*
+;
+
+UnitParameter:
+	EObjectReferenceParameter | StringParameter
+;
+
+EObjectReferenceParameter:
+	qualifiedName = QualifiedName
+;
+
+StringParameter:
+	value = STRING
 ;
 
 TypeGraphMapping:

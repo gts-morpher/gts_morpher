@@ -14,6 +14,8 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+
 
 /**
  * Custom quickfixes.

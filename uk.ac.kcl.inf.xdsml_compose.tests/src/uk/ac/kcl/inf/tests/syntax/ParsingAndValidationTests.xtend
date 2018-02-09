@@ -24,6 +24,9 @@ import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
+import com.google.common.collect.Iterables
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -33,6 +36,10 @@ class ParsingAndValidationTests extends AbstractTest {
 
 	@Inject 
 	extension ValidationTestHelper
+
+	protected override createResourceSet(String[] files) {
+		super.createResourceSet(Iterables.concat(files, #["transformers.henshin"]))
+	}
 
 	private def createNormalResourceSet() {
 		#["server.ecore", "DEVSMM.ecore", "server.henshin", "devsmm.henshin"].createResourceSet
@@ -264,6 +271,46 @@ class ParsingAndValidationTests extends AbstractTest {
 		
 		assertTrue("Not set to auto-complete", result.autoComplete)
 		assertTrue("Not set to unique auto-complete", result.uniqueCompletion)
+	}
+
+	/**
+	 * Test basic parsing with a GTS family specification
+	 */
+	@Test
+	def void parsingBasicGTSFamily() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						family: {
+							metamodel: "server"
+							transformers: "transformerRules"
+						}
+						
+						using [
+							addSubClass(server.Server, "Server1"),
+							addSubClass(server.Server, "Server2")
+						]
+					}
+					
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
+						class server.Server1 => devsmm.Machine
+						reference server.Server.Out => devsmm.Machine.out
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertNotNull("Didn't manage to load transformers.", (result.source.gts as GTSFamilyChoice).transformers.name)
+		
+		assertNotNull("Didn't find transformer being invoked", (result.source.gts as GTSFamilyChoice).transformationSteps.steps.head.unit.name)
 	}
 
 	/**
@@ -849,5 +896,120 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, XDsmlComposeValidator.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.NON_INTERFACE_LINK_MAPPING_ATTEMPT)
 		result.assertNoError(XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
+	}
+	
+	/**
+	 * Test validation of transformer rules with a GTS family specification
+	 */
+	@Test
+	def void validateBasicGTSFamilyNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						family: {
+							metamodel: "server"
+							transformers: "serverRules"
+						}
+						
+						using [
+							addSubClass(server.Server, "Server1"),
+							addSubClass(server.Server, "Server2")
+						]
+					}
+					
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		result.assertError(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE, XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
+	}
+
+	/**
+	 * Test validation of transformer rules with a GTS family specification
+	 */
+	@Test
+	def void validateBasicGTSFamilyPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						family: {
+							metamodel: "server"
+							transformers: "transformerRules"
+						}
+						
+						using [
+							addSubClass(server.Server, "Server1"),
+							addSubClass(server.Server, "Server2")
+						]
+					}
+					
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		result.assertNoError(XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
+	}
+
+	/**
+	 * Test validation of transformer unit calls with a GTS family specification
+	 */
+	@Test
+	def void validateBasicGTSFamilyUnitCalls() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						family: {
+							metamodel: "server"
+							transformers: "transformerRules"
+						}
+						
+						using [
+							addSubClass("Server1"),
+							addSubClass("Server2", server.Server)
+						]
+					}
+					
+					to {
+						metamodel: "devsmm"
+					}
+					
+					type_mapping {
+						class server.Server => devsmm.Machine
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		result.assertNoError(XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
+		
+		result.assertError(XDsmlComposePackage.Literals.UNIT_CALL, XDsmlComposeValidator.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
+		result.assertError(XDsmlComposePackage.Literals.EOBJECT_REFERENCE_PARAMETER, XDsmlComposeValidator.INVALID_UNIT_CALL_PARAMETER_TYPE)
+		result.assertError(XDsmlComposePackage.Literals.STRING_PARAMETER, XDsmlComposeValidator.INVALID_UNIT_CALL_PARAMETER_TYPE)
 	}
 }

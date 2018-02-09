@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_KzIRAAzcEei7Bu0AG-tvew" name="transformerRules">
+  <imports href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+  <imports href="http://www.eclipse.org/emf/2011/Henshin#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_kl-5IAzeEei7Bu0AG-tvew" name="addSubClass">
+    <parameters xmi:id="_r9fSMAzeEei7Bu0AG-tvew" name="clazz" kind="IN">
+      <type xsi:type="ecore:EClass" href="http://www.eclipse.org/emf/2002/Ecore#//EClass"/>
+    </parameters>
+    <parameters xmi:id="_r9fSMQzeEei7Bu0AG-tvew" name="subClassName" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </parameters>
+    <lhs xmi:id="_km6GMAzeEei7Bu0AG-tvew" name="Lhs">
+      <nodes xmi:id="_ziG6MAzeEei7Bu0AG-tvew" name="clazz">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EClass"/>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_km6tQAzeEei7Bu0AG-tvew" name="Rhs">
+      <nodes xmi:id="_ziIIUAzeEei7Bu0AG-tvew" name="clazz" incoming="__-9ccAzeEei7Bu0AG-tvew">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EClass"/>
+      </nodes>
+      <nodes xmi:id="_1WmWoAzeEei7Bu0AG-tvew" name="subClass" outgoing="__-9ccAzeEei7Bu0AG-tvew">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EClass"/>
+        <attributes xmi:id="_9_zBEAzeEei7Bu0AG-tvew" value="subClassName">
+          <type href="http://www.eclipse.org/emf/2002/Ecore#//ENamedElement/name"/>
+        </attributes>
+      </nodes>
+      <edges xmi:id="__-9ccAzeEei7Bu0AG-tvew" source="_1WmWoAzeEei7Bu0AG-tvew" target="_ziIIUAzeEei7Bu0AG-tvew">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EClass/eSuperTypes"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_ziIvYAzeEei7Bu0AG-tvew" origin="_ziG6MAzeEei7Bu0AG-tvew" image="_ziIIUAzeEei7Bu0AG-tvew"/>
+  </units>
+</henshin:Module>
