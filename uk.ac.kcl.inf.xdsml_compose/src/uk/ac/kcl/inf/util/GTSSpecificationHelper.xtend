@@ -18,9 +18,10 @@ class GTSSpecificationHelper {
 		// FIXME: Actually perform transformation, preferably using a cache of sorts :-)
 		gts.root.metamodel
 	}
+	static dispatch def EPackage getMetamodel(Void spec) { null }
 
 	static dispatch def Module getBehaviour(GTSSpecification spec) {
-		spec.gts.behaviour
+		spec.gts.behaviour			
 	}	
 	static dispatch def Module getBehaviour(GTSSelection gts) { null }
 	static dispatch def Module getBehaviour(GTSLiteral gts) { gts.behaviour }
@@ -28,4 +29,5 @@ class GTSSpecificationHelper {
 		// FIXME: Actually perform transformation, preferably using a cache of sorts :-)
 		gts.root.behaviour
 	}
+	static dispatch def Module getBehaviour(Void spec) { null }
 }
