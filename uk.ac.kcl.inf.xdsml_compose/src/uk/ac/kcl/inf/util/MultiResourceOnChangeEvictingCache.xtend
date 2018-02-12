@@ -39,7 +39,7 @@ class MultiResourceOnChangeEvictingCache {
 			result = provider.get
 			cache.set(key, result)
 		}
-		if (result == Cache.NULL) {
+		if (result === Cache.NULL) {
 			null
 		} else {
 			result			
@@ -48,7 +48,7 @@ class MultiResourceOnChangeEvictingCache {
 	
 	def Cache getOrCreateCache(Set<Resource> resources) {
 		val adapters = resources.map[r |
-			var adapter = EcoreUtil.getAdapter(r.eAdapters(), CacheAdapter) as CacheAdapter
+			var adapter = EcoreUtil.getAdapter(r.eAdapters, CacheAdapter) as CacheAdapter
 			
 			if (adapter === null) {
 				adapter = new CacheAdapter
@@ -95,6 +95,8 @@ class MultiResourceOnChangeEvictingCache {
 		@Accessors(PUBLIC_GETTER)
 		private List<Cache> caches = Collections.synchronizedList(new ArrayList<Cache>)
 		
+		override def isAdapterForType(Object type) { type === class }
+		
 		override notifyChanged(Notification notification) {
 			super.notifyChanged(notification)
 			
@@ -102,6 +104,8 @@ class MultiResourceOnChangeEvictingCache {
 				caches.forEach[c | c.clear]
 			}
 		}
+		
+		override protected def resolve() { false }
 		
 		private def isSemanticStateChange(Notification notification) {
 			!notification.isTouch() && 
