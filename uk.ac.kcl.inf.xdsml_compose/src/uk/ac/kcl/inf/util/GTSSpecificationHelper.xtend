@@ -60,6 +60,8 @@ class GTSSpecificationHelper {
 		familyCache.get(new Pair(FAMILY_CONTENTS_KEY, gts), getSetOfResources(gts.root.metamodel, gts.root.behaviour, gts.transformers), [
 			if ((gts.transformers !== null) && (!gts.transformationSteps.steps.empty)) {
 				// Create a copy of the metamodel and behaviour (if any) from the specification ready to be transformed
+				// FIXME: Add the newly created elements to some meaningful resource (e.g., the resource which they're referenced from or a fresh synthetic resource
+				// See https://www.eclipse.org/forums/index.php/t/209411/ for a discussion of the problem
 				val copier = new EcoreUtil.Copier
 				
 				val tg = copier.copy(gts.root.metamodel) as EPackage
@@ -122,6 +124,7 @@ class GTSSpecificationHelper {
 				if (issues.empty) {
 					new Triple(tg, rules, issues)				
 				} else {
+					// FIXME: null is not a good choice here. Perhaps use the original metamodel and rules instead?
 					new Triple(null, null, issues)
 				}
 			} else {
