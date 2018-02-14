@@ -10,25 +10,41 @@
       <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </parameters>
     <lhs xmi:id="_km6GMAzeEei7Bu0AG-tvew" name="Lhs">
-      <nodes xmi:id="_ziG6MAzeEei7Bu0AG-tvew" name="clazz">
+      <nodes xmi:id="_ziG6MAzeEei7Bu0AG-tvew" name="clazz" incoming="_-n9YcBFsEeiwqPMtgPAtDw">
         <type href="http://www.eclipse.org/emf/2002/Ecore#//EClass"/>
       </nodes>
+      <nodes xmi:id="_6FKisBFsEeiwqPMtgPAtDw" outgoing="_-n9YcBFsEeiwqPMtgPAtDw">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
+      </nodes>
+      <edges xmi:id="_-n9YcBFsEeiwqPMtgPAtDw" source="_6FKisBFsEeiwqPMtgPAtDw" target="_ziG6MAzeEei7Bu0AG-tvew">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EPackage/eClassifiers"/>
+      </edges>
     </lhs>
     <rhs xmi:id="_km6tQAzeEei7Bu0AG-tvew" name="Rhs">
-      <nodes xmi:id="_ziIIUAzeEei7Bu0AG-tvew" name="clazz" incoming="__-9ccAzeEei7Bu0AG-tvew">
+      <nodes xmi:id="_ziIIUAzeEei7Bu0AG-tvew" name="clazz" incoming="__-9ccAzeEei7Bu0AG-tvew _-n9YcRFsEeiwqPMtgPAtDw">
         <type href="http://www.eclipse.org/emf/2002/Ecore#//EClass"/>
       </nodes>
-      <nodes xmi:id="_1WmWoAzeEei7Bu0AG-tvew" name="subClass" outgoing="__-9ccAzeEei7Bu0AG-tvew">
+      <nodes xmi:id="_1WmWoAzeEei7Bu0AG-tvew" name="subClass" incoming="__N7MQBFsEeiwqPMtgPAtDw" outgoing="__-9ccAzeEei7Bu0AG-tvew">
         <type href="http://www.eclipse.org/emf/2002/Ecore#//EClass"/>
         <attributes xmi:id="_9_zBEAzeEei7Bu0AG-tvew" value="subClassName">
           <type href="http://www.eclipse.org/emf/2002/Ecore#//ENamedElement/name"/>
         </attributes>
       </nodes>
+      <nodes xmi:id="_7CkmIBFsEeiwqPMtgPAtDw" outgoing="_-n9YcRFsEeiwqPMtgPAtDw __N7MQBFsEeiwqPMtgPAtDw">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
+      </nodes>
       <edges xmi:id="__-9ccAzeEei7Bu0AG-tvew" source="_1WmWoAzeEei7Bu0AG-tvew" target="_ziIIUAzeEei7Bu0AG-tvew">
         <type href="http://www.eclipse.org/emf/2002/Ecore#//EClass/eSuperTypes"/>
       </edges>
+      <edges xmi:id="_-n9YcRFsEeiwqPMtgPAtDw" source="_7CkmIBFsEeiwqPMtgPAtDw" target="_ziIIUAzeEei7Bu0AG-tvew">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EPackage/eClassifiers"/>
+      </edges>
+      <edges xmi:id="__N7MQBFsEeiwqPMtgPAtDw" source="_7CkmIBFsEeiwqPMtgPAtDw" target="_1WmWoAzeEei7Bu0AG-tvew">
+        <type href="http://www.eclipse.org/emf/2002/Ecore#//EPackage/eClassifiers"/>
+      </edges>
     </rhs>
     <mappings xmi:id="_ziIvYAzeEei7Bu0AG-tvew" origin="_ziG6MAzeEei7Bu0AG-tvew" image="_ziIIUAzeEei7Bu0AG-tvew"/>
+    <mappings xmi:id="_7CkmIRFsEeiwqPMtgPAtDw" origin="_6FKisBFsEeiwqPMtgPAtDw" image="_7CkmIBFsEeiwqPMtgPAtDw"/>
   </units>
   <units xsi:type="henshin:Rule" xmi:id="_UAYFoA_7Eei2IIEkjSsb8Q" name="reTypeToSubClass">
     <parameters xmi:id="_ahXGYA_7Eei2IIEkjSsb8Q" name="rule" kind="IN">
