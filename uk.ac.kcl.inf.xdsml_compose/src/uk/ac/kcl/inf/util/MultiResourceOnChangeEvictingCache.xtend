@@ -74,6 +74,16 @@ class MultiResourceOnChangeEvictingCache {
 		cacheList.head
 	}
 	
+	/**
+	 * A cached item that needs special attention when clearing the cache.
+	 */
+	public interface IClearableItem {
+		/**
+		 * Notify the item that it is being cleared from the cache. Any required cleanup should be undertaken here.
+		 */
+		def void onClearedFromCache()
+	}
+	
 	private static class Cache {
 		static val NULL = new Object
 		private val Map<Object, Object> values = new ConcurrentHashMap<Object, Object>()
@@ -87,7 +97,8 @@ class MultiResourceOnChangeEvictingCache {
 		}
 		
 		def void clear() {
-			values.clear
+			values.values.filter(IClearableItem).forEach[c | c.onClearedFromCache]
+			values.clear				
 		}
 	}
 	
