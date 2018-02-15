@@ -224,25 +224,24 @@ class GTSSpecificationHelper {
 
 	private static def EObject findWithQualifiedName(Module m, List<String> nameSegments) {
 		val segments = new ArrayList(nameSegments)
-		if (!segments.remove(0).equals(m.name)) {
+		if ((segments.empty) || (!segments.remove(0).equals(m.name))) {
 			return null
 		}
 
-		val unitName = segments.remove(0)
-		if (unitName === null) {
+		if (segments.empty) {
 			return null
 		}
+		val unitName = segments.remove(0)
 
 		val unit = m.units.findFirst[u|unitName.equals(u.name)]
-
 		if (unit === null) {
 			return null
 		}
 
-		val elementName = segments.remove(0)
-		if (elementName === null) {
+		if (segments.empty) {
 			return unit
 		}
+		val elementName = segments.remove(0)
 
 		if (unit instanceof Rule) {
 			// TODO: We should probably actually change this to return all elements of this name...

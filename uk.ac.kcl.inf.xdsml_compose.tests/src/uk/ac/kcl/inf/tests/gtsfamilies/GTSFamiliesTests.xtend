@@ -25,7 +25,7 @@ class GTSFamiliesTests extends AbstractTest {
 	extension ValidationTestHelper
 
 	private def createNormalResourceSet() {
-		#["server1.ecore", "server2.ecore", "transformers.henshin"].createResourceSet
+		#["server1.ecore", "server2.ecore", "server1.henshin", "server2.henshin", "transformers.henshin"].createResourceSet
 	}
 	
 	/**
@@ -56,6 +56,53 @@ class GTSFamiliesTests extends AbstractTest {
 				type_mapping {
 					class server1.Server => server2.Server
 					class server1.InQueue => server2.InQueue
+				}
+			}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		result.assertNoIssues
+	}
+	
+/**
+	 * Test GTS family choices are correctly evaluated.
+	 */
+	@Test
+	def void testGTSFamilyChoicesWithRules() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete map {
+				from {
+					family: {
+						metamodel: "server1"
+						behaviour: "server1Rules"
+						transformers: "transformerRules"
+					}
+					
+					using [
+						addSubClass(server1.Queue, "InQueue"),
+						addSubClass(server1.Queue, "OutQueue"),
+						reTypeToSubClass(server1Rules.produce, server1.Queue, server1.OutQueue)
+					]
+				}
+				
+				to {
+					metamodel: "server2"
+					behaviour: "server2Rules"
+				}
+				
+				type_mapping {
+					class server1.Server => server2.Server
+					class server1.InQueue => server2.InQueue
+				}
+				
+				behaviour_mapping {
+					rule server2Rules.produce to server1Rules.produce {
+						object q => oq
+					}
 				}
 			}
 			''',
@@ -103,5 +150,4 @@ class GTSFamiliesTests extends AbstractTest {
 		
 		result.assertError(XDsmlComposePackage.Literals.UNIT_CALL, XDsmlComposeValidator.GTS_FAMILY_ISSUE)
 	}
-	
 }
