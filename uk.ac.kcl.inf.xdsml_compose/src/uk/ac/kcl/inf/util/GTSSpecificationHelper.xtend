@@ -174,8 +174,7 @@ class GTSSpecificationHelper {
  
 						new PickedGTSInfo(tg, rules, issues, resource)
 					} else {
-						// FIXME: null is not a good choice for the first two parameters here. Perhaps use the original metamodel and rules instead?
-						new PickedGTSInfo(null, null, issues, null)
+						new PickedGTSInfo(gts.root.metamodel, gts.root.behaviour, issues, null)
 					}
 				} else {
 					// No transformation specified, so nothing we can do...
