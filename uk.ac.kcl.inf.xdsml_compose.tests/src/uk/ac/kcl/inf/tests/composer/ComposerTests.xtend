@@ -7,11 +7,13 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.ecore.xml.type.XMLTypePackage
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.testing.util.ParseHelper
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.ac.kcl.inf.composer.XDsmlComposer
