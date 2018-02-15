@@ -64,7 +64,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 			type_mapping {
 				«mp.entrySet.filter[e | (e.key instanceof EClass) || (e.key instanceof EReference)].map[e | '''«if (e.key instanceof EClass) '''class''' else '''reference'''» «e.key.qualifiedName» => «e.value.qualifiedName»'''].join('\n')»
 			}
-			«generateBehaviourMapping (mp)»
+			«if ((mapping.source.behaviour !== null) || (mapping.target.behaviour !== null)) { generateBehaviourMapping (mp) }»
 		}
 	'''
 	
