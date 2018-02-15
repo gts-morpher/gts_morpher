@@ -37,6 +37,7 @@ import uk.ac.kcl.inf.xDsmlCompose.StringParameter
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
+ // FIXME: Switch to generating the correct model and then using the Xtext serialiser and formatter for the generation
 class XDsmlComposeGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
