@@ -80,6 +80,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
+	public static val GTS_FAMILY_ISSUE = 'uk.ac.kcl.inf.xdsml_compose.GTS_FAMILY_ISSUE'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -391,6 +392,14 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				}
 			]
 		}
+	}
+	
+	/**
+	 * Report any issues from processing GTS family transformations.
+	 */
+	@Check
+	def checkGTSFamilyChoiceIssues(GTSFamilyChoice gts) {
+		gts.issues.forEach[i | error(i.message, i.unitCall, XDsmlComposePackage.Literals.UNIT_CALL__UNIT, GTS_FAMILY_ISSUE)]
 	}
 
 	private def findImprovementOptions(MorphismCompleter morphismCompleter) {

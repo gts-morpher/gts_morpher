@@ -70,6 +70,16 @@ class GTSSpecificationHelper {
 		def UnitCall unitCall()
 	}
 
+	static dispatch def List<? extends Issue> getIssues(GTSSpecification spec) { spec.gts.issues }
+
+	static dispatch def List<? extends Issue> getIssues(GTSSelection gts) { emptyList }
+
+	static dispatch def List<? extends Issue> getIssues(GTSLiteral gts) { emptyList }
+
+	static dispatch def List<? extends Issue> getIssues(GTSFamilyChoice gts) { gts.derivePickedGTS.issues }
+
+	static dispatch def List<? extends Issue> getIssues(Void spec) { emptyList }
+	
 	@Data
 	private static class PickedGTSInfo implements IClearableItem {
 		private val EPackage tg
