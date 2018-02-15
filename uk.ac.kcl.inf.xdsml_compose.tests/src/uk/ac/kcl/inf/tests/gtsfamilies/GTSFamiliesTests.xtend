@@ -96,7 +96,7 @@ class GTSFamiliesTests extends AbstractTest {
 				
 				type_mapping {
 					class server1.Server => server2.Server
-					class server1.InQueue => server2.InQueue
+					class server1.OutQueue => server2.OutQueue
 				}
 				
 				behaviour_mapping {

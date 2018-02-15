@@ -379,7 +379,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				if (p1 instanceof EObjectReferenceParameter) {
 					if ((!(p2.type instanceof EClass)) ||
 						((!EcorePackage.Literals.ESTRUCTURAL_FEATURE.isSuperTypeOf(p2.type as EClass)) &&
-						 (!EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(p2.type as EClass)))) {
+						 (!EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(p2.type as EClass)) &&
+						 (!HenshinPackage.Literals.MODEL_ELEMENT.isSuperTypeOf(p2.type as EClass)))) {
 							error("Transformer requires to be called with a non-Ecore parameter in this positon.",
 								p1, XDsmlComposePackage.Literals.EOBJECT_REFERENCE_PARAMETER__QUALIFIED_NAME, INVALID_UNIT_CALL_PARAMETER_TYPE)
 						}
