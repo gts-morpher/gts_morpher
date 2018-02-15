@@ -89,7 +89,13 @@ class GTSSpecificationHelper {
 		
 		override onClearedFromCache() {
 			if (res !== null) {
-				res.resourceSet.resources.remove(res)
+				val resourceSet = res.resourceSet
+				if (resourceSet !== null) {
+					val resources = resourceSet.resources
+					if (resources !== null) {
+						resources.remove(res)
+					}	
+				}
 			}
 		}
 	}
