@@ -17,6 +17,7 @@ import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.ParameterKind
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Data
+import uk.ac.kcl.inf.util.MultiResourceOnChangeEvictingCache.IClearableItem
 import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
@@ -27,7 +28,6 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import uk.ac.kcl.inf.xDsmlCompose.UnitParameter
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import uk.ac.kcl.inf.util.MultiResourceOnChangeEvictingCache.IClearableItem
 
 class GTSSpecificationHelper {
 	static dispatch def EPackage getMetamodel(GTSSpecification spec) {

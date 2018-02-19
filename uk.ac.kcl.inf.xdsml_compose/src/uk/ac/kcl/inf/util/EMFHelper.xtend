@@ -33,26 +33,16 @@ class EMFHelper {
 
 	static def EObject findWithQualifiedName(EPackage pck, String qualifiedName) {
 		var nameSegments = new ArrayList<String> (qualifiedName.split('\\.'))
-		var currentPackage = pck
-
 		if (!pck.name.equals(nameSegments.remove(0))) {
 			return null
 		}
 
-		var EObject next = null
-
+		var EObject next = pck
 		for (segment : nameSegments) {
-			if (currentPackage === null) {
-				return null
-			}
-			next = currentPackage.eContents.findFirst[eo|eo.getName().equals(segment)]
+			next = next.eContents.findFirst[eo|eo.getName().equals(segment)]
 
 			if (next === null) {
 				return null
-			} else if (next instanceof EPackage) {
-				currentPackage = next as EPackage
-			} else {
-				currentPackage = null
 			}
 		}
 
