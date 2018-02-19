@@ -627,7 +627,8 @@ class MorphismCompleter {
 		// Check whether we're done and, if so, return appropriately
 		if (elementsToMap.empty) {
 			var mappingVariant = new ArrayList<Pair<Rule, List<Pair<EObject, EObject>>>>
-			mappingVariant.add(new Pair(tgtRule, behaviourMapping.filter [ src, tgt |
+			// Report a new morphism from tgtRule to srcRule with the specific mappings found
+			mappingVariant.add(new Pair(srcRule, behaviourMapping.filter [ src, tgt |
 				((src instanceof Graph) && (src.eContainer == srcRule)) ||
 					((src instanceof GraphElement) && (src.eContainer.eContainer == srcRule))
 			].entrySet.map[e|new Pair<EObject, EObject>(e.key, e.value)].toList))
