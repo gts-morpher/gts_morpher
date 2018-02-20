@@ -1,0 +1,13 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/E", prefix="e")
+package E;
+
+@Interface
+class E1 {
+	@Interface
+	ref E2 e2;
+}
+
+@Interface
+class E2 {
+	
+}

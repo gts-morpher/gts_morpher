@@ -50,7 +50,9 @@ class ComposerTests extends AbstractTest {
 			"C.ecore",
 			"D.ecore",
 			"C.henshin",
-			"D.henshin"
+			"D.henshin",
+			"E.ecore",
+			"F.ecore"			
 		].createResourceSet
 	}
 
@@ -215,6 +217,34 @@ class ComposerTests extends AbstractTest {
 		val composedOracle = resourceSet.getResource(createFileURI("CD.henshin"), true).contents.head as Module
 		
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+	}
+
+	@Test
+	def testClanBasedReferences() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "E"
+				}
+				
+				to {
+					metamodel: "F"
+				}
+				
+				type_mapping {
+					class E.E1 => F.F1
+					class E.E2 => F.F2
+					reference E.E1.e2 => F.F0.f2
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
 	}
 
 	private def findComposedEcore(ResourceSet resourceSet) {
