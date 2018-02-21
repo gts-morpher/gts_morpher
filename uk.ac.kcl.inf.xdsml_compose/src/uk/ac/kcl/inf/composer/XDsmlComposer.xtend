@@ -7,6 +7,7 @@ import java.util.List
 import java.util.Map
 import java.util.function.Function
 import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.ENamedElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
@@ -203,6 +204,11 @@ class XDsmlComposer {
 			put(srcPackage.sourceKey, result)
 			put(tgtPackage.targetKey, result)
 
+//			val invertedIndex = tgMapping.invertedIndex
+//			weaveClasses(tgMapping, result, srcPackage, tgtPackage)
+//			weaveInheritance
+//			weaveReferences(tgMapping, result, srcPackage, tgtPackage)
+
 			weaveMappedElements(tgMapping, result)
 			weaveUnmappedElements(srcPackage, tgtPackage, tgMapping, result)
 
@@ -210,6 +216,29 @@ class XDsmlComposer {
 
 			return result
 		}
+
+		private def invertedIndex(Map<EObject, EObject> tgMapping) {
+			// Build inverted index so that we can merge objects as required
+			val invertedIndex = new HashMap<EObject, List<EObject>>()
+			tgMapping.forEach[k, v|
+				invertedIndex.putIfAbsent(v, new ArrayList<EObject>)
+				invertedIndex.get(v).add(k)
+			]
+			invertedIndex
+		}
+
+//		private def weaveClasses(Map<EObject, List<EObject>> invertedIndex, Map<EObject, EObject> tgMapping,  EPackage composedPackage) {
+//			// Now weave from inverted index for mapped classes 
+//			invertedIndex.entrySet.filter[e | e.key instanceof EClass].forEach[e |
+//				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [n | composedPackage.createEClass(n)])
+//							
+//				put(e.key.targetKey, composed)
+//				e.value.forEach[eo | put(eo.sourceKey, composed)]
+//			]
+//			
+//			// Now copy unmapped classes
+//			copyUnmappedElements(EClass, composedPackage, tgMapping)
+//		}
 
 		private def weaveMappedElements(Map<EObject, EObject> tgMapping, EPackage composedPackage) {
 			// Build inverted index so that we can merge objects as required
@@ -226,12 +255,6 @@ class XDsmlComposer {
 				put(e.key.targetKey, composed)
 				e.value.forEach[eo | put(eo.sourceKey, composed)]
 			]
-//			tgMapping.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
-//				val EClass composed = composedPackage.createEClass(weaveNames(e.key.name, e.value.name))
-//
-//				put(e.key.sourceKey, composed)
-//				put(e.value.targetKey, composed)
-//			]
 			// Because the mapping is a morphism, this must work :-)
 			invertedIndex.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
 				val EReference composed = e.value.createWithWovenName(e.key.name.toString, [n | createEReference(e.key as EReference, n)])
@@ -239,12 +262,6 @@ class XDsmlComposer {
 				put(e.key.targetKey, composed)
 				e.value.forEach[eo | put(eo.sourceKey, composed)]
 			]
-//			tgMapping.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
-//				val EReference composed = createEReference(e.key as EReference, weaveNames(e.key.name, e.value.name))
-//
-//				put(e.key.sourceKey, composed)
-//				put(e.value.targetKey, composed)
-//			]
 
 		// TODO Also copy attributes, I guess :-)
 		}
@@ -252,14 +269,30 @@ class XDsmlComposer {
 		private def weaveUnmappedElements(EPackage srcPackage, EPackage tgtPackage, Map<EObject, EObject> tgMapping,
 			EPackage composedPackage) {
 			// Deal with unmapped source elements
-			srcPackage.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList.
-				doWeaveUnmappedElements(composedPackage, Origin.SOURCE)
+			val unmappedSrcElements = srcPackage.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList
+			composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE)
+			unmappedSrcElements.createForEachEReference(Origin.SOURCE)
 
 			// Deal with unmapped target elements
-			tgtPackage.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList.
-				doWeaveUnmappedElements(composedPackage, Origin.TARGET)
+			val unmappedTgtElements = tgtPackage.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList
+			composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET)
+			unmappedTgtElements.createForEachEReference(Origin.TARGET)
 
 		// TODO Also copy attributes, I guess :-)
+		}
+
+		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin) {
+			elements.createForEach(EClass, origin, [eo | composedPackage.createEClass(eo.name.originName(origin))])			
+		}
+
+		private def createForEachEReference(List<EObject> elements, Origin origin) {
+			elements.createForEach(EReference, origin, [er | er.createEReference(er.name.originName(origin), origin)])
+		}
+		
+		private def <T extends ENamedElement> createForEach(List<EObject> elements, Class<T> clazz, Origin origin, Function<T, T> creator) {
+			elements.filter(clazz).forEach [eo |
+				put(eo.origKey(origin), creator.apply(eo))
+			]
 		}
 
 		private def weaveInheritance() {
@@ -269,16 +302,6 @@ class XDsmlComposer {
 					reject [ ec2 |
 						composed.ESuperTypes.contains(ec2)
 					])
-			]
-		}
-
-		private def doWeaveUnmappedElements(Iterable<EObject> unmappedElements, EPackage composedPackage,
-			Origin origin) {
-			unmappedElements.filter(EClass).forEach [ec|
-				put(ec.origKey(origin), composedPackage.createEClass(ec.name.originName(origin)))
-			]
-			unmappedElements.filter(EReference).forEach [er|
-				put(er.origKey(origin), er.createEReference(er.name.originName(origin), origin))
 			]
 		}
 
@@ -418,12 +441,12 @@ class XDsmlComposer {
 				put((e.key as org.eclipse.emf.henshin.model.Node).targetKey, composed)
 				e.value.forEach[eo | put((eo as org.eclipse.emf.henshin.model.Node).sourceKey, composed)]
 			]			
-//			behaviourMapping.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.Node].forEach [ e |
-//				val composed = createNode(e.key as org.eclipse.emf.henshin.model.Node,
+//			behaviourMapping.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.org.eclipse.emf.henshin.model.Node].forEach [ e |
+//				val composed = createNode(e.key as org.eclipse.emf.henshin.model.org.eclipse.emf.henshin.model.Node,
 //					weaveNames(e.key.name, e.value.name))
 //
-//				put((e.key as org.eclipse.emf.henshin.model.Node).sourceKey, composed)
-//				put((e.value as org.eclipse.emf.henshin.model.Node).targetKey, composed)
+//				put((e.key as org.eclipse.emf.henshin.model.org.eclipse.emf.henshin.model.Node).sourceKey, composed)
+//				put((e.value as org.eclipse.emf.henshin.model.org.eclipse.emf.henshin.model.Node).targetKey, composed)
 //			]
 
 			invertedIndex.entrySet.filter[e|e.key instanceof Edge].forEach [ e |
