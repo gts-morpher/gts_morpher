@@ -1,0 +1,5 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/H", prefix="h")
+package H;
+
+class H1 {
+}

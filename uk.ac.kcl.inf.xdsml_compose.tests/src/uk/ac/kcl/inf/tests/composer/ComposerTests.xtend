@@ -7,11 +7,13 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.ecore.xml.type.XMLTypePackage
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.testing.util.ParseHelper
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.ac.kcl.inf.composer.XDsmlComposer
@@ -48,7 +50,11 @@ class ComposerTests extends AbstractTest {
 			"C.ecore",
 			"D.ecore",
 			"C.henshin",
-			"D.henshin"
+			"D.henshin",
+			"E.ecore",
+			"F.ecore",			
+			"G.ecore",
+			"H.ecore"			
 		].createResourceSet
 	}
 
@@ -213,6 +219,70 @@ class ComposerTests extends AbstractTest {
 		val composedOracle = resourceSet.getResource(createFileURI("CD.henshin"), true).contents.head as Module
 		
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+	}
+
+	@Test
+	def testClanBasedReferences() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "E"
+				}
+				
+				to {
+					metamodel: "F"
+				}
+				
+				type_mapping {
+					class E.E1 => F.F1
+					class E.E2 => F.F2
+					reference E.E1.e2 => F.F0.f2
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+	}
+
+	@Test
+	def testInheritanceFolding() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "G"
+				}
+				
+				to {
+					metamodel: "H"
+				}
+				
+				type_mapping {
+					class G.G1 => H.H1
+					class G.G2 => H.H1
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+		
+		// Check contents of generated resources and compare against oracle
+		val ecore = resourceSet.findComposedEcore
+		assertNotNull("Couldn't find composed ecore", ecore)
+		
+		val composedLanguage = ecore.contents.head
+		val composedOracle = resourceSet.getResource(createFileURI("GH.ecore"), true).contents.head as EPackage
+		
+		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
 	private def findComposedEcore(ResourceSet resourceSet) {

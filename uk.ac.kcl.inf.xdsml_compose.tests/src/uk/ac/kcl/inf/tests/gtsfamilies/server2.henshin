@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_fHg_sBJMEei8nKVMeGsp9w" name="server2Rules">
+  <imports href="server2.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_Aa5E4BJNEei8nKVMeGsp9w" name="produce">
+    <lhs xmi:id="_Aa5E5RJNEei8nKVMeGsp9w" name="Lhs">
+      <nodes xmi:id="_Bm16oBJNEei8nKVMeGsp9w" name="s" outgoing="_DbiycBJNEei8nKVMeGsp9w">
+        <type href="server2.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_Ckz-wBJNEei8nKVMeGsp9w" name="oq" incoming="_DbiycBJNEei8nKVMeGsp9w">
+        <type href="server2.ecore#//OutQueue"/>
+      </nodes>
+      <edges xmi:id="_DbiycBJNEei8nKVMeGsp9w" source="_Bm16oBJNEei8nKVMeGsp9w" target="_Ckz-wBJNEei8nKVMeGsp9w">
+        <type href="server2.ecore#//Server/Out"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_Aa5E5hJNEei8nKVMeGsp9w" name="Rhs">
+      <nodes xmi:id="_Bm16oRJNEei8nKVMeGsp9w" name="s" outgoing="_DbiycRJNEei8nKVMeGsp9w">
+        <type href="server2.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_Ck0l0BJNEei8nKVMeGsp9w" name="oq" incoming="_DbiycRJNEei8nKVMeGsp9w" outgoing="_GRym0BJNEei8nKVMeGsp9w">
+        <type href="server2.ecore#//OutQueue"/>
+      </nodes>
+      <nodes xmi:id="_E8K3sBJNEei8nKVMeGsp9w" name="o" incoming="_GRym0BJNEei8nKVMeGsp9w">
+        <type href="server2.ecore#//Output"/>
+      </nodes>
+      <edges xmi:id="_DbiycRJNEei8nKVMeGsp9w" source="_Bm16oRJNEei8nKVMeGsp9w" target="_Ck0l0BJNEei8nKVMeGsp9w">
+        <type href="server2.ecore#//Server/Out"/>
+      </edges>
+      <edges xmi:id="_GRym0BJNEei8nKVMeGsp9w" source="_Ck0l0BJNEei8nKVMeGsp9w" target="_E8K3sBJNEei8nKVMeGsp9w">
+        <type href="server2.ecore#//Queue/elts"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_Bm16ohJNEei8nKVMeGsp9w" origin="_Bm16oBJNEei8nKVMeGsp9w" image="_Bm16oRJNEei8nKVMeGsp9w"/>
+    <mappings xmi:id="_Ck0l0RJNEei8nKVMeGsp9w" origin="_Ckz-wBJNEei8nKVMeGsp9w" image="_Ck0l0BJNEei8nKVMeGsp9w"/>
+  </units>
+</henshin:Module>

@@ -95,10 +95,43 @@ map {
 
 This will check the GTS described and only consider a sub-GTS typable over the metamodel elements explicitly annotated `@Interface`. This is particularly useful for GTS amalgamation as described below.
 
-## 3. GTS amalgamation
+## 3. GTS families
 
-Once a valid morphism has been described (either as a complete map or by using ___unique___ auto-completion), GTS amalgamation can be performed. Where the source GTS is declared using `interface_of`, amalgamation will assume an inclusion to be defined by the `@Interface` annotations. It is currently not checked whether this is also an extension, so use at your own peril. `interface_of` for the target GTS is currently not supported when amalgamating GTSs.
+You can specify that the source or target of a GTS morphism should be taken from a GTS family by providing the definition of the family and the sequence of transformers to apply to the family's root GTS when picking the GTS you actually want. Our FASE paper [2] has more information on GTS families.
+
+To specify a GTS family, replace the GTS specification with one that follows this format:
+
+```
+{
+  family: {
+    metamodel: "XXX"
+	behaviour: "YYY"
+    transformers: "ZZZ"
+  }
+
+  using [
+    unitName(param1, param2, ...),
+    unitName2(param1, param2, ...)
+  ]
+}
+```
+
+Here, `metamodel` and `behaviour` describe the root GTS of the family as usual. `transformers` references a Henshin module (this must be typed over Ecore and Henshin) with the transformer rules of the GTS family. Finally, the `using` clause indicates the sequence of transformer applications, including their actual parameters, to be used in deriving the correct GTS from inside the family. Currently, two types of parameters are supported: qualified names can be used to refer to classes, references, rules, or graph elements in the current GTS and string literals in double quotes can be used to provide string parameters. Other types of parameters are currently not supported, but may be added in future versions of the tool. Scoping isn't implemented in a fully dynamic manner at the moment, so there is no code-completion support for qualified-name parameters yet.
+
+GTS family specifications as above can be used anywhere a GTS is expected to be provided.
+
+## 4. GTS amalgamation
+
+Once a valid morphism has been described (either as a complete map or by using ___unique___ auto-completion), GTS amalgamation can be performed (as per [1]). Where the source GTS is declared using `interface_of`, amalgamation will assume an inclusion to be defined by the `@Interface` annotations. It is currently not checked whether this is also an extension, so use at your own peril. `interface_of` for the target GTS is currently not supported when amalgamating GTSs.
 
 To trigger amalgamation, right-click on the `.lang_compose` file and select the `Weave xDSMLs` menu option. Assuming there are no errors, this will produce a `tg.ecore` and a `rules.henshin` (assuming there is a behaviour mapping) file in a sub-folder of `/src-gen` named after the `.lang_compose` file.
 
 So far, no further checks of the morphisms are undertaken and no guarantees are given wrt semantics preservation of the amalgamation step.
+
+## Bibliography
+
+[1] Francisco Durán, Antonio Moreno-Delgado, Fernando Orejas, and Steffen Zschaler: Amalgamation of Domain Specific Languages with Behaviour. Journal of Logical and Algebraic Methods in Programming, 86(1): 208--235, Jan. 2017.
+[[pdf]](http://www.steffen-zschaler.de/download.php?type=pdf&id=106) [[http]](http://www.steffen-zschaler.de/download.php?type=http&id=106) 
+
+[2] Steffen Zschaler and Francisco Duran: GTS Families for the Flexible Composition of Graph Transformation Systems. 20th International Conference on Fundamental Approaches to Software Engineering (FASE'17), 2017.
+[[pdf ((c) Springer)]](http://www.steffen-zschaler.de/download.php?type=pdf&id=116) [[slides]](https://www.slideshare.net/SteffenZschaler/gts-families-for-the-flexible-composition-of-graph-transformation-systems) [[http]](http://www.steffen-zschaler.de/download.php?type=http&id=116)

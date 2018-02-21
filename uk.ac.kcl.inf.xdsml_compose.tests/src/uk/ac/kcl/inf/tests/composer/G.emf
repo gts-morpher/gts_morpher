@@ -1,0 +1,10 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/G", prefix="g")
+package G;
+
+@Interface
+class G1 {
+}
+
+@Interface
+class G2 extends G1 {
+}

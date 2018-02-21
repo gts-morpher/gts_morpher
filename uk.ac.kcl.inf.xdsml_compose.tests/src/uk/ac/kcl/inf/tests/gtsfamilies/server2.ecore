@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="server2" nsURI="http://server2/1.0" nsPrefix="server2">
+  <eClassifiers xsi:type="ecore:EClass" name="Server">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Out" upperBound="-1" eType="#//OutQueue"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="In" upperBound="-1" eType="#//InQueue"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Queue">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="elts" upperBound="-1" eType="#//Element"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="InQueue" eSuperTypes="#//Queue"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OutQueue" eSuperTypes="#//Queue"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Element"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Input" eSuperTypes="#//Element"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Output" eSuperTypes="#//Element"/>
+</ecore:EPackage>

@@ -18,19 +18,26 @@ import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import uk.ac.kcl.inf.util.MorphismCompleter
 import uk.ac.kcl.inf.util.ValueHolder
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
+import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.UnitCall
+import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
 
 import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 
-import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
+import uk.ac.kcl.inf.xDsmlCompose.StringParameter
 
 /**
  * Generates code from your model files on save.
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
+ // FIXME: Switch to generating the correct model and then using the Xtext serialiser and formatter for the generation
 class XDsmlComposeGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
@@ -58,16 +65,41 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 			type_mapping {
 				«mp.entrySet.filter[e | (e.key instanceof EClass) || (e.key instanceof EReference)].map[e | '''«if (e.key instanceof EClass) '''class''' else '''reference'''» «e.key.qualifiedName» => «e.value.qualifiedName»'''].join('\n')»
 			}
-			«generateBehaviourMapping (mp)»
+			«if ((mapping.source.behaviour !== null) || (mapping.target.behaviour !== null)) { generateBehaviourMapping (mp) }»
 		}
 	'''
 	
-	private def generate(GTSSpecification spec) '''
+	private dispatch def String generate(GTSSpecification spec) '''
 		«if (spec.interface_mapping) '''interface_of '''»{
-			metamodel: "«spec.metamodel.name»"
-			«if (spec.behaviour !== null) '''behaviour: "«spec.behaviour.name»"'''»
+			«spec.gts.generate»
 		}
 	'''
+
+	private dispatch def String generate (GTSLiteral gts) '''
+		metamodel: "«gts.metamodel.name»"
+		«if (gts.behaviour !== null) '''behaviour: "«gts.behaviour.name»"'''»
+	'''
+	
+	private dispatch def String generate (GTSFamilyChoice gts) '''
+		family: {
+			«gts.root.generate»
+			
+			transformers: "«gts.transformers.name»"
+		}
+		
+		using [
+			«gts.transformationSteps.generate»
+		]
+	'''
+	
+	private dispatch def String generate (UnitCallList ucl) {
+		ucl.steps.join(",\n", [uc | uc.generate])
+	}
+
+	private dispatch def String generate (UnitCall uc) '''«uc.unit.name» («uc.params.parameters.join(", ", [p | p.generate])»)'''
+
+	private dispatch def String generate (EObjectReferenceParameter p) { p.qualifiedName }
+	private dispatch def String generate (StringParameter p) '''"«p.value»"'''
 	
 	private def generateBehaviourMapping (Map<? extends EObject, ? extends EObject> mp) '''
 		behaviour_mapping {

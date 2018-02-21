@@ -1,0 +1,13 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/F", prefix="f")
+package F;
+
+class F0 {
+	ref F2 f2;
+}
+
+class F1 extends F0 {
+}
+
+class F2 {
+	
+}
