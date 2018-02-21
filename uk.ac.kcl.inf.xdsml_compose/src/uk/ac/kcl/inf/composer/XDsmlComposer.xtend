@@ -274,7 +274,7 @@ class XDsmlComposer {
 				val composed = get(p) as EClass
 				composed.ESuperTypes.addAll((p.value as EClass).ESuperTypes.map[ec2|get(ec2.origKey(p.key)) as EClass].
 					reject [ ec2 |
-						composed.ESuperTypes.contains(ec2)
+						composed === ec2 || composed.ESuperTypes.contains(ec2)
 					])
 			]
 		}
