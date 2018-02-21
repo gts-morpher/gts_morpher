@@ -204,15 +204,14 @@ class XDsmlComposer {
 			put(srcPackage.sourceKey, result)
 			put(tgtPackage.targetKey, result)
 
-//			val invertedIndex = tgMapping.invertedIndex
-//			weaveClasses(tgMapping, result, srcPackage, tgtPackage)
-//			weaveInheritance
-//			weaveReferences(tgMapping, result, srcPackage, tgtPackage)
-
-			weaveMappedElements(tgMapping, result)
-			weaveUnmappedElements(srcPackage, tgtPackage, tgMapping, result)
-
+			val invertedIndex = tgMapping.invertedIndex
+			val unmappedSrcElements = srcPackage.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList
+			val unmappedTgtElements = tgtPackage.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList
+			weaveClasses(invertedIndex, unmappedSrcElements, unmappedTgtElements, result)
 			weaveInheritance
+			weaveReferences(invertedIndex, unmappedSrcElements, unmappedTgtElements)
+
+			// TODO Also weave attributes
 
 			return result
 		}
@@ -227,34 +226,22 @@ class XDsmlComposer {
 			invertedIndex
 		}
 
-//		private def weaveClasses(Map<EObject, List<EObject>> invertedIndex, Map<EObject, EObject> tgMapping,  EPackage composedPackage) {
-//			// Now weave from inverted index for mapped classes 
-//			invertedIndex.entrySet.filter[e | e.key instanceof EClass].forEach[e |
-//				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [n | composedPackage.createEClass(n)])
-//							
-//				put(e.key.targetKey, composed)
-//				e.value.forEach[eo | put(eo.sourceKey, composed)]
-//			]
-//			
-//			// Now copy unmapped classes
-//			copyUnmappedElements(EClass, composedPackage, tgMapping)
-//		}
-
-		private def weaveMappedElements(Map<EObject, EObject> tgMapping, EPackage composedPackage) {
-			// Build inverted index so that we can merge objects as required
-			val invertedIndex = new HashMap<EObject, List<EObject>>()
-			tgMapping.forEach[k, v|
-				invertedIndex.putIfAbsent(v, new ArrayList<EObject>)
-				invertedIndex.get(v).add(k)
-			]
-			
-			// Now build mappings from inverted index
+		private def weaveClasses(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements, List<EObject> unmappedTgtElements, EPackage composedPackage) {
+			// Weave from inverted index for mapped classes 
 			invertedIndex.entrySet.filter[e | e.key instanceof EClass].forEach[e |
 				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [n | composedPackage.createEClass(n)])
 							
 				put(e.key.targetKey, composed)
 				e.value.forEach[eo | put(eo.sourceKey, composed)]
 			]
+			
+			// Create copies for all unmapped classes
+			composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE)
+			composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET)
+		}
+		
+		private def weaveReferences(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements, List<EObject> unmappedTgtElements) {
+			// Weave mapped references
 			// Because the mapping is a morphism, this must work :-)
 			invertedIndex.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
 				val EReference composed = e.value.createWithWovenName(e.key.name.toString, [n | createEReference(e.key as EReference, n)])
@@ -262,23 +249,10 @@ class XDsmlComposer {
 				put(e.key.targetKey, composed)
 				e.value.forEach[eo | put(eo.sourceKey, composed)]
 			]
-
-		// TODO Also copy attributes, I guess :-)
-		}
-
-		private def weaveUnmappedElements(EPackage srcPackage, EPackage tgtPackage, Map<EObject, EObject> tgMapping,
-			EPackage composedPackage) {
-			// Deal with unmapped source elements
-			val unmappedSrcElements = srcPackage.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList
-			composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE)
+			
+			// Create copied for unmapped references
 			unmappedSrcElements.createForEachEReference(Origin.SOURCE)
-
-			// Deal with unmapped target elements
-			val unmappedTgtElements = tgtPackage.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList
-			composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET)
-			unmappedTgtElements.createForEachEReference(Origin.TARGET)
-
-		// TODO Also copy attributes, I guess :-)
+			unmappedTgtElements.createForEachEReference(Origin.TARGET)			
 		}
 
 		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin) {
