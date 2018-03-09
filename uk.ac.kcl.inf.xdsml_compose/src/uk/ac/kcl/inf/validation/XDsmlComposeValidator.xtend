@@ -321,7 +321,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		 * Check that we can uniquely auto-complete, if requested to do so
 		 */
 		@Check(EXPENSIVE)
-		def checkCanUniqleyAutoCompleteMapping(GTSMapping mapping) {
+		def checkCanUniquelyAutoCompleteMapping(GTSMapping mapping) {
 			if (mapping.autoComplete && mapping.uniqueCompletion) {
 				// Check we can auto-complete type mapping
 				val typeMapping = mapping.typeMapping
