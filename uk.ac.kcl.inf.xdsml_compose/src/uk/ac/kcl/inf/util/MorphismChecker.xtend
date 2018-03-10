@@ -330,14 +330,6 @@ class MorphismChecker {
 		val srcKernel = srcRule.kernel
 		val tgtKernel = tgtRule.kernel
 
-		if (srcKernel.size != tgtKernel.size) {
-			if (issues !== null) {
-				issues.issue(srcRule, GENERAL_KERNEL_MISMATCH)
-			}
-
-			return false
-		}
-
 		val _result = new ValueHolder(true)
 		srcKernel.entrySet.forEach [ e |
 			val srcO1 = e.value.key
