@@ -6,18 +6,32 @@
       <nodes xmi:id="_u0BN0COwEeiii-lmtwtH3g" name="b1">
         <type href="B.ecore#//B1"/>
       </nodes>
-    </lhs>
-    <rhs xmi:id="_tqqZESOwEeiii-lmtwtH3g" name="Rhs">
-      <nodes xmi:id="_u0BN0SOwEeiii-lmtwtH3g" name="b1" outgoing="_yiwwcCOwEeiii-lmtwtH3g">
-        <type href="B.ecore#//B1"/>
+      <nodes xmi:id="_wPfGQCOwEeiii-lmtwtH3g" name="b2">
+        <type href="B.ecore#//B2"/>
       </nodes>
-      <nodes xmi:id="_xH9mYCOwEeiii-lmtwtH3g" name="b3" incoming="_yiwwcCOwEeiii-lmtwtH3g">
+      <nodes xmi:id="_xH9mYCOwEeiii-lmtwtH3g" name="b3">
         <type href="B.ecore#//B3"/>
       </nodes>
-      <edges xmi:id="_yiwwcCOwEeiii-lmtwtH3g" source="_u0BN0SOwEeiii-lmtwtH3g" target="_xH9mYCOwEeiii-lmtwtH3g">
+    </lhs>
+    <rhs xmi:id="_tqqZESOwEeiii-lmtwtH3g" name="Rhs">
+      <nodes xmi:id="_u0BN0SOwEeiii-lmtwtH3g" name="b1" outgoing="_zCL3YCOwEeiii-lmtwtH3g _yiwwcCOwEeiii-lmtwtH3g">
+        <type href="B.ecore#//B1"/>
+      </nodes>
+      <nodes xmi:id="_omvmcCRkEei66MjYbHA28w" name="b2" incoming="_zCL3YCOwEeiii-lmtwtH3g">
+        <type href="B.ecore#//B2"/>
+      </nodes>
+      <nodes xmi:id="_pZPaYCRkEei66MjYbHA28w" name="b3" incoming="_yiwwcCOwEeiii-lmtwtH3g">
+        <type href="B.ecore#//B3"/>
+      </nodes>
+      <edges xmi:id="_zCL3YCOwEeiii-lmtwtH3g" source="_u0BN0SOwEeiii-lmtwtH3g" target="_omvmcCRkEei66MjYbHA28w">
+        <type href="B.ecore#//B1/_2s"/>
+      </edges>
+      <edges xmi:id="_yiwwcCOwEeiii-lmtwtH3g" source="_u0BN0SOwEeiii-lmtwtH3g" target="_pZPaYCRkEei66MjYbHA28w">
         <type href="B.ecore#//B1/_3s"/>
       </edges>
     </rhs>
     <mappings xmi:id="_u0BN0iOwEeiii-lmtwtH3g" origin="_u0BN0COwEeiii-lmtwtH3g" image="_u0BN0SOwEeiii-lmtwtH3g"/>
+    <mappings xmi:id="_omvmcSRkEei66MjYbHA28w" origin="_wPfGQCOwEeiii-lmtwtH3g" image="_omvmcCRkEei66MjYbHA28w"/>
+    <mappings xmi:id="_pZPaYSRkEei66MjYbHA28w" origin="_xH9mYCOwEeiii-lmtwtH3g" image="_pZPaYCRkEei66MjYbHA28w"/>
   </units>
 </henshin:Module>
