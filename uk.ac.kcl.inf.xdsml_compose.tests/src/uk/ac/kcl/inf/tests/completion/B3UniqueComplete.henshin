@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_qwH6kCOwEeiii-lmtwtH3g" name="B3RulesUniqueComplete">
+  <imports href="B.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_tqmusCOwEeiii-lmtwtH3g" name="do">
+    <lhs xmi:id="_tqqZECOwEeiii-lmtwtH3g" name="Lhs">
+      <nodes xmi:id="_u0BN0COwEeiii-lmtwtH3g" name="b1" outgoing="_yiwwcCOwEeiii-lmtwtH3g">
+        <type href="B.ecore#//B1"/>
+      </nodes>
+      <nodes xmi:id="_xH9mYCOwEeiii-lmtwtH3g" name="b3" incoming="_yiwwcCOwEeiii-lmtwtH3g">
+        <type href="B.ecore#//B3"/>
+      </nodes>
+      <edges xmi:id="_yiwwcCOwEeiii-lmtwtH3g" source="_u0BN0COwEeiii-lmtwtH3g" target="_xH9mYCOwEeiii-lmtwtH3g">
+        <type href="B.ecore#//B1/_3s"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_tqqZESOwEeiii-lmtwtH3g" name="Rhs">
+      <nodes xmi:id="_u0BN0SOwEeiii-lmtwtH3g" name="b1">
+        <type href="B.ecore#//B1"/>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_u0BN0iOwEeiii-lmtwtH3g" origin="_u0BN0COwEeiii-lmtwtH3g" image="_u0BN0SOwEeiii-lmtwtH3g"/>
+  </units>
+</henshin:Module>
