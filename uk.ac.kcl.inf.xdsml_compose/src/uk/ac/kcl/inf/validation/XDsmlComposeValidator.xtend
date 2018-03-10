@@ -51,6 +51,7 @@ import org.eclipse.emf.henshin.model.HenshinPackage
 import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import org.eclipse.emf.henshin.model.ParameterKind
 import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 
 /**
  * This class contains custom validation rules. 
@@ -284,14 +285,12 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		if (mapping.autoComplete) {
 			// Check we can auto-complete type mapping
 			val typeMapping = mapping.typeMapping
-			val behaviourMapping = mapping.behaviourMapping
 			val _typeMapping = typeMapping.extractMapping
-			val _behaviourMapping = behaviourMapping.extractMapping
+
 			if (typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) {
 				if (checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
-					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
-						mapping.target.metamodel,_behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
-						mapping.source.interface_mapping, mapping.target.interface_mapping)
+					val morphismCompleter = mapping.createMorphismCompleter
+
 					if (morphismCompleter.tryCompleteMorphism != 0) {
 						if (!morphismCompleter.completedTypeMapping) {
 							error("Cannot complete type mapping to a valid morphism", mapping,
@@ -325,13 +324,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			if (mapping.autoComplete && mapping.uniqueCompletion) {
 				// Check we can auto-complete type mapping
 				val typeMapping = mapping.typeMapping
-				val behaviourMapping = mapping.behaviourMapping
 				val _typeMapping = typeMapping.extractMapping
-				val _behaviourMapping = behaviourMapping.extractMapping
+
 				if ((typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) && checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
-					val morphismCompleter = new MorphismCompleter(_typeMapping, mapping.source.metamodel,
-						mapping.target.metamodel, _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
-						mapping.source.interface_mapping, mapping.target.interface_mapping)
+					val morphismCompleter = mapping.createMorphismCompleter
 
 					if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
 						(morphismCompleter.completedMappings.size > 1)) {
