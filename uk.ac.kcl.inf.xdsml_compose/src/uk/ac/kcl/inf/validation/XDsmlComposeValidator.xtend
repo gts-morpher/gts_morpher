@@ -191,7 +191,9 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			result.value = checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source], validator) && result.value
 		}
 		
-		mapping.behaviourMapping.mappings.forEach[rm | result.value = rm.checkIsCompleteRuleMapping (validator) && result.value] 
+		if (mapping.behaviourMapping !== null) {
+			mapping.behaviourMapping.mappings.forEach[rm | result.value = rm.checkIsCompleteRuleMapping (validator) && result.value] 			
+		}
 		
 		result.value
 	}
@@ -212,15 +214,15 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 					XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)
 			}
 			result = false
-		}
-		
-		val mappedRules = behaviourMapping.mappings.map[rm | ruleGetter.apply(rm)].toList
-		if (rules.exists[r | !mappedRules.contains(r)]) {
-			if (validator !== null) {
-				validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
-						XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)				
-			}
-			result = false
+		} else {
+			val mappedRules = behaviourMapping.mappings.map[rm | ruleGetter.apply(rm)].toList
+			if (rules.exists[r | !mappedRules.contains(r)]) {
+				if (validator !== null) {
+					validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
+							XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)				
+				}
+				result = false
+			}			
 		}
 		
 		result
