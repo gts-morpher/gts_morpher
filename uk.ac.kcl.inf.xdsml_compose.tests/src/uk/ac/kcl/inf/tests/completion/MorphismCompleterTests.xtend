@@ -154,7 +154,7 @@ class MorphismCompleterTests extends AbstractTest{
 	 * a valid completion when considering the possible behaviour mappings.
 	 */
 	@Test
-	def void uniqueCompleteWithCreate() {
+	def void completeUniqueWithCreate() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
@@ -191,7 +191,7 @@ class MorphismCompleterTests extends AbstractTest{
 	 * a valid completion when considering the possible behaviour mappings.
 	 */
 	@Test
-	def void uniqueCompleteWithPreserve() {
+	def void CompleteUniqueWithPreserve() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
@@ -228,7 +228,7 @@ class MorphismCompleterTests extends AbstractTest{
 	 * a valid completion when considering the possible behaviour mappings.
 	 */
 	@Test
-	def void uniqueCompleteWithDelete() {
+	def void CompleteUniqueWithDelete() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
