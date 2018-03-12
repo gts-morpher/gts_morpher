@@ -36,8 +36,11 @@ class MorphismCompleterTests extends AbstractTest{
 			"BUniqueComplete.henshin",
 			"B2UniqueComplete.henshin",
 			"B3UniqueComplete.henshin",
+			"C.ecore",
+			"D.ecore",
 			"pls.ecore",
 			"server.ecore",
+			"server2.ecore",
 			"pls.henshin",
 			"server.henshin",
 			"transformers.henshin"
@@ -313,7 +316,139 @@ class MorphismCompleterTests extends AbstractTest{
 		assertNotNull("Did not produce parse result", result)		
 		
 		val completer = result.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)	
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+	}
+
+	/**
+	 * Tests a strange case where completion used to produce weird results.
+	 */
+	@Test
+	def void testWeirdCaseTGOnly() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique 
+				map {
+					from interface_of {
+						family: {
+							metamodel: "server"
+							transformers: "transformerRules"
+						}
+						
+						using [
+							addSubClass(server.Queue, "InputQueue"),
+							addSubClass(server.Queue, "OutputQueue"),
+							mvAssocDown(server.Server.in, server.InputQueue),
+							mvAssocDown(server.Server.out, server.OutputQueue)
+						] 
+					}
+					
+					to {
+						metamodel: "pls"
+					}
+					
+					type_mapping {
+				//		class server.Server => pls.Polisher
+						class server.Queue => pls.Container
+						class server.InputQueue => pls.Tray
+						class server.OutputQueue => pls.Conveyor
+						reference server.Server.in => pls.Machine.in
+						reference server.Server.out => pls.Machine.out
+						reference server.Queue.elts => pls.Container.parts
+				//		class server.Input => pls.Part
+				//		class server.Output => pls.Part
+				//		class server.Element => pls.Part
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+	}
+
+	/**
+	 * Tests a strange case where completion used to produce weird results.
+	 */
+	@Test
+	def void testWeirdCaseTGOnlyNoFamily() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique 
+				map {
+					from interface_of {
+						metamodel: "server2"
+					}
+					
+					to {
+						metamodel: "pls"
+					}
+					
+					type_mapping {
+				//		class server2.Server => pls.Polisher
+						class server2.Queue => pls.Container
+						class server2.InputQueue => pls.Tray
+						class server2.OutputQueue => pls.Conveyor
+						reference server2.Server.in => pls.Machine.in
+						reference server2.Server.out => pls.Machine.out
+						reference server2.Queue.elts => pls.Container.parts
+				//		class server2.Input => pls.Part
+				//		class server2.Output => pls.Part
+				//		class server2.Element => pls.Part
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+	}
+
+	/**
+	 * Tests a strange case where completion used to produce weird results.
+	 */
+	@Test
+	def void testWeirdCaseMinimised() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique 
+				map {
+					from {
+						metamodel: "c"
+					}
+					
+					to {
+						metamodel: "d"
+					}
+					
+					type_mapping {
+				//		class c.C1 => d.D1
+				//		class c.C2 => d.D2
+				//		class c.C3 => d.D3
+						reference c.C1.c2 => d.D1.d2
+						reference c.C1.c3 => d.D1.d3
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)

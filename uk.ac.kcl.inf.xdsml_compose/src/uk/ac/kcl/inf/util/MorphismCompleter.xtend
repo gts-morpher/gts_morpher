@@ -1,11 +1,14 @@
 package uk.ac.kcl.inf.util
 
 import java.util.ArrayList
+import java.util.Collection
 import java.util.Collections
 import java.util.HashMap
+import java.util.HashSet
 import java.util.List
 import java.util.ListIterator
 import java.util.Map
+import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
@@ -182,7 +185,7 @@ class MorphismCompleter {
 			}
 
 			// get first priority list and search all objects
-			doTryCompleteTypeMorphism(unmatchedTGElements, unmatchedTGElements.firstPriorityList,
+			doTryCompleteTypeMorphism(unmatchedTGElements, unmatchedTGElements.firstPrioritySet,
 				unmatchedBehaviourElements, findAll)
 		}
 
@@ -201,7 +204,7 @@ class MorphismCompleter {
 		 *            - if true, find all morphism completions, if any
 		 * @return the number of unmatched elements in the model morphism
 		 */
-		private def int doTryCompleteTypeMorphism(List<EObject> unmatchedTGElements, List<EObject> _priorityList,
+		private def int doTryCompleteTypeMorphism(List<EObject> unmatchedTGElements, Set<EObject> _prioritySet,
 			List<EObject> unmatchedBehaviourElements, boolean findAll) {
 			// If the mapping is already not a morphism, return the number of unmatched elements
 			if (!checkValidMaybeIncompleteClanMorphism(typeMapping, null)) {
@@ -216,14 +219,15 @@ class MorphismCompleter {
 
 			// Pick an unmatched object either from priority list or general list
 			var EObject pick = null
-			if (_priorityList.empty) {
+			if (_prioritySet.empty) {
 				pick = unmatchedTGElements.remove(0)
 			} else {
-				pick = _priorityList.remove(0)
+				pick = _prioritySet.head
+				_prioritySet.remove(pick)
 				unmatchedTGElements.remove(pick)
 			}
 
-			var priorityList = pick.getPriorityModelObjects(unmatchedTGElements, _priorityList)
+			var prioritySet = pick.getPriorityModelObjects(unmatchedTGElements, _prioritySet)
 			// Need to add one because we don't actually know yet if this will be able to
 			// make a morphism
 			var int numUnmatched = unmatchedTGElements.size + unmatchedBehaviourElements.size + 1
@@ -232,7 +236,7 @@ class MorphismCompleter {
 			// go through all possible objects and recursively find matches for further objects
 			for (EObject o : possible) {
 				typeMapping.put(pick, o)
-				val int numUnmatchedInDescend = doTryCompleteTypeMorphism(unmatchedTGElements, priorityList,
+				val int numUnmatchedInDescend = doTryCompleteTypeMorphism(unmatchedTGElements, prioritySet,
 					unmatchedBehaviourElements, findAll)
 				// make sure count reflects the minimum found count
 				if (!findAll && (numUnmatchedInDescend == 0)) {
@@ -423,9 +427,9 @@ class MorphismCompleter {
 		 * @param unmatchedList
 		 * @return a first priority list in the model
 		 */
-		private def List<EObject> getFirstPriorityList(List<EObject> unmatchedList) {
-			typeMapping.keySet.fold(new ArrayList<EObject>() as List<EObject>, [ l, eo |
-				eo.getPriorityModelObjects(unmatchedList, l)
+		private def Set<EObject> getFirstPrioritySet(List<EObject> unmatchedList) {
+			typeMapping.keySet.fold(new HashSet<EObject>() as Set<EObject>, [ s, eo |
+				eo.getPriorityModelObjects(unmatchedList, s)
 			])
 		}
 
@@ -440,9 +444,9 @@ class MorphismCompleter {
 		 * @param allSrcBehaviorElements
 		 * @return a list of priority objects for an element {@code pick}
 		 */
-		private def List<EObject> getPriorityModelObjects(EObject pick, List<EObject> unmatchedList,
-			List<EObject> previousPriorityList) {
-			val priorityList = new ArrayList(previousPriorityList)
+		private def Set<EObject> getPriorityModelObjects(EObject pick, List<EObject> unmatchedList,
+			Collection<EObject> previousPriorityObjects) {
+			val prioritySet = new HashSet<EObject>(previousPriorityObjects)
 
 			// if picked object is an EReference, add its target and source to the priority
 			// list if they are in unmatched list
@@ -451,23 +455,23 @@ class MorphismCompleter {
 				val EClass eclass2 = (pick as EReference).EContainingClass
 
 				if (unmatchedList.contains(eclass1))
-					priorityList.add(eclass1)
+					prioritySet.add(eclass1)
 				if (unmatchedList.contains(eclass2))
-					priorityList.add(eclass2)
+					prioritySet.add(eclass2)
 
 			// if picked object is an EClass
 			} else if (pick instanceof EClass) {
 				// add its EReferences to the priority list if they are unmatched
 				// TODO: Original code wasn't filtering for references
-				pick.eContents.filter(EReference).filter[er|unmatchedList.contains(er)].forEach[er|priorityList.add(er)]
+				pick.eContents.filter(EReference).filter[er|unmatchedList.contains(er)].forEach[er|prioritySet.add(er)]
 
 				// add its Subclasses to the priority list if they are unmatched
 				allSrcModelElements.filter(EClass).filter[ec|ec.ESuperTypes.contains(pick)].filter [ ec |
 					unmatchedList.contains(ec)
-				].forEach[ec|priorityList.add(ec)]
+				].forEach[ec|prioritySet.add(ec)]
 			}
 
-			priorityList
+			prioritySet
 		}
 
 		/**

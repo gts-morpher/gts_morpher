@@ -1,0 +1,14 @@
+@namespace(uri="http://C/1.0", prefix="C")
+package c;
+
+class C1 {
+	ref C2 c2;
+	ref C3 c3;
+}
+
+class C2 {
+}
+
+class C3 {
+	
+}
