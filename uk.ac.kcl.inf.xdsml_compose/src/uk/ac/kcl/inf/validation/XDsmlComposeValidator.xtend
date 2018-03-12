@@ -284,6 +284,23 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkCanAutoCompleteMapping(GTSMapping mapping) {
+		if (!checkMode.shouldCheck(CheckType.EXPENSIVE)) {
+			mapping.checkCompletability(false)
+		}
+	}
+
+	/**
+	 * Check that we can uniquely auto-complete, if requested to do so
+	 */
+	@Check(EXPENSIVE)
+	def checkCanUniquelyAutoCompleteMapping(GTSMapping mapping) {
+		mapping.checkCompletability(true)
+	}
+
+	/**
+	 * Helper function for completability checking factoring repeated code from the two variants of the check as above.
+	 */
+	private def checkCompletability(GTSMapping mapping, boolean checkUniqueness) {
 		if (mapping.autoComplete) {
 			// Check we can auto-complete type mapping
 			val typeMapping = mapping.typeMapping
@@ -293,7 +310,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				if (checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
 					val morphismCompleter = mapping.createMorphismCompleter
 
-					if (morphismCompleter.tryCompleteMorphism != 0) {
+					if (morphismCompleter.findMorphismCompletions(checkUniqueness) != 0) {
 						if (!morphismCompleter.completedTypeMapping) {
 							error("Cannot complete type mapping to a valid morphism", mapping,
 								XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)							
@@ -302,50 +319,34 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 								XDsmlComposePackage.Literals.GTS_MAPPING__BEHAVIOUR_MAPPING, UNCOMPLETABLE_BEHAVIOUR_MAPPING)
 						}
 					} else if (mapping.uniqueCompletion) {
-						// TODO It would be good to remove this warning again when we're running the expensive check. The Eclipse API isn't available from here, for good reason. Not sure how to do this with Xtext means
-						if (!checkMode.shouldCheck(CheckType.EXPENSIVE)) {
+						if (checkUniqueness) {
+							if (morphismCompleter.completedMappings.size > 1) {
+								// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
+								val sortedImprovements = morphismCompleter.findImprovementOptions
+			
+								// TODO Propose fixes for behaviour mapping completions, too
+								error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
+									mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
+									sortedImprovements.map [ e |
+										e.value.map[eo|e.key.issueData(eo).toString]
+									].flatten)
+							} else {
+								println("Validation ran and confirmed that morphism can be uniquely completed.")
+							}
+						} else {
 							warning(
 								"Uniqueness of mapping has not been checked. Please run explicit validation from editor context menu to check this.",
 								mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION,
-								UNIQUE_COMPLETION_NOT_CHECKED)
-							}
+								UNIQUE_COMPLETION_NOT_CHECKED)							
 						}
 					}
-				} else {
-					warning("Type morphism is already complete", mapping,
-						XDsmlComposePackage.Literals.GTS_MAPPING__AUTO_COMPLETE)
 				}
+			} else {
+				warning("Morphism is already complete", mapping,
+					XDsmlComposePackage.Literals.GTS_MAPPING__AUTO_COMPLETE)
 			}
-		}
-
-		/**
-		 * Check that we can uniquely auto-complete, if requested to do so
-		 */
-		@Check(EXPENSIVE)
-		def checkCanUniquelyAutoCompleteMapping(GTSMapping mapping) {
-			if (mapping.autoComplete && mapping.uniqueCompletion) {
-				// Check we can auto-complete type mapping
-				val typeMapping = mapping.typeMapping
-				val _typeMapping = typeMapping.extractMapping
-
-				if ((typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) && checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
-					val morphismCompleter = mapping.createMorphismCompleter
-
-					if ((morphismCompleter.findMorphismCompletions(true) == 0) &&
-						(morphismCompleter.completedMappings.size > 1)) {
-						// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
-						val sortedImprovements = morphismCompleter.findImprovementOptions
-
-						// TODO Propose fixes for behaviour mapping completions, too
-						error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
-							mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
-							sortedImprovements.map [ e |
-								e.value.map[eo|e.key.issueData(eo).toString]
-							].flatten)
-					}
-				}
-			}
-		}
+		}		
+	}
 
 	/**
 	 * Check transformer specification is a validly typed Henshin module.

@@ -746,6 +746,7 @@ class MorphismCompleter {
 			val pick = remainingMappings.remove(0)
 
 			(pick.value as Morphism).mappingVariants.forEach [ v |
+				// TODO Move creation of new map to end of recursion
 				val newMorphism = new HashMap(recombinedMorphism)
 				newMorphism.put(pick.key, v.key)
 				v.value.forEach[vv|newMorphism.put(vv.key, vv.value)]
