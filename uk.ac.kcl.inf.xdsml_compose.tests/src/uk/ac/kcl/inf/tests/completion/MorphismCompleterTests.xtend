@@ -35,7 +35,12 @@ class MorphismCompleterTests extends AbstractTest{
 			"B3.henshin",
 			"BUniqueComplete.henshin",
 			"B2UniqueComplete.henshin",
-			"B3UniqueComplete.henshin"
+			"B3UniqueComplete.henshin",
+			"pls.ecore",
+			"server.ecore",
+			"pls.henshin",
+			"server.henshin",
+			"transformers.henshin"
 		].createResourceSet
 	}
 	
@@ -191,7 +196,7 @@ class MorphismCompleterTests extends AbstractTest{
 	 * a valid completion when considering the possible behaviour mappings.
 	 */
 	@Test
-	def void CompleteUniqueWithPreserve() {
+	def void completeUniqueWithPreserve() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
@@ -228,7 +233,7 @@ class MorphismCompleterTests extends AbstractTest{
 	 * a valid completion when considering the possible behaviour mappings.
 	 */
 	@Test
-	def void CompleteUniqueWithDelete() {
+	def void completeUniqueWithDelete() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
@@ -258,6 +263,63 @@ class MorphismCompleterTests extends AbstractTest{
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
 	}
 	
+	/**
+	 * Tests a strange case where completion used to produce weird results.
+	 */
+	@Test
+	def void testWeirdCase() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique 
+				map {
+					from interface_of {
+						family: {
+							metamodel: "server"
+							behaviour: "serverRules"
+							transformers: "transformerRules"
+						}
+						
+						using [
+							addSubClass(server.Queue, "InputQueue"),
+							addSubClass(server.Queue, "OutputQueue"),
+							reTypeToSubClass(serverRules.process, server.Queue, server.InputQueue, "iq"),
+							reTypeToSubClass(serverRules.process, server.Queue, server.OutputQueue, "oq"),
+							mvAssocDown(server.Server.in, server.InputQueue),
+							mvAssocDown(server.Server.out, server.OutputQueue)
+						] 
+					}
+					
+					to {
+						metamodel: "pls"
+						behaviour: "plsRules"
+					}
+					
+					type_mapping {
+				//		class server.Server => pls.Polisher
+						class server.Queue => pls.Container
+						class server.InputQueue => pls.Tray
+						class server.OutputQueue => pls.Conveyor
+						reference server.Server.in => pls.Machine.in
+						reference server.Server.out => pls.Machine.out
+						reference server.Queue.elts => pls.Container.parts
+				//		class server.Input => pls.Part
+				//		class server.Output => pls.Part
+				//		class server.Element => pls.Part
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)	
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+	}
+
 	private def isUniqueSetOfMappings(List<Map<? extends EObject, ? extends EObject>> mappings) {
 		mappings.forall[m | 
 			mappings.forall[m2 |
