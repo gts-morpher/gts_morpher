@@ -106,7 +106,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	'''
 
 	private def generate (Rule r, Map<? extends EObject, ? extends EObject> mp) '''
-		rule «r.qualifiedName» to «(mp.get(r) as Rule).qualifiedName» {
+		rule «(mp.get(r) as Rule).qualifiedName» to «r.qualifiedName» {
 			« r.generateRuleElementMappings(mp) »
 		}
 	'''

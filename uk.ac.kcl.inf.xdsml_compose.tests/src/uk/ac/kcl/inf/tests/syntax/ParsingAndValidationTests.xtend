@@ -153,7 +153,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule devsmmRules.process to serverRules.process {
+						rule serverRules.process to devsmmRules.process {
 							object input => in_part
 							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
@@ -215,7 +215,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule devsmmRules.process to serverRules.process {
+						rule serverRules.process to devsmmRules.process {
 							object input => in_part
 							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
@@ -347,11 +347,11 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule devsmmRules.process to serverRules.process {
+						rule serverRules.process to devsmmRules.process {
 							object in_part => input
 							link [tray->in_part:parts] => [in_queue->input:elts]
 						}
-						rule serverRules.process to devsmmRules.process {
+						rule devsmmRules.process to serverRules.process {
 							object in_part => input
 						}
 					}
@@ -439,13 +439,13 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule devsmmRules.process to serverRules.process {
+						rule serverRules.process to devsmmRules.process {
 							object server => machine
 							object server => machine
 							link [in_queue->input:elts] => [tray->in_part:parts]
 							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
-						rule devsmmRules.process to serverRules.process {
+						rule serverRules.process to devsmmRules.process {
 							object input => in_part
 						}
 					}
@@ -531,7 +531,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule devsmmRules.generateHandle to serverRules.produce {
+						rule serverRules.produce to devsmmRules.generateHandle {
 							object s => g
 						}
 					}
@@ -570,7 +570,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule devsmmRules.generateHandle to serverRules.produce {
+						rule serverRules.produce to devsmmRules.generateHandle {
 							object s => g
 							object q => c
 							link [s->q:Out] => [c->h:parts]
@@ -959,7 +959,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule devsmmRules.process to serverRules.process {
+						rule serverRules.process to devsmmRules.process {
 							object so => machine
 							link [so->server:server] => [machine->conveyor:out]
 						}

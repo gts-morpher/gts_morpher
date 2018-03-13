@@ -61,8 +61,8 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//BehaviourMapping/mappings"/>
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//RuleMapping">
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/target"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/element_mappings"/>
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//RuleElementMapping"/>
