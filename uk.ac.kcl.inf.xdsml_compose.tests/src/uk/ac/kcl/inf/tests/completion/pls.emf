@@ -1,0 +1,55 @@
+@namespace(uri="http://pls/1.0", prefix="pls")
+package pls;
+
+class Machine {
+	ref Conveyor out;
+	ref Tray in;
+}
+
+class Conveyor extends Container {
+	ref Tray out;
+}
+
+class Tray extends Container {
+	
+}
+
+class Container {
+	ref Part[*] parts;
+}
+
+class Polisher extends Machine {
+	
+}
+
+class Assemble extends Machine {
+	
+}
+
+class Generator extends Machine {
+	
+}
+
+class GenHead extends Generator {
+	
+}
+
+class GenHandle extends Generator {
+	
+}
+
+class Part {
+	
+}
+
+class Hammer extends Part {
+	
+}
+
+class Head extends Part {
+	
+}
+
+class Handle extends Part {
+	
+}

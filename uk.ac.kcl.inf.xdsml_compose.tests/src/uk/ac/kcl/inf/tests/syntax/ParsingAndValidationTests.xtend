@@ -42,7 +42,17 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	private def createNormalResourceSet() {
-		#["server.ecore", "DEVSMM.ecore", "server.henshin", "devsmm.henshin"].createResourceSet
+		#[
+			"server.ecore",
+			"DEVSMM.ecore",
+			"server.henshin",
+			"devsmm.henshin",
+			"A.ecore",
+			"B.ecore",
+			"A.henshin",
+			"B.henshin",
+			"B2.henshin"
+		].createResourceSet
 	}
 	
 	private def createInterfaceResourceSet() {
@@ -636,6 +646,75 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		
 		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.NO_UNIQUE_COMPLETION)
+	}
+
+	/**
+	 * Tests that unique auto-completion validation works in negative case even with behaviour present
+	 */
+	@Test
+	def void validateUniqueAutoCompleteNegativeWithBehaviour() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique map {
+					from {
+						metamodel: "A"
+						behaviour: "ARules"
+					}
+					
+					to {
+						metamodel: "B"
+						behaviour: "BRules"
+					}
+					
+					type_mapping {
+						class A.A1 => B.B1
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		
+		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.NO_UNIQUE_COMPLETION)
+	}
+
+	/**
+	 * Tests that unique auto-completion validation works in positive case even with behaviour present.
+	 * 
+	 * This is an interesting case because there are multiple type-graph mappings, but only one of them remains 
+	 * a valid completion when considering the possible behaviour mappings.
+	 */
+	@Test
+	def void validateUniqueAutoCompletePositiveWithBehaviour() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique map {
+					from {
+						metamodel: "A"
+						behaviour: "ARules"
+					}
+					
+					to {
+						metamodel: "B"
+						behaviour: "B2Rules"
+					}
+					
+					type_mapping {
+						class A.A1 => B.B1
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		
+		result.assertNoError(XDsmlComposeValidator.NO_UNIQUE_COMPLETION)
 	}
 
 	/**

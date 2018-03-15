@@ -1,6 +1,7 @@
 package uk.ac.kcl.inf.composer
 
 import com.google.inject.Inject
+
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
@@ -23,12 +24,12 @@ import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.validation.CheckMode
 import org.eclipse.xtext.validation.IResourceValidator
 import uk.ac.kcl.inf.util.IProgressMonitor
-import uk.ac.kcl.inf.util.MorphismCompleter
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -119,9 +120,7 @@ class XDsmlComposer {
 						}
 
 						// Auto-complete
-						val completer = new MorphismCompleter(tgMapping, mapping.source.metamodel, mapping.target.metamodel, 
-			                                  behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
-											  mapping.source.interface_mapping, mapping.target.interface_mapping)
+						val completer = mapping.createMorphismCompleter
 						if (completer.findMorphismCompletions(false) == 0) {
 							if (completer.completedMappings.size == 1) {
 								tgMapping = new HashMap(completer.completedMappings.head.filter[k, v | (k instanceof EClass) || (k instanceof EReference)] as Map<EObject, EObject>)

@@ -16,21 +16,19 @@ import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import uk.ac.kcl.inf.util.MorphismCompleter
 import uk.ac.kcl.inf.util.ValueHolder
+import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.StringParameter
 import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
 
-import static uk.ac.kcl.inf.util.BasicMappingChecker.*
-
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
-import uk.ac.kcl.inf.xDsmlCompose.StringParameter
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 
 /**
  * Generates code from your model files on save.
@@ -129,12 +127,8 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	}
 
 	private static def getCompletedMappings(GTSMapping mapping) {
-		val _typeMapping = extractMapping(mapping.typeMapping, null)
-		val _behaviourMapping = extractMapping(mapping.behaviourMapping, null)
-				
-		val completer = new MorphismCompleter(_typeMapping, mapping.source.metamodel, mapping.target.metamodel, 
-			                                  _behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
-											  mapping.source.interface_mapping, mapping.target.interface_mapping)
+		val completer = mapping.createMorphismCompleter
+
 		if (completer.findMorphismCompletions(true) == 0) {
 			// Found morphism(s)
 			completer.completedMappings

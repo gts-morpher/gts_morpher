@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_rzMFcBJqEeiGBuuAusJIMQ" name="plsRules">
+  <imports href="pls.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_a66rUBJrEeiGBuuAusJIMQ" name="polish">
+    <lhs xmi:id="_a7D1RBJrEeiGBuuAusJIMQ" name="Lhs">
+      <nodes xmi:id="_dD9bcBJrEeiGBuuAusJIMQ" name="p" outgoing="_lLp7UBJrEeiGBuuAusJIMQ _ld_ogBJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Polisher"/>
+      </nodes>
+      <nodes xmi:id="_eTClTBJrEeiGBuuAusJIMQ" name="t" incoming="_lLp7UBJrEeiGBuuAusJIMQ" outgoing="_lwwMcBJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Tray"/>
+      </nodes>
+      <nodes xmi:id="_fQRiABJrEeiGBuuAusJIMQ" name="c" incoming="_ld_ogBJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Conveyor"/>
+      </nodes>
+      <nodes xmi:id="_gsCVYBJrEeiGBuuAusJIMQ" name="pt" incoming="_lwwMcBJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Part"/>
+      </nodes>
+      <edges xmi:id="_lLp7UBJrEeiGBuuAusJIMQ" source="_dD9bcBJrEeiGBuuAusJIMQ" target="_eTClTBJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Machine/in"/>
+      </edges>
+      <edges xmi:id="_ld_ogBJrEeiGBuuAusJIMQ" source="_dD9bcBJrEeiGBuuAusJIMQ" target="_fQRiABJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Machine/out"/>
+      </edges>
+      <edges xmi:id="_lwwMcBJrEeiGBuuAusJIMQ" source="_eTClTBJrEeiGBuuAusJIMQ" target="_gsCVYBJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Container/parts"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_a7D1RRJrEeiGBuuAusJIMQ" name="Rhs">
+      <nodes xmi:id="_dD9bcRJrEeiGBuuAusJIMQ" name="p" outgoing="_lLp7URJrEeiGBuuAusJIMQ _ld_ogRJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Polisher"/>
+      </nodes>
+      <nodes xmi:id="_eTClfRJrEeiGBuuAusJIMQ" name="t" incoming="_lLp7URJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Tray"/>
+      </nodes>
+      <nodes xmi:id="_fQRiARJrEeiGBuuAusJIMQ" name="c" incoming="_ld_ogRJrEeiGBuuAusJIMQ" outgoing="_4L_pYBWEEei_nO1PqnQgOw">
+        <type href="pls.ecore#//Conveyor"/>
+      </nodes>
+      <nodes xmi:id="_tBUgsBWEEei_nO1PqnQgOw" name="pt2" incoming="_4L_pYBWEEei_nO1PqnQgOw">
+        <type href="pls.ecore#//Part"/>
+      </nodes>
+      <edges xmi:id="_lLp7URJrEeiGBuuAusJIMQ" source="_dD9bcRJrEeiGBuuAusJIMQ" target="_eTClfRJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Machine/in"/>
+      </edges>
+      <edges xmi:id="_ld_ogRJrEeiGBuuAusJIMQ" source="_dD9bcRJrEeiGBuuAusJIMQ" target="_fQRiARJrEeiGBuuAusJIMQ">
+        <type href="pls.ecore#//Machine/out"/>
+      </edges>
+      <edges xmi:id="_4L_pYBWEEei_nO1PqnQgOw" source="_fQRiARJrEeiGBuuAusJIMQ" target="_tBUgsBWEEei_nO1PqnQgOw">
+        <type href="pls.ecore#//Container/parts"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_dD9bchJrEeiGBuuAusJIMQ" origin="_dD9bcBJrEeiGBuuAusJIMQ" image="_dD9bcRJrEeiGBuuAusJIMQ"/>
+    <mappings xmi:id="_eTCllhJrEeiGBuuAusJIMQ" origin="_eTClTBJrEeiGBuuAusJIMQ" image="_eTClfRJrEeiGBuuAusJIMQ"/>
+    <mappings xmi:id="_fQRiAhJrEeiGBuuAusJIMQ" origin="_fQRiABJrEeiGBuuAusJIMQ" image="_fQRiARJrEeiGBuuAusJIMQ"/>
+  </units>
+</henshin:Module>
