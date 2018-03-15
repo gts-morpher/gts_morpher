@@ -7,13 +7,11 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.ecore.xml.type.XMLTypePackage
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.testing.util.ParseHelper
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.ac.kcl.inf.composer.XDsmlComposer
@@ -111,7 +109,7 @@ class ComposerTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule BRules.process to ARules.process {
+					rule ARules.process to BRules.process {
 						object a1 => b1
 					}
 				}
@@ -194,7 +192,7 @@ class ComposerTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule DRules.resolveSelfReference to CRules.change {
+					rule CRules.change to DRules.resolveSelfReference {
 						object c2 => d1
 						object c1 => d1
 						object c1b => d1b

@@ -100,7 +100,7 @@ class GTSFamiliesTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule server2Rules.produce to server1Rules.produce {
+					rule server1Rules.produce to server2Rules.produce {
 						object q => oq
 					}
 				}

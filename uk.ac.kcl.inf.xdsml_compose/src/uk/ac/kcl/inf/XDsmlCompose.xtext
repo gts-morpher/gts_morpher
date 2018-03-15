@@ -92,7 +92,7 @@ BehaviourMapping:
 ;
 
 RuleMapping:
-	"rule" target=[gts::Rule | QualifiedName] "to" source=[gts::Rule | QualifiedName] "{"
+	"rule" source=[gts::Rule | QualifiedName] "to" target=[gts::Rule | QualifiedName] "{"
 		element_mappings += RuleElementMapping+
 	"}"
 ;
