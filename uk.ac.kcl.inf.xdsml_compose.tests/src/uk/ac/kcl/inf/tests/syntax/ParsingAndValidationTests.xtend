@@ -409,7 +409,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		
 		result.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
 		
-		assertTrue("Also failed check on target GTS", issues.length == 3) // There's also an incomplete mapping warning
+		assertTrue("Also failed check on target GTS", issues.length == 4) // There's also three incomplete mapping warnings (one for the metamodel and two for the rules)
 	}
 	
 	/**
