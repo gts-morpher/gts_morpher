@@ -413,6 +413,33 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 	
 	/**
+	 * Tests how the validator handles a missing metamodel specification.
+	 */
+	@Test
+	def void scopingHandlesMissingMetamodel() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+			//		metamodel: "devsmm"
+				} 
+				to {
+					metamodel: "server" 
+				}
+				type_mapping{ 
+					class devsmm.Machine => server.Server
+				}
+			}
+			''',
+			createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		// Expecting validation errors as there is an invalid GTS specification
+		result.validate()
+	}
+	
+	/**
 	 * Tests validation against duplicate mappings
 	 */
 	@Test
