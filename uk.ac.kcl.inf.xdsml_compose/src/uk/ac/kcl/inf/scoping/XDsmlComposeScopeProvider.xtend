@@ -3,7 +3,10 @@
  */
 package uk.ac.kcl.inf.scoping
 
+import com.google.common.base.Function
 import com.google.inject.Inject
+import com.google.inject.Provider
+import java.util.Iterator
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
@@ -44,7 +47,8 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	val SimpleNameProvider simpleNameProvider = null
 
 	def IScope scope_UnitCall_unit(UnitCall context, EReference ref) {
-		scopeFor((context.eContainer.eContainer as GTSFamilyChoice).transformers.units, simpleNameProvider, IScope.NULLSCOPE)
+		safeScopeFor([(context.eContainer.eContainer as GTSFamilyChoice).transformers.units], simpleNameProvider,
+			IScope.NULLSCOPE)
 	}
 
 	def IScope scope_ClassMapping_source(ClassMapping context, EReference ref) {
@@ -72,12 +76,12 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	private def IScope sourceScope(TypeGraphMapping tgm) {
-		scopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents],
+		safeScopeFor_([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents],
 			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 
 	private def IScope targetScope(TypeGraphMapping tgm) {
-		scopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents],
+		safeScopeFor_([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents],
 			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 
@@ -90,15 +94,11 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	private def rm_scope(GTSSpecification gts) {
-		if (gts.behaviour !== null) {
-			scopeFor([
-				gts.behaviour.eAllContents.filter [ eo |
-					eo instanceof Rule
-				]
-			], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
-		} else {
-			IScope.NULLSCOPE
-		}
+		safeScopeFor_([
+			gts.behaviour.eAllContents.filter [ eo |
+				eo instanceof Rule
+			]
+		], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 
 	def IScope scope_ObjectMapping_source(ObjectMapping context, EReference ref) {
@@ -146,12 +146,29 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	private def sourceScope(RuleMapping rm) {
-		scopeFor([
-			rm.source.eAllContents
-		], nameProvider, IScope.NULLSCOPE)
+		safeScopeFor_([rm.source.eAllContents], nameProvider, IScope.NULLSCOPE)
 	}
 
 	private def targetScope(RuleMapping rm) {
-		scopeFor([rm.target.eAllContents], nameProvider, IScope.NULLSCOPE)
+		safeScopeFor_([rm.target.eAllContents], nameProvider, IScope.NULLSCOPE)
+	}
+
+	private def safeScopeFor(Provider<Iterable<? extends EObject>> scopeElements,
+		Function<EObject, QualifiedName> nameProvider, IScope outer) {
+		try {
+			return scopeFor(scopeElements.get, nameProvider, outer)
+		} catch (NullPointerException npe) {
+			return outer
+		}
+	}
+
+	private def safeScopeFor_(Provider<Iterator<EObject>> scopeElements,
+		Function<EObject, QualifiedName> nameProvider, IScope outer) {
+		try {
+			val iterator = scopeElements.get
+			return scopeFor([iterator], nameProvider, outer)
+		} catch (NullPointerException npe) {
+			return outer
+		}
 	}
 }
