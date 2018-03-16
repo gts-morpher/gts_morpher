@@ -1,0 +1,11 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/C2", prefix="c2")
+package C2;
+
+class C1 {
+  val C2[+]#a _2s;
+}
+
+class C2 {
+  readonly ref C1#_2s a;
+}
+
