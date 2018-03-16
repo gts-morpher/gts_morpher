@@ -27,6 +27,7 @@ class MorphismCheckerTests extends AbstractTest {
 		#[
 			"A.ecore",
 			"B.ecore",
+			"C.ecore",
 			"A2.henshin",
 			"B2.henshin"
 		].createResourceSet
@@ -36,11 +37,11 @@ class MorphismCheckerTests extends AbstractTest {
 	 * Tests that morphism checks work for rules with preserve nodes and create edges.
 	 */
 	@Test
-	def void completeMultipleWithPreserve() {
+	def void checkWithPreserve() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-			auto-complete unique map {
+			map {
 				from {
 					metamodel: "A"
 					behaviour: "A2Rules"
@@ -54,13 +55,13 @@ class MorphismCheckerTests extends AbstractTest {
 				type_mapping {
 					class A.A1 => B.B1
 					class A.A2 => B.B2
-					class A.A1.bs => B.B1._2s
+					reference A.A1.bs => B.B1._2s
 				}
 			}
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		assertTrue("Not a clan morphism",
+		assertTrue("Should confirm as clan morphism",
 			result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
 		assertTrue(
 			"Empty rule map should be a morphism",
@@ -72,5 +73,35 @@ class MorphismCheckerTests extends AbstractTest {
 				null
 			)
 		)
+	}
+
+	/**
+	 * Tests morphism checker correctly rejects mappings where references with differing multiplicities are mapped.
+	 */
+	@Test
+	def void checkMapDifferentMultiplicities() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+				}
+				
+				to {
+					metamodel: "C"
+				}
+				
+				type_mapping {
+					class A.A1 => C.C1
+					class A.A2 => C.C2
+					reference A.A1.bs => C.C1._2s
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		assertTrue("Should not be a clan morphism",
+			!result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
 	}
 }

@@ -168,6 +168,20 @@ class MorphismChecker {
 				return false
 			}
 		}
+		
+		// Multiplicities must match
+		if (srcReference.lowerBound != tgtReference.lowerBound) {
+			if (issues !== null) {
+				issues.issue(srcReference, "Target reference must have same lower-bound multiplicity.")
+			}
+			return false
+		}
+		if (srcReference.upperBound != tgtReference.upperBound) {
+			if (issues !== null) {
+				issues.issue(srcReference, "Target reference must have same upper-bound multiplicity.")
+			}
+			return false
+		}
 
 		true
 	}
