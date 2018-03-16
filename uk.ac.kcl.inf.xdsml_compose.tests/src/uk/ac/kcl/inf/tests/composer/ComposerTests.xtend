@@ -109,7 +109,7 @@ class ComposerTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule ARules.process to BRules.process {
+					rule process to process {
 						object a1 => b1
 					}
 				}
@@ -192,7 +192,7 @@ class ComposerTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule CRules.change to DRules.resolveSelfReference {
+					rule change to resolveSelfReference {
 						object c2 => d1
 						object c1 => d1
 						object c1b => d1b
