@@ -57,6 +57,10 @@
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ReferenceMapping/source"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//ReferenceMapping/target"/>
     </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//AttributeMapping">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//AttributeMapping/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//AttributeMapping/target"/>
+    </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//BehaviourMapping">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//BehaviourMapping/mappings"/>
     </genClasses>
