@@ -1,0 +1,11 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/C", prefix="c")
+package C;
+
+class C1 {
+	attr int a1;
+	attr String a2;
+}
+
+class C2 extends C1 {
+	attr int a3;
+}
