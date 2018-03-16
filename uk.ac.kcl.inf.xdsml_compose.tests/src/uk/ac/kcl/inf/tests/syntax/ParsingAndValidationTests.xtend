@@ -153,7 +153,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule serverRules.process to devsmmRules.process {
+						rule process to process {
 							object input => in_part
 							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
@@ -215,7 +215,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule serverRules.process to devsmmRules.process {
+						rule process to process {
 							object input => in_part
 							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
@@ -347,11 +347,11 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule serverRules.process to devsmmRules.process {
+						rule process to process {
 							object in_part => input
 							link [tray->in_part:parts] => [in_queue->input:elts]
 						}
-						rule devsmmRules.process to serverRules.process {
+						rule process to process {
 							object in_part => input
 						}
 					}
@@ -373,9 +373,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		
-		result.assertError(XDsmlComposePackage.Literals.RULE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
-
-		assertTrue(issues.length == 16)
+		assertTrue(issues.length == 15)
 	}
 	
 	/**
@@ -466,13 +464,13 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule serverRules.process to devsmmRules.process {
+						rule process to process {
 							object server => machine
 							object server => machine
 							link [in_queue->input:elts] => [tray->in_part:parts]
 							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
-						rule serverRules.process to devsmmRules.process {
+						rule process to process {
 							object input => in_part
 						}
 					}
@@ -558,7 +556,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule serverRules.produce to devsmmRules.generateHandle {
+						rule produce to generateHandle {
 							object s => g
 						}
 					}
@@ -597,7 +595,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule serverRules.produce to devsmmRules.generateHandle {
+						rule produce to generateHandle {
 							object s => g
 							object q => c
 							link [s->q:Out] => [c->h:parts]
@@ -803,7 +801,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule serverRules.process to serverRules.process {
+					rule process to process {
 						object server => server
 					}
 				}
@@ -883,7 +881,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					reference server.Server.In => server.Server.In
 				}
 				behaviour_mapping {
-					rule serverRules.process to serverRules.process {
+					rule process to process {
 						object output => output
 						object server => server
 						object input => input
@@ -895,7 +893,7 @@ class ParsingAndValidationTests extends AbstractTest {
 						link [in_queue->input:elts] => [in_queue->input:elts]
 					}
 					
-					rule serverRules.produce to serverRules.produce {
+					rule produce to produce {
 						link [q->o:elts] => [q->o:elts]
 						object q => q
 						object s => s
@@ -941,7 +939,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					reference server.Server.In => server.Server.In
 				}
 				behaviour_mapping {
-					rule serverRules.process to serverRules.process {
+					rule process to process {
 						object output => output
 						object server => server
 						object input => input
@@ -986,7 +984,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 					
 					behaviour_mapping {
-						rule serverRules.process to devsmmRules.process {
+						rule process to process {
 							object so => machine
 							link [so->server:server] => [machine->conveyor:out]
 						}

@@ -93,14 +93,6 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		rm_scope((context.eContainer.eContainer as GTSMapping).target)
 	}
 
-	private def rm_scope(GTSSpecification gts) {
-		safeScopeFor_([
-			gts.behaviour.eAllContents.filter [ eo |
-				eo instanceof Rule
-			]
-		], new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
-	}
-
 	def IScope scope_ObjectMapping_source(ObjectMapping context, EReference ref) {
 		new FilteringScope(
 			sourceScope(context.eContainer as RuleMapping),
@@ -143,6 +135,14 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 			}
 		}
 
+	}
+
+	private def rm_scope(GTSSpecification gts) {
+		safeScopeFor_([
+			gts.behaviour.eAllContents.filter [ eo |
+				eo instanceof Rule
+			]
+		], nameProvider, IScope.NULLSCOPE)
 	}
 
 	private def sourceScope(RuleMapping rm) {
