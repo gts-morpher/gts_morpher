@@ -624,14 +624,14 @@ class ParsingAndValidationTests extends AbstractTest {
 		val result = parseHelper.parse('''
 				auto-complete map {
 					from {
-						metamodel: "server"
+						metamodel: "A"
 					}
 					to {
-						metamodel: "devsmm"
+						metamodel: "B"
 					}
 					
 					type_mapping {
-						class server.Server => devsmm.Machine
+						class A.A1 => B.B1
 					}
 				}
 			''',
@@ -652,15 +652,14 @@ class ParsingAndValidationTests extends AbstractTest {
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
-						metamodel: "server"
+						metamodel: "A"
 					}
 					to {
-						metamodel: "devsmm"
+						metamodel: "B"
 					}
 					
 					type_mapping {
-						class server.Server => devsmm.Machine
-						class server.Queue => devsmm.Tray
+						class A.A1 => B.B1
 					}
 				}
 			''',
