@@ -27,6 +27,7 @@ import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import com.google.common.collect.Iterables
+import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -308,6 +309,9 @@ class ParsingAndValidationTests extends AbstractTest {
 			createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)		
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertNotNull("Did not resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+		assertNotNull("Did not resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
 	}
 
 	/**
