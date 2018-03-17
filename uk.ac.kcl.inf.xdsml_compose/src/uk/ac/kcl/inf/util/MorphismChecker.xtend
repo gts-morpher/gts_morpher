@@ -205,11 +205,11 @@ class MorphismChecker {
 		}
 
 		// get src nodes and Data types for both EAttributes
-		val EClass srcContainingClass = srcAttribute.eContainer as EClass
-		val EClass srcType = srcAttribute.EType as EClass
+		val srcContainingClass = srcAttribute.eContainer as EClass
+		val srcType = srcAttribute.EType
 
-		val EClass tgtContainingClass = tgtAttribute.eContainer as EClass
-		val EClass tgtType = tgtAttribute.EType as EClass
+		val tgtContainingClass = tgtAttribute.eContainer as EClass
+		val tgtType = tgtAttribute.EType
 
 		// def 5.2 check srcKeyValue must belong to a clan of srcValue
 		if (mapping.containsKey(srcContainingClass)) {

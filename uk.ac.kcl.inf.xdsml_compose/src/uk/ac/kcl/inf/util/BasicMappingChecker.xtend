@@ -6,6 +6,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.Rule
+import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
@@ -15,9 +16,8 @@ import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
-import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
-
 import static extension uk.ac.kcl.inf.util.EMFHelper.isInterfaceElement
+import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 /**
  * Basic util methods for handling mappings
@@ -25,11 +25,13 @@ import static extension uk.ac.kcl.inf.util.EMFHelper.isInterfaceElement
 class BasicMappingChecker {
 	public static val DUPLICATE_CLASS_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_CLASS_MAPPING'
 	public static val DUPLICATE_REFERENCE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_REFERENCE_MAPPING'
+	public static val DUPLICATE_ATTRIBUTE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_ATTRIBUTE_MAPPING'
 	public static val DUPLICATE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_RULE_MAPPING'
 	public static val DUPLICATE_OBJECT_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_OBJECT_MAPPING'
 	public static val DUPLICATE_LINK_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_LINK_MAPPING'
 	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_CLASS_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT'
+	public static val NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_LINK_MAPPING_ATTEMPT'
 	
@@ -75,6 +77,23 @@ class BasicMappingChecker {
 				} else if ((tgtIsInterface) && (!cm.target.isInterfaceElement)) {
 					issues.safeError('''EReference «cm.target.name» must be annotated as interface to be mapped.''', cm,
 						XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
+				} else {
+					_mapping.put(cm.source, cm.target)
+				}
+			}
+		]
+
+		mapping.mappings.filter(AttributeMapping).forEach [ cm |
+			if (_mapping.containsKey(cm.source)) {
+				issues.safeError('''Duplicate mapping for EAttribute «cm.source.name».''', cm,
+					XDsmlComposePackage.Literals.ATTRIBUTE_MAPPING__SOURCE, DUPLICATE_ATTRIBUTE_MAPPING)
+			} else {
+				if ((srcIsInterface) && (!cm.source.isInterfaceElement)) {
+					issues.safeError('''EAttribute «cm.source.name» must be annotated as interface to be mapped.''', cm,
+						XDsmlComposePackage.Literals.ATTRIBUTE_MAPPING__SOURCE, NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT)
+				} else if ((tgtIsInterface) && (!cm.target.isInterfaceElement)) {
+					issues.safeError('''EAttribute «cm.target.name» must be annotated as interface to be mapped.''', cm,
+						XDsmlComposePackage.Literals.ATTRIBUTE_MAPPING__TARGET, NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT)
 				} else {
 					_mapping.put(cm.source, cm.target)
 				}

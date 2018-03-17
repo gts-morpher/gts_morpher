@@ -29,6 +29,8 @@ class MorphismCheckerTests extends AbstractTest {
 			"B.ecore",
 			"C.ecore",
 			"C2.ecore",
+			"D.ecore",
+			"E.ecore",
 			"A2.henshin",
 			"B2.henshin"
 		].createResourceSet
@@ -134,5 +136,95 @@ class MorphismCheckerTests extends AbstractTest {
 
 		assertTrue("Should not be a clan morphism",
 			!result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+	}
+
+	/**
+	 * Tests morphism checker accepts valid attribute mappings.
+	 */
+	@Test
+	def void checkTGMapAttributeMappings() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "D"
+				}
+				
+				to {
+					metamodel: "E"
+				}
+				
+				type_mapping {
+					class D.D1 => E.E1
+					attribute D.D1.a1 => E.E1.a1
+					attribute D.D1.a2 => E.E1.a2
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		assertTrue("Should be a clan morphism",
+			result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+	}
+
+	/**
+	 * Tests morphism checker rejects invalid attribute mappings.
+	 */
+	@Test
+	def void checkTGMapAttributeMappingsNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "D"
+				}
+				
+				to {
+					metamodel: "E"
+				}
+				
+				type_mapping {
+					class D.D1 => E.E1
+					attribute D.D1.a1 => E.E1.a2
+					attribute D.D1.a2 => E.E1.a1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		assertTrue("Should not be a clan morphism",
+			!result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+	}
+	
+	/**
+	 * Tests morphism checker accepts valid attribute mappings across the inheritance hierarchy.
+	 */
+	@Test
+	def void checkTGMapAttributeMappingsWithInheritance() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "D"
+				}
+				
+				to {
+					metamodel: "E"
+				}
+				
+				type_mapping {
+					class D.D1 => E.E2
+					attribute D.D1.a1 => E.E1.a1
+					attribute D.D1.a2 => E.E1.a2
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		assertTrue("Should be a clan morphism",
+			result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
 	}
 }
