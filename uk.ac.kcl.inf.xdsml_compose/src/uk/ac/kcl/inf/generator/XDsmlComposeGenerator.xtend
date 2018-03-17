@@ -29,6 +29,7 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import org.eclipse.emf.ecore.EAttribute
 
 /**
  * Generates code from your model files on save.
@@ -61,11 +62,27 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 			to «mapping.target.generate»
 			
 			type_mapping {
-				«mp.entrySet.filter[e | (e.key instanceof EClass) || (e.key instanceof EReference)].map[e | '''«if (e.key instanceof EClass) '''class''' else '''reference'''» «e.key.qualifiedName» => «e.value.qualifiedName»'''].join('\n')»
+				«mp.generateTGMappings»
 			}
 			«if ((mapping.source.behaviour !== null) || (mapping.target.behaviour !== null)) { generateBehaviourMapping (mp) }»
 		}
 	'''
+	
+	private def generateTGMappings(Map<? extends EObject, ? extends EObject> mp) {
+		mp.entrySet.filter[e | 
+			(e.key instanceof EClass) || 
+			(e.key instanceof EReference) ||
+			(e.key instanceof EAttribute)
+		].map[e | 
+			'''«e.key.generateTGMappingKeyword» «e.key.qualifiedName» => «e.value.qualifiedName»'''
+		].join('\n')
+	}
+	
+	private dispatch def generateTGMappingKeyword (EObject eo) '''<ERROR>'''
+	private dispatch def generateTGMappingKeyword (EClass ec) '''class'''
+	private dispatch def generateTGMappingKeyword (EReference er) '''reference'''
+	private dispatch def generateTGMappingKeyword (EAttribute ea) '''attribute'''
+	
 	
 	private dispatch def String generate(GTSSpecification spec) '''
 		«if (spec.interface_mapping) '''interface_of '''»{
