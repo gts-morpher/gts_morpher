@@ -20,6 +20,7 @@ import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 import org.eclipse.xtext.scoping.impl.FilteringScope
 import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
+import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
@@ -65,13 +66,25 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 
 	def IScope scope_ReferenceMapping_source(ReferenceMapping context, EReference ref) {
 		new FilteringScope(sourceScope(context.eContainer as TypeGraphMapping), [ eod |
-			eod.EClass == EcorePackage.Literals.EREFERENCE
+			eod.EClass === EcorePackage.Literals.EREFERENCE
 		])
 	}
 
 	def IScope scope_ReferenceMapping_target(ReferenceMapping context, EReference ref) {
 		new FilteringScope(targetScope(context.eContainer as TypeGraphMapping), [ eod |
-			eod.EClass == EcorePackage.Literals.EREFERENCE
+			eod.EClass === EcorePackage.Literals.EREFERENCE
+		])
+	}
+
+	def IScope scope_AttributeMapping_source(AttributeMapping context, EReference ref) {
+		new FilteringScope(sourceScope(context.eContainer as TypeGraphMapping), [ eod |
+			eod.EClass === EcorePackage.Literals.EATTRIBUTE
+		])
+	}
+
+	def IScope scope_AttributeMapping_target(AttributeMapping context, EReference ref) {
+		new FilteringScope(targetScope(context.eContainer as TypeGraphMapping), [ eod |
+			eod.EClass === EcorePackage.Literals.EATTRIBUTE
 		])
 	}
 

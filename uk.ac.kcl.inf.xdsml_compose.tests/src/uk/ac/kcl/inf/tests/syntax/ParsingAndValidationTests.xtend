@@ -50,6 +50,8 @@ class ParsingAndValidationTests extends AbstractTest {
 			"devsmm.henshin",
 			"A.ecore",
 			"B.ecore",
+			"C.ecore",
+			"D.ecore",
 			"A.henshin",
 			"B.henshin",
 			"B2.henshin"
@@ -312,6 +314,38 @@ class ParsingAndValidationTests extends AbstractTest {
 		
 		assertNotNull("Did not resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
 		assertNotNull("Did not resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+	}
+
+	/**
+	 * Test basic parsing with attribute mapping. We need to check this case to properly check the scoping rules as the attribute name 
+	 * would be resolved even without the scoping rule (it is in the classpath). Here we check that we only allow attributes from the TGs 
+	 * that are referenced.
+	 */
+	@Test
+	def void parsingBasicAttributeMappingLinkError() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "A"
+					}
+					to {
+						metamodel: "B"
+					}
+					
+					type_mapping {
+						class A.A1 => B.B1
+						attribute C.C1.a1 => D.D1.a1
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertNull("Did resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+		assertNull("Did resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
 	}
 
 	/**
