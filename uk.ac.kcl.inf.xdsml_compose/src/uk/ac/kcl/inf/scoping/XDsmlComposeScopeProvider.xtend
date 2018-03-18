@@ -88,11 +88,13 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		])
 	}
 
+	// FIXME: remove non-interface elements for interface_of GTSs
 	private def IScope sourceScope(TypeGraphMapping tgm) {
 		safeScopeFor_([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents],
 			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 
+	// FIXME: remove non-interface elements for interface_of GTSs
 	private def IScope targetScope(TypeGraphMapping tgm) {
 		safeScopeFor_([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents],
 			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
