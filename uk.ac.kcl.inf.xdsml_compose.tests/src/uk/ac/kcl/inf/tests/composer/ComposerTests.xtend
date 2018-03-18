@@ -41,18 +41,20 @@ class ComposerTests extends AbstractTest {
 
 	private def createNormalResourceSet() {
 		#[
-			"A.ecore", 
-			"B.ecore", 
-			"A.henshin", 
-			"B.henshin", 
+			"A.ecore",
+			"B.ecore",
+			"A.henshin",
+			"B.henshin",
 			"C.ecore",
 			"D.ecore",
 			"C.henshin",
 			"D.henshin",
 			"E.ecore",
-			"F.ecore",			
+			"F.ecore",
 			"G.ecore",
-			"H.ecore"			
+			"H.ecore",
+			"I.ecore",
+			"J.ecore"
 		].createResourceSet
 	}
 
@@ -279,6 +281,43 @@ class ComposerTests extends AbstractTest {
 		
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("GH.ecore"), true).contents.head as EPackage
+		
+		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+	}
+
+	@Test
+	def testAttributeComposition() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "I"
+				}
+				
+				to {
+					metamodel: "J"
+				}
+				
+				type_mapping {
+					class I.I1 => J.J1
+					attribute I.I1.a1 => J.J1.a1
+					attribute I.I1.a2 => J.J1.a2
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+		
+		// Check contents of generated resources and compare against oracle
+		val ecore = resourceSet.findComposedEcore
+		assertNotNull("Couldn't find composed ecore", ecore)
+		
+		val composedLanguage = ecore.contents.head
+		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
 		
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
