@@ -5,7 +5,3 @@ class E1 {
 	attr int a1;
 	attr String a2;
 }
-
-class E2 extends E1 {
-	attr int a3;
-}

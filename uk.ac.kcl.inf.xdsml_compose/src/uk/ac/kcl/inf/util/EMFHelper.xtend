@@ -1,6 +1,7 @@
 package uk.ac.kcl.inf.util
 
 import java.util.ArrayList
+import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EModelElement
@@ -18,6 +19,8 @@ class EMFHelper {
 	static dispatch def getName(EClass ec) { ec.name }
 
 	static dispatch def getName(EReference er) { er.name }
+
+	static dispatch def getName(EAttribute ea) { ea.name }
 
 	static dispatch def getName(EPackage ep) { ep.name }
 	
