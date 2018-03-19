@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_IPC5QCtdEeiHQIw00BaP8g" name="CRules">
+  <imports href="C.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_KY5hsCtdEeiHQIw00BaP8g" name="do">
+    <lhs xmi:id="_KZDStCtdEeiHQIw00BaP8g" name="Lhs">
+      <nodes xmi:id="_LwfmwCtdEeiHQIw00BaP8g" name="c1">
+        <type href="C.ecore#//C1"/>
+        <attributes xmi:id="_UwuRICtdEeiHQIw00BaP8g" value="0">
+          <type href="C.ecore#//C1/a1"/>
+        </attributes>
+        <attributes xmi:id="_VhXq8CtdEeiHQIw00BaP8g" value="7">
+          <type href="C.ecore#//C1/a2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_M2-tsCtdEeiHQIw00BaP8g" name="c1_2">
+        <type href="C.ecore#//C1"/>
+        <attributes xmi:id="_WrlbUCtdEeiHQIw00BaP8g" value="5">
+          <type href="C.ecore#//C1/a1"/>
+        </attributes>
+        <attributes xmi:id="_XY5NQCtdEeiHQIw00BaP8g" value="34">
+          <type href="C.ecore#//C1/a2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_OJ_0wCtdEeiHQIw00BaP8g" name="c2">
+        <type href="C.ecore#//C2"/>
+        <attributes xmi:id="_YwhHgCtdEeiHQIw00BaP8g" value="6">
+          <type href="C.ecore#//C2/a3"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_KZDStStdEeiHQIw00BaP8g" name="Rhs">
+      <nodes xmi:id="_LwfmwStdEeiHQIw00BaP8g" name="c1">
+        <type href="C.ecore#//C1"/>
+        <attributes xmi:id="_UwuRIStdEeiHQIw00BaP8g" value="0">
+          <type href="C.ecore#//C1/a1"/>
+        </attributes>
+        <attributes xmi:id="_VhXq8StdEeiHQIw00BaP8g" value="7">
+          <type href="C.ecore#//C1/a2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_M2-tsStdEeiHQIw00BaP8g" name="c1_2">
+        <type href="C.ecore#//C1"/>
+        <attributes xmi:id="_WrlbUStdEeiHQIw00BaP8g" value="5">
+          <type href="C.ecore#//C1/a1"/>
+        </attributes>
+        <attributes xmi:id="_XY5NQStdEeiHQIw00BaP8g" value="34">
+          <type href="C.ecore#//C1/a2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_OJ_0wStdEeiHQIw00BaP8g" name="c2">
+        <type href="C.ecore#//C2"/>
+        <attributes xmi:id="_YwhHgStdEeiHQIw00BaP8g" value="6">
+          <type href="C.ecore#//C2/a3"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_LwfmwitdEeiHQIw00BaP8g" origin="_LwfmwCtdEeiHQIw00BaP8g" image="_LwfmwStdEeiHQIw00BaP8g"/>
+    <mappings xmi:id="_M2-tsitdEeiHQIw00BaP8g" origin="_M2-tsCtdEeiHQIw00BaP8g" image="_M2-tsStdEeiHQIw00BaP8g"/>
+    <mappings xmi:id="_OJ_0witdEeiHQIw00BaP8g" origin="_OJ_0wCtdEeiHQIw00BaP8g" image="_OJ_0wStdEeiHQIw00BaP8g"/>
+  </units>
+</henshin:Module>

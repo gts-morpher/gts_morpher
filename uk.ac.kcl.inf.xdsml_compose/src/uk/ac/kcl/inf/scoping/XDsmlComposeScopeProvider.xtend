@@ -10,6 +10,7 @@ import java.util.Iterator
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.HenshinPackage
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
@@ -29,6 +30,7 @@ import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
+import uk.ac.kcl.inf.xDsmlCompose.SlotMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 
@@ -136,6 +138,20 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		)
 	}
 
+	def IScope scope_SlotMapping_source(SlotMapping context, EReference ref) {
+		new FilteringScope(
+			sourceScope(context.eContainer as RuleMapping),
+			[eod|eod.EClass == HenshinPackage.Literals.ATTRIBUTE]
+		)
+	}
+
+	def IScope scope_SlotMapping_target(SlotMapping context, EReference ref) {
+		new FilteringScope(
+			targetScope(context.eContainer as RuleMapping),
+			[eod|eod.EClass == HenshinPackage.Literals.ATTRIBUTE]
+		)
+	}
+
 	// An adapted variant of SimpleNameProvider that handles Henshin naming graciously
 	val nameProvider = new IQualifiedNameProvider.AbstractImpl {
 
@@ -151,6 +167,16 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		}
 
 	}
+	
+	val graphRelativeNameProvider = new HenshinQualifiedNameProvider() {
+		override getFullyQualifiedName(EObject obj) {
+			if (obj instanceof Graph) {
+				QualifiedName.EMPTY
+			} else {
+				super.getFullyQualifiedName(obj)
+			}
+		}
+	}
 
 	private def rm_scope(GTSSpecification gts) {
 		safeScopeFor_([
@@ -161,11 +187,11 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	private def sourceScope(RuleMapping rm) {
-		safeScopeFor_([rm.source.eAllContents], nameProvider, IScope.NULLSCOPE)
+		safeScopeFor_([rm.source.eAllContents], graphRelativeNameProvider, IScope.NULLSCOPE)
 	}
 
 	private def targetScope(RuleMapping rm) {
-		safeScopeFor_([rm.target.eAllContents], nameProvider, IScope.NULLSCOPE)
+		safeScopeFor_([rm.target.eAllContents], graphRelativeNameProvider, IScope.NULLSCOPE)
 	}
 
 	private def safeScopeFor(Provider<Iterable<? extends EObject>> scopeElements,
