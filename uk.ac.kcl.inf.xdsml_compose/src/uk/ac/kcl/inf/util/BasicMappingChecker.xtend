@@ -5,6 +5,7 @@ import java.util.Map
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Graph
+import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
@@ -13,6 +14,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
+import uk.ac.kcl.inf.xDsmlCompose.SlotMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
@@ -29,11 +31,13 @@ class BasicMappingChecker {
 	public static val DUPLICATE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_RULE_MAPPING'
 	public static val DUPLICATE_OBJECT_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_OBJECT_MAPPING'
 	public static val DUPLICATE_LINK_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_LINK_MAPPING'
+	public static val DUPLICATE_SLOT_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_SLOT_MAPPING'
 	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_CLASS_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_LINK_MAPPING_ATTEMPT'
+	public static val NON_INTERFACE_SLOT_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_SLOT_MAPPING_ATTEMPT'
 	
 
 	public static interface IssueAcceptor {
@@ -179,6 +183,42 @@ class BasicMappingChecker {
 							_mapping.putIfNotNull(
 								srcRule.lhs.edges.findFirst[o|o.name.equals(em.source.name)],
 								tgtRule.lhs.edges.findFirst[o|o.name.equals(em.target.name)]
+							)
+						}
+					}
+				]
+				rm.element_mappings.filter(SlotMapping).forEach[ em | 
+					if (_mapping.containsKey(em.source)) {
+						issues.safeError("Duplicate mapping for Slot " + em.source.name + ".", em,
+							XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, DUPLICATE_SLOT_MAPPING)
+					} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
+						issues.safeError('''Slot «em.source.name» must be an interface element to be mapped.''', em,
+							XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
+					} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
+						issues.safeError('''Slot «em.target.name» must be an interface element to be mapped.''', em,
+							XDsmlComposePackage.Literals.SLOT_MAPPING__TARGET, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
+					} else {
+						_mapping.put(em.source, em.target)
+						
+						val srcNode = em.source.eContainer as Node
+						val tgtNode = em.target.eContainer as Node
+						
+						val srcPattern = srcNode.eContainer as Graph
+						val srcRule = srcPattern.eContainer as Rule
+						
+						val tgtRule = tgtNode.eContainer.eContainer as Rule
+						
+						if (srcPattern == srcRule.lhs) {
+							// Also add corresponding RHS attribute, if any
+							_mapping.putIfNotNull(
+								srcRule.rhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst[a | a.type === em.source.type],
+								tgtRule.rhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst[a | a.type === em.target.type]
+							)
+						} else if (srcPattern == srcRule.rhs) {
+							// Also add corresponding LHS attribute, if any							
+							_mapping.putIfNotNull(
+								srcRule.lhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst[a | a.type === em.source.type],
+								tgtRule.lhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst[a | a.type === em.target.type]
 							)
 						}
 					}
