@@ -349,6 +349,45 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	/**
+	 * Test basic parsing with attribute mapping.
+	 */
+	@Test
+	def void parsingBasicAttributeMappingWithBehaviour() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "C"
+						behaviour: "CRules"
+					}
+					to {
+						metamodel: "D"
+						behaviour: "DRules"
+					}
+					
+					type_mapping {
+						class C.C1 => D.D1
+						attribute C.C1.a1 => D.D1.a1
+					}
+					
+					behaviour_mapping {
+						rule do to do {
+							object c1 => d1
+							slot c1.a1 => d1.a1
+						}
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertNotNull("Did not resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+		assertNotNull("Did not resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+	}
+
+	/**
 	 * Test basic parsing with a GTS family specification
 	 */
 	@Test
