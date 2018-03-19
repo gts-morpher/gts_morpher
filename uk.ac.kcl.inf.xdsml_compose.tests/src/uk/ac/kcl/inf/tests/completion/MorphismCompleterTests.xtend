@@ -16,6 +16,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import org.eclipse.emf.henshin.model.Attribute
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -654,6 +655,9 @@ class MorphismCompleterTests extends AbstractTest{
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+		
+		assertTrue("Expected to find slots mapped in the completion",
+			completer.completedMappings.head.keySet.filter(Attribute).size > 0)
 	}
 
 	private def isUniqueSetOfMappings(List<Map<? extends EObject, ? extends EObject>> mappings) {
