@@ -1,4 +1,4 @@
-@namespace(uri="http://kcl.ac.uk/xdsml/I_J", prefix="i_j")
+@namespace(uri="https://metamodel.woven/i/j", prefix="i_j")
 package I_J;
 
 class I1_J1 {

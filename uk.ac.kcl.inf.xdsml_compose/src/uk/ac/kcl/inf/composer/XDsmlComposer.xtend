@@ -1,12 +1,12 @@
 package uk.ac.kcl.inf.composer
 
 import com.google.inject.Inject
-
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
 import java.util.Map
 import java.util.function.Function
+import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.ENamedElement
 import org.eclipse.emf.ecore.EObject
@@ -209,8 +209,7 @@ class XDsmlComposer {
 			weaveClasses(invertedIndex, unmappedSrcElements, unmappedTgtElements, result)
 			weaveInheritance
 			weaveReferences(invertedIndex, unmappedSrcElements, unmappedTgtElements)
-
-			// TODO Also weave attributes
+			weaveAttributes(invertedIndex, unmappedSrcElements, unmappedTgtElements)
 
 			return result
 		}
@@ -254,12 +253,31 @@ class XDsmlComposer {
 			unmappedTgtElements.createForEachEReference(Origin.TARGET)			
 		}
 
+		private def weaveAttributes(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements, List<EObject> unmappedTgtElements) {
+			// Weave mapped attributes
+			// Because the mapping is a morphism, this must work :-)
+			invertedIndex.entrySet.filter[e|e.key instanceof EAttribute].forEach [ e |
+				val EAttribute composed = e.value.createWithWovenName(e.key.name.toString, [n | createEAttribute(e.key as EAttribute, n)])
+				
+				put(e.key.targetKey, composed)
+				e.value.forEach[eo | put(eo.sourceKey, composed)]
+			]
+			
+			// Create copies for unmapped attributes
+			unmappedSrcElements.createForEachEAttribute(Origin.SOURCE)
+			unmappedTgtElements.createForEachEAttribute(Origin.TARGET)			
+		}
+
 		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin) {
 			elements.createForEach(EClass, origin, [eo | composedPackage.createEClass(eo.name.originName(origin))])			
 		}
 
 		private def createForEachEReference(List<EObject> elements, Origin origin) {
 			elements.createForEach(EReference, origin, [er | er.createEReference(er.name.originName(origin), origin)])
+		}
+		
+		private def createForEachEAttribute(List<EObject> elements, Origin origin) {
+			elements.createForEach(EAttribute, origin, [er | er.createEAttribute(er.name.originName(origin), origin)])
 		}
 		
 		private def <T extends ENamedElement> createForEach(List<EObject> elements, Class<T> clazz, Origin origin, Function<T, T> creator) {
@@ -305,6 +323,35 @@ class XDsmlComposer {
 				result.EOpposite = opposite
 				opposite.EOpposite = result			
 			}
+			result.lowerBound = source.lowerBound
+			result.ordered = source.ordered
+			result.transient = source.transient
+			result.unique = source.unique
+			result.unsettable = source.unsettable
+			result.upperBound = source.upperBound
+			result.volatile = source.volatile
+
+			result
+		}
+
+		private def createEAttribute(EAttribute source, String name) {
+			// Origin doesn't matter in this case, but must be TARGET because we've previously decided to copy from target references
+			createEAttribute(source, name, Origin.TARGET)
+		}
+
+		private def createEAttribute(EAttribute source, String name, Origin origin) {
+			val EAttribute result = EcoreFactory.eINSTANCE.createEAttribute;
+
+			(get(source.EContainingClass.origKey(origin)) as EClass).EStructuralFeatures.add(result)
+			/*
+			 * TODO This will work well with datatypes that are centrally shared, but not with datatypes defined in a model. However,
+			 * at the moment such datatypes wouldn't pass the morphism checker code either, so this is probably safe for now.
+			 */
+			result.EType = source.EType
+
+			result.name = name
+			result.changeable = source.changeable
+			result.derived = source.derived
 			result.lowerBound = source.lowerBound
 			result.ordered = source.ordered
 			result.transient = source.transient
