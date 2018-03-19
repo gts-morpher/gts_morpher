@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_FufWUCuEEei9gqjpeQ_q3A" name="FRules">
+  <imports href="F.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_HxV-4CuEEei9gqjpeQ_q3A" name="do">
+    <lhs xmi:id="_HyGM0CuEEei9gqjpeQ_q3A" name="Lhs">
+      <nodes xmi:id="_KL0dQCuEEei9gqjpeQ_q3A" name="f2">
+        <type href="F.ecore#//F2"/>
+        <attributes xmi:id="_MXLhkCuEEei9gqjpeQ_q3A" value="0">
+          <type href="F.ecore#//F1/a1"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_HyGM0SuEEei9gqjpeQ_q3A" name="Rhs">
+      <nodes xmi:id="_KL0dQSuEEei9gqjpeQ_q3A" name="f2">
+        <type href="F.ecore#//F2"/>
+        <attributes xmi:id="_MXLhkSuEEei9gqjpeQ_q3A" value="1">
+          <type href="F.ecore#//F1/a1"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_KL0dQiuEEei9gqjpeQ_q3A" origin="_KL0dQCuEEei9gqjpeQ_q3A" image="_KL0dQSuEEei9gqjpeQ_q3A"/>
+  </units>
+</henshin:Module>
