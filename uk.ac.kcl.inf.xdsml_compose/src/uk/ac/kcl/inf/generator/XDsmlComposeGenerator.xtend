@@ -5,10 +5,12 @@ package uk.ac.kcl.inf.generator
 
 import java.util.HashMap
 import java.util.Map
+import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.Node
@@ -29,7 +31,6 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
-import org.eclipse.emf.ecore.EAttribute
 
 /**
  * Generates code from your model files on save.
@@ -140,6 +141,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	private def generateRuleElementMapping(GraphElement source, GraphElement target) {
 		if (source instanceof Node) '''object «source.name» => «target.name»''' 
 		else if (source instanceof Edge) '''link «source.name» => «target.name»'''
+		else if (source instanceof Attribute) '''slot «source.eContainer.name».«source.name» => «target.eContainer.name».«target.name»'''
 		else ''''''
 	}
 
