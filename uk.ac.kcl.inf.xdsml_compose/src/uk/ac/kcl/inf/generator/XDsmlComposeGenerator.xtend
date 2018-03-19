@@ -135,13 +135,17 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 		preprocessedElements.forEach[p | 
 			uniqueElements.value.put(p.key.toString, new Pair(p.value.key, p.value.value))
 		]
-		uniqueElements.value.values.map[p | generateRuleElementMapping(p.key, p.value)].join('\n')
+		uniqueElements.value.values.map[p | generateRuleElementMapping(p.key, p.value, mp)].join('\n')
 	}
 
-	private def generateRuleElementMapping(GraphElement source, GraphElement target) {
-		if (source instanceof Node) '''object «source.name» => «target.name»''' 
+	private def generateRuleElementMapping(GraphElement source, GraphElement target, Map<? extends EObject, ? extends EObject> mp) {
+		if (source instanceof Node) '''
+				object «source.name» => «target.name»
+				«source.attributes.filter[a | mp.containsKey(a)].map[a | 
+					'''slot «source.name».«a.name» => «target.name».«mp.get(a).name»'''
+				].join('\n')»
+			''' 
 		else if (source instanceof Edge) '''link «source.name» => «target.name»'''
-		else if (source instanceof Attribute) '''slot «source.eContainer.name».«source.name» => «target.eContainer.name».«target.name»'''
 		else ''''''
 	}
 
