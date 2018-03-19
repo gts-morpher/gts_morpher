@@ -5,7 +5,6 @@ package I;
 class I1 {
 	@Interface
 	attr int a1;
-	@Interface
 	attr String a2;
 }
 

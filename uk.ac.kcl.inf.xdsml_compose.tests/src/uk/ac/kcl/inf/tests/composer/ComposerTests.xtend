@@ -54,7 +54,9 @@ class ComposerTests extends AbstractTest {
 			"G.ecore",
 			"H.ecore",
 			"I.ecore",
-			"J.ecore"
+			"J.ecore",
+			"I.henshin",
+			"J.henshin"
 		].createResourceSet
 	}
 
@@ -292,18 +294,25 @@ class ComposerTests extends AbstractTest {
 			map {
 				from interface_of {
 					metamodel: "I"
+					behaviour: "IRules"
 				}
-				
 				to {
 					metamodel: "J"
+					behaviour: "JRules"
 				}
 				
 				type_mapping {
-					class I.I1 => J.J1
 					attribute I.I1.a1 => J.J1.a1
-					attribute I.I1.a2 => J.J1.a2
+					class I.I1 => J.J1
+				}
+				behaviour_mapping {
+					rule do to do {
+						object i1 => j1
+						slot i1.a1 => j1.a1
+					}
 				}
 			}
+
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
