@@ -76,6 +76,9 @@ class MorphismCompleter {
 		private var Module tgtModule
 		private List<EObject> allSrcBehaviorElements
 		private List<EObject> allTgtBehaviorElements
+		
+		private var boolean srcIsInterface = false
+		private var boolean tgtIsInterface = false
 
 		new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage,
 			Map<EObject, EObject> behaviourMapping, Module srcModule, Module tgtModule, boolean srcIsInterface,
@@ -83,6 +86,9 @@ class MorphismCompleter {
 				this.typeMapping = new HashMap<EObject, EObject>(typeMapping)
 				this.srcPackage = srcPackage
 				this.tgtPackage = tgtPackage
+				this.srcIsInterface = srcIsInterface
+				this.tgtIsInterface = tgtIsInterface
+				
 				allSrcModelElements = srcPackage.allContents
 				if (srcIsInterface) {
 					allSrcModelElements = allSrcModelElements.filter [ eo |
@@ -673,7 +679,7 @@ class MorphismCompleter {
 				].toList
 
 				val slotMappingsToComplete = behaviourMapping.keySet.filter(Node).filter[n | n.eContainer.eContainer === srcRule].map[n | 
-						new Pair<Node, List<Attribute>>(behaviourMapping.get(n) as Node, n.attributes.reject[a | behaviourMapping.containsKey(a)].toList)
+						new Pair<Node, List<Attribute>>(behaviourMapping.get(n) as Node, n.unmappedAttributes)
 					].toList
 				
 				val result = doTryCompleteRuleMorphism(slotMappingsToComplete, srcRule, tgtRule, elementsToMap, findAll)
@@ -686,7 +692,7 @@ class MorphismCompleter {
 
 				result
 			}
-
+			
 			/**
 			 * Map one more graph element and descend recursively if possible
 			 */
@@ -724,9 +730,7 @@ class MorphismCompleter {
 
 					if (pick instanceof Node) {
 						// Go through any attribute slots and make sure they've got a complete mapping, too
-						descendResult = doTryCompleteRuleMorphism(currentMatch as Node, pick.attributes.filter [a |
-							!behaviourMapping.containsKey(a)
-						].toList, emptyList, srcRule, tgtRule, elementsToMap, findAll)
+						descendResult = doTryCompleteRuleMorphism(currentMatch as Node, pick.unmappedAttributes, emptyList, srcRule, tgtRule, elementsToMap, findAll)
 					} else {
 						descendResult = doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)
 					}
@@ -809,6 +813,16 @@ class MorphismCompleter {
 				behaviourMapping.remove(pick)
 
 				descendResult
+			}
+
+			/**
+			 * Get all unmapped attributes of the given (source) node.
+			 */
+			private def getUnmappedAttributes(Node n) {
+				n.attributes.reject[a |
+					(srcIsInterface && !a.type.isInterfaceElement) || 
+					behaviourMapping.containsKey(a)
+				].toList
 			}
 
 			private def List<? extends GraphElement> findPossibleMatches(GraphElement pick, Rule tgtRule) {

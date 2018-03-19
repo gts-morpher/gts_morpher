@@ -1,0 +1,13 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/I", prefix="i")
+package I;
+
+@Interface
+class I1 {
+	@Interface
+	attr int a1;
+	attr String a2;
+}
+
+class I2 extends I1 {
+	attr int a3;
+}
