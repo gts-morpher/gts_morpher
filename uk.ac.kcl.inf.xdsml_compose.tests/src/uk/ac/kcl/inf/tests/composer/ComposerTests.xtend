@@ -329,6 +329,15 @@ class ComposerTests extends AbstractTest {
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
 		
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+
+		// Check contents of generated resources and compare against oracle
+		val henshin = resourceSet.findComposedHenshin
+		assertNotNull("Couldn't find composed henshin rules", henshin)
+		
+		val composedHenshin = henshin.contents.head
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("CD.henshin"), true).contents.head as Module
+		
+		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
 	}
 
 	private def findComposedEcore(ResourceSet resourceSet) {
