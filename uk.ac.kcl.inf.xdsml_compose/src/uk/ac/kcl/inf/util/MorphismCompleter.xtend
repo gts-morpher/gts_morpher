@@ -797,7 +797,7 @@ class MorphismCompleter {
 				// There should only be one
 				val tgtAttribute = tgtNode.attributes.findFirst[a|typeMapping.get(pick.type) === a.type]
 
-				if ((tgtAttribute === null) || (pick.value != tgtAttribute.value)) {
+				if ((tgtAttribute === null) || (tgtIsInterface && !tgtAttribute.type.isInterfaceElement) || (pick.value != tgtAttribute.value)) {
 					// FIXME: Not ideal as we're not differentiating situations where slots are partially mapped
 					//println("Couldn't map slot.")
 					var unmatchedCount = elementsToMap.size + 1
