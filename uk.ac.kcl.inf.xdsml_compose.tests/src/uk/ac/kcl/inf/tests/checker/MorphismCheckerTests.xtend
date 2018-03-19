@@ -267,8 +267,20 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
+		val typeMapping = result.typeMapping.extractMapping(null)
 		assertTrue("Should be a clan morphism",
-			result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertTrue(
+			"Should be a rule morphism",
+			checkRuleMorphism(
+				result.target.behaviour.units.head as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.behaviourMapping.extractMapping(null),
+				null
+			)
+		)
 	}
 
 	/**
@@ -307,8 +319,20 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		assertTrue("Should not be a clan morphism",
-			!result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+		val typeMapping = result.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertTrue(
+			"Should not be a rule morphism",
+			!checkRuleMorphism(
+				result.target.behaviour.units.head as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.behaviourMapping.extractMapping(null),
+				null
+			)
+		)
 	}
 
 	/**
@@ -346,7 +370,19 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		assertTrue("Should not be a clan morphism",
-			!result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+		val typeMapping = result.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertTrue(
+			"Should not be a rule morphism",
+			!checkRuleMorphism(
+				result.target.behaviour.units.head as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.behaviourMapping.extractMapping(null),
+				null
+			)
+		)
 	}
 }
