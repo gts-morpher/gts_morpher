@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmi:id="__SBFIStiEeiHQIw00BaP8g" type="Henshin" name="G.henshin_diagram" measurementUnit="Pixel">
+  <children xmi:type="notation:Shape" xmi:id="_EJejUStjEeiHQIw00BaP8g" type="2001" fontName="Segoe UI" italic="true" lineColor="0">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_E1mCcytjEeiHQIw00BaP8g" source="defaultAction">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_E1mCdCtjEeiHQIw00BaP8g" key="value" value="preserve"/>
+    </eAnnotations>
+    <children xmi:type="notation:DecorationNode" xmi:id="_EJejUytjEeiHQIw00BaP8g" type="5001"/>
+    <children xmi:type="notation:DecorationNode" xmi:id="_EJejVCtjEeiHQIw00BaP8g" type="7001">
+      <children xmi:type="notation:Shape" xmi:id="_E1mCdStjEeiHQIw00BaP8g" type="3001" fontName="Segoe UI">
+        <children xmi:type="notation:DecorationNode" xmi:id="_E1mCdytjEeiHQIw00BaP8g" type="5002"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_E1mCeCtjEeiHQIw00BaP8g" type="5003"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_E1mCeStjEeiHQIw00BaP8g" type="7002">
+          <children xmi:type="notation:Node" xmi:id="_GQM_QitjEeiHQIw00BaP8g" type="3002">
+            <element xmi:type="henshin:Attribute" href="G.henshin#_GQM_QCtjEeiHQIw00BaP8g"/>
+            <layoutConstraint xmi:type="notation:Location" xmi:id="_GQM_QytjEeiHQIw00BaP8g"/>
+          </children>
+          <children xmi:type="notation:Node" xmi:id="_GsNl0CtjEeiHQIw00BaP8g" type="3002">
+            <element xmi:type="henshin:Attribute" href="G.henshin#_GsEb4CtjEeiHQIw00BaP8g"/>
+            <layoutConstraint xmi:type="notation:Location" xmi:id="_GsNl0StjEeiHQIw00BaP8g"/>
+          </children>
+          <styles xmi:type="notation:SortingStyle" xmi:id="_E1mCeitjEeiHQIw00BaP8g"/>
+          <styles xmi:type="notation:FilteringStyle" xmi:id="_E1mCeytjEeiHQIw00BaP8g"/>
+        </children>
+        <element xmi:type="henshin:Node" href="G.henshin#_E1mCcCtjEeiHQIw00BaP8g"/>
+        <layoutConstraint xmi:type="notation:Bounds" xmi:id="_E1mCditjEeiHQIw00BaP8g" x="51" y="33"/>
+      </children>
+    </children>
+    <element xmi:type="henshin:Rule" href="G.henshin#_EJejUCtjEeiHQIw00BaP8g"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_EJejUitjEeiHQIw00BaP8g" x="174" y="92"/>
+  </children>
+  <styles xmi:type="notation:DiagramStyle" xmi:id="__SBFIitiEeiHQIw00BaP8g"/>
+  <element xmi:type="henshin:Module" href="G.henshin#__SBFICtiEeiHQIw00BaP8g"/>
+</notation:Diagram>
