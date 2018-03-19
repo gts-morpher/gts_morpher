@@ -61,6 +61,7 @@ import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompl
 class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val DUPLICATE_CLASS_MAPPING = BasicMappingChecker.DUPLICATE_CLASS_MAPPING
 	public static val DUPLICATE_REFERENCE_MAPPING = BasicMappingChecker.DUPLICATE_REFERENCE_MAPPING
+	public static val DUPLICATE_ATTRIBUTE_MAPPING = BasicMappingChecker.DUPLICATE_ATTRIBUTE_MAPPING
 	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
 	public static val INCOMPLETE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_TYPE_GRAPH_MAPPING'
 	public static val UNCOMPLETABLE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_TYPE_GRAPH_MAPPING'
@@ -76,6 +77,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val INCOMPLETE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_BEHAVIOUR_MAPPING'
 	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_CLASS_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
 	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'

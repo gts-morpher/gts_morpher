@@ -74,7 +74,7 @@ TypeGraphMapping:
 ;
 
 TypeMapping:
-	ClassMapping | ReferenceMapping
+	ClassMapping | ReferenceMapping | AttributeMapping
 ;
 
 ClassMapping:
@@ -83,6 +83,10 @@ ClassMapping:
 
 ReferenceMapping:
 	"reference" source = [ecore::EReference | QualifiedName] "=>" target = [ecore::EReference | QualifiedName]
+;
+
+AttributeMapping:
+	"attribute" source = [ecore::EAttribute | QualifiedName] "=>" target = [ecore::EAttribute | QualifiedName]
 ;
 
 BehaviourMapping:

@@ -1,0 +1,15 @@
+@namespace(uri="https://metamodel.woven/i/j", prefix="i_j")
+package I_J;
+
+class I1_J1 {
+	attr int a1;
+	attr String a2;
+}
+
+class target__J2 extends I1_J1 {
+	attr int target__a3;
+}
+
+class source__I2 extends I1_J1 {
+	attr int source__a3;
+}

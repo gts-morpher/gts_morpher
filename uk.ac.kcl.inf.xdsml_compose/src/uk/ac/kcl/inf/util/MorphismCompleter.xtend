@@ -9,6 +9,7 @@ import java.util.List
 import java.util.ListIterator
 import java.util.Map
 import java.util.Set
+import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
@@ -67,6 +68,7 @@ class MorphismCompleter {
 	private var List<EObject> allTgtModelElements
 	private var List<EClass> allTgtClasses
 	private var List<EReference> allTgtReferences
+	private var List<EAttribute> allTgtAttributes
 
 	private var Map<EObject, EObject> behaviourMapping
 	private var Module srcModule
@@ -96,8 +98,10 @@ class MorphismCompleter {
 			// Cache target classes and references for future lookups
 			allTgtClasses = allTgtModelElements.filter(EClass).toList
 			allTgtReferences = allTgtModelElements.filter(EReference).toList
+			allTgtAttributes = allTgtModelElements.filter(EAttribute).toList
 			allTgtClasses = Collections.unmodifiableList(allTgtClasses)
 			allTgtReferences = Collections.unmodifiableList(allTgtReferences)
+			allTgtAttributes = Collections.unmodifiableList(allTgtAttributes)
 
 			this.behaviourMapping = behaviourMapping
 			this.srcModule = srcModule
@@ -419,6 +423,37 @@ class MorphismCompleter {
 			possibleMatches
 		}
 
+		private dispatch def List<EAttribute> getPossibleMatches(EAttribute srcAttribute) {
+			// Potentially, all attributes in the target could be matches, if they have the same type as the source attribute
+			// TODO: If we switch to allow type widening/narrowing, this needs to change
+			val List<EAttribute> possibleMatches = allTgtAttributes.reject[ea | ea.EType !== srcAttribute.EType].toList
+
+			/*
+			 * Use source class to narrow selection: If the source class has a mapping, the
+			 * image must be in the clan of any eligible attributes. Note if the direct
+			 * source class isn't mapped, we cannot restrict the set of potential matches
+			 * based on one of the super types as we might later map the direct source
+			 * class, too.
+			 */
+			val EClass srcSrcClass = srcAttribute.EContainingClass
+			if (typeMapping.containsKey(srcSrcClass)) {
+				val EClass tgtSrcClass = typeMapping.get(srcSrcClass) as EClass
+
+				val ListIterator<EAttribute> it = possibleMatches.listIterator()
+				while (it.hasNext()) {
+					val EAttribute currentTgtAttr = it.next()
+					val EClass currentTgtSrcClass = currentTgtAttr.EContainingClass
+
+					if (!currentTgtSrcClass.getClan(allTgtClasses).contains(tgtSrcClass)) {
+						// This reference isn't a match
+						it.remove()
+					}
+				}
+			}
+
+			possibleMatches
+		}
+
 		/**
 		 * Returns a first priority list in the model. This is determined by going
 		 * through the elements currently mapped already and finding new elements
@@ -448,9 +483,9 @@ class MorphismCompleter {
 			Collection<EObject> previousPriorityObjects) {
 			val prioritySet = new HashSet<EObject>(previousPriorityObjects)
 
-			// if picked object is an EReference, add its target and source to the priority
-			// list if they are in unmatched list
 			if (pick instanceof EReference) {
+				// if picked object is an EReference, add its target and source to the priority
+				// list if they are in unmatched list
 				val EClass eclass1 = (pick as EReference).EReferenceType
 				val EClass eclass2 = (pick as EReference).EContainingClass
 
@@ -458,12 +493,20 @@ class MorphismCompleter {
 					prioritySet.add(eclass1)
 				if (unmatchedList.contains(eclass2))
 					prioritySet.add(eclass2)
-
-			// if picked object is an EClass
+			} else if (pick instanceof EAttribute) {
+				// If picked object is an EAttribute, add its source to the priority list if it's not yet mapped
+				val srcClass = (pick as EAttribute).EContainingClass
+				
+				if (unmatchedList.contains(srcClass))
+					prioritySet.add(srcClass)				
 			} else if (pick instanceof EClass) {
+				// if picked object is an EClass
 				// add its EReferences to the priority list if they are unmatched
 				// TODO: Original code wasn't filtering for references
 				pick.eContents.filter(EReference).filter[er|unmatchedList.contains(er)].forEach[er|prioritySet.add(er)]
+				
+				// Also add in all unmatched  attributes
+				pick.eContents.filter(EAttribute).filter[ea|unmatchedList.contains(ea)].forEach[ea|prioritySet.add(ea)]
 
 				// add its Subclasses to the priority list if they are unmatched
 				allSrcModelElements.filter(EClass).filter[ec|ec.ESuperTypes.contains(pick)].filter [ ec |
