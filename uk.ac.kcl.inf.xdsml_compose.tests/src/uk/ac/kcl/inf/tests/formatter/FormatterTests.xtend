@@ -46,6 +46,37 @@ class FormatterTests extends AbstractTest {
 		doTest(testInput, expectedResult)
 	}
 	
+	@Test
+	def testSimpleMorphism() {
+		val expectedResult = '''
+			map {
+				from {
+					metamodel: "a"
+				}
+			
+				to {
+					metamodel: "b"
+				}
+			
+				type_mapping {
+					class a.A => b.B
+					reference a.A.a => b.B.b
+					attribute a.A.b => b.B.c
+				}
+			
+				behaviour_mapping {
+					rule a to b {
+						object a => b
+						link [A->B:C] => [D->E:F]
+						slot a.c => b.d
+					}
+				}
+			}'''
+		val testInput = '''map{from{metamodel:"a"}to{metamodel:"b"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d}}}'''
+		
+		doTest(testInput, expectedResult)
+	}
+
 	private def doTest(CharSequence testInput, CharSequence expectedResult) {  
 		assertEquals(expectedResult,testInput.parse ().serialize(SaveOptions.newBuilder.format.options))
 	}

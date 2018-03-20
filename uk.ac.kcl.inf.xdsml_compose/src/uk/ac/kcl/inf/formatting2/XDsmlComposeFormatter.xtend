@@ -8,11 +8,14 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import uk.ac.kcl.inf.services.XDsmlComposeGrammarAccess
+import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeMapping
+import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
 
 class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
@@ -66,6 +69,35 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
 	def dispatch void format(TypeMapping mapping, extension IFormattableDocument document) {
 		mapping.regionFor.keywords("class", "reference", "attribute").forEach[k | k.append[oneSpace]]
+		mapping.regionFor.keyword("=>").surround[oneSpace]
+	}
+	
+	def dispatch void format(BehaviourMapping mapping, extension IFormattableDocument document) {
+		mapping.regionFor.keyword("behaviour_mapping").append[oneSpace]
+		mapping.blockIndent(document)
+		
+		mapping.mappings.forEach[rm, idx | 
+			rm.format
+			if (idx > 0) {
+				rm.prepend[newLines = 2]
+			}
+		]
+	}
+	
+	def dispatch void format(RuleMapping mapping, extension IFormattableDocument document) {
+		mapping.regionFor.keyword("rule").append[oneSpace]
+		mapping.regionFor.keyword("to").surround[oneSpace]
+		mapping.regionFor.keyword("{").prepend[oneSpace]
+		mapping.blockIndent(document)
+		
+		mapping.element_mappings.forEach[em |
+			em.format
+			em.append[newLine]
+		]
+	}
+	
+	def dispatch void format(RuleElementMapping mapping, extension IFormattableDocument document) {
+		mapping.regionFor.keywords("object", "link", "slot").forEach[k | k.append[oneSpace]]
 		mapping.regionFor.keyword("=>").surround[oneSpace]
 	}
 	
