@@ -340,6 +340,53 @@ class ComposerTests extends AbstractTest {
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
 	}
 
+	@Test
+	def testAttributeCompositionWithAutoComplete() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			auto-complete unique map {
+				from interface_of {
+					metamodel: "I"
+					behaviour: "IRules"
+				}
+				
+				to {
+					metamodel: "J"
+					behaviour: "JRules"
+				}
+				
+				type_mapping {
+					class I.I1 => J.J1
+					attribute I.I1.a1 => J.J1.a1
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+		
+		// Check contents of generated resources and compare against oracle
+		val ecore = resourceSet.findComposedEcore
+		assertNotNull("Couldn't find composed ecore", ecore)
+		
+		val composedLanguage = ecore.contents.head
+		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
+		
+		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+
+		// Check contents of generated resources and compare against oracle
+		val henshin = resourceSet.findComposedHenshin
+		assertNotNull("Couldn't find composed henshin rules", henshin)
+		
+		val composedHenshin = henshin.contents.head
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
+		
+		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
+	}
+
 	private def findComposedEcore(ResourceSet resourceSet) {
 		resourceSet.findComposed("ecore")
 	}

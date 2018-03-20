@@ -124,8 +124,8 @@ class XDsmlComposer {
 						val completer = mapping.createMorphismCompleter
 						if (completer.findMorphismCompletions(false) == 0) {
 							if (completer.completedMappings.size == 1) {
-								tgMapping = new HashMap(completer.completedMappings.head.filter[k, v | (k instanceof EClass) || (k instanceof EReference)] as Map<EObject, EObject>)
-								behaviourMapping = new HashMap(completer.completedMappings.head.filter[k, v | !((k instanceof EClass) || (k instanceof EReference))] as Map<EObject, EObject>)
+								tgMapping = new HashMap(completer.completedMappings.head.filter[k, v | (k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)] as Map<EObject, EObject>)
+								behaviourMapping = new HashMap(completer.completedMappings.head.filter[k, v | !((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))] as Map<EObject, EObject>)
 							} else {
 								result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
 								return result								
