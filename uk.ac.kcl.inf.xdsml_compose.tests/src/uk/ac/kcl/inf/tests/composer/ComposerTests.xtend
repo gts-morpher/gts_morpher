@@ -335,7 +335,7 @@ class ComposerTests extends AbstractTest {
 		assertNotNull("Couldn't find composed henshin rules", henshin)
 		
 		val composedHenshin = henshin.contents.head
-		val composedHenshinOracle = resourceSet.getResource(createFileURI("CD.henshin"), true).contents.head as Module
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
 		
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
 	}
