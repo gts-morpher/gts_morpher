@@ -52,10 +52,12 @@ class FormatterTests extends AbstractTest {
 			map {
 				from {
 					metamodel: "a"
+					behaviour: "arules"
 				}
 			
 				to {
 					metamodel: "b"
+					behaviour: "brules"
 				}
 			
 				type_mapping {
@@ -72,7 +74,48 @@ class FormatterTests extends AbstractTest {
 					}
 				}
 			}'''
-		val testInput = '''map{from{metamodel:"a"}to{metamodel:"b"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d}}}'''
+		val testInput = '''map{from{metamodel  :"a"behaviour  :"arules"}to{metamodel  :"b"behaviour  :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d}}}'''
+		
+		doTest(testInput, expectedResult)
+	}
+
+	@Test
+	def testMorphismFromFamily() {
+		val expectedResult = '''
+			map {
+				from interface_of {
+					family: {
+						metamodel: "a"
+						behaviour: "arules"
+						transformers: "transformers"
+					}
+			
+					using [
+						addSubclass (a.b, "Foo"),
+						callOther (c.d, d.f, "s")
+					]
+				}
+			
+				to {
+					metamodel: "b"
+					behaviour: "brules"
+				}
+			
+				type_mapping {
+					class a.A => b.B
+					reference a.A.a => b.B.b
+					attribute a.A.b => b.B.c
+				}
+			
+				behaviour_mapping {
+					rule a to b {
+						object a => b
+						link [A->B:C] => [D->E:F]
+						slot a.c => b.d
+					}
+				}
+			}'''
+		val testInput = '''map{from  interface_of{family :{metamodel  :"a"behaviour :"arules"transformers  :"transformers"}using[addSubclass(a.b,"foo"),callOther(c.d,d.f,"s")]}to{metamodel :"b"behaviour :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d}}}'''
 		
 		doTest(testInput, expectedResult)
 	}

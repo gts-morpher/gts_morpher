@@ -16,6 +16,8 @@ import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
+import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 
 class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
@@ -54,8 +56,27 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 	}
 	
 	def dispatch void format(GTSLiteral gts, extension IFormattableDocument document) {
+		gts.regionFor.keyword("metamodel").append[noSpace]
 		gts.regionFor.keyword(":").append[oneSpace]
-		gts.regionFor.keyword("behaviour").prepend[newLine]
+		gts.regionFor.keyword("behaviour").prepend[newLine].append[noSpace]
+		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_LITERAL__BEHAVIOUR).prepend[oneSpace]
+	}
+	
+	def dispatch void format(GTSFamilyChoice gts, extension IFormattableDocument document) {
+		gts.regionFor.keyword("family").append[noSpace]
+		gts.regionFor.keyword(":").append[oneSpace]
+		gts.blockIndent(document)
+		gts.root.format
+		gts.regionFor.keyword("transformers").prepend[newLine].append[noSpace]
+		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS).prepend[oneSpace]
+		
+		gts.regionFor.keyword("using").prepend[newLines = 2].append[oneSpace]
+		
+		interior(
+			gts.regionFor.keyword("[").append[newLine],
+			gts.regionFor.keyword("]").prepend[newLine],
+			[indent]
+		)
 	}
 	
 	def dispatch void format(TypeGraphMapping mapping, extension IFormattableDocument document) {
