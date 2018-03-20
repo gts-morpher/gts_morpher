@@ -1,6 +1,7 @@
 package uk.ac.kcl.inf.tests.formatter
 
 import com.google.inject.Inject
+import org.eclipse.xtext.resource.SaveOptions
 import org.eclipse.xtext.serializer.ISerializer
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
@@ -22,36 +23,30 @@ class FormatterTests extends AbstractTest {
 	@Inject 
 	extension ISerializer serialiser
 
-	private def createNormalResourceSet() {
-		#[
-			"server.ecore",
-			"DEVSMM.ecore"
-		].createResourceSet
-	}
-
 	@Test
 	def testSimpleTGMorphism() {
 		val expectedResult = '''
 			map {
 				from {
-					metamodel: "server"
+					metamodel: "a"
 				}
+			
 				to {
-					metamodel: "devsmm"
+					metamodel: "b"
 				}
-				
+			
 				type_mapping {
-					class server.Server => devsmm.Machine
-					reference server.Server.Out => devsmm.Machine.out
+					class a.A => b.B
+					reference a.A.a => b.B.b
+					attribute a.A.b => b.B.c
 				}
-			}
-		'''
-		val testInput = '''map{from{metamodel:"server"}to{metamodel:"devsmm"}type_mapping{class server.Server=>devsmm.Machine reference server.Server.Out=>devsmm.Machine.out}}'''
+			}'''
+		val testInput = '''map{from{metamodel:"a"}to{metamodel:"b"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}}'''
 		
 		doTest(testInput, expectedResult)
 	}
 	
 	private def doTest(CharSequence testInput, CharSequence expectedResult) {  
-		assertEquals(expectedResult,testInput.parse (createNormalResourceSet).serialize)
+		assertEquals(expectedResult,testInput.parse ().serialize(SaveOptions.newBuilder.format.options))
 	}
 }
