@@ -6,6 +6,7 @@ import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.ModelElement
@@ -303,8 +304,47 @@ class MorphismChecker {
 			}
 			return false;
 		}
+		
+		// Check attribute mappings, if any
+		val result = new ValueHolder(true)
+		srcObject.attributes.forEach[srcAttribute | 
+			if (behaviourMapping.containsKey(srcAttribute)) {
+				result.value = result.value && checkSlotMorphism(srcAttribute, behaviourMapping.get(srcAttribute) as Attribute, srcObject, tgtObject, typeMapping, issues)
+			}
+		]
 
-		true
+		result.value
+	}
+	
+	static private def boolean checkSlotMorphism(Attribute srcAttribute, Attribute tgtAttribute, Node srcObject, Node tgtObject, Map<EObject, EObject> typeMapping, IssueAcceptor issues) {
+		if ((srcAttribute.eContainer === srcObject) && (tgtAttribute.eContainer === tgtObject)) {
+			val srcEAttribute = srcAttribute.type
+			val mappedSrcEAttribute = typeMapping.get(srcEAttribute)
+			
+			if ((mappedSrcEAttribute !== null) && (mappedSrcEAttribute !== tgtAttribute.type)) {
+				if (issues !== null) {
+					issues.issue(srcAttribute, "Mapped slots must be for mapped attributes.")
+				}
+
+				false
+			} else {
+				if (srcAttribute.value == tgtAttribute.value) {
+					true
+				} else {
+					if (issues !== null) {
+						issues.issue(srcAttribute, "Mapped slots must have the (syntactically) same value expressions.")
+					}
+
+					false
+				}
+			}
+		} else {
+			if (issues !== null) {
+				issues.issue(srcAttribute, "Mapped slots must be for mapped objects.")
+			}
+			
+			false
+		}
 	}
 
 	static private def boolean checkLinkMorphism(Edge srcLink, Edge tgtLink, Graph srcPattern, Graph tgtPattern,
@@ -353,7 +393,9 @@ class MorphismChecker {
 			val srcO2Mapped = typeMapping.get(srcO2)
 
 			if ((srcO1Mapped !== null) && (srcO2Mapped !== null)) {
-				// If only one of them is null, we've constructed the mapping wrong
+				/*
+				 * If only one of them is null, we've constructed the mapping wrong -- or this is a partially constructed completion
+				 */
 				if (!srcO1Mapped.name.equals(srcO2Mapped.name)) {
 					if (issues !== null) {
 						issues.issue(srcO1, "Element of kernel rule mapped to different elements in target rule")

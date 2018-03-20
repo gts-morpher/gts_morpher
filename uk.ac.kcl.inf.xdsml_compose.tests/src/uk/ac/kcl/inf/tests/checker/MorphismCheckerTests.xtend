@@ -32,7 +32,11 @@ class MorphismCheckerTests extends AbstractTest {
 			"D.ecore",
 			"E.ecore",
 			"A2.henshin",
-			"B2.henshin"
+			"B2.henshin",
+			"F.ecore",
+			"G.ecore",
+			"F.henshin",
+			"G.henshin"
 		].createResourceSet
 	}
 
@@ -226,5 +230,159 @@ class MorphismCheckerTests extends AbstractTest {
 
 		assertTrue("Should be a clan morphism",
 			result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+	}
+	
+	/**
+	 * Tests morphism checker accepts valid slot mappings. 
+	 */
+	@Test
+	def void checkSlotMappingsPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				to {
+					metamodel: "G"
+					behaviour: "GRules"
+				}
+				
+				type_mapping {
+					class F.F1 => G.G1
+					attribute F.F1.a1 => G.G1.a1
+					attribute F.F1.a2 => G.G1.a2
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						object f1 => g1
+						slot f1.a1 => g1.a1
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val typeMapping = result.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertTrue(
+			"Should be a rule morphism",
+			checkRuleMorphism(
+				result.target.behaviour.units.head as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.behaviourMapping.extractMapping(null),
+				null
+			)
+		)
+	}
+
+	/**
+	 * Tests morphism checker rejects invalid slot mappings because of attribute type.
+	 */
+	@Test
+	def void checkSlotMappingsNegativeTyping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				to {
+					metamodel: "G"
+					behaviour: "GRules"
+				}
+				
+				type_mapping {
+					class F.F1 => G.G1
+					attribute F.F1.a1 => G.G1.a1
+					attribute F.F1.a2 => G.G1.a2
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						object f1 => g1
+						slot f1.a1 => g1.a2
+						slot f1.a2 => g1.a1
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val typeMapping = result.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertTrue(
+			"Should not be a rule morphism",
+			!checkRuleMorphism(
+				result.target.behaviour.units.head as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.behaviourMapping.extractMapping(null),
+				null
+			)
+		)
+	}
+
+	/**
+	 * Tests morphism checker rejects invalid slot mappings because of attribute values.
+	 */
+	@Test
+	def void checkSlotMappingsNegativeValues() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				to {
+					metamodel: "G"
+					behaviour: "GRules"
+				}
+				
+				type_mapping {
+					class F.F1 => G.G1
+					attribute F.F1.a1 => G.G1.a1
+					attribute F.F1.a2 => G.G1.a2
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						object f1 => g1
+						slot f1.a2 => g1.a2
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val typeMapping = result.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertTrue(
+			"Should not be a rule morphism",
+			!checkRuleMorphism(
+				result.target.behaviour.units.head as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.behaviourMapping.extractMapping(null),
+				null
+			)
+		)
 	}
 }

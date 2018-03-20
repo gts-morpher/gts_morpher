@@ -16,6 +16,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import org.eclipse.emf.henshin.model.Attribute
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -40,6 +41,12 @@ class MorphismCompleterTests extends AbstractTest{
 			"D.ecore",
 			"E.ecore",
 			"F.ecore",
+			"I.ecore",
+			"J.ecore",
+			"E.henshin",
+			"F.henshin",
+			"I.henshin",
+			"J.henshin",
 			"pls.ecore",
 			"server.ecore",
 			"server2.ecore",
@@ -525,6 +532,132 @@ class MorphismCompleterTests extends AbstractTest{
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 2)
+	}
+
+	/**
+	 * Tests completion including attribute and slot mappings. This is the same test as {@link #testCompletionOfAttributeMappingsNonUnique}, but the slot mappings actually make it unique.
+	 */
+	@Test
+	def void testCompletionOfAttributeMappingsNonUniqueWithUniqueSlots() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique map {
+					from {
+						metamodel: "E"
+						behaviour: "ERules"
+					}
+					
+					to {
+						metamodel: "F"
+						behaviour: "FRules"
+					}
+					
+					type_mapping {
+						class E.E1 => F.F2
+				//      attribute E.E1.a1 => F.F1.a1 ( but no longer F.F2.a3 because that's prevented by the rule morphism)
+				//      attribute E.E1.a2 => F.F1.a2
+					}
+					
+					//behaviour_mapping {
+					//	rule do to do {
+					//		object e1 => f2
+					//	}
+					//}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+	}
+
+	/**
+	 * Tests completion including attribute and slot mappings. This is the same test as {@link #testCompletionOfAttributeMappingsNonUnique}, but the slot mappings actually make it unique.
+	 */
+	@Test
+	def void testCompletionOfAttributeMappingsNonUniqueWithUniqueSlotsRuleAlreadyMapped() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete unique map {
+					from {
+						metamodel: "E"
+						behaviour: "ERules"
+					}
+					
+					to {
+						metamodel: "F"
+						behaviour: "FRules"
+					}
+					
+					type_mapping {
+						class E.E1 => F.F2
+				//      attribute E.E1.a1 => F.F1.a1 ( but no longer F.F2.a3 because that's prevented by the rule morphism)
+				//      attribute E.E1.a2 => F.F1.a2
+					}
+					
+					behaviour_mapping {
+						rule do to do {
+							object e1 => f2
+						}
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+	}
+
+	/**
+	 * Tests completion including attribute and slot mappings. This is the same test as {@link #testCompletionOfAttributeMappingsNonUnique}, but the slot mappings actually make it unique.
+	 */
+	@Test
+	def void testCompletionOfAttributeMappingsUniqueWithSlotsFromInterface() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				auto-complete map {
+					from interface_of {
+						metamodel: "I"
+						behaviour: "IRules"
+					}
+					
+					to {
+						metamodel: "J"
+						behaviour: "JRules"
+					}
+					
+					type_mapping {
+						class I.I1 => J.J1
+						attribute I.I1.a1 => J.J1.a1
+				//		attribute I.I1.a2 => J.J1.a2
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+		
+		assertTrue("Expected to find slots mapped in the completion",
+			completer.completedMappings.head.keySet.filter(Attribute).size > 0)
 	}
 
 	private def isUniqueSetOfMappings(List<Map<? extends EObject, ? extends EObject>> mappings) {

@@ -71,6 +71,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val DUPLICATE_RULE_MAPPING = BasicMappingChecker.DUPLICATE_RULE_MAPPING
 	public static val DUPLICATE_OBJECT_MAPPING = BasicMappingChecker.DUPLICATE_OBJECT_MAPPING
 	public static val DUPLICATE_LINK_MAPPING = BasicMappingChecker.DUPLICATE_LINK_MAPPING
+	public static val DUPLICATE_SLOT_MAPPING = BasicMappingChecker.DUPLICATE_SLOT_MAPPING
 	public static val INVALID_BEHAVIOUR_SPEC = 'uk.ac.kcl.inf.xdsml_compose.INVALID_BEHAVIOUR_SPEC'
 	public static val NOT_A_RULE_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_RULE_MORPHISM'
 	public static val INCOMPLETE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_RULE_MAPPING'
@@ -80,6 +81,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_SLOT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_SLOT_MAPPING_ATTEMPT
 	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'

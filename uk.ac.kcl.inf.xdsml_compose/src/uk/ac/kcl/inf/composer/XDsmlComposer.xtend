@@ -30,6 +30,7 @@ import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import org.eclipse.emf.henshin.model.Attribute
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -433,7 +434,10 @@ class XDsmlComposer {
 			Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel) {
 			this.srcPattern = srcPattern
 			this.tgtPattern = tgtPattern
-			this.behaviourMapping = behaviourMapping.filter[key, value|key.eContainer == srcPattern]
+			this.behaviourMapping = behaviourMapping.filter[key, value|
+				(key.eContainer === srcPattern) ||
+				(key.eContainer.eContainer === srcPattern) // to include slots 
+			]
 			this.tgMapping = tgMapping
 
 			wovenGraph = HenshinFactory.eINSTANCE.createGraph
@@ -448,7 +452,7 @@ class XDsmlComposer {
 		}
 
 		private def weaveMappedElements() {
-			// TODO: Construct inverted index, then compose from that
+			// Construct inverted index, then compose from that
 			val invertedIndex = new HashMap<EObject, List<EObject>>()
 			behaviourMapping.forEach[k, v|
 				invertedIndex.putIfAbsent(v, new ArrayList<EObject>)
@@ -461,13 +465,6 @@ class XDsmlComposer {
 				put((e.key as org.eclipse.emf.henshin.model.Node).targetKey, composed)
 				e.value.forEach[eo | put((eo as org.eclipse.emf.henshin.model.Node).sourceKey, composed)]
 			]			
-//			behaviourMapping.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.org.eclipse.emf.henshin.model.Node].forEach [ e |
-//				val composed = createNode(e.key as org.eclipse.emf.henshin.model.org.eclipse.emf.henshin.model.Node,
-//					weaveNames(e.key.name, e.value.name))
-//
-//				put((e.key as org.eclipse.emf.henshin.model.org.eclipse.emf.henshin.model.Node).sourceKey, composed)
-//				put((e.value as org.eclipse.emf.henshin.model.org.eclipse.emf.henshin.model.Node).targetKey, composed)
-//			]
 
 			invertedIndex.entrySet.filter[e|e.key instanceof Edge].forEach [ e |
 				val composed = createEdge(e.key as Edge)
@@ -475,12 +472,13 @@ class XDsmlComposer {
 				put((e.key as Edge).targetKey, composed)
 				e.value.forEach[eo | put((eo as Edge).sourceKey, composed)]
 			]
-//			behaviourMapping.entrySet.filter[e|e.key instanceof Edge].forEach [ e |
-//				val composed = createEdge(e.key as Edge)
-//
-//				put((e.key as Edge).sourceKey, composed)
-//				put((e.value as Edge).targetKey, composed)
-//			]
+
+			invertedIndex.entrySet.filter[e|e.key instanceof Attribute].forEach [ e |
+				val composed = createSlot(e.key as Attribute)
+				
+				put((e.key as Attribute).targetKey, composed)
+				e.value.forEach[eo | put((eo as Attribute).sourceKey, composed)]
+			]
 		}
 
 		private def weaveUnmappedElements() {
@@ -497,6 +495,13 @@ class XDsmlComposer {
 			tgtPattern.edges.reject[e|behaviourMapping.values.contains(e)].forEach [e|
 				put(e.targetKey, e.createEdge(Origin.TARGET))
 			]
+			
+			srcPattern.nodes.map[n | n.attributes.reject[a | behaviourMapping.containsKey(a)]].flatten.forEach[a | 
+				put (a.sourceKey, a.createSlot(Origin.SOURCE))
+			]
+			tgtPattern.nodes.map[n | n.attributes.reject[a | behaviourMapping.values.contains(a)]].flatten.forEach[a | 
+				put (a.sourceKey, a.createSlot(Origin.TARGET))
+			] 
 		}
 
 		private def org.eclipse.emf.henshin.model.Node createNode(org.eclipse.emf.henshin.model.Node nSrc,
@@ -530,6 +535,25 @@ class XDsmlComposer {
 			result.type = tgMapping.get(eSrc.type.origKey(origin)) as EReference
 
 			wovenGraph.edges.add(result)
+
+			result
+		}
+
+		private def Attribute createSlot(Attribute aSrc) {
+			// Origin doesn't matter for mapped elements, must be target because we've decided to copy data from target edge
+			createSlot(aSrc, Origin.TARGET)
+		}
+
+		private def Attribute createSlot(Attribute aSrc, Origin origin) {
+			val result = HenshinFactory.eINSTANCE.createAttribute
+
+			val containingNode = get(aSrc.eContainer.origKey(origin)) as org.eclipse.emf.henshin.model.Node
+			if (containingNode !== null) {
+				containingNode.attributes.add(result)
+			}
+
+			result.type = tgMapping.get(aSrc.type.origKey(origin)) as EAttribute
+			result.value = aSrc.value
 
 			result
 		}

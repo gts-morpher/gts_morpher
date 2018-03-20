@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_i6b90CtdEeiHQIw00BaP8g" name="DRules">
+  <imports href="D.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_jq1gACtdEeiHQIw00BaP8g" name="do">
+    <lhs xmi:id="_jq1gBStdEeiHQIw00BaP8g" name="Lhs">
+      <nodes xmi:id="_mKJbECtdEeiHQIw00BaP8g" name="d1">
+        <type href="D.ecore#//D1"/>
+        <attributes xmi:id="_natrECtdEeiHQIw00BaP8g" value="0">
+          <type href="D.ecore#//D1/a1"/>
+        </attributes>
+        <attributes xmi:id="_nytUUCtdEeiHQIw00BaP8g" value="22">
+          <type href="D.ecore#//D1/a2"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_jq1gBitdEeiHQIw00BaP8g" name="Rhs">
+      <nodes xmi:id="_mKJbEStdEeiHQIw00BaP8g" name="d1">
+        <type href="D.ecore#//D1"/>
+        <attributes xmi:id="_natrEStdEeiHQIw00BaP8g" value="0">
+          <type href="D.ecore#//D1/a1"/>
+        </attributes>
+        <attributes xmi:id="_nytUUStdEeiHQIw00BaP8g" value="22">
+          <type href="D.ecore#//D1/a2"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_mKJbEitdEeiHQIw00BaP8g" origin="_mKJbECtdEeiHQIw00BaP8g" image="_mKJbEStdEeiHQIw00BaP8g"/>
+  </units>
+</henshin:Module>

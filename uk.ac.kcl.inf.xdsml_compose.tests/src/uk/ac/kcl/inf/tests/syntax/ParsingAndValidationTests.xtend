@@ -3,6 +3,7 @@
  */
 package uk.ac.kcl.inf.tests.syntax
 
+import com.google.common.collect.Iterables
 import com.google.inject.Inject
 import org.eclipse.xtext.diagnostics.Diagnostic
 import org.eclipse.xtext.testing.InjectWith
@@ -14,20 +15,20 @@ import org.junit.runner.RunWith
 import uk.ac.kcl.inf.tests.AbstractTest
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.validation.XDsmlComposeValidator
+import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
+import uk.ac.kcl.inf.xDsmlCompose.SlotMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
 import static org.junit.Assert.*
 
-import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
-import com.google.common.collect.Iterables
-import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
+import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -54,6 +55,8 @@ class ParsingAndValidationTests extends AbstractTest {
 			"D.ecore",
 			"A.henshin",
 			"B.henshin",
+			"C.henshin",
+			"D.henshin",
 			"B2.henshin"
 		].createResourceSet
 	}
@@ -346,6 +349,48 @@ class ParsingAndValidationTests extends AbstractTest {
 		
 		assertNull("Did resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
 		assertNull("Did resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+	}
+
+	/**
+	 * Test basic parsing with attribute mapping.
+	 */
+	@Test
+	def void parsingBasicAttributeMappingWithBehaviour() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+				map {
+					from {
+						metamodel: "C"
+						behaviour: "CRules"
+					}
+					to {
+						metamodel: "D"
+						behaviour: "DRules"
+					}
+					
+					type_mapping {
+						class C.C1 => D.D1
+						attribute C.C1.a1 => D.D1.a1
+					}
+					
+					behaviour_mapping {
+						rule do to do {
+							object c1 => d1
+							slot c1.a1 => d1.a1
+						}
+					}
+				}
+			''',
+			createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)		
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		assertNotNull("Did not resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+		assertNotNull("Did not resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+
+		assertNotNull("Did not resolve source slot", (result.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).source.name)
+		assertNotNull("Did not resolve target slot", (result.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).target.name)
 	}
 
 	/**

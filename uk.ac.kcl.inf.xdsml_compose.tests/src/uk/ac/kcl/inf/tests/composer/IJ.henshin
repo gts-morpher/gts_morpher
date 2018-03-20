@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_7gm8UCufEei9gqjpeQ_q3A" name="IRules_JRules">
+  <imports href="IJ.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_8SLjMCufEei9gqjpeQ_q3A" name="do">
+    <lhs xmi:id="_8SOmgCufEei9gqjpeQ_q3A" name="Lhs">
+      <nodes xmi:id="_BJkv8CugEei9gqjpeQ_q3A" name="i1_j1">
+        <type href="IJ.ecore#//I1_J1"/>
+        <attributes xmi:id="_D8SIICugEei9gqjpeQ_q3A" value="0">
+          <type href="IJ.ecore#//I1_J1/a1"/>
+        </attributes>
+        <attributes xmi:id="_G49UoCugEei9gqjpeQ_q3A" value="&quot;hello&quot;">
+          <type href="IJ.ecore#//I1_J1/source__a2"/>
+        </attributes>
+        <attributes xmi:id="_HJH3kCugEei9gqjpeQ_q3A" value="&quot;hello&quot;">
+          <type href="IJ.ecore#//I1_J1/target__a2"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_8SOmgSufEei9gqjpeQ_q3A" name="Rhs">
+      <nodes xmi:id="_BJkv8SugEei9gqjpeQ_q3A" name="i1_j1">
+        <type href="IJ.ecore#//I1_J1"/>
+        <attributes xmi:id="_D8SIISugEei9gqjpeQ_q3A" value="1">
+          <type href="IJ.ecore#//I1_J1/a1"/>
+        </attributes>
+        <attributes xmi:id="_G49UoSugEei9gqjpeQ_q3A" value="&quot;hello&quot;">
+          <type href="IJ.ecore#//I1_J1/source__a2"/>
+        </attributes>
+        <attributes xmi:id="_HJH3kSugEei9gqjpeQ_q3A" value="&quot;hello&quot;">
+          <type href="IJ.ecore#//I1_J1/target__a2"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_BJkv8iugEei9gqjpeQ_q3A" origin="_BJkv8CugEei9gqjpeQ_q3A" image="_BJkv8SugEei9gqjpeQ_q3A"/>
+  </units>
+</henshin:Module>

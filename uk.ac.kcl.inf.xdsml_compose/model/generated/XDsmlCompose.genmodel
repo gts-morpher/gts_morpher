@@ -78,5 +78,9 @@
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//LinkMapping/source"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//LinkMapping/target"/>
     </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//SlotMapping">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//SlotMapping/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//SlotMapping/target"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

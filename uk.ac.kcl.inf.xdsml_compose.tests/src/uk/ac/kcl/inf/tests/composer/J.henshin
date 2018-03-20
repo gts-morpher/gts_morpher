@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_OAVrMCuZEeiZDtZwrdLvSg" name="JRules">
+  <imports href="J.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_PnyKICuZEeiZDtZwrdLvSg" name="do">
+    <lhs xmi:id="_Pn0mYCuZEeiZDtZwrdLvSg" name="Lhs">
+      <nodes xmi:id="_QdEMUCuZEeiZDtZwrdLvSg" name="j1">
+        <type href="J.ecore#//J1"/>
+        <attributes xmi:id="_Rl9uECuZEeiZDtZwrdLvSg" value="0">
+          <type href="J.ecore#//J1/a1"/>
+        </attributes>
+        <attributes xmi:id="_SaKLICuZEeiZDtZwrdLvSg" value="&quot;hello&quot;">
+          <type href="J.ecore#//J1/a2"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_Pn0mYSuZEeiZDtZwrdLvSg" name="Rhs">
+      <nodes xmi:id="_QdEzYCuZEeiZDtZwrdLvSg" name="j1">
+        <type href="J.ecore#//J1"/>
+        <attributes xmi:id="_Rl9uESuZEeiZDtZwrdLvSg" value="1">
+          <type href="J.ecore#//J1/a1"/>
+        </attributes>
+        <attributes xmi:id="_SaKLISuZEeiZDtZwrdLvSg" value="&quot;hello&quot;">
+          <type href="J.ecore#//J1/a2"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_QdEzYSuZEeiZDtZwrdLvSg" origin="_QdEMUCuZEeiZDtZwrdLvSg" image="_QdEzYCuZEeiZDtZwrdLvSg"/>
+  </units>
+</henshin:Module>
