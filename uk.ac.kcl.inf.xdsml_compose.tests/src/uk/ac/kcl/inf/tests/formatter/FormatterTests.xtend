@@ -26,12 +26,12 @@ class FormatterTests extends AbstractTest {
 	@Test
 	def testSimpleTGMorphism() {
 		val expectedResult = '''
-			map {
+			auto-complete unique map {
 				from {
 					metamodel: "a"
 				}
 			
-				to {
+				to interface_of {
 					metamodel: "b"
 				}
 			
@@ -41,7 +41,7 @@ class FormatterTests extends AbstractTest {
 					attribute a.A.b => b.B.c
 				}
 			}'''
-		val testInput = '''map{from{metamodel:"a"}to{metamodel:"b"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}}'''
+		val testInput = '''auto-complete    unique       map{from{metamodel:"a"}to   interface_of{metamodel:"b"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}}'''
 		
 		doTest(testInput, expectedResult)
 	}

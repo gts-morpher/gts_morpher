@@ -23,7 +23,7 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 
 	def dispatch void format(GTSMapping mapping, extension IFormattableDocument document) {
 		mapping.regionFor.keyword("auto-complete").append[oneSpace]
-		mapping.regionFor.keyword("unique").append[oneSpace]
+		mapping.regionFor.keyword("unique").surround[oneSpace]
 		mapping.regionFor.keyword("map").append[oneSpace]
 		
 		mapping.blockIndent(document)
