@@ -5,22 +5,22 @@ auto-complete unique map {
 			behaviour: "serverRules"
 			transformers: "transformerRules"
 		}
-		
+
 		using [
-			addSubClass(server.Queue, "InputQueue"),
-			addSubClass(server.Queue, "OutputQueue"),
-			reTypeToSubClass(serverRules.process, server.Queue, server.InputQueue, "iq"),
-			reTypeToSubClass(serverRules.process, server.Queue, server.OutputQueue, "oq"),
-			mvAssocDown(server.Server.in, server.InputQueue),
-			mvAssocDown(server.Server.out, server.OutputQueue)
-		] 
+			addSubClass (server.Queue, "InputQueue"),
+			addSubClass (server.Queue, "OutputQueue"),
+			reTypeToSubClass (serverRules.process, server.Queue, server.InputQueue, "iq"),
+			reTypeToSubClass (serverRules.process, server.Queue, server.OutputQueue, "oq"),
+			mvAssocDown (server.Server.in, server.InputQueue),
+			mvAssocDown (server.Server.out, server.OutputQueue)
+		]
 	}
-	
+
 	to {
 		metamodel: "pls"
 		behaviour: "plsRules"
 	}
-	
+
 	type_mapping {
 		class server.Server => pls.Polisher
 		class server.Queue => pls.Container

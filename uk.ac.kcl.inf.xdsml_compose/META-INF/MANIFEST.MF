@@ -31,5 +31,6 @@ Export-Package: uk.ac.kcl.inf,
  uk.ac.kcl.inf.validation,
  uk.ac.kcl.inf.xDsmlCompose,
  uk.ac.kcl.inf.xDsmlCompose.impl,
- uk.ac.kcl.inf.xDsmlCompose.util
+ uk.ac.kcl.inf.xDsmlCompose.util,
+ uk.ac.kcl.inf.formatting2
 Import-Package: org.apache.log4j
