@@ -8,6 +8,7 @@ import java.util.HashSet
 import java.util.List
 import java.util.ListIterator
 import java.util.Map
+import java.util.Map.Entry
 import java.util.Set
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
@@ -15,6 +16,7 @@ import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
@@ -25,6 +27,10 @@ import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.Data
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
+import uk.ac.kcl.inf.xDsmlCompose.TypeMapping
+import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 import static org.eclipse.core.runtime.Assert.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
@@ -32,6 +38,8 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 /**
  * Helper for completing type mappings into clan morphisms 
@@ -76,7 +84,7 @@ class MorphismCompleter {
 		private var Module tgtModule
 		private List<EObject> allSrcBehaviorElements
 		private List<EObject> allTgtBehaviorElements
-		
+
 		private var boolean srcIsInterface = false
 		private var boolean tgtIsInterface = false
 
@@ -88,7 +96,7 @@ class MorphismCompleter {
 				this.tgtPackage = tgtPackage
 				this.srcIsInterface = srcIsInterface
 				this.tgtIsInterface = tgtIsInterface
-				
+
 				allSrcModelElements = srcPackage.allContents
 				if (srcIsInterface) {
 					allSrcModelElements = allSrcModelElements.filter [ eo |
@@ -198,6 +206,13 @@ class MorphismCompleter {
 				// get first priority list and search all objects
 				doTryCompleteTypeMorphism(unmatchedTGElements, unmatchedTGElements.firstPrioritySet,
 					unmatchedBehaviourElements, findAll)
+			}
+
+			/**
+			 * Extract a GTSMapping for each completeMapping. Use the given from and to specifications (which should be taken from the original GTSMapping).
+			 */
+			def List<GTSMapping> extractCompletedMappings(GTSSpecification from, GTSSpecification to) {
+				completedMappings.map[mp|mp.extractGTSMapping(from, to)]
 			}
 
 			/**
@@ -511,12 +526,12 @@ class MorphismCompleter {
 					// if picked object is an EClass
 					// add its EReferences to the priority list if they are unmatched
 					// TODO: Original code wasn't filtering for references
-					pick.eContents.filter(EReference).filter[er|unmatchedList.contains(er)].forEach [er|
+					pick.eContents.filter(EReference).filter[er|unmatchedList.contains(er)].forEach [ er |
 						prioritySet.add(er)
 					]
 
 					// Also add in all unmatched  attributes
-					pick.eContents.filter(EAttribute).filter[ea|unmatchedList.contains(ea)].forEach [ea|
+					pick.eContents.filter(EAttribute).filter[ea|unmatchedList.contains(ea)].forEach [ ea |
 						prioritySet.add(ea)
 					]
 
@@ -678,10 +693,12 @@ class MorphismCompleter {
 					pe.eContainer.eContainer == srcRule
 				].toList
 
-				val slotMappingsToComplete = behaviourMapping.keySet.filter(Node).filter[n | n.eContainer.eContainer === srcRule].map[n | 
-						new Pair<Node, List<Attribute>>(behaviourMapping.get(n) as Node, n.unmappedAttributes)
-					].toList
-				
+				val slotMappingsToComplete = behaviourMapping.keySet.filter(Node).filter [ n |
+					n.eContainer.eContainer === srcRule
+				].map [ n |
+					new Pair<Node, List<Attribute>>(behaviourMapping.get(n) as Node, n.unmappedAttributes)
+				].toList
+
 				val result = doTryCompleteRuleMorphism(slotMappingsToComplete, srcRule, tgtRule, elementsToMap, findAll)
 
 				// Restore unmapped patterns
@@ -692,7 +709,7 @@ class MorphismCompleter {
 
 				result
 			}
-			
+
 			/**
 			 * Map one more graph element and descend recursively if possible
 			 */
@@ -711,7 +728,7 @@ class MorphismCompleter {
 					mappingVariant.add(new Pair(srcRule, behaviourMapping.filter [ src, tgt |
 						((src instanceof Graph) && (src.eContainer == srcRule)) ||
 							((src instanceof GraphElement) && (src.eContainer.eContainer == srcRule)) ||
-							((src instanceof Attribute) && (src.eContainer.eContainer.eContainer == srcRule))							
+							((src instanceof Attribute) && (src.eContainer.eContainer.eContainer == srcRule))
 					].entrySet.map[e|new Pair<EObject, EObject>(e.key, e.value)].toList))
 
 					return new Morphism(mappingVariant)
@@ -731,7 +748,8 @@ class MorphismCompleter {
 
 					if (pick instanceof Node) {
 						// Go through any attribute slots and make sure they've got a complete mapping, too
-						descendResult = doTryCompleteRuleMorphism(currentMatch as Node, pick.unmappedAttributes, emptyList, srcRule, tgtRule, elementsToMap, findAll)
+						descendResult = doTryCompleteRuleMorphism(currentMatch as Node, pick.unmappedAttributes,
+							emptyList, srcRule, tgtRule, elementsToMap, findAll)
 					} else {
 						descendResult = doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)
 					}
@@ -770,15 +788,16 @@ class MorphismCompleter {
 			/**
 			 * Recursively descend, continuing by mapping the unmappedAttributes first, before going on to other bits.
 			 */
-			private def MorphismOrNonmatchedCount doTryCompleteRuleMorphism(List<Pair<Node, List<Attribute>>> remainingNodesToComplete,
-				 Rule srcRule, Rule tgtRule, List<GraphElement> elementsToMap,
-				boolean findAll) {
-				
+			private def MorphismOrNonmatchedCount doTryCompleteRuleMorphism(
+				List<Pair<Node, List<Attribute>>> remainingNodesToComplete, Rule srcRule, Rule tgtRule,
+				List<GraphElement> elementsToMap, boolean findAll) {
+
 				if (remainingNodesToComplete.empty) {
-					return doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)					
+					return doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)
 				} else {
-					val pick = remainingNodesToComplete.remove (0)
-					return doTryCompleteRuleMorphism(pick.key, pick.value, remainingNodesToComplete, srcRule, tgtRule, elementsToMap, findAll)
+					val pick = remainingNodesToComplete.remove(0)
+					return doTryCompleteRuleMorphism(pick.key, pick.value, remainingNodesToComplete, srcRule, tgtRule,
+						elementsToMap, findAll)
 				}
 			}
 
@@ -787,8 +806,7 @@ class MorphismCompleter {
 			 */
 			private def MorphismOrNonmatchedCount doTryCompleteRuleMorphism(Node tgtNode,
 				List<Attribute> unmappedAttributes, List<Pair<Node, List<Attribute>>> remainingNodesToComplete,
-				 Rule srcRule, Rule tgtRule, List<GraphElement> elementsToMap,
-				boolean findAll) {
+				Rule srcRule, Rule tgtRule, List<GraphElement> elementsToMap, boolean findAll) {
 
 				if (unmappedAttributes.empty) {
 					return doTryCompleteRuleMorphism(remainingNodesToComplete, srcRule, tgtRule, elementsToMap, findAll)
@@ -798,18 +816,18 @@ class MorphismCompleter {
 				// There should only be one
 				val tgtAttribute = tgtNode.attributes.findFirst[a|typeMapping.get(pick.type) === a.type]
 
-				if ((tgtAttribute === null) || (tgtIsInterface && !tgtAttribute.type.isInterfaceElement) || (pick.value != tgtAttribute.value)) {
+				if ((tgtAttribute === null) || (tgtIsInterface && !tgtAttribute.type.isInterfaceElement) ||
+					(pick.value != tgtAttribute.value)) {
 					// FIXME: Not ideal as we're not differentiating situations where slots are partially mapped
-					//println("Couldn't map slot.")
+					// println("Couldn't map slot.")
 					var unmatchedCount = elementsToMap.size + 1
 					return new NonmatchedCount(unmatchedCount)
 				}
 
 				behaviourMapping.put(pick, tgtAttribute)
-				//println("Slot mapped: " + pick.type.name)
-
-				var descendResult = doTryCompleteRuleMorphism(tgtNode, unmappedAttributes, remainingNodesToComplete, srcRule, tgtRule,
-					elementsToMap, findAll)
+				// println("Slot mapped: " + pick.type.name)
+				var descendResult = doTryCompleteRuleMorphism(tgtNode, unmappedAttributes, remainingNodesToComplete,
+					srcRule, tgtRule, elementsToMap, findAll)
 
 				behaviourMapping.remove(pick)
 
@@ -820,9 +838,8 @@ class MorphismCompleter {
 			 * Get all unmapped attributes of the given (source) node.
 			 */
 			private def getUnmappedAttributes(Node n) {
-				n.attributes.reject[a |
-					(srcIsInterface && !a.type.isInterfaceElement) || 
-					behaviourMapping.containsKey(a)
+				n.attributes.reject [ a |
+					(srcIsInterface && !a.type.isInterfaceElement) || behaviourMapping.containsKey(a)
 				].toList
 			}
 
@@ -949,5 +966,127 @@ class MorphismCompleter {
 				clan
 			}
 
+			private def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping,
+				GTSSpecification from, GTSSpecification to) {
+				val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
+				result.source = from.resourceLocalCopy
+				result.target = to.resourceLocalCopy
+
+				result.typeMapping = XDsmlComposeFactory.eINSTANCE.createTypeGraphMapping
+				result.typeMapping.mappings.addAll(
+					mapping.entrySet.filter [ e |
+					(e.key instanceof EClass) || (e.key instanceof EStructuralFeature)
+				].map [ e |
+					e.key.extractTypeMapping(e.value)
+				])
+
+				val behaviourMappings = mapping.entrySet.reject [ e |
+					(e.key instanceof EClass) || (e.key instanceof EStructuralFeature)
+				]
+				if (!behaviourMappings.empty) {
+					result.behaviourMapping = XDsmlComposeFactory.eINSTANCE.createBehaviourMapping
+					result.behaviourMapping.mappings.addAll(behaviourMappings.filter[e|e.key instanceof Rule].map [e |
+						(e.key as Rule).extractRuleMapping(e.value as Rule, behaviourMappings)
+					])
+				}
+
+				result
+			}
+
+			private dispatch def TypeMapping extractTypeMapping(EObject src, EObject tgt) { null }
+
+			private dispatch def TypeMapping extractTypeMapping(EClass srcClass, EClass tgtClass) {
+				val result = XDsmlComposeFactory.eINSTANCE.createClassMapping
+				result.source = srcClass
+				result.target = tgtClass
+
+				result
+			}
+
+			private dispatch def TypeMapping extractTypeMapping(EReference srcReference, EReference tgtReference) {
+				val result = XDsmlComposeFactory.eINSTANCE.createReferenceMapping
+				result.source = srcReference
+				result.target = tgtReference
+
+				result
+			}
+
+			private dispatch def TypeMapping extractTypeMapping(EAttribute srcAttribute, EAttribute tgtAttribute) {
+				val result = XDsmlComposeFactory.eINSTANCE.createAttributeMapping
+				result.source = srcAttribute
+				result.target = tgtAttribute
+
+				result
+			}
+
+			private def RuleMapping extractRuleMapping(Rule tgtRule, Rule srcRule,
+				Iterable<? extends Entry<? extends EObject, ? extends EObject>> behaviourMappings) {
+				val result = XDsmlComposeFactory.eINSTANCE.createRuleMapping
+
+				result.source = srcRule
+				result.target = tgtRule
+
+				result.element_mappings.addAll(behaviourMappings.filter [ e |
+					((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) ||
+						((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule))
+				].map [ e |
+					e.key.extractRuleElementMapping(e.value)
+				])
+
+				result
+			}
+
+			private dispatch def RuleElementMapping extractRuleElementMapping(EObject src, EObject tgt) { null }
+
+			private dispatch def RuleElementMapping extractRuleElementMapping(Node srcNode, Node tgtNode) {
+				val result = XDsmlComposeFactory.eINSTANCE.createObjectMapping
+				result.source = srcNode
+				result.target = tgtNode
+
+				result
+			}
+
+			private dispatch def RuleElementMapping extractRuleElementMapping(Edge srcEdge, Edge tgtEdge) {
+				val result = XDsmlComposeFactory.eINSTANCE.createLinkMapping
+				result.source = srcEdge
+				result.target = tgtEdge
+
+				result
+			}
+
+			private dispatch def RuleElementMapping extractRuleElementMapping(Attribute srcAttribute,
+				Attribute tgtAttribute) {
+				val result = XDsmlComposeFactory.eINSTANCE.createSlotMapping
+				result.source = srcAttribute
+				result.target = tgtAttribute
+
+				result
+			}
+			
+			/**
+			 * Create a copy up to the end of the containing resource, if any.
+			 */
+			private def <T extends EObject> T getResourceLocalCopy(T object) {
+				val resource = object.eResource
+				val copier = new EcoreUtil.Copier() {
+					
+					override copy(EObject eObject) {
+						if (eObject === null) {
+							return null
+						}
+						if (eObject.eResource === resource) {
+							super.copy(eObject)
+						} else {
+							eObject
+						}
+					}
+					
+				}
+				
+				val copy = copier.copy(object) as T
+				copier.copyReferences
+				
+				copy
+			}
 		}
 		
