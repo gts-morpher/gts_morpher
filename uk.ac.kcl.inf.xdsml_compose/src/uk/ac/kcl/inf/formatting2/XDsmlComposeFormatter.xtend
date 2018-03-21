@@ -9,15 +9,18 @@ import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import uk.ac.kcl.inf.services.XDsmlComposeGrammarAccess
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeMapping
-import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
+import uk.ac.kcl.inf.xDsmlCompose.UnitCall
+import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
-import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
+import uk.ac.kcl.inf.xDsmlCompose.UnitParameterList
 
 class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
@@ -77,6 +80,34 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 			gts.regionFor.keyword("]").prepend[newLine],
 			[indent]
 		)
+		
+		gts.transformationSteps.format
+	}
+	
+	def dispatch void format(UnitCallList ucl, extension IFormattableDocument document) {
+		ucl.steps.forEach[s, idx |
+			if (idx > 0) {
+				s.prepend[newLine]
+			}
+			s.append[noSpace]
+			s.format
+		]
+	}
+	
+	def dispatch void format(UnitCall uc, extension IFormattableDocument document) {
+		uc.regionFor.keyword("(").prepend[oneSpace].append[noSpace]
+		uc.regionFor.keyword(")").surround[noSpace]
+		uc.params.format
+	}
+	
+	def dispatch void format(UnitParameterList upl, extension IFormattableDocument document) {
+		upl.parameters.forEach[p, idx |
+			if (idx > 0) {
+				p.prepend[oneSpace]
+			}
+			p.append[noSpace]
+			p.format
+		]
 	}
 	
 	def dispatch void format(TypeGraphMapping mapping, extension IFormattableDocument document) {

@@ -91,7 +91,7 @@ class FormatterTests extends AbstractTest {
 					}
 			
 					using [
-						addSubclass (a.b, "Foo"),
+						addSubclass (a.b, "foo"),
 						callOther (c.d, d.f, "s")
 					]
 				}
