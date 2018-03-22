@@ -13,9 +13,9 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static org.junit.Assert.*
 
-import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismChecker.*
+import static extension uk.ac.kcl.inf.util.MappingConverter.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)

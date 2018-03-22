@@ -24,7 +24,7 @@ import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 /**
  * Basic util methods for handling mappings
  */
-class BasicMappingChecker {
+class MappingConverter {
 	public static val DUPLICATE_CLASS_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_CLASS_MAPPING'
 	public static val DUPLICATE_REFERENCE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_REFERENCE_MAPPING'
 	public static val DUPLICATE_ATTRIBUTE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_ATTRIBUTE_MAPPING'

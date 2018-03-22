@@ -43,9 +43,9 @@ import static org.eclipse.core.runtime.Assert.*
 import static org.eclipse.xtext.scoping.Scopes.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
-import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import static extension uk.ac.kcl.inf.util.MappingConverter.*
 
 /**
  * Helper for completing type mappings into clan morphisms 
