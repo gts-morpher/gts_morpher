@@ -43,12 +43,17 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		val mapping = resource.allContents.head as GTSMapping
 		if (mapping.autoComplete) {
+			// FIXME: First create resource before extracting GTS Mappings so that they can be put into the resource straightaway
 			val completedMappings = mapping.completedMappings
 			val idx = new ValueHolder<Integer>(0)
 						
 			completedMappings.forEach [mp |
-				fsa.generateFile(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose',
-					mapping.generateCompleteMorphism(mp))
+//				fsa.generateFile(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose',
+//					mapping.generateCompleteMorphism(mp))
+				val saveRes = resource.resourceSet.createResource(fsa.getURI(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose'))
+				saveRes.contents.add(mp)
+				// TODO: Need to switch on formatting somewhere in the options...
+				saveRes.save(emptyMap)
 				idx.value = idx.value + 1
 			]
 		}
@@ -154,7 +159,8 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 
 		if (completer.findMorphismCompletions(true) == 0) {
 			// Found morphism(s)
-			completer.completedMappings
+//			completer.completedMappings
+			completer.extractCompletedMappings(mapping.source, mapping.target)
 		} else {
 			// We have a problem
 			#[]
