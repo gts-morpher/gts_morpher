@@ -1,6 +1,5 @@
 package uk.ac.kcl.inf.util
 
-import com.google.inject.Inject
 import java.util.ArrayList
 import java.util.Collection
 import java.util.Collections
@@ -9,7 +8,6 @@ import java.util.HashSet
 import java.util.List
 import java.util.ListIterator
 import java.util.Map
-import java.util.Map.Entry
 import java.util.Set
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
@@ -17,8 +15,6 @@ import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
-import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
@@ -28,19 +24,9 @@ import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.Data
-import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
-import org.eclipse.xtext.naming.IQualifiedNameProvider
-import org.eclipse.xtext.scoping.IScope
-import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
-import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
-import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
-import uk.ac.kcl.inf.xDsmlCompose.TypeMapping
-import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 import static org.eclipse.core.runtime.Assert.*
-import static org.eclipse.xtext.scoping.Scopes.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
@@ -212,13 +198,6 @@ class MorphismCompleter {
 				// get first priority list and search all objects
 				doTryCompleteTypeMorphism(unmatchedTGElements, unmatchedTGElements.firstPrioritySet,
 					unmatchedBehaviourElements, findAll)
-			}
-
-			/**
-			 * Extract a GTSMapping for each completeMapping. Use the given from and to specifications (which should be taken from the original GTSMapping).
-			 */
-			def List<GTSMapping> extractCompletedMappings(GTSSpecification from, GTSSpecification to) {
-				completedMappings.map[mp|mp.extractGTSMapping(from, to)]
 			}
 
 			/**
@@ -970,180 +949,6 @@ class MorphismCompleter {
 				].flatten)
 
 				clan
-			}
-
-			private def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping,
-				GTSSpecification from, GTSSpecification to) {
-				val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
-				result.source = from.resourceLocalCopy
-				result.target = to.resourceLocalCopy
-
-				result.typeMapping = XDsmlComposeFactory.eINSTANCE.createTypeGraphMapping
-				result.typeMapping.mappings.addAll(
-					mapping.entrySet.filter [ e |
-					(e.key instanceof EClass) || (e.key instanceof EStructuralFeature)
-				].map [ e |
-					e.key.extractTypeMapping(e.value, result)
-				])
-
-				val behaviourMappings = mapping.entrySet.reject [ e |
-					(e.key instanceof EClass) || (e.key instanceof EStructuralFeature)
-				]
-				if (!behaviourMappings.empty) {
-					result.behaviourMapping = XDsmlComposeFactory.eINSTANCE.createBehaviourMapping
-					result.behaviourMapping.mappings.addAll(behaviourMappings.filter[e|e.key instanceof Rule].map [e |
-						(e.key as Rule).extractRuleMapping(e.value as Rule, behaviourMappings, result)
-					])
-				}
-
-				result
-			}
-
-			private dispatch def TypeMapping extractTypeMapping(EObject src, EObject tgt, GTSMapping mapping) { null }
-
-			private dispatch def TypeMapping extractTypeMapping(EClass srcClass, EClass tgtClass, GTSMapping mapping) {
-				val result = XDsmlComposeFactory.eINSTANCE.createClassMapping
-				result.source = srcClass.correspondingSourceElement(mapping)
-				result.target = tgtClass.correspondingTargetElement(mapping)
-
-				result
-			}
-
-			private dispatch def TypeMapping extractTypeMapping(EReference srcReference, EReference tgtReference, GTSMapping mapping) {
-				val result = XDsmlComposeFactory.eINSTANCE.createReferenceMapping
-				result.source = srcReference.correspondingSourceElement(mapping)
-				result.target = tgtReference.correspondingTargetElement(mapping)
-
-				result
-			}
-
-			private dispatch def TypeMapping extractTypeMapping(EAttribute srcAttribute, EAttribute tgtAttribute, GTSMapping mapping) {
-				val result = XDsmlComposeFactory.eINSTANCE.createAttributeMapping
-				result.source = srcAttribute.correspondingSourceElement(mapping)
-				result.target = tgtAttribute.correspondingTargetElement(mapping)
-
-				result
-			}
-
-			private def RuleMapping extractRuleMapping(Rule tgtRule, Rule srcRule,
-				Iterable<? extends Entry<? extends EObject, ? extends EObject>> behaviourMappings, GTSMapping mapping) {
-				val result = XDsmlComposeFactory.eINSTANCE.createRuleMapping
-
-				result.source = srcRule.correspondingSourceElement(mapping)
-				result.target = tgtRule.correspondingTargetElement(mapping)
-
-				result.element_mappings.addAll(behaviourMappings.filter [ e |
-					((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) ||
-						((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule))
-				].map [ e |
-					e.key.extractRuleElementMapping(e.value, mapping)
-				])
-
-				result
-			}
-
-			private dispatch def RuleElementMapping extractRuleElementMapping(EObject src, EObject tgt, GTSMapping mapping) { null }
-
-			private dispatch def RuleElementMapping extractRuleElementMapping(Node srcNode, Node tgtNode, GTSMapping mapping) {
-				val result = XDsmlComposeFactory.eINSTANCE.createObjectMapping
-				result.source = srcNode.correspondingSourceElement(mapping)
-				result.target = tgtNode.correspondingTargetElement(mapping)
-
-				result
-			}
-
-			private dispatch def RuleElementMapping extractRuleElementMapping(Edge srcEdge, Edge tgtEdge, GTSMapping mapping) {
-				val result = XDsmlComposeFactory.eINSTANCE.createLinkMapping
-				result.source = srcEdge.correspondingSourceElement(mapping)
-				result.target = tgtEdge.correspondingTargetElement(mapping)
-
-				result
-			}
-
-			private dispatch def RuleElementMapping extractRuleElementMapping(Attribute srcAttribute,
-				Attribute tgtAttribute, GTSMapping mapping) {
-				val result = XDsmlComposeFactory.eINSTANCE.createSlotMapping
-				result.source = srcAttribute.correspondingSourceElement(mapping)
-				result.target = tgtAttribute.correspondingTargetElement(mapping)
-
-				result
-			}
-			
-			/**
-			 * Create a copy up to the end of the containing resource, if any.
-			 */
-			private def <T extends EObject> T getResourceLocalCopy(T object) {
-				val resource = object.eResource
-				val copier = new EcoreUtil.Copier() {
-					
-					override copy(EObject eObject) {
-						if (eObject === null) {
-							return null
-						}
-						if (eObject.eResource === resource) {
-							super.copy(eObject)
-						} else {
-							eObject
-						}
-					}
-					
-				}
-				
-				val copy = copier.copy(object) as T
-				copier.copyReferences
-				
-				copy
-			}
-
-			@Inject
-			private val IQualifiedNameProvider nameProvider = new DefaultDeclarativeQualifiedNameProvider
-			private val IQualifiedNameProvider henshinNameProvider = new HenshinQualifiedNameProvider
-
-			/**
-			 * Find the corresponding element in the given GTS specification. This is necessary as some parts of the type graph and rules will be virtual (e.g., generated from a family choice) 
-			 * and the actual objects will be different when we reconstruct the GTSMapping from the Map. 
-			 */
-			private def <T extends EObject> T correspondingSourceElement(T object, GTSMapping mapping) {
-				object.correspondingElement(mapping.source) as T
-			}
-			private def <T extends EObject> T correspondingTargetElement(T object, GTSMapping mapping) {
-				object.correspondingElement(mapping.target) as T
-			}
-			 
-			private dispatch def EObject correspondingElement(EObject object, GTSSpecification specification) { null }
-			private dispatch def EObject correspondingElement(EClass clazz, GTSSpecification specification) {
-				clazz.getCorrespondingElement(specification.metamodel)		 
-			}
-			private dispatch def EObject correspondingElement(EReference ref, GTSSpecification specification) {
-				ref.getCorrespondingElement(specification.metamodel)
-			}
-			private dispatch def EObject correspondingElement(EAttribute attr, GTSSpecification specification) {
-				attr.getCorrespondingElement(specification.metamodel)
-			}
-			private dispatch def EObject correspondingElement(Module module, GTSSpecification specification) {
-				module.getCorrespondingElement(specification.behaviour)
-			}
-			private dispatch def EObject correspondingElement(Rule rule, GTSSpecification specification) {
-				rule.getCorrespondingElement(specification.behaviour)
-			}
-			private dispatch def EObject correspondingElement(GraphElement ge, GTSSpecification specification) {
-				ge.getCorrespondingElement(specification.behaviour)
-			}
-			private dispatch def EObject correspondingElement(Attribute attr, GTSSpecification specification) {
-				attr.getCorrespondingElement(specification.behaviour)
-			}
-			
-			private def EObject getCorrespondingElement(EObject object, EPackage pck) {
-				val scope = scopeFor([pck.eAllContents], nameProvider, IScope.NULLSCOPE)
-				val name = nameProvider.getFullyQualifiedName(object)
-				
-				scope.getSingleElement(name).EObjectOrProxy		 
-			}
-			private def EObject getCorrespondingElement(EObject object, Module module) {
-				val scope = scopeFor([module.eAllContents], henshinNameProvider, IScope.NULLSCOPE)
-				val name = henshinNameProvider.getFullyQualifiedName(object)
-				
-				scope.getSingleElement(name).EObjectOrProxy		 
 			}
 		}
 		

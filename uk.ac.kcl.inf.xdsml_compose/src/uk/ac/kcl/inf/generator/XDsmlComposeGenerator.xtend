@@ -31,6 +31,7 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.MappingConverter.extractGTSMapping
 
 /**
  * Generates code from your model files on save.
@@ -51,7 +52,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 //				fsa.generateFile(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose',
 //					mapping.generateCompleteMorphism(mp))
 				val saveRes = resource.resourceSet.createResource(fsa.getURI(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose'))
-				saveRes.contents.add(mp)
+				mp.extractGTSMapping(mapping.source, mapping.target, saveRes)
 				// TODO: Need to switch on formatting somewhere in the options...
 				saveRes.save(emptyMap)
 				idx.value = idx.value + 1
@@ -159,8 +160,7 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 
 		if (completer.findMorphismCompletions(true) == 0) {
 			// Found morphism(s)
-//			completer.completedMappings
-			completer.extractCompletedMappings(mapping.source, mapping.target)
+			completer.completedMappings
 		} else {
 			// We have a problem
 			#[]
