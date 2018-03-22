@@ -263,6 +263,7 @@ class MappingConverter {
 	 * Extract a GTSMapping from the given map, using the given from and to as source and target respectively (which 
 	 * should be taken from the original GTSMapping). Place the new mapping in the given resource.
 	 */
+	// TODO Write tests for this to see why the resulting GTSMapping is still internally inconsistent.
 	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecification from,
 		GTSSpecification to, Resource res) {
 		if (res === null) {
