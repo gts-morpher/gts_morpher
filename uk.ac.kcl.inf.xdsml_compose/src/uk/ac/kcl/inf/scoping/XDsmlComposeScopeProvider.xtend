@@ -92,13 +92,13 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 
 	// FIXME: remove non-interface elements for interface_of GTSs
 	private def IScope sourceScope(TypeGraphMapping tgm) {
-		safeScopeFor_([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents],
+		safeScopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents.toList],
 			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 
 	// FIXME: remove non-interface elements for interface_of GTSs
 	private def IScope targetScope(TypeGraphMapping tgm) {
-		safeScopeFor_([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents],
+		safeScopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents.toList],
 			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
 	}
 
@@ -179,35 +179,25 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	private def rm_scope(GTSSpecification gts) {
-		safeScopeFor_([
+		safeScopeFor([
 			gts.behaviour.eAllContents.filter [ eo |
 				eo instanceof Rule
-			]
+			].toList
 		], nameProvider, IScope.NULLSCOPE)
 	}
 
 	private def sourceScope(RuleMapping rm) {
-		safeScopeFor_([rm.source.eAllContents], graphRelativeNameProvider, IScope.NULLSCOPE)
+		safeScopeFor([rm.source.eAllContents.toList], graphRelativeNameProvider, IScope.NULLSCOPE)
 	}
 
 	private def targetScope(RuleMapping rm) {
-		safeScopeFor_([rm.target.eAllContents], graphRelativeNameProvider, IScope.NULLSCOPE)
+		safeScopeFor([rm.target.eAllContents.toList], graphRelativeNameProvider, IScope.NULLSCOPE)
 	}
 
 	private def safeScopeFor(Provider<Iterable<? extends EObject>> scopeElements,
 		Function<EObject, QualifiedName> nameProvider, IScope outer) {
 		try {
 			return scopeFor(scopeElements.get, nameProvider, outer)
-		} catch (NullPointerException npe) {
-			return outer
-		}
-	}
-
-	private def safeScopeFor_(Provider<Iterator<EObject>> scopeElements,
-		Function<EObject, QualifiedName> nameProvider, IScope outer) {
-		try {
-			val iterator = scopeElements.get
-			return scopeFor([iterator], nameProvider, outer)
 		} catch (NullPointerException npe) {
 			return outer
 		}
