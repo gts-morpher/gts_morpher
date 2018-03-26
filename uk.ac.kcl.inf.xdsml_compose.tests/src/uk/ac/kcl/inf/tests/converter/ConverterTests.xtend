@@ -31,17 +31,44 @@ class ConverterTests extends AbstractTest {
 			"A.ecore",
 			"B.ecore",
 			"A.henshin",
-			"B.henshin"
+			"B.henshin",
+			"transformers.henshin"
 		].createResourceSet
 	}
 
+	private def normalSource() '''
+		from {
+			metamodel: "A"
+			behaviour: "ARules"
+		}'''
+
+	private def familySource() '''
+		from {
+			family: {
+				metamodel: "A"
+				behaviour: "ARules"
+				transformers: "transformerRules"
+			}
+		
+			using [
+				addSubClass (A.A1, "TT")
+			]
+		}'''
+
 	@Test
 	def void testBasicConversionClassMapping() {
+		testConversionClassMapping(normalSource)
+	}
+	
+	@Test
+	def void testFamilyConversionClassMapping() {
+		testConversionClassMapping(familySource)
+	}
+	
+	private def testConversionClassMapping(CharSequence srcText) {
 		'''
 			map {
-				from {
-					metamodel: "A"
-				}
+				«srcText»
 			
 				to {
 					metamodel: "B"
@@ -55,11 +82,18 @@ class ConverterTests extends AbstractTest {
 
 	@Test
 	def void testBasicConversionReferenceMapping() {
+		testConversionReferenceMapping(normalSource)
+	}
+	
+	@Test
+	def void testFamilyConversionReferenceMapping() {
+		testConversionReferenceMapping(familySource)
+	}
+
+	private def testConversionReferenceMapping(CharSequence srcText) {
 		'''
 			map {
-				from {
-					metamodel: "A"
-				}
+				«srcText»
 			
 				to {
 					metamodel: "B"
@@ -73,11 +107,18 @@ class ConverterTests extends AbstractTest {
 
 	@Test
 	def void testBasicConversionAttributeMapping() {
+		testConversionAttributeMapping(normalSource)
+	}
+	
+	@Test
+	def void testFamilyConversionAttributeMapping() {
+		testConversionAttributeMapping(familySource)
+	}
+	
+	private def testConversionAttributeMapping(CharSequence srcText) {
 		'''
 			map {
-				from {
-					metamodel: "A"
-				}
+				«srcText»
 			
 				to {
 					metamodel: "B"
@@ -91,12 +132,18 @@ class ConverterTests extends AbstractTest {
 
 	@Test
 	def void testBasicConversionObjectMapping() {
+		testConversionObjectMapping(normalSource)
+	}
+	
+	@Test
+	def void testFamilyConversionObjectMapping() {
+		testConversionObjectMapping(familySource)
+	}
+	
+	private def testConversionObjectMapping(CharSequence srcText) {
 		'''
 			map {
-				from {
-					metamodel: "A"
-					behaviour: "ARules"
-				}
+				«srcText»
 			
 				to {
 					metamodel: "B"
@@ -117,12 +164,18 @@ class ConverterTests extends AbstractTest {
 
 	@Test
 	def void testBasicConversionLinkMapping() {
+		testConversionLinkMapping(normalSource)
+	}
+	
+	@Test
+	def void testFamilyConversionLinkMapping() {
+		testConversionLinkMapping(familySource)
+	}
+	
+	private def testConversionLinkMapping(CharSequence srcText) {
 		'''
 			map {
-				from {
-					metamodel: "A"
-					behaviour: "ARules"
-				}
+				«srcText»
 			
 				to {
 					metamodel: "B"
@@ -131,7 +184,6 @@ class ConverterTests extends AbstractTest {
 			
 				type_mapping {
 					class A.A1 => B.B1
-					class A.A2 => B.B2
 				}
 			
 				behaviour_mapping {
@@ -144,12 +196,18 @@ class ConverterTests extends AbstractTest {
 
 	@Test
 	def void testBasicConversionSlotMapping() {
+		testConversionSlotMapping(normalSource)
+	}
+	
+	@Test
+	def void testFamilyConversionSlotMapping() {
+		testConversionSlotMapping(familySource)
+	}
+	
+	private def testConversionSlotMapping(CharSequence srcText) {
 		'''
 			map {
-				from {
-					metamodel: "A"
-					behaviour: "ARules"
-				}
+				«srcText»
 			
 				to {
 					metamodel: "B"
@@ -168,6 +226,8 @@ class ConverterTests extends AbstractTest {
 			}'''.doTest
 	}
 
+	// TODO: Add tests for GTS family choice case
+
 	private def void doTest(CharSequence text) {
 		val result = text.parse(createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
@@ -185,7 +245,8 @@ class ConverterTests extends AbstractTest {
 
 		assertEquals(
 			"Extraction failed",
-			text.toString,
+			result.serialize(
+				SaveOptions.newBuilder.format.options),
 			mapping.extractGTSMapping(result.source, result.target, resource).serialize(
 				SaveOptions.newBuilder.format.options)
 		)
