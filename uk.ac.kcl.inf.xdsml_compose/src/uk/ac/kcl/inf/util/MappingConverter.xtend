@@ -380,7 +380,7 @@ class MappingConverter {
 	static def <T extends EObject> T getResourceLocalCopy(T object) {
 		val resource = object.eResource
 		val copier = new EcoreUtil.Copier() {
-
+			// FIXME: Actually, don't need this as by default EcoreUtil.Copier will do the right thing
 			override copy(EObject eObject) {
 				if (eObject === null) {
 					return null
