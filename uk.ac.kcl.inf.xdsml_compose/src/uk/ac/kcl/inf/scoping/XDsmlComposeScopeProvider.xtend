@@ -6,7 +6,6 @@ package uk.ac.kcl.inf.scoping
 import com.google.common.base.Function
 import com.google.inject.Inject
 import com.google.inject.Provider
-import java.util.Iterator
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
