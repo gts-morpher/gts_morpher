@@ -332,9 +332,24 @@ class MappingConverter {
 		result.source = srcRule.correspondingSourceElement(mapping)
 		result.target = tgtRule.correspondingTargetElement(mapping)
 
+		 
 		result.element_mappings.addAll(behaviourMappings.filter [ e |
-			((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) ||
-				((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule))
+			// Ensure kernel elements are included only once in the mapping and with their lhs representative
+			if ((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) {
+				if (e.key.eContainer === srcRule.rhs) {
+					!(srcRule.lhs.nodes.exists[n | n.name == e.key.name] || srcRule.lhs.edges.exists[ed | ed.name == e.key.name])
+				} else {
+					true
+				}
+			} else if ((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule)) {
+				if (e.key.eContainer.eContainer == srcRule.rhs) {
+					!(srcRule.lhs.nodes.exists[n | (n.name == e.key.eContainer.name) && n.attributes.exists[a | a.type === (e.key as Attribute).type]])
+				} else {
+					true
+				}
+			} else {
+				false
+			}
 		].map [ e |
 			e.key.extractRuleElementMapping(e.value, mapping)
 		])

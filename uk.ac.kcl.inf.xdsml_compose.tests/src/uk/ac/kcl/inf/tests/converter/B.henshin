@@ -13,6 +13,9 @@
       </nodes>
       <nodes xmi:id="_wPfGQCOwEeiii-lmtwtH3g" name="b2" incoming="_zCL3YCOwEeiii-lmtwtH3g">
         <type href="B.ecore#//B2"/>
+        <attributes xmi:id="_ZMsQ0DEpEeizRfWjzzVMHQ" value="0">
+          <type href="B.ecore#//B2/att"/>
+        </attributes>
       </nodes>
       <nodes xmi:id="_xH9mYCOwEeiii-lmtwtH3g" name="b3" incoming="_yiwwcCOwEeiii-lmtwtH3g">
         <type href="B.ecore#//B3"/>

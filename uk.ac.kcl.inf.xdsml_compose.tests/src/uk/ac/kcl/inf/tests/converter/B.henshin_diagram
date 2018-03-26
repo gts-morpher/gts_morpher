@@ -20,6 +20,10 @@
         <children xmi:type="notation:DecorationNode" xmi:id="_wPgUYiOwEeiii-lmtwtH3g" type="5002"/>
         <children xmi:type="notation:DecorationNode" xmi:id="_wPgUYyOwEeiii-lmtwtH3g" type="5003"/>
         <children xmi:type="notation:DecorationNode" xmi:id="_wPgUZCOwEeiii-lmtwtH3g" type="7002">
+          <children xmi:type="notation:Node" xmi:id="_ZMvUIDEpEeizRfWjzzVMHQ" type="3002">
+            <element xmi:type="henshin:Attribute" href="B.henshin#_ZMsQ0DEpEeizRfWjzzVMHQ"/>
+            <layoutConstraint xmi:type="notation:Location" xmi:id="_ZMvUITEpEeizRfWjzzVMHQ"/>
+          </children>
           <styles xmi:type="notation:SortingStyle" xmi:id="_wPgUZSOwEeiii-lmtwtH3g"/>
           <styles xmi:type="notation:FilteringStyle" xmi:id="_wPgUZiOwEeiii-lmtwtH3g"/>
         </children>
@@ -56,7 +60,7 @@
   </edges>
   <edges xmi:type="notation:Connector" xmi:id="_zCMecCOwEeiii-lmtwtH3g" type="4001" source="_u0Cb8COwEeiii-lmtwtH3g" target="_wPgUYCOwEeiii-lmtwtH3g">
     <children xmi:type="notation:DecorationNode" xmi:id="_zCNskCOwEeiii-lmtwtH3g" type="6001">
-      <layoutConstraint xmi:type="notation:Location" xmi:id="_zCNskSOwEeiii-lmtwtH3g" y="40"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_zCNskSOwEeiii-lmtwtH3g" x="1" y="19"/>
     </children>
     <children xmi:type="notation:DecorationNode" xmi:id="_zCNskiOwEeiii-lmtwtH3g" type="6002">
       <layoutConstraint xmi:type="notation:Location" xmi:id="_zCNskyOwEeiii-lmtwtH3g" y="60"/>

@@ -84,7 +84,86 @@ class ConverterTests extends AbstractTest {
 				}
 			
 				type_mapping {
-					attribute A.A1.att => B.B1.att
+					attribute A.A1.att => B.B2.att
+				}
+			}'''.doTest
+	}
+
+	@Test
+	def void testBasicConversionObjectMapping() {
+		'''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "ARules"
+				}
+			
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+			
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			
+				behaviour_mapping {
+					rule do to do {
+						object a1 => b1
+					}
+				}
+			}'''.doTest
+	}
+
+	@Test
+	def void testBasicConversionLinkMapping() {
+		'''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "ARules"
+				}
+			
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+			
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+				}
+			
+				behaviour_mapping {
+					rule do to do {
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}'''.doTest
+	}
+
+	@Test
+	def void testBasicConversionSlotMapping() {
+		'''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "ARules"
+				}
+			
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+			
+				type_mapping {
+					class A.A1 => B.B2
+				}
+			
+				behaviour_mapping {
+					rule do to do {
+						slot a1.att => b2.att
+					}
 				}
 			}'''.doTest
 	}

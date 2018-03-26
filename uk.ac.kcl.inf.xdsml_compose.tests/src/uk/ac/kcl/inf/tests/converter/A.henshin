@@ -5,11 +5,17 @@
     <lhs xmi:id="_Z4WsMCOwEeiii-lmtwtH3g" name="Lhs">
       <nodes xmi:id="_bsva8COwEeiii-lmtwtH3g" name="a1">
         <type href="A.ecore#//A1"/>
+        <attributes xmi:id="_T1MAoDEpEeizRfWjzzVMHQ" value="0">
+          <type href="A.ecore#//A1/att"/>
+        </attributes>
       </nodes>
     </lhs>
     <rhs xmi:id="_Z4WsMSOwEeiii-lmtwtH3g" name="Rhs">
       <nodes xmi:id="_bsva8SOwEeiii-lmtwtH3g" name="a1" outgoing="_c6H0ECOwEeiii-lmtwtH3g">
         <type href="A.ecore#//A1"/>
+        <attributes xmi:id="_T1PrADEpEeizRfWjzzVMHQ" value="0">
+          <type href="A.ecore#//A1/att"/>
+        </attributes>
       </nodes>
       <nodes xmi:id="_cQtDoCOwEeiii-lmtwtH3g" name="a2" incoming="_c6H0ECOwEeiii-lmtwtH3g">
         <type href="A.ecore#//A2"/>

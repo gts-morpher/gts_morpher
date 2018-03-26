@@ -2,12 +2,12 @@
 package B;
 
 class B1 {
-	attr int att;
 	val B2[*]#a _2s;
 	val B3[*]#a _3s;
 }
 
 class B2 {
+	attr int att;
 	readonly ref B1#_2s a;
 }
 

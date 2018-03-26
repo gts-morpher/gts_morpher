@@ -10,6 +10,10 @@
         <children xmi:type="notation:DecorationNode" xmi:id="_bsxQICOwEeiii-lmtwtH3g" type="5002"/>
         <children xmi:type="notation:DecorationNode" xmi:id="_bsxQISOwEeiii-lmtwtH3g" type="5003"/>
         <children xmi:type="notation:DecorationNode" xmi:id="_bszsYCOwEeiii-lmtwtH3g" type="7002">
+          <children xmi:type="notation:Node" xmi:id="_T1hX0DEpEeizRfWjzzVMHQ" type="3002">
+            <element xmi:type="henshin:Attribute" href="A.henshin#_T1MAoDEpEeizRfWjzzVMHQ"/>
+            <layoutConstraint xmi:type="notation:Location" xmi:id="_T1hX0TEpEeizRfWjzzVMHQ"/>
+          </children>
           <styles xmi:type="notation:SortingStyle" xmi:id="_bszsYSOwEeiii-lmtwtH3g"/>
           <styles xmi:type="notation:FilteringStyle" xmi:id="_bszsYiOwEeiii-lmtwtH3g"/>
         </children>
