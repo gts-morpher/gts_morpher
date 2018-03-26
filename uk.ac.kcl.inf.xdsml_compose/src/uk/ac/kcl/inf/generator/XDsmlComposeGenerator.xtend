@@ -3,33 +3,17 @@
  */
 package uk.ac.kcl.inf.generator
 
-import java.util.HashMap
-import java.util.Map
-import org.eclipse.emf.ecore.EAttribute
-import org.eclipse.emf.ecore.EClass
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.henshin.model.Attribute
-import org.eclipse.emf.henshin.model.Edge
-import org.eclipse.emf.henshin.model.GraphElement
-import org.eclipse.emf.henshin.model.Node
-import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import uk.ac.kcl.inf.util.ValueHolder
-import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
-import uk.ac.kcl.inf.xDsmlCompose.StringParameter
-import uk.ac.kcl.inf.xDsmlCompose.UnitCall
-import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
 
-import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import static extension uk.ac.kcl.inf.util.MappingConverter.extractGTSMapping
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 
 /**
@@ -37,7 +21,6 @@ import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompl
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
- // FIXME: Switch to generating the correct model and then using the Xtext serialiser and formatter for the generation
 class XDsmlComposeGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
@@ -45,58 +28,34 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 		if (mapping.autoComplete) {
 			val completedMappings = mapping.completedMappings
 			val idx = new ValueHolder<Integer>(0)
-						
-			completedMappings.forEach [mp |
-				fsa.generateFile(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose',
-					mapping.generateCompleteMorphism(mp))
+
+			completedMappings.forEach [ mp |
+				val uri = fsa.getURI(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose')
+				var saveRes = resource.resourceSet.getResource(uri, false)
+				if (saveRes === null) {
+					saveRes = resource.resourceSet.createResource(uri)
+				} else {
+					saveRes.contents.clear
+				}
+				mp.extractGTSMapping(mapping.source, mapping.target, saveRes)
+				saveRes.save(emptyMap)
 				idx.value = idx.value + 1
 			]
 		}
 	}
 
-	/**
-	 * Assume mapping has the autocomplete option set and generate a new representation of the mapping where all source elements have been mapped
-	 */
-	private def generateCompleteMorphism(GTSMapping mapping, Map<? extends EObject, ? extends EObject> mp) '''
-		map {
-			from «mapping.source.generate»
-			to «mapping.target.generate»
-			
-			type_mapping {
-				«mp.generateTGMappings»
-			}
-			«if ((mapping.source.behaviour !== null) || (mapping.target.behaviour !== null)) { generateBehaviourMapping (mp) }»
-		}
-	'''
-	
-	private def generateTGMappings(Map<? extends EObject, ? extends EObject> mp) {
-		mp.entrySet.filter[e | 
-			(e.key instanceof EClass) || 
-			(e.key instanceof EReference) ||
-			(e.key instanceof EAttribute)
-		].map[e | 
-			'''«e.key.generateTGMappingKeyword» «e.key.qualifiedName» => «e.value.qualifiedName»'''
-		].join('\n')
-	}
-	
-	private dispatch def generateTGMappingKeyword (EObject eo) '''<ERROR>'''
-	private dispatch def generateTGMappingKeyword (EClass ec) '''class'''
-	private dispatch def generateTGMappingKeyword (EReference er) '''reference'''
-	private dispatch def generateTGMappingKeyword (EAttribute ea) '''attribute'''
-	
-	
 	private dispatch def String generate(GTSSpecification spec) '''
 		«if (spec.interface_mapping) '''interface_of '''»{
 			«spec.gts.generate»
 		}
 	'''
 
-	private dispatch def String generate (GTSLiteral gts) '''
+	private dispatch def String generate(GTSLiteral gts) '''
 		metamodel: "«gts.metamodel.name»"
 		«if (gts.behaviour !== null) '''behaviour: "«gts.behaviour.name»"'''»
 	'''
-	
-	private dispatch def String generate (GTSFamilyChoice gts) '''
+
+	private dispatch def String generate(GTSFamilyChoice gts) '''
 		family: {
 			«gts.root.generate»
 			
@@ -107,47 +66,6 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 			«gts.transformationSteps.generate»
 		]
 	'''
-	
-	private dispatch def String generate (UnitCallList ucl) {
-		ucl.steps.join(",\n", [uc | uc.generate])
-	}
-
-	private dispatch def String generate (UnitCall uc) '''«uc.unit.name» («uc.params.parameters.join(", ", [p | p.generate])»)'''
-
-	private dispatch def String generate (EObjectReferenceParameter p) { p.qualifiedName }
-	private dispatch def String generate (StringParameter p) '''"«p.value»"'''
-	
-	private def generateBehaviourMapping (Map<? extends EObject, ? extends EObject> mp) '''
-		behaviour_mapping {
-			«mp.keySet.filter(Rule).map[r | r.generate(mp)].join('\n')»
-		}
-	'''
-
-	private def generate (Rule r, Map<? extends EObject, ? extends EObject> mp) '''
-		rule «(mp.get(r) as Rule).name» to «r.name» {
-			« r.generateRuleElementMappings(mp) »
-		}
-	'''
-	
-	private def generateRuleElementMappings(Rule r, Map<? extends EObject, ? extends EObject> mp) {
-		val preprocessedElements = mp.entrySet.filter[e | (e.key instanceof GraphElement) && (e.key.eContainer.eContainer == mp.get(r))].map[e | new Pair(e.key.name, e)]
-		val uniqueElements = new ValueHolder(new HashMap<String, Pair<GraphElement, GraphElement>>())
-		preprocessedElements.forEach[p | 
-			uniqueElements.value.put(p.key.toString, new Pair(p.value.key, p.value.value))
-		]
-		uniqueElements.value.values.map[p | generateRuleElementMapping(p.key, p.value, mp)].join('\n')
-	}
-
-	private def generateRuleElementMapping(GraphElement source, GraphElement target, Map<? extends EObject, ? extends EObject> mp) {
-		if (source instanceof Node) '''
-				object «source.name» => «target.name»
-				«source.attributes.filter[a | mp.containsKey(a)].map[a | 
-					'''slot «source.name».«a.name» => «target.name».«mp.get(a).name»'''
-				].join('\n')»
-			''' 
-		else if (source instanceof Edge) '''link «source.name» => «target.name»'''
-		else ''''''
-	}
 
 	private static def getCompletedMappings(GTSMapping mapping) {
 		val completer = mapping.createMorphismCompleter

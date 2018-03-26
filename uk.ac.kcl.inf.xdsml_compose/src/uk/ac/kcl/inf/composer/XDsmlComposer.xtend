@@ -26,11 +26,11 @@ import org.eclipse.xtext.validation.IResourceValidator
 import uk.ac.kcl.inf.util.IProgressMonitor
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
-import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 import org.eclipse.emf.henshin.model.Attribute
+import static extension uk.ac.kcl.inf.util.MappingConverter.*
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_YUklQCOwEeiii-lmtwtH3g" name="ARules">
+  <imports href="A.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_Z3eicCOwEeiii-lmtwtH3g" name="do">
+    <lhs xmi:id="_Z4WsMCOwEeiii-lmtwtH3g" name="Lhs">
+      <nodes xmi:id="_bsva8COwEeiii-lmtwtH3g" name="a1">
+        <type href="A.ecore#//A1"/>
+        <attributes xmi:id="_T1MAoDEpEeizRfWjzzVMHQ" value="0">
+          <type href="A.ecore#//A1/att"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_Z4WsMSOwEeiii-lmtwtH3g" name="Rhs">
+      <nodes xmi:id="_bsva8SOwEeiii-lmtwtH3g" name="a1" outgoing="_c6H0ECOwEeiii-lmtwtH3g">
+        <type href="A.ecore#//A1"/>
+        <attributes xmi:id="_T1PrADEpEeizRfWjzzVMHQ" value="0">
+          <type href="A.ecore#//A1/att"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_cQtDoCOwEeiii-lmtwtH3g" name="a2" incoming="_c6H0ECOwEeiii-lmtwtH3g">
+        <type href="A.ecore#//A2"/>
+      </nodes>
+      <edges xmi:id="_c6H0ECOwEeiii-lmtwtH3g" source="_bsva8SOwEeiii-lmtwtH3g" target="_cQtDoCOwEeiii-lmtwtH3g">
+        <type href="A.ecore#//A1/bs"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_bsva8iOwEeiii-lmtwtH3g" origin="_bsva8COwEeiii-lmtwtH3g" image="_bsva8SOwEeiii-lmtwtH3g"/>
+  </units>
+</henshin:Module>

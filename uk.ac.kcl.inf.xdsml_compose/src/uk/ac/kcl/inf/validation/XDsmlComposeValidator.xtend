@@ -23,8 +23,7 @@ import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
-import uk.ac.kcl.inf.util.BasicMappingChecker
-import uk.ac.kcl.inf.util.BasicMappingChecker.IssueAcceptor
+import uk.ac.kcl.inf.util.MappingConverter.IssueAcceptor
 import uk.ac.kcl.inf.util.MorphismCompleter
 import uk.ac.kcl.inf.util.ValueHolder
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
@@ -38,7 +37,6 @@ import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
-import static uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
@@ -52,6 +50,7 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import org.eclipse.emf.henshin.model.ParameterKind
 import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static uk.ac.kcl.inf.util.MappingConverter.*
 
 /**
  * This class contains custom validation rules. 
@@ -59,29 +58,29 @@ import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompl
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
-	public static val DUPLICATE_CLASS_MAPPING = BasicMappingChecker.DUPLICATE_CLASS_MAPPING
-	public static val DUPLICATE_REFERENCE_MAPPING = BasicMappingChecker.DUPLICATE_REFERENCE_MAPPING
-	public static val DUPLICATE_ATTRIBUTE_MAPPING = BasicMappingChecker.DUPLICATE_ATTRIBUTE_MAPPING
+	public static val DUPLICATE_CLASS_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_CLASS_MAPPING
+	public static val DUPLICATE_REFERENCE_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_REFERENCE_MAPPING
+	public static val DUPLICATE_ATTRIBUTE_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_ATTRIBUTE_MAPPING
 	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
 	public static val INCOMPLETE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_TYPE_GRAPH_MAPPING'
 	public static val UNCOMPLETABLE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_TYPE_GRAPH_MAPPING'
 	public static val UNCOMPLETABLE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_BEHAVIOUR_MAPPING'
 	public static val NO_UNIQUE_COMPLETION = 'uk.ac.kcl.inf.xdsml_compose.NO_UNIQUE_COMPLETION'
 	public static val UNIQUE_COMPLETION_NOT_CHECKED = 'uk.ac.kcl.inf.xdsml_compose.UNIQUE_COMPLETION_NOT_CHECKED'
-	public static val DUPLICATE_RULE_MAPPING = BasicMappingChecker.DUPLICATE_RULE_MAPPING
-	public static val DUPLICATE_OBJECT_MAPPING = BasicMappingChecker.DUPLICATE_OBJECT_MAPPING
-	public static val DUPLICATE_LINK_MAPPING = BasicMappingChecker.DUPLICATE_LINK_MAPPING
-	public static val DUPLICATE_SLOT_MAPPING = BasicMappingChecker.DUPLICATE_SLOT_MAPPING
+	public static val DUPLICATE_RULE_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_RULE_MAPPING
+	public static val DUPLICATE_OBJECT_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_OBJECT_MAPPING
+	public static val DUPLICATE_LINK_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_LINK_MAPPING
+	public static val DUPLICATE_SLOT_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_SLOT_MAPPING
 	public static val INVALID_BEHAVIOUR_SPEC = 'uk.ac.kcl.inf.xdsml_compose.INVALID_BEHAVIOUR_SPEC'
 	public static val NOT_A_RULE_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_RULE_MORPHISM'
 	public static val INCOMPLETE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_RULE_MAPPING'
 	public static val INCOMPLETE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_BEHAVIOUR_MAPPING'
-	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_CLASS_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_LINK_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_SLOT_MAPPING_ATTEMPT = BasicMappingChecker.NON_INTERFACE_SLOT_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_CLASS_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_LINK_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_SLOT_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_SLOT_MAPPING_ATTEMPT
 	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'

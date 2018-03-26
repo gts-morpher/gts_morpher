@@ -29,9 +29,9 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import static org.eclipse.core.runtime.Assert.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
-import static extension uk.ac.kcl.inf.util.BasicMappingChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import static extension uk.ac.kcl.inf.util.MappingConverter.*
 
 /**
  * Helper for completing type mappings into clan morphisms 
@@ -76,7 +76,7 @@ class MorphismCompleter {
 		private var Module tgtModule
 		private List<EObject> allSrcBehaviorElements
 		private List<EObject> allTgtBehaviorElements
-		
+
 		private var boolean srcIsInterface = false
 		private var boolean tgtIsInterface = false
 
@@ -88,7 +88,7 @@ class MorphismCompleter {
 				this.tgtPackage = tgtPackage
 				this.srcIsInterface = srcIsInterface
 				this.tgtIsInterface = tgtIsInterface
-				
+
 				allSrcModelElements = srcPackage.allContents
 				if (srcIsInterface) {
 					allSrcModelElements = allSrcModelElements.filter [ eo |
@@ -511,12 +511,12 @@ class MorphismCompleter {
 					// if picked object is an EClass
 					// add its EReferences to the priority list if they are unmatched
 					// TODO: Original code wasn't filtering for references
-					pick.eContents.filter(EReference).filter[er|unmatchedList.contains(er)].forEach [er|
+					pick.eContents.filter(EReference).filter[er|unmatchedList.contains(er)].forEach [ er |
 						prioritySet.add(er)
 					]
 
 					// Also add in all unmatched  attributes
-					pick.eContents.filter(EAttribute).filter[ea|unmatchedList.contains(ea)].forEach [ea|
+					pick.eContents.filter(EAttribute).filter[ea|unmatchedList.contains(ea)].forEach [ ea |
 						prioritySet.add(ea)
 					]
 
@@ -678,10 +678,12 @@ class MorphismCompleter {
 					pe.eContainer.eContainer == srcRule
 				].toList
 
-				val slotMappingsToComplete = behaviourMapping.keySet.filter(Node).filter[n | n.eContainer.eContainer === srcRule].map[n | 
-						new Pair<Node, List<Attribute>>(behaviourMapping.get(n) as Node, n.unmappedAttributes)
-					].toList
-				
+				val slotMappingsToComplete = behaviourMapping.keySet.filter(Node).filter [ n |
+					n.eContainer.eContainer === srcRule
+				].map [ n |
+					new Pair<Node, List<Attribute>>(behaviourMapping.get(n) as Node, n.unmappedAttributes)
+				].toList
+
 				val result = doTryCompleteRuleMorphism(slotMappingsToComplete, srcRule, tgtRule, elementsToMap, findAll)
 
 				// Restore unmapped patterns
@@ -692,7 +694,7 @@ class MorphismCompleter {
 
 				result
 			}
-			
+
 			/**
 			 * Map one more graph element and descend recursively if possible
 			 */
@@ -711,7 +713,7 @@ class MorphismCompleter {
 					mappingVariant.add(new Pair(srcRule, behaviourMapping.filter [ src, tgt |
 						((src instanceof Graph) && (src.eContainer == srcRule)) ||
 							((src instanceof GraphElement) && (src.eContainer.eContainer == srcRule)) ||
-							((src instanceof Attribute) && (src.eContainer.eContainer.eContainer == srcRule))							
+							((src instanceof Attribute) && (src.eContainer.eContainer.eContainer == srcRule))
 					].entrySet.map[e|new Pair<EObject, EObject>(e.key, e.value)].toList))
 
 					return new Morphism(mappingVariant)
@@ -731,7 +733,8 @@ class MorphismCompleter {
 
 					if (pick instanceof Node) {
 						// Go through any attribute slots and make sure they've got a complete mapping, too
-						descendResult = doTryCompleteRuleMorphism(currentMatch as Node, pick.unmappedAttributes, emptyList, srcRule, tgtRule, elementsToMap, findAll)
+						descendResult = doTryCompleteRuleMorphism(currentMatch as Node, pick.unmappedAttributes,
+							emptyList, srcRule, tgtRule, elementsToMap, findAll)
 					} else {
 						descendResult = doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)
 					}
@@ -770,15 +773,16 @@ class MorphismCompleter {
 			/**
 			 * Recursively descend, continuing by mapping the unmappedAttributes first, before going on to other bits.
 			 */
-			private def MorphismOrNonmatchedCount doTryCompleteRuleMorphism(List<Pair<Node, List<Attribute>>> remainingNodesToComplete,
-				 Rule srcRule, Rule tgtRule, List<GraphElement> elementsToMap,
-				boolean findAll) {
-				
+			private def MorphismOrNonmatchedCount doTryCompleteRuleMorphism(
+				List<Pair<Node, List<Attribute>>> remainingNodesToComplete, Rule srcRule, Rule tgtRule,
+				List<GraphElement> elementsToMap, boolean findAll) {
+
 				if (remainingNodesToComplete.empty) {
-					return doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)					
+					return doTryCompleteRuleMorphism(srcRule, tgtRule, elementsToMap, findAll)
 				} else {
-					val pick = remainingNodesToComplete.remove (0)
-					return doTryCompleteRuleMorphism(pick.key, pick.value, remainingNodesToComplete, srcRule, tgtRule, elementsToMap, findAll)
+					val pick = remainingNodesToComplete.remove(0)
+					return doTryCompleteRuleMorphism(pick.key, pick.value, remainingNodesToComplete, srcRule, tgtRule,
+						elementsToMap, findAll)
 				}
 			}
 
@@ -787,8 +791,7 @@ class MorphismCompleter {
 			 */
 			private def MorphismOrNonmatchedCount doTryCompleteRuleMorphism(Node tgtNode,
 				List<Attribute> unmappedAttributes, List<Pair<Node, List<Attribute>>> remainingNodesToComplete,
-				 Rule srcRule, Rule tgtRule, List<GraphElement> elementsToMap,
-				boolean findAll) {
+				Rule srcRule, Rule tgtRule, List<GraphElement> elementsToMap, boolean findAll) {
 
 				if (unmappedAttributes.empty) {
 					return doTryCompleteRuleMorphism(remainingNodesToComplete, srcRule, tgtRule, elementsToMap, findAll)
@@ -798,18 +801,18 @@ class MorphismCompleter {
 				// There should only be one
 				val tgtAttribute = tgtNode.attributes.findFirst[a|typeMapping.get(pick.type) === a.type]
 
-				if ((tgtAttribute === null) || (tgtIsInterface && !tgtAttribute.type.isInterfaceElement) || (pick.value != tgtAttribute.value)) {
+				if ((tgtAttribute === null) || (tgtIsInterface && !tgtAttribute.type.isInterfaceElement) ||
+					(pick.value != tgtAttribute.value)) {
 					// FIXME: Not ideal as we're not differentiating situations where slots are partially mapped
-					//println("Couldn't map slot.")
+					// println("Couldn't map slot.")
 					var unmatchedCount = elementsToMap.size + 1
 					return new NonmatchedCount(unmatchedCount)
 				}
 
 				behaviourMapping.put(pick, tgtAttribute)
-				//println("Slot mapped: " + pick.type.name)
-
-				var descendResult = doTryCompleteRuleMorphism(tgtNode, unmappedAttributes, remainingNodesToComplete, srcRule, tgtRule,
-					elementsToMap, findAll)
+				// println("Slot mapped: " + pick.type.name)
+				var descendResult = doTryCompleteRuleMorphism(tgtNode, unmappedAttributes, remainingNodesToComplete,
+					srcRule, tgtRule, elementsToMap, findAll)
 
 				behaviourMapping.remove(pick)
 
@@ -820,9 +823,8 @@ class MorphismCompleter {
 			 * Get all unmapped attributes of the given (source) node.
 			 */
 			private def getUnmappedAttributes(Node n) {
-				n.attributes.reject[a |
-					(srcIsInterface && !a.type.isInterfaceElement) || 
-					behaviourMapping.containsKey(a)
+				n.attributes.reject [ a |
+					(srcIsInterface && !a.type.isInterfaceElement) || behaviourMapping.containsKey(a)
 				].toList
 			}
 
@@ -913,7 +915,7 @@ class MorphismCompleter {
 
 						result.addAll(r.lhs.nodes)
 						result.addAll(r.rhs.nodes)
-						// TODO: Add attributes from under these nodes
+
 						result.addAll(r.lhs.edges)
 						result.addAll(r.rhs.edges)
 
@@ -948,6 +950,5 @@ class MorphismCompleter {
 
 				clan
 			}
-
 		}
 		

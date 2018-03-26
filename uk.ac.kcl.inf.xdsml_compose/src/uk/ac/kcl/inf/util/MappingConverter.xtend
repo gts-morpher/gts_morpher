@@ -2,29 +2,52 @@ package uk.ac.kcl.inf.util
 
 import java.util.HashMap
 import java.util.Map
+import java.util.Map.Entry
+import org.eclipse.emf.ecore.EAttribute
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.henshin.model.Attribute
+import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
+import org.eclipse.emf.henshin.model.GraphElement
+import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
+import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.scoping.IScope
+import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
+import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
+import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.SlotMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
+import uk.ac.kcl.inf.xDsmlCompose.TypeMapping
+import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
+import static org.eclipse.xtext.scoping.Scopes.*
+
 import static extension uk.ac.kcl.inf.util.EMFHelper.isInterfaceElement
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 /**
- * Basic util methods for handling mappings
+ * Basic util methods for extracting mappings from GTSMappings and vice versa.
  */
-class BasicMappingChecker {
+class MappingConverter {
 	public static val DUPLICATE_CLASS_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_CLASS_MAPPING'
 	public static val DUPLICATE_REFERENCE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_REFERENCE_MAPPING'
 	public static val DUPLICATE_ATTRIBUTE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.DUPLICATE_ATTRIBUTE_MAPPING'
@@ -38,7 +61,6 @@ class BasicMappingChecker {
 	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_LINK_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_SLOT_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_SLOT_MAPPING_ATTEMPT'
-	
 
 	public static interface IssueAcceptor {
 		def void error(String message, EObject source, EStructuralFeature feature, String code, String... issueData)
@@ -49,7 +71,7 @@ class BasicMappingChecker {
 	 */
 	public static def Map<EObject, EObject> extractMapping(TypeGraphMapping mapping, IssueAcceptor issues) {
 		val Map<EObject, EObject> _mapping = new HashMap
-		
+
 		val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
 		val tgtIsInterface = (mapping.eContainer as GTSMapping).target.interface_mapping
 
@@ -59,11 +81,11 @@ class BasicMappingChecker {
 					XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, DUPLICATE_CLASS_MAPPING)
 			} else {
 				if ((srcIsInterface) && (!cm.source.isInterfaceElement)) {
-					issues.safeError('''EClassifier «cm.source.name» must be annotated as interface to be mapped.''', cm,
-						XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
+					issues.safeError('''EClassifier «cm.source.name» must be annotated as interface to be mapped.''',
+						cm, XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
 				} else if ((tgtIsInterface) && (!cm.target.isInterfaceElement)) {
-					issues.safeError('''EClassifier «cm.target.name» must be annotated as interface to be mapped.''', cm,
-						XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
+					issues.safeError('''EClassifier «cm.target.name» must be annotated as interface to be mapped.''',
+						cm, XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
 				} else {
 					_mapping.put(cm.source, cm.target)
 				}
@@ -106,7 +128,7 @@ class BasicMappingChecker {
 
 		_mapping
 	}
-	
+
 	/**
 	 * Extract the rule mapping specified as a map object. Report duplicate entries as errors via the IssueAcceptor provided, if any.
 	 */
@@ -116,7 +138,7 @@ class BasicMappingChecker {
 		if (mapping === null) {
 			return _mapping
 		}
-		
+
 		val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
 		val tgtIsInterface = (mapping.eContainer as GTSMapping).target.interface_mapping
 
@@ -187,7 +209,7 @@ class BasicMappingChecker {
 						}
 					}
 				]
-				rm.element_mappings.filter(SlotMapping).forEach[ em | 
+				rm.element_mappings.filter(SlotMapping).forEach [ em |
 					if (_mapping.containsKey(em.source)) {
 						issues.safeError("Duplicate mapping for Slot " + em.source.name + ".", em,
 							XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, DUPLICATE_SLOT_MAPPING)
@@ -199,26 +221,34 @@ class BasicMappingChecker {
 							XDsmlComposePackage.Literals.SLOT_MAPPING__TARGET, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
 					} else {
 						_mapping.put(em.source, em.target)
-						
+
 						val srcNode = em.source.eContainer as Node
 						val tgtNode = em.target.eContainer as Node
-						
+
 						val srcPattern = srcNode.eContainer as Graph
 						val srcRule = srcPattern.eContainer as Rule
-						
+
 						val tgtRule = tgtNode.eContainer.eContainer as Rule
-						
+
 						if (srcPattern == srcRule.lhs) {
 							// Also add corresponding RHS attribute, if any
 							_mapping.putIfNotNull(
-								srcRule.rhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst[a | a.type === em.source.type],
-								tgtRule.rhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst[a | a.type === em.target.type]
+								srcRule.rhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst [ a |
+									a.type === em.source.type
+								],
+								tgtRule.rhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst [ a |
+									a.type === em.target.type
+								]
 							)
 						} else if (srcPattern == srcRule.rhs) {
 							// Also add corresponding LHS attribute, if any							
 							_mapping.putIfNotNull(
-								srcRule.lhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst[a | a.type === em.source.type],
-								tgtRule.lhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst[a | a.type === em.target.type]
+								srcRule.lhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst [ a |
+									a.type === em.source.type
+								],
+								tgtRule.lhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst [ a |
+									a.type === em.target.type
+								]
 							)
 						}
 					}
@@ -228,15 +258,231 @@ class BasicMappingChecker {
 
 		_mapping
 	}
-	
+
+	/**
+	 * Extract a GTSMapping from the given map, using the given from and to as source and target respectively (which 
+	 * should be taken from the original GTSMapping). Place the new mapping in the given resource.
+	 */
+	// TODO Write tests for this to see why the resulting GTSMapping is still internally inconsistent.
+	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecification from,
+		GTSSpecification to, Resource res) {
+		if (res === null) {
+			throw new IllegalArgumentException("res must not be null")
+		}
+		
+		val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
+		res.contents.add(result)
+		
+		result.source = from.resourceLocalCopy
+		result.target = to.resourceLocalCopy
+
+		result.typeMapping = XDsmlComposeFactory.eINSTANCE.createTypeGraphMapping
+		result.typeMapping.mappings.addAll(
+					mapping.entrySet.filter [ e |
+			(e.key instanceof EClass) || (e.key instanceof EStructuralFeature)
+		].map [ e |
+			e.key.extractTypeMapping(e.value, result)
+		])
+
+		val behaviourMappings = mapping.entrySet.reject [ e |
+			(e.key instanceof EClass) || (e.key instanceof EStructuralFeature)
+		]
+		if (!behaviourMappings.empty) {
+			result.behaviourMapping = XDsmlComposeFactory.eINSTANCE.createBehaviourMapping
+			result.behaviourMapping.mappings.addAll(behaviourMappings.filter[e|e.key instanceof Rule].map [ e |
+				(e.key as Rule).extractRuleMapping(e.value as Rule, behaviourMappings, result)
+			])
+		}
+
+		result
+	}
+
+	private static dispatch def TypeMapping extractTypeMapping(EObject src, EObject tgt, GTSMapping mapping) { null }
+
+	private static dispatch def TypeMapping extractTypeMapping(EClass srcClass, EClass tgtClass, GTSMapping mapping) {
+		val result = XDsmlComposeFactory.eINSTANCE.createClassMapping
+		result.source = srcClass.correspondingSourceElement(mapping)
+		result.target = tgtClass.correspondingTargetElement(mapping)
+
+		result
+	}
+
+	private static dispatch def TypeMapping extractTypeMapping(EReference srcReference, EReference tgtReference,
+		GTSMapping mapping) {
+		val result = XDsmlComposeFactory.eINSTANCE.createReferenceMapping
+		result.source = srcReference.correspondingSourceElement(mapping)
+		result.target = tgtReference.correspondingTargetElement(mapping)
+
+		result
+	}
+
+	private static dispatch def TypeMapping extractTypeMapping(EAttribute srcAttribute, EAttribute tgtAttribute,
+		GTSMapping mapping) {
+		val result = XDsmlComposeFactory.eINSTANCE.createAttributeMapping
+		result.source = srcAttribute.correspondingSourceElement(mapping)
+		result.target = tgtAttribute.correspondingTargetElement(mapping)
+
+		result
+	}
+
+	private static def RuleMapping extractRuleMapping(Rule tgtRule, Rule srcRule,
+		Iterable<? extends Entry<? extends EObject, ? extends EObject>> behaviourMappings, GTSMapping mapping) {
+		val result = XDsmlComposeFactory.eINSTANCE.createRuleMapping
+
+		result.source = srcRule.correspondingSourceElement(mapping)
+		result.target = tgtRule.correspondingTargetElement(mapping)
+
+		 
+		result.element_mappings.addAll(behaviourMappings.filter [ e |
+			// Ensure kernel elements are included only once in the mapping and with their lhs representative
+			if ((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) {
+				if (e.key.eContainer === srcRule.rhs) {
+					!(srcRule.lhs.nodes.exists[n | n.name == e.key.name] || srcRule.lhs.edges.exists[ed | ed.name == e.key.name])
+				} else {
+					true
+				}
+			} else if ((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule)) {
+				if (e.key.eContainer.eContainer == srcRule.rhs) {
+					!(srcRule.lhs.nodes.exists[n | (n.name == e.key.eContainer.name) && n.attributes.exists[a | a.type === (e.key as Attribute).type]])
+				} else {
+					true
+				}
+			} else {
+				false
+			}
+		].map [ e |
+			e.key.extractRuleElementMapping(e.value, mapping)
+		])
+
+		result
+	}
+
+	private static dispatch def RuleElementMapping extractRuleElementMapping(EObject src, EObject tgt,
+		GTSMapping mapping) {
+		null
+	}
+
+	private static dispatch def RuleElementMapping extractRuleElementMapping(Node srcNode, Node tgtNode,
+		GTSMapping mapping) {
+		val result = XDsmlComposeFactory.eINSTANCE.createObjectMapping
+		result.source = srcNode.correspondingSourceElement(mapping)
+		result.target = tgtNode.correspondingTargetElement(mapping)
+
+		result
+	}
+
+	private static dispatch def RuleElementMapping extractRuleElementMapping(Edge srcEdge, Edge tgtEdge,
+		GTSMapping mapping) {
+		val result = XDsmlComposeFactory.eINSTANCE.createLinkMapping
+		result.source = srcEdge.correspondingSourceElement(mapping)
+		result.target = tgtEdge.correspondingTargetElement(mapping)
+
+		result
+	}
+
+	private static dispatch def RuleElementMapping extractRuleElementMapping(Attribute srcAttribute,
+		Attribute tgtAttribute, GTSMapping mapping) {
+		val result = XDsmlComposeFactory.eINSTANCE.createSlotMapping
+		result.source = srcAttribute.correspondingSourceElement(mapping)
+		result.target = tgtAttribute.correspondingTargetElement(mapping)
+
+		result
+	}
+
+	/**
+	 * Create a copy up to the end of the containing resource, if any.
+	 */
+	static def <T extends EObject> T getResourceLocalCopy(T object) {
+		val resource = object.eResource
+		val copier = new EcoreUtil.Copier() {
+			// FIXME: Actually, don't need this as by default EcoreUtil.Copier will do the right thing
+			override copy(EObject eObject) {
+				if (eObject === null) {
+					return null
+				}
+				if (eObject.eResource === resource) {
+					super.copy(eObject)
+				} else {
+					eObject
+				}
+			}
+
+		}
+
+		val copy = copier.copy(object) as T
+		copier.copyReferences
+
+		copy
+	}
+
+	private static val IQualifiedNameProvider nameProvider = new DefaultDeclarativeQualifiedNameProvider
+	private static val IQualifiedNameProvider henshinNameProvider = new HenshinQualifiedNameProvider
+
+	/**
+	 * Find the corresponding element in the given GTS specification. This is necessary as some parts of the type graph and rules will be virtual (e.g., generated from a family choice) 
+	 * and the actual objects will be different when we reconstruct the GTSMapping from the Map. 
+	 */
+	private static def <T extends EObject> T correspondingSourceElement(T object, GTSMapping mapping) {
+		object.correspondingElement(mapping.source) as T
+	}
+
+	private static def <T extends EObject> T correspondingTargetElement(T object, GTSMapping mapping) {
+		object.correspondingElement(mapping.target) as T
+	}
+
+	private static dispatch def EObject correspondingElement(EObject object, GTSSpecification specification) { null }
+
+	private static dispatch def EObject correspondingElement(EClass clazz, GTSSpecification specification) {
+		clazz.getCorrespondingElement(specification.metamodel)
+	}
+
+	private static dispatch def EObject correspondingElement(EReference ref, GTSSpecification specification) {
+		ref.getCorrespondingElement(specification.metamodel)
+	}
+
+	private static dispatch def EObject correspondingElement(EAttribute attr, GTSSpecification specification) {
+		attr.getCorrespondingElement(specification.metamodel)
+	}
+
+	private static dispatch def EObject correspondingElement(Module module, GTSSpecification specification) {
+		module.getCorrespondingElement(specification.behaviour)
+	}
+
+	private static dispatch def EObject correspondingElement(Rule rule, GTSSpecification specification) {
+		rule.getCorrespondingElement(specification.behaviour)
+	}
+
+	private static dispatch def EObject correspondingElement(GraphElement ge, GTSSpecification specification) {
+		ge.getCorrespondingElement(specification.behaviour)
+	}
+
+	private static dispatch def EObject correspondingElement(Attribute attr, GTSSpecification specification) {
+		attr.getCorrespondingElement(specification.behaviour)
+	}
+
+	private static def EObject getCorrespondingElement(EObject object, EPackage pck) {
+		val scope = scopeFor([pck.eAllContents], nameProvider, IScope.NULLSCOPE)
+		val name = nameProvider.getFullyQualifiedName(object)
+
+		scope.getSingleElement(name).EObjectOrProxy
+	}
+
+	private static def EObject getCorrespondingElement(EObject object, Module module) {
+		val scope = scopeFor([module.eAllContents], henshinNameProvider, IScope.NULLSCOPE)
+		val name = henshinNameProvider.getFullyQualifiedName(object)
+
+		scope.getSingleElement(name).EObjectOrProxy
+	}
+
 	private static def <K, V> void putIfNotNull(HashMap<K, V> map, K key, V value) {
 		if ((key !== null) && (value !== null)) {
 			map.put(key, value)
 		}
 	}
-	
-	private static def void safeError(IssueAcceptor issues, String message, EObject source, EStructuralFeature feature, String code, String... issueData) {
-		if (issues !==null) {
+
+	private static def void safeError(IssueAcceptor issues, String message, EObject source, EStructuralFeature feature,
+		String code, String... issueData) {
+		if (issues !== null) {
 			issues.error(message, source, feature, code, issueData)
 		}
 	}
