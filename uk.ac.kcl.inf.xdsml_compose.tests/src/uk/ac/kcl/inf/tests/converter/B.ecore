@@ -2,6 +2,7 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="B" nsURI="http://kcl.ac.uk/xdsml/B" nsPrefix="b">
   <eClassifiers xsi:type="ecore:EClass" name="B1">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="att" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="_2s" upperBound="-1" eType="#//B2"
         containment="true" eOpposite="#//B2/a"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="_3s" upperBound="-1" eType="#//B3"

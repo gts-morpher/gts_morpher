@@ -36,7 +36,7 @@ class ConverterTests extends AbstractTest {
 	}
 
 	@Test
-	def void testBasicConversion() {
+	def void testBasicConversionClassMapping() {
 		'''
 			map {
 				from {
@@ -49,12 +49,44 @@ class ConverterTests extends AbstractTest {
 			
 				type_mapping {
 					class A.A1 => B.B1
-					reference A.A1.bs => B.B1._2s
-					reference A.A2.a => B.B2.a
-					class A.A2 => B.B2
 				}
-			}
-		'''.doTest
+			}'''.doTest
+	}
+
+	@Test
+	def void testBasicConversionReferenceMapping() {
+		'''
+			map {
+				from {
+					metamodel: "A"
+				}
+			
+				to {
+					metamodel: "B"
+				}
+			
+				type_mapping {
+					reference A.A2.a => B.B2.a
+				}
+			}'''.doTest
+	}
+
+	@Test
+	def void testBasicConversionAttributeMapping() {
+		'''
+			map {
+				from {
+					metamodel: "A"
+				}
+			
+				to {
+					metamodel: "B"
+				}
+			
+				type_mapping {
+					attribute A.A1.att => B.B1.att
+				}
+			}'''.doTest
 	}
 
 	private def void doTest(CharSequence text) {
@@ -74,7 +106,7 @@ class ConverterTests extends AbstractTest {
 
 		assertEquals(
 			"Extraction failed",
-			text,
+			text.toString,
 			mapping.extractGTSMapping(result.source, result.target, resource).serialize(
 				SaveOptions.newBuilder.format.options)
 		)

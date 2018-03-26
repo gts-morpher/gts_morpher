@@ -2,6 +2,7 @@
 package A;
 
 class A1 {
+	attr int att;
 	val A2[*]#a bs;
 }
 
