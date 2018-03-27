@@ -393,22 +393,7 @@ class MappingConverter {
 	 * Create a copy up to the end of the containing resource, if any.
 	 */
 	static def <T extends EObject> T getResourceLocalCopy(T object) {
-		val resource = object.eResource
-		val copier = new EcoreUtil.Copier() {
-			// FIXME: Actually, don't need this as by default EcoreUtil.Copier will do the right thing
-			override copy(EObject eObject) {
-				if (eObject === null) {
-					return null
-				}
-				if (eObject.eResource === resource) {
-					super.copy(eObject)
-				} else {
-					eObject
-				}
-			}
-
-		}
-
+		val copier = new EcoreUtil.Copier()
 		val copy = copier.copy(object) as T
 		copier.copyReferences
 
