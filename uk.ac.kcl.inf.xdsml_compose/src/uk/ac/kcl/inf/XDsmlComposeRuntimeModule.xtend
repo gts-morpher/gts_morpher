@@ -3,10 +3,13 @@
  */
 package uk.ac.kcl.inf
 
+import org.eclipse.xtext.conversion.impl.INTValueConverter
+import uk.ac.kcl.inf.util.MyINTValueConverter
+
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class XDsmlComposeRuntimeModule extends AbstractXDsmlComposeRuntimeModule {
 	
-	
+	def Class<? extends INTValueConverter> bindINTValueConverter() { MyINTValueConverter }
 }

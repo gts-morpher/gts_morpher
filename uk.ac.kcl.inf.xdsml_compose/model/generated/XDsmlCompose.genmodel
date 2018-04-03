@@ -45,6 +45,9 @@
     <genClasses ecoreClass="XDsmlCompose.ecore#//StringParameter">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//StringParameter/value"/>
     </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//NumericParameter">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//NumericParameter/value"/>
+    </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//TypeGraphMapping">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//TypeGraphMapping/mappings"/>
     </genClasses>
