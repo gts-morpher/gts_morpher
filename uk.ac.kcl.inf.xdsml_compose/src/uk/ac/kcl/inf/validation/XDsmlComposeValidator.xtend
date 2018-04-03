@@ -51,6 +51,8 @@ import org.eclipse.emf.henshin.model.ParameterKind
 import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 import static uk.ac.kcl.inf.util.MappingConverter.*
+import uk.ac.kcl.inf.xDsmlCompose.StringParameter
+import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
 
 /**
  * This class contains custom validation rules. 
@@ -386,12 +388,18 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 							error("Transformer requires to be called with a non-Ecore parameter in this positon.",
 								p1, XDsmlComposePackage.Literals.EOBJECT_REFERENCE_PARAMETER__QUALIFIED_NAME, INVALID_UNIT_CALL_PARAMETER_TYPE)
 						}
-				} else {
+				} else if (p1 instanceof StringParameter) {
 					if (p2.type != EcorePackage.Literals.ESTRING) {
 						error ("Transformer requires to be called with a class or reference identifier in this position.", 
 							p1, XDsmlComposePackage.Literals.STRING_PARAMETER__VALUE, INVALID_UNIT_CALL_PARAMETER_TYPE
 						)
 					}
+				} else if (p1 instanceof NumericParameter) {
+					if (p2.type != EcorePackage.Literals.EINT) {
+						error ("Transformer requires to be called with a class or reference identifier in this position.", 
+							p1, XDsmlComposePackage.Literals.NUMERIC_PARAMETER__VALUE, INVALID_UNIT_CALL_PARAMETER_TYPE
+						)
+					}					
 				}
 			]
 		}

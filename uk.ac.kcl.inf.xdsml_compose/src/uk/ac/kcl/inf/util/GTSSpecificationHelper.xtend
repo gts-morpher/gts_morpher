@@ -28,6 +28,7 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import uk.ac.kcl.inf.xDsmlCompose.UnitParameter
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
 
 class GTSSpecificationHelper {
 	static dispatch def EPackage getMetamodel(GTSSpecification spec) {
@@ -227,6 +228,7 @@ class GTSSpecificationHelper {
 	}
 
 	private static dispatch def Object getParameterValue(StringParameter p, List<EObject> graphRoots) { p.value }
+	private static dispatch def Object getParameterValue(NumericParameter p, List<EObject> graphRoots) { p.value }
 
 	private static def EObject findWithQualifiedName(Module m, List<String> nameSegments) {
 		val segments = new ArrayList(nameSegments)
