@@ -8,8 +8,9 @@ We currently do not yet have an update site or fully functional feature. As a re
 
 1. Install Eclipse, making sure to install EMF, Xtext, and Henshin. You may also wish to include an installation of EMFatic for easier editing of Ecore metamodels.
 2. Clone the repository and import all projects except for the example project into a fresh Eclipse workspace.
-3. Choose `Run/Launch Runtime Eclipse` to start a fresh Eclipse with the plugins installed.
-4. Create a new project (we will also soon provide some example projects in the repository) and add a file with extension `.lang_compose`. In this file, you will be able to specify your GTS morphisms.
+3. Right-click on the [GenerateXDsmlCompose.mwe2](src/uk/ac/kcl/inf/GenerateXDsmlCompose.mwe2) file and choose `Run As/MWE2 workflow` to ensure all implementation files are correctly generated (this may be helpful to do also when pulling a new version of the repository).
+4. Choose `Run/Launch Runtime Eclipse` to start a fresh Eclipse with the plugins installed.
+5. Create a new project (we will also soon provide some example projects in the repository) and add a file with extension `.lang_compose`. In this file, you will be able to specify your GTS morphisms.
 
 ## 2. Specifying GTS morphisms
 
