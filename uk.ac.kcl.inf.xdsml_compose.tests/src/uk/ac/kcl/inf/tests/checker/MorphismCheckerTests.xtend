@@ -233,6 +233,55 @@ class MorphismCheckerTests extends AbstractTest {
 	}
 	
 	/**
+	 * Tests morphism checker accepts empty rule mappings. 
+	 */
+	@Test
+	def void checkEmptyRuleMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				to {
+					metamodel: "G"
+					behaviour: "GRules"
+				}
+				
+				type_mapping {
+					class F.F1 => G.G1
+					attribute F.F1.a1 => G.G1.a1
+					attribute F.F1.a2 => G.G1.a2
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val typeMapping = result.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertTrue(
+			"Should be a rule morphism",
+			checkRuleMorphism(
+				result.target.behaviour.units.head as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.behaviourMapping.extractMapping(null),
+				null
+			)
+		)
+	}
+
+	/**
 	 * Tests morphism checker accepts valid slot mappings. 
 	 */
 	@Test

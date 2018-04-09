@@ -163,6 +163,37 @@ class ConverterTests extends AbstractTest {
 	}
 
 	@Test
+	def void testBasicConversionEmptyRuleMapping() {
+		testConversionEmptyRuleMapping(normalSource)
+	}
+	
+	@Test
+	def void testFamilyConversionEmptyRuleMapping() {
+		testConversionEmptyRuleMapping(familySource)
+	}
+	
+	private def testConversionEmptyRuleMapping(CharSequence srcText) {
+		'''
+			map {
+				«srcText»
+			
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+			
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			
+				behaviour_mapping {
+					rule do to do {
+					}
+				}
+			}'''.doTest
+	}
+
+	@Test
 	def void testBasicConversionLinkMapping() {
 		testConversionLinkMapping(normalSource)
 	}

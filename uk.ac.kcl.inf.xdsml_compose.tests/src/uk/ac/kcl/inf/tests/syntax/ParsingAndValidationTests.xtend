@@ -932,6 +932,52 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 	
 	/**
+	 * Tests auto-completion of behaviour morphisms with empty rule map
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithEmptyRuleMap() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					class server.Element => server.Element
+					class server.Input => server.Input
+					class server.Output => server.Output
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+					reference server.Queue.elts => server.Queue.elts
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+					}
+				}
+			}
+			''',
+			createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		// For now 
+		// TODO: update with proper size
+		assertTrue(issues.empty)
+		// TODO Add more meaningful tests
+	}
+	
+	/**
 	 * Tests that completeness check works correctly for complete mappings
 	 */
 	@Test
