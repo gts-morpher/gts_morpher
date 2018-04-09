@@ -163,6 +163,10 @@ class ParsingAndValidationTests extends AbstractTest {
 							object input => in_part
 							link [in_queue->input:elts] => [tray->in_part:parts]
 						}
+						
+						rule process to process {
+							// Test that empty rule maps are allowed
+						}
 					}
 				}
 			''',
