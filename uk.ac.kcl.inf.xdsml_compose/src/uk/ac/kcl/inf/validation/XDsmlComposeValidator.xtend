@@ -263,6 +263,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		true
 	}
 	
+	// FIXME: Also need to add slots, which will require a retyping of the index.
 	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map, boolean srcIsInterface) {
 		graph.eContents.filter[ge | 
 			!srcIsInterface ||
