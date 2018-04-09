@@ -13,46 +13,47 @@ import java.util.Set
 import java.util.function.Function
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
+import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.GraphElement
+import org.eclipse.emf.henshin.model.HenshinPackage
 import org.eclipse.emf.henshin.model.Node
+import org.eclipse.emf.henshin.model.ParameterKind
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
+import uk.ac.kcl.inf.util.MappingConverter
 import uk.ac.kcl.inf.util.MappingConverter.IssueAcceptor
 import uk.ac.kcl.inf.util.MorphismCompleter
 import uk.ac.kcl.inf.util.ValueHolder
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
+import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
+import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
+import uk.ac.kcl.inf.xDsmlCompose.SlotMapping
+import uk.ac.kcl.inf.xDsmlCompose.StringParameter
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
+import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
+import static uk.ac.kcl.inf.util.MappingConverter.*
 import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-
-import org.eclipse.emf.ecore.EModelElement
-import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
-import org.eclipse.emf.ecore.EcorePackage
-import org.eclipse.emf.henshin.model.HenshinPackage
-import uk.ac.kcl.inf.xDsmlCompose.UnitCall
-import org.eclipse.emf.henshin.model.ParameterKind
-import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
-import static uk.ac.kcl.inf.util.MappingConverter.*
-import uk.ac.kcl.inf.xDsmlCompose.StringParameter
-import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
 
 /**
  * This class contains custom validation rules. 
@@ -60,29 +61,29 @@ import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
-	public static val DUPLICATE_CLASS_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_CLASS_MAPPING
-	public static val DUPLICATE_REFERENCE_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_REFERENCE_MAPPING
-	public static val DUPLICATE_ATTRIBUTE_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_ATTRIBUTE_MAPPING
+	public static val DUPLICATE_CLASS_MAPPING = MappingConverter.DUPLICATE_CLASS_MAPPING
+	public static val DUPLICATE_REFERENCE_MAPPING = MappingConverter.DUPLICATE_REFERENCE_MAPPING
+	public static val DUPLICATE_ATTRIBUTE_MAPPING = MappingConverter.DUPLICATE_ATTRIBUTE_MAPPING
 	public static val NOT_A_CLAN_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_CLAN_MORPHISM'
 	public static val INCOMPLETE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_TYPE_GRAPH_MAPPING'
 	public static val UNCOMPLETABLE_TYPE_GRAPH_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_TYPE_GRAPH_MAPPING'
 	public static val UNCOMPLETABLE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.UNCOMPLETABLE_BEHAVIOUR_MAPPING'
 	public static val NO_UNIQUE_COMPLETION = 'uk.ac.kcl.inf.xdsml_compose.NO_UNIQUE_COMPLETION'
 	public static val UNIQUE_COMPLETION_NOT_CHECKED = 'uk.ac.kcl.inf.xdsml_compose.UNIQUE_COMPLETION_NOT_CHECKED'
-	public static val DUPLICATE_RULE_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_RULE_MAPPING
-	public static val DUPLICATE_OBJECT_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_OBJECT_MAPPING
-	public static val DUPLICATE_LINK_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_LINK_MAPPING
-	public static val DUPLICATE_SLOT_MAPPING = uk.ac.kcl.inf.util.MappingConverter.DUPLICATE_SLOT_MAPPING
+	public static val DUPLICATE_RULE_MAPPING = MappingConverter.DUPLICATE_RULE_MAPPING
+	public static val DUPLICATE_OBJECT_MAPPING = MappingConverter.DUPLICATE_OBJECT_MAPPING
+	public static val DUPLICATE_LINK_MAPPING = MappingConverter.DUPLICATE_LINK_MAPPING
+	public static val DUPLICATE_SLOT_MAPPING = MappingConverter.DUPLICATE_SLOT_MAPPING
 	public static val INVALID_BEHAVIOUR_SPEC = 'uk.ac.kcl.inf.xdsml_compose.INVALID_BEHAVIOUR_SPEC'
 	public static val NOT_A_RULE_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.NOT_A_RULE_MORPHISM'
 	public static val INCOMPLETE_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_RULE_MAPPING'
 	public static val INCOMPLETE_BEHAVIOUR_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.INCOMPLETE_BEHAVIOUR_MAPPING'
-	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_CLASS_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_LINK_MAPPING_ATTEMPT
-	public static val NON_INTERFACE_SLOT_MAPPING_ATTEMPT = uk.ac.kcl.inf.util.MappingConverter.NON_INTERFACE_SLOT_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = MappingConverter.NON_INTERFACE_CLASS_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT = MappingConverter.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT = MappingConverter.NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_OBJECT_MAPPING_ATTEMPT = MappingConverter.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = MappingConverter.NON_INTERFACE_LINK_MAPPING_ATTEMPT
+	public static val NON_INTERFACE_SLOT_MAPPING_ATTEMPT = MappingConverter.NON_INTERFACE_SLOT_MAPPING_ATTEMPT
 	public static val INVALID_TRANSFORMER_SPECIFICATION = 'uk.ac.kcl.inf.xdsml_compose.INVALID_TRANSFORMER_SPECIFICATION'
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
@@ -237,32 +238,32 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Check that the given rule mapping is complete
 	 */
 	private def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
-		if (!(mapping.eContainer.eContainer as GTSMapping).autoComplete) {
-			val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
-			val elementIndex = new HashMap<String, List<GraphElement>>()
-			mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
-			mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
-			
-			val inComplete = elementIndex.entrySet.exists[e | 
-				!mapping.element_mappings.exists[em |
-					((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
-					((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source)))
-				]
+		val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
+		val elementIndex = new HashMap<String, List<GraphElement>>()
+		mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
+		mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
+		
+		val inComplete = elementIndex.entrySet.exists[e |
+			!mapping.element_mappings.exists[em |
+				((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
+				((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source))) ||
+				((em instanceof SlotMapping) && (e.value.contains((em as SlotMapping).source)))
 			]
-			
-			if (inComplete) {
-				if (validator !== null) {
-					validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
-						XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
-				}
-					
-				return false
+		]
+
+		if (inComplete) {
+			if (validator !== null) {
+				validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
+					XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
 			}
+			
+			return false
 		}
 		
 		true
 	}
 	
+	// FIXME: Also need to add slots, which will require a retyping of the index.
 	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map, boolean srcIsInterface) {
 		graph.eContents.filter[ge | 
 			!srcIsInterface ||
