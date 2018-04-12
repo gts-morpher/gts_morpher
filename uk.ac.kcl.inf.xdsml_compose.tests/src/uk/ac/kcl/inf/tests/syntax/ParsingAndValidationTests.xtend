@@ -854,7 +854,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule process to identity {
+					rule addObserver to identity {
 					}
 				}
 			}
@@ -866,7 +866,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertNoError(XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
 
 		// Incomplete mapping errors 
-		assertTrue(issues.length == 4)
+		assertTrue(issues.length == 5)
 	}
 
 	/**

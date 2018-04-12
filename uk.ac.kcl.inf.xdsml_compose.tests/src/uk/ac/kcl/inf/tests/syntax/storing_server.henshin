@@ -68,4 +68,39 @@
     <mappings xmi:id="_cdPestBJEeeTmd7edEr5bw" origin="_cdPesNBJEeeTmd7edEr5bw" image="_cdPesdBJEeeTmd7edEr5bw"/>
     <mappings xmi:id="_jpWlIQAiEeiiFe5EZuOeYQ" origin="_jpVXAAAiEeiiFe5EZuOeYQ" image="_jpWlIAAiEeiiFe5EZuOeYQ"/>
   </units>
+  <units xsi:type="henshin:Rule" xmi:id="_ZOEVsD5iEeisVpNvdsJxUQ" name="addObserver">
+    <lhs xmi:id="_ZOlTED5iEeisVpNvdsJxUQ" name="Lhs">
+      <nodes xmi:id="_arwbsD5iEeisVpNvdsJxUQ" name="s">
+        <type href="storing_server.ecore#//Server"/>
+      </nodes>
+      <formula xsi:type="henshin:Not" xmi:id="_pib8ED5iEeisVpNvdsJxUQ">
+        <child xsi:type="henshin:NestedCondition" xmi:id="_pib8ET5iEeisVpNvdsJxUQ">
+          <conclusion xmi:id="_pib8Ej5iEeisVpNvdsJxUQ">
+            <nodes xmi:id="_picjID5iEeisVpNvdsJxUQ" name="s" incoming="_oAjSkD5iEeisVpNvdsJxUQ">
+              <type href="storing_server.ecore#//Server"/>
+            </nodes>
+            <nodes xmi:id="_lnvBED5iEeisVpNvdsJxUQ" name="soExists" outgoing="_oAjSkD5iEeisVpNvdsJxUQ">
+              <type href="storing_server.ecore#//ServerObserver"/>
+            </nodes>
+            <edges xmi:id="_oAjSkD5iEeisVpNvdsJxUQ" source="_lnvBED5iEeisVpNvdsJxUQ" target="_picjID5iEeisVpNvdsJxUQ">
+              <type href="storing_server.ecore#//ServerObserver/server"/>
+            </edges>
+          </conclusion>
+          <mappings xmi:id="_picjIT5iEeisVpNvdsJxUQ" origin="_arwbsD5iEeisVpNvdsJxUQ" image="_picjID5iEeisVpNvdsJxUQ"/>
+        </child>
+      </formula>
+    </lhs>
+    <rhs xmi:id="_ZOlTET5iEeisVpNvdsJxUQ" name="Rhs">
+      <nodes xmi:id="_arxCwD5iEeisVpNvdsJxUQ" name="s" incoming="_oei2ID5iEeisVpNvdsJxUQ">
+        <type href="storing_server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_mzjT8D5iEeisVpNvdsJxUQ" name="soNew" outgoing="_oei2ID5iEeisVpNvdsJxUQ">
+        <type href="storing_server.ecore#//ServerObserver"/>
+      </nodes>
+      <edges xmi:id="_oei2ID5iEeisVpNvdsJxUQ" source="_mzjT8D5iEeisVpNvdsJxUQ" target="_arxCwD5iEeisVpNvdsJxUQ">
+        <type href="storing_server.ecore#//ServerObserver/server"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_arxCwT5iEeisVpNvdsJxUQ" origin="_arwbsD5iEeisVpNvdsJxUQ" image="_arxCwD5iEeisVpNvdsJxUQ"/>
+  </units>
 </henshin:Module>
