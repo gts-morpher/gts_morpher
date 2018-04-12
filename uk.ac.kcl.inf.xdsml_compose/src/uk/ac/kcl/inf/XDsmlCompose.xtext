@@ -100,7 +100,7 @@ BehaviourMapping:
 ;
 
 RuleMapping:
-	"rule" source=[gts::Rule | ID] "to" ((target=[gts::Rule | ID]) | (target_empty?="empty")) "{"
+	"rule" source=[gts::Rule | ID] "to" ((target=[gts::Rule | ID]) | (target_identity?="identity")) "{"
 		element_mappings += RuleElementMapping*
 	"}"
 ;

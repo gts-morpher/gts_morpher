@@ -70,7 +70,7 @@
     <genClasses ecoreClass="XDsmlCompose.ecore#//RuleMapping">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/source"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/target"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//RuleMapping/target_empty"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//RuleMapping/target_identity"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/element_mappings"/>
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//RuleElementMapping"/>

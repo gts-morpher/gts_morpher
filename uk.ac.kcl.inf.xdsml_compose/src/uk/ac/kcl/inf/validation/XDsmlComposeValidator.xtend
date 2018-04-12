@@ -292,7 +292,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkToIdentityRuleMapIsEmpty(RuleMapping rm) {
-		if ((rm.target_empty) && (!rm.element_mappings.empty)) {
+		if ((rm.target_identity) && (!rm.element_mappings.empty)) {
 			error("Rule mappings to the identity rule must not contain any element mappings.", rm,
 					XDsmlComposePackage.Literals.RULE_MAPPING__ELEMENT_MAPPINGS, NON_EMPTY_TO_EMPTY_RULE_MAPPING)
 		}

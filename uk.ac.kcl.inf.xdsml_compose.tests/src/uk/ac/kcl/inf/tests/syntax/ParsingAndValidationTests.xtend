@@ -226,7 +226,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule process to empty {
+					rule process to identity {
 					}
 				}
 			}
@@ -253,7 +253,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
 
 		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
-		assertTrue("Expected rule to be marked as empty target", result.behaviourMapping.mappings.get(0).target_empty)
+		assertTrue("Expected rule to be marked as identity target", result.behaviourMapping.mappings.get(0).target_identity)
 	}
 
 	/**
@@ -771,7 +771,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule produce to empty {
+					rule produce to identity {
 						object s => g
 					}
 				}
