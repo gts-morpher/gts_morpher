@@ -54,7 +54,6 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
-import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
 
 /**
  * This class contains custom validation rules. 
@@ -89,8 +88,9 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
 	public static val GTS_FAMILY_ISSUE = 'uk.ac.kcl.inf.xdsml_compose.GTS_FAMILY_ISSUE'
-	public static val NON_EMPTY_TO_EMPTY_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.NON_EMPTY_TO_EMPTY_RULE_MAPPING'
-
+	public static val NON_EMPTY_TO_IDENTITY_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.NON_EMPTY_TO_IDENTITY_RULE_MAPPING'
+	public static val TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE = 'uk.ac.kcl.inf.xdsml_compose.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE'
+	
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
 	 */
@@ -294,7 +294,68 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	def checkToIdentityRuleMapIsEmpty(RuleMapping rm) {
 		if ((rm.target_identity) && (!rm.element_mappings.empty)) {
 			error("Rule mappings to the identity rule must not contain any element mappings.", rm,
-					XDsmlComposePackage.Literals.RULE_MAPPING__ELEMENT_MAPPINGS, NON_EMPTY_TO_EMPTY_RULE_MAPPING)
+					XDsmlComposePackage.Literals.RULE_MAPPING__ELEMENT_MAPPINGS, uk.ac.kcl.inf.validation.XDsmlComposeValidator.NON_EMPTY_TO_IDENTITY_RULE_MAPPING)
+		}
+	}
+	
+	/**
+	 * Check source of a to-identity rule map is an identity rule.
+	 */
+	@Check
+	def checkToIdentityRuleMapSourceIsIdentity(RuleMapping rm) {
+		if ((rm.target_identity) && (!rm.source.isIdentityRule(rm.sourceIsInterface))) {
+			error("Source of to-identity rule mapping must be an identity rule.", rm,
+				XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, uk.ac.kcl.inf.validation.XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
+		}
+	}
+	
+	private def sourceIsInterface(RuleMapping rm) {
+		(rm.eContainer.eContainer as GTSMapping).source.interface_mapping
+	}
+	
+	private def isIdentityRule(Rule rule, boolean isInterface) {
+		// All LHS nodes are mapped
+		rule.lhs.nodes.filter[n | (!isInterface) || n.interfaceElement].forall[n | rule.mappings.exists[m | 
+			(m.origin === n) &&
+			// All attribute values remain unchanged
+			n.attributes.forall[a | 
+				m.image.attributes.exists[a2 | 
+					(a.type === a2.type) &&
+					(a.value == a2.value)
+				]
+			]
+		]] &&
+		// All RHS nodes are mapped
+		rule.rhs.nodes.filter[n | (!isInterface) || n.interfaceElement].forall[n | rule.mappings.exists[m | 
+			(m.image === n) &&
+			// All attribute values remain unchanged
+			n.attributes.forall[a | 
+				m.origin.attributes.exists[a2 | 
+					(a.type === a2.type) &&
+					(a.value == a2.value)
+				]
+			]
+		]] &&
+		// All LHS edges exist on RHS side of the rule
+		rule.lhs.edges.filter[e | (!isInterface) || e.interfaceElement].forall[e | rule.rhs.edges.exists[e2 | 
+			e.type === e2.type &&
+			e.source.mapped === e2.source &&
+			e.target.mapped === e2.target
+		]] &&
+		// All RHS edges exist on LHS side of the rule
+		rule.rhs.edges.filter[e | (!isInterface) || e.interfaceElement].forall[e | rule.lhs.edges.exists[e2 | 
+			e.type === e2.type &&
+			e.source.mapped === e2.source &&
+			e.target.mapped === e2.target
+		]]
+	}
+	
+	private def getMapped(Node node) {
+		val mappings = (node.eContainer.eContainer as Rule).mappings
+		if (node.eContainer === (node.eContainer.eContainer as Rule).lhs) {
+			mappings.findFirst[mp | mp.origin === node].image
+		} else {
+			mappings.findFirst[mp | mp.image === node].origin
 		}
 	}
 

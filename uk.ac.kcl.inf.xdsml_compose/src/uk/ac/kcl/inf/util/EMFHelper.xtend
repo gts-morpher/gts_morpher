@@ -8,7 +8,10 @@ import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.henshin.model.Edge
+import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.ModelElement
+import org.eclipse.emf.henshin.model.Node
 
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
@@ -59,4 +62,12 @@ class EMFHelper {
 	public static def isInterfaceElement(EModelElement em) {
 		em.EAnnotations.exists[a | a.source.equalsIgnoreCase("Interface")]
 	}
+	
+	public static def isInterfaceElement(GraphElement ge) {
+		ge.type.isInterfaceElement
+	}
+	
+	public static dispatch def getType(GraphElement ge) { null }
+	public static dispatch def getType(Node n) { n.type }
+	public static dispatch def getType(Edge e) { e.type }	
 }
