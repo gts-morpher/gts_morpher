@@ -54,6 +54,7 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
 
 /**
  * This class contains custom validation rules. 
@@ -88,6 +89,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
 	public static val GTS_FAMILY_ISSUE = 'uk.ac.kcl.inf.xdsml_compose.GTS_FAMILY_ISSUE'
+	public static val NON_EMPTY_TO_EMPTY_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.NON_EMPTY_TO_EMPTY_RULE_MAPPING'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -283,6 +285,17 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			}
 			list.add(ge)
 		]
+	}
+
+	/**
+	 * Check that rule mappings to an identity rule are empty.
+	 */
+	@Check
+	def checkToIdentityRuleMapIsEmpty(RuleMapping rm) {
+		if ((rm.target_empty) && (!rm.element_mappings.empty)) {
+			error("Rule mappings to the identity rule must not contain any element mappings.", rm,
+					XDsmlComposePackage.Literals.RULE_MAPPING__ELEMENT_MAPPINGS, NON_EMPTY_TO_EMPTY_RULE_MAPPING)
+		}
 	}
 
 	/**

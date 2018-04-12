@@ -36,7 +36,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Inject
 	ParseHelper<GTSMapping> parseHelper
 
-	@Inject 
+	@Inject
 	extension ValidationTestHelper
 
 	protected override createResourceSet(String[] files) {
@@ -60,7 +60,7 @@ class ParsingAndValidationTests extends AbstractTest {
 			"B2.henshin"
 		].createResourceSet
 	}
-	
+
 	private def createInterfaceResourceSet() {
 		#["storing_server.ecore", "DEVSMM.ecore", "storing_server.henshin", "devsmm.henshin"].createResourceSet
 	}
@@ -69,25 +69,24 @@ class ParsingAndValidationTests extends AbstractTest {
 	 * Tests basic parsing and linking for a sunshine case
 	 */
 	@Test
-	def void parsingBasic() {	
+	def void parsingBasic() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-					}
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-						reference server.Server.Out => devsmm.Machine.out
-					}
+			map {
+				from {
+					metamodel: "server"
 				}
-			''',
-			createNormalResourceSet)
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
@@ -101,10 +100,12 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
 		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
 
-		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
-		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+		assertNotNull("Did not load source reference",
+			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference",
+			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 	}
-	
+
 	/**
 	 * Test basic parsing with auto-complete annotation.
 	 */
@@ -113,64 +114,62 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete map {
-					from {
-						metamodel: "server"
-					}
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-						reference server.Server.Out => devsmm.Machine.out
-					}
+			auto-complete map {
+				from {
+					metamodel: "server"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-		
+
 		assertTrue("Not set to auto-complete", result.autoComplete)
 		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
 	}
-	
+
 	/**
 	 * Tests basic parsing and linking with behaviour mapping
 	 */
 	@Test
-	def void parsingBasicWithBehaviour() {	
+	def void parsingBasicWithBehaviour() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-						behaviour: "serverRules"
-					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
 					}
 					
-					type_mapping {
-						class server.Server => devsmm.Machine
-						reference server.Server.Out => devsmm.Machine.out
-					}
-					
-					behaviour_mapping {
-						rule process to process {
-							object input => in_part
-							link [in_queue->input:elts] => [tray->in_part:parts]
-						}
-						
-						rule process to process {
-							// Test that empty rule maps are allowed
-						}
+					rule process to process {
+						// Test that empty rule maps are allowed
 					}
 				}
-			''',
-			createNormalResourceSet)
+			}
+		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
@@ -184,53 +183,54 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
 		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
 
-		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
-		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+		assertNotNull("Did not load source reference",
+			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference",
+			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
 		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
 		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
-		
+
 		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
 		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
-		
-		val ruleMap = result.behaviourMapping.mappings.get(0)
-		assertNotNull ("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
-		assertNotNull ("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
 
-		assertNotNull ("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
-		assertNotNull ("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
+		val ruleMap = result.behaviourMapping.mappings.get(0)
+		assertNotNull("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+		assertNotNull("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNotNull("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+		assertNotNull("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
 	}
-	
+
 	/**
 	 * Tests basic parsing and linking with behaviour mapping
 	 */
 	@Test
-	def void parsingBasicWithBehaviourWithRuleMapToEmpty() {	
+	def void parsingBasicWithBehaviourWithRuleMapToEmpty() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-						behaviour: "serverRules"
-					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-						reference server.Server.Out => devsmm.Machine.out
-					}
-					
-					behaviour_mapping {
-						rule process to empty {
-						}
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to empty {
 					}
 				}
-			''',
-			createNormalResourceSet)
+			}
+		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
@@ -244,48 +244,49 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
 		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
 
-		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
-		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+		assertNotNull("Did not load source reference",
+			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference",
+			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
 		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
 		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
-		
+
 		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
 		assertTrue("Expected rule to be marked as empty target", result.behaviourMapping.mappings.get(0).target_empty)
 	}
-	
+
 	/**
 	 * Tests basic parsing and linking with behaviour mapping for an interface-mapping
 	 */
 	@Test
-	def void parsingBasicWithBehaviourAndInterface() {	
+	def void parsingBasicWithBehaviourAndInterface() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from interface_of {
-						metamodel: "server"
-						behaviour: "serverRules"
-					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-						reference server.Server.Out => devsmm.Machine.out
-					}
-					
-					behaviour_mapping {
-						rule process to process {
-							object input => in_part
-							link [in_queue->input:elts] => [tray->in_part:parts]
-						}
+			map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
 					}
 				}
-			''',
-			createInterfaceResourceSet)
+			}
+		''', createInterfaceResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
@@ -299,21 +300,23 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
 		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
 
-		assertNotNull("Did not load source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
-		assertNotNull("Did not load target reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+		assertNotNull("Did not load source reference",
+			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference",
+			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
 		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
 		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
-		
+
 		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
 		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
-		
-		val ruleMap = result.behaviourMapping.mappings.get(0)
-		assertNotNull ("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
-		assertNotNull ("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
 
-		assertNotNull ("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
-		assertNotNull ("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
+		val ruleMap = result.behaviourMapping.mappings.get(0)
+		assertNotNull("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+		assertNotNull("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNotNull("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+		assertNotNull("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
 	}
 
 	/**
@@ -324,24 +327,23 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "server"
-					}
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-						reference server.Server.Out => devsmm.Machine.out
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "server"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-		
+
 		assertTrue("Not set to auto-complete", result.autoComplete)
 		assertTrue("Not set to unique auto-complete", result.uniqueCompletion)
 	}
@@ -354,26 +356,27 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "C"
-					}
-					to {
-						metamodel: "D"
-					}
-					
-					type_mapping {
-						class C.C1 => D.D1
-						attribute C.C1.a1 => D.D1.a1
-					}
+			map {
+				from {
+					metamodel: "C"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+				to {
+					metamodel: "D"
+				}
+				
+				type_mapping {
+					class C.C1 => D.D1
+					attribute C.C1.a1 => D.D1.a1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-		
-		assertNotNull("Did not resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
-		assertNotNull("Did not resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+
+		assertNotNull("Did not resolve source attribute",
+			(result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+		assertNotNull("Did not resolve target attribute",
+			(result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
 	}
 
 	/**
@@ -386,24 +389,23 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "A"
-					}
-					to {
-						metamodel: "B"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-						attribute C.C1.a1 => D.D1.a1
-					}
+			map {
+				from {
+					metamodel: "A"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+				to {
+					metamodel: "B"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					attribute C.C1.a1 => D.D1.a1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-		
+
 		assertNull("Did resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
 		assertNull("Did resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
 	}
@@ -416,38 +418,41 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "C"
-						behaviour: "CRules"
-					}
-					to {
-						metamodel: "D"
-						behaviour: "DRules"
-					}
-					
-					type_mapping {
-						class C.C1 => D.D1
-						attribute C.C1.a1 => D.D1.a1
-					}
-					
-					behaviour_mapping {
-						rule do to do {
-							object c1 => d1
-							slot c1.a1 => d1.a1
-						}
+			map {
+				from {
+					metamodel: "C"
+					behaviour: "CRules"
+				}
+				to {
+					metamodel: "D"
+					behaviour: "DRules"
+				}
+				
+				type_mapping {
+					class C.C1 => D.D1
+					attribute C.C1.a1 => D.D1.a1
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						object c1 => d1
+						slot c1.a1 => d1.a1
 					}
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-		
-		assertNotNull("Did not resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
-		assertNotNull("Did not resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
 
-		assertNotNull("Did not resolve source slot", (result.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).source.name)
-		assertNotNull("Did not resolve target slot", (result.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).target.name)
+		assertNotNull("Did not resolve source attribute",
+			(result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+		assertNotNull("Did not resolve target attribute",
+			(result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+
+		assertNotNull("Did not resolve source slot",
+			(result.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).source.name)
+		assertNotNull("Did not resolve target slot",
+			(result.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).target.name)
 	}
 
 	/**
@@ -458,36 +463,36 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						family: {
-							metamodel: "server"
-							transformers: "transformerRules"
-						}
-						
-						using [
-							addSubClass(server.Server, "Server1"),
-							addSubClass(server.Server, "Server2")
-						]
+			map {
+				from {
+					family: {
+						metamodel: "server"
+						transformers: "transformerRules"
 					}
 					
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server1 => devsmm.Machine
-						reference server.Server.Out => devsmm.Machine.out
-					}
+					using [
+						addSubClass(server.Server, "Server1"),
+						addSubClass(server.Server, "Server2")
+					]
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+				
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server1 => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-		
+
 		assertNotNull("Didn't manage to load transformers.", (result.source.gts as GTSFamilyChoice).transformers.name)
-		
-		assertNotNull("Didn't find transformer being invoked", (result.source.gts as GTSFamilyChoice).transformationSteps.steps.head.unit.name)
+
+		assertNotNull("Didn't find transformer being invoked",
+			(result.source.gts as GTSFamilyChoice).transformationSteps.steps.head.unit.name)
 	}
 
 	/**
@@ -498,33 +503,32 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-						behaviour: "serverRules"
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class devsmm.Machine => server.Server 
+					reference devsmm.Machine.out => server.Server.Out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object in_part => input
+						link [tray->in_part:parts] => [in_queue->input:elts]
 					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
-					}
-					
-					type_mapping {
-						class devsmm.Machine => server.Server 
-						reference devsmm.Machine.out => server.Server.Out
-					}
-					
-					behaviour_mapping {
-						rule process to process {
-							object in_part => input
-							link [tray->in_part:parts] => [in_queue->input:elts]
-						}
-						rule process to process {
-							object in_part => input
-						}
+					rule process to process {
+						object in_part => input
 					}
 				}
-			''',
-			createNormalResourceSet)
+			}
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as source and target are switched in the class mapping
@@ -534,15 +538,15 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 
 //		(result.typeMapping.mappings.get(0) as ClassMapping).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
-
-		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 
 		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, Diagnostic.LINKING_DIAGNOSTIC)
-		
+
 		assertTrue(issues.length == 15)
 	}
-	
+
 	/**
 	 * Tests validation of GTS specifications
 	 */
@@ -551,32 +555,32 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-						behaviour: "devsmmRules"
-					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine 
-					}
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "devsmmRules"
 				}
-			''',
-			createNormalResourceSet)
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine 
+				}
+			}
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there is an invalid GTS specification
 		val issues = result.validate()
-		
-		result.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
-		
+
+		result.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION,
+			XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
+
 		assertTrue("Also failed check on target GTS", issues.length == 4) // There's also three incomplete mapping warnings (one for the metamodel and two for the rules)
 	}
-	
+
 	/**
 	 * Tests how the validator handles a missing metamodel specification.
 	 */
@@ -596,14 +600,13 @@ class ParsingAndValidationTests extends AbstractTest {
 					class devsmm.Machine => server.Server
 				}
 			}
-			''',
-			createNormalResourceSet)
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there is an invalid GTS specification
 		result.validate()
 	}
-	
+
 	/**
 	 * Tests validation against duplicate mappings
 	 */
@@ -612,57 +615,62 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-						behaviour: "serverRules"
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine 
+					class server.Server => devsmm.Assemble 
+					reference server.Server.In => devsmm.Machine.in 
+					reference server.Server.In => devsmm.Machine.out
+					reference server.Queue.elts => devsmm.Container.parts
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object server => machine
+						object server => machine
+						link [in_queue->input:elts] => [tray->in_part:parts]
+						link [in_queue->input:elts] => [tray->in_part:parts]
 					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine 
-						class server.Server => devsmm.Assemble 
-						reference server.Server.In => devsmm.Machine.in 
-						reference server.Server.In => devsmm.Machine.out
-						reference server.Queue.elts => devsmm.Container.parts
-					}
-					
-					behaviour_mapping {
-						rule process to process {
-							object server => machine
-							object server => machine
-							link [in_queue->input:elts] => [tray->in_part:parts]
-							link [in_queue->input:elts] => [tray->in_part:parts]
-						}
-						rule process to process {
-							object input => in_part
-						}
+					rule process to process {
+						object input => in_part
 					}
 				}
-			''',
-			createNormalResourceSet)
+			}
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
-		
-		result.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
-		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference In.")
-				
-		result.behaviourMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.DUPLICATE_RULE_MAPPING, "Duplicate mapping for Rule process.")
-		
-		val ruleMapping = result.behaviourMapping.mappings.get(0)
-		ruleMapping.element_mappings.get(1).assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, XDsmlComposeValidator.DUPLICATE_OBJECT_MAPPING, "Duplicate mapping for Object server.")
-		ruleMapping.element_mappings.get(3).assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.DUPLICATE_LINK_MAPPING, "Duplicate mapping for Link [in_queue->input:elts].")
 
-		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		
+		result.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING,
+			XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
+		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
+			XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference In.")
+
+		result.behaviourMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.RULE_MAPPING,
+			XDsmlComposeValidator.DUPLICATE_RULE_MAPPING, "Duplicate mapping for Rule process.")
+
+		val ruleMapping = result.behaviourMapping.mappings.get(0)
+		ruleMapping.element_mappings.get(1).assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING,
+			XDsmlComposeValidator.DUPLICATE_OBJECT_MAPPING, "Duplicate mapping for Object server.")
+		ruleMapping.element_mappings.get(3).assertError(XDsmlComposePackage.Literals.LINK_MAPPING,
+			XDsmlComposeValidator.DUPLICATE_LINK_MAPPING, "Duplicate mapping for Link [in_queue->input:elts].")
+
+		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+
 		assertTrue(issues.length == 10)
-	} 
-	
+	}
+
 	/**
 	 * Tests validation against mappings that aren't morphisms
 	 */
@@ -671,30 +679,32 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-					}
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-						class server.Queue => devsmm.Container
-						reference server.Server.Out => devsmm.Machine.out
-						reference server.Server.In => devsmm.Machine.in
-					}
+			map {
+				from {
+					metamodel: "server"
 				}
-			''',
-			createNormalResourceSet)
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					class server.Queue => devsmm.Container
+					reference server.Server.Out => devsmm.Machine.out
+					reference server.Server.In => devsmm.Machine.in
+				}
+			}
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
-		result.typeMapping.mappings.get(2).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
-		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
-		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.typeMapping.mappings.get(2).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
+			XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
+		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
+			XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
+		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		assertTrue(issues.length == 3)
 	}
 
@@ -706,35 +716,76 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-						behaviour: "serverRules"
-					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.GenHandle
-						class server.Queue => devsmm.Conveyor
-						reference server.Server.Out => devsmm.Machine.out
-					}
-					
-					behaviour_mapping {
-						rule produce to generateHandle {
-							object s => g
-						}
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.GenHandle
+					class server.Queue => devsmm.Conveyor
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule produce to generateHandle {
+						object s => g
 					}
 				}
-			''',
-			createNormalResourceSet)
+			}
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
 		// Incomplete mapping errors 
 		assertTrue(issues.length == 4)
+	}
+
+	/**
+	 * Tests validation against mappings that are behaviour morphisms
+	 */
+	@Test
+	def void morphismBehaviourMappingWithToEmptyRuleMappingNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.GenHandle
+					class server.Queue => devsmm.Conveyor
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule produce to empty {
+						object s => g
+					}
+				}
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		result.behaviourMapping.mappings.get(0).assertError(
+			XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.NON_EMPTY_TO_EMPTY_RULE_MAPPING)
+
+		// Incomplete mapping errors 
+		assertTrue(issues.length == 6)
 	}
 
 	/**
@@ -745,38 +796,37 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-						behaviour: "serverRules"
-					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.GenHandle
-						class server.Queue => devsmm.Conveyor
-						reference server.Server.Out => devsmm.Machine.out
-					}
-					
-					behaviour_mapping {
-						rule produce to generateHandle {
-							object s => g
-							object q => c
-							link [s->q:Out] => [c->h:parts]
-						}
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.GenHandle
+					class server.Queue => devsmm.Conveyor
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule produce to generateHandle {
+						object s => g
+						object q => c
+						link [s->q:Out] => [c->h:parts]
 					}
 				}
-			''',
-			createNormalResourceSet)
+			}
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
-		
+
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
-		
+
 		// Various incomplete mapping errors 
 		assertTrue(issues.length == 5)
 	}
@@ -789,24 +839,25 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete map {
-					from {
-						metamodel: "A"
-					}
-					to {
-						metamodel: "B"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete map {
+				from {
+					metamodel: "A"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
-		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
-		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+				to {
+					metamodel: "B"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 	}
 
 	/**
@@ -817,25 +868,26 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-					}
-					to {
-						metamodel: "B"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
-		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
-		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		
+				to {
+					metamodel: "B"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+
 		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.NO_UNIQUE_COMPLETION)
 	}
 
@@ -847,28 +899,29 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-						behaviour: "ARules"
-					}
-					
-					to {
-						metamodel: "B"
-						behaviour: "BRules"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
+					behaviour: "ARules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
-		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
-		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		
+				
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+
 		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.NO_UNIQUE_COMPLETION)
 	}
 
@@ -883,28 +936,29 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-						behaviour: "ARules"
-					}
-					
-					to {
-						metamodel: "B"
-						behaviour: "B2Rules"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
+					behaviour: "ARules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
-		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
-		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		
+				
+				to {
+					metamodel: "B"
+					behaviour: "B2Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoErrors(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+
 		result.assertNoError(XDsmlComposeValidator.NO_UNIQUE_COMPLETION)
 	}
 
@@ -916,27 +970,28 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete map {
-					from {
-						metamodel: "server"
-					}
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-						class server.Queue => devsmm.Container
-					}
+			auto-complete map {
+				from {
+					metamodel: "server"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
-		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
-		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					class server.Queue => devsmm.Container
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
+		result.assertNoWarnings(XDsmlComposePackage.Literals.TYPE_GRAPH_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 	}
-	
+
 	/**
 	 * Tests auto-completion of behaviour morphisms
 	 */
@@ -972,18 +1027,17 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 				}
 			}
-			''',
-			createNormalResourceSet)
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
 
 		// For now 
 		// TODO: update with proper size
-		assertTrue(issues.empty)		
-		// TODO Add more meaningful tests
+		assertTrue(issues.empty)
+	// TODO Add more meaningful tests
 	}
-	
+
 	/**
 	 * Tests auto-completion of behaviour morphisms with empty rule map
 	 */
@@ -1018,8 +1072,7 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 				}
 			}
-			''',
-			createNormalResourceSet)
+		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
@@ -1027,9 +1080,9 @@ class ParsingAndValidationTests extends AbstractTest {
 		// For now 
 		// TODO: update with proper size
 		assertTrue(issues.empty)
-		// TODO Add more meaningful tests
+	// TODO Add more meaningful tests
 	}
-	
+
 	/**
 	 * Tests that completeness check works correctly for complete mappings
 	 */
@@ -1038,30 +1091,30 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						metamodel: "server"
-					}
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Element => devsmm.Part
-						class server.Queue => devsmm.Tray
-						class server.Server => devsmm.Machine
-						class server.Input => devsmm.Part
-						class server.Output => devsmm.Part
-						reference server.Server.In => devsmm.Machine.in
-						reference server.Server.Out => devsmm.Machine.in
-						reference server.Queue.elts => devsmm.Container.parts
-					} 
+			map {
+				from {
+					metamodel: "server"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
-		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Element => devsmm.Part
+					class server.Queue => devsmm.Tray
+					class server.Server => devsmm.Machine
+					class server.Input => devsmm.Part
+					class server.Output => devsmm.Part
+					reference server.Server.In => devsmm.Machine.in
+					reference server.Server.Out => devsmm.Machine.in
+					reference server.Queue.elts => devsmm.Container.parts
+				} 
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 	}
 
 	/**
@@ -1114,12 +1167,12 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 				}
 			}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
-		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		result.assertNoIssue(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.INCOMPLETE_RULE_MAPPING)		
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.assertNoIssue(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.INCOMPLETE_RULE_MAPPING)
 	}
 
 	/**
@@ -1164,56 +1217,59 @@ class ParsingAndValidationTests extends AbstractTest {
 					}
 				}
 			}
-			''',
-			createInterfaceResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
-		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
-		result.assertNoIssue(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.INCOMPLETE_RULE_MAPPING)		
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoWarnings(XDsmlComposePackage.Literals.GTS_MAPPING,
+			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
+		result.assertNoIssue(XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.INCOMPLETE_RULE_MAPPING)
 	}
 
 	/**
 	 * Tests that in interface-mappings we cannot map non-interface elements
 	 */
 	@Test
-	def void validateNonInterfaceElementMappingAttempts() {	
+	def void validateNonInterfaceElementMappingAttempts() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from interface_of {
-						metamodel: "server"
-						behaviour: "serverRules"
-					}
-					to {
-						metamodel: "devsmm"
-						behaviour: "devsmmRules"
-					}
-					
-					type_mapping {
-						class server.ServerObserver => devsmm.Machine
-						reference server.ServerObserver.server => devsmm.Machine.out
-					}
-					
-					behaviour_mapping {
-						rule process to process {
-							object so => machine
-							link [so->server:server] => [machine->conveyor:out]
-						}
+			map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.ServerObserver => devsmm.Machine
+					reference server.ServerObserver.server => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object so => machine
+						link [so->server:server] => [machine->conveyor:out]
 					}
 				}
-			''',
-			createInterfaceResourceSet)
+			}
+		''', createInterfaceResourceSet)
 		assertNotNull("Did not produce parse result", result)
-		
-		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING, XDsmlComposeValidator.NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
-		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING, XDsmlComposeValidator.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
 
-		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING, XDsmlComposeValidator.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
-		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING, XDsmlComposeValidator.NON_INTERFACE_LINK_MAPPING_ATTEMPT)
+		result.assertError(XDsmlComposePackage.Literals.CLASS_MAPPING,
+			XDsmlComposeValidator.NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
+		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
+			XDsmlComposeValidator.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
+
+		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING,
+			XDsmlComposeValidator.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
+		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING,
+			XDsmlComposeValidator.NON_INTERFACE_LINK_MAPPING_ATTEMPT)
 		result.assertNoError(XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
 	}
-	
+
 	/**
 	 * Test validation of transformer rules with a GTS family specification
 	 */
@@ -1222,33 +1278,33 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						family: {
-							metamodel: "server"
-							transformers: "serverRules"
-						}
-						
-						using [
-							addSubClass(server.Server, "Server1"),
-							addSubClass(server.Server, "Server2")
-						]
+			map {
+				from {
+					family: {
+						metamodel: "server"
+						transformers: "serverRules"
 					}
 					
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-					}
+					using [
+						addSubClass(server.Server, "Server1"),
+						addSubClass(server.Server, "Server2")
+					]
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+				
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		result.assertError(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE, XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
+		result.assertError(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE,
+			XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
 	}
 
 	/**
@@ -1259,30 +1315,29 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						family: {
-							metamodel: "server"
-							transformers: "transformerRules"
-						}
-						
-						using [
-							addSubClass(server.Server, "Server1"),
-							addSubClass(server.Server, "Server2")
-						]
+			map {
+				from {
+					family: {
+						metamodel: "server"
+						transformers: "transformerRules"
 					}
 					
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-					}
+					using [
+						addSubClass(server.Server, "Server1"),
+						addSubClass(server.Server, "Server2")
+					]
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+				
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
 		result.assertNoError(XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
@@ -1296,36 +1351,38 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				map {
-					from {
-						family: {
-							metamodel: "server"
-							transformers: "transformerRules"
-						}
-						
-						using [
-							addSubClass("Server1"),
-							addSubClass("Server2", server.Server)
-						]
+			map {
+				from {
+					family: {
+						metamodel: "server"
+						transformers: "transformerRules"
 					}
 					
-					to {
-						metamodel: "devsmm"
-					}
-					
-					type_mapping {
-						class server.Server => devsmm.Machine
-					}
+					using [
+						addSubClass("Server1"),
+						addSubClass("Server2", server.Server)
+					]
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
+				
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
 		result.assertNoError(XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
-		
-		result.assertError(XDsmlComposePackage.Literals.UNIT_CALL, XDsmlComposeValidator.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
-		result.assertError(XDsmlComposePackage.Literals.EOBJECT_REFERENCE_PARAMETER, XDsmlComposeValidator.INVALID_UNIT_CALL_PARAMETER_TYPE)
-		result.assertError(XDsmlComposePackage.Literals.STRING_PARAMETER, XDsmlComposeValidator.INVALID_UNIT_CALL_PARAMETER_TYPE)
+
+		result.assertError(XDsmlComposePackage.Literals.UNIT_CALL,
+			XDsmlComposeValidator.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
+		result.assertError(XDsmlComposePackage.Literals.EOBJECT_REFERENCE_PARAMETER,
+			XDsmlComposeValidator.INVALID_UNIT_CALL_PARAMETER_TYPE)
+		result.assertError(XDsmlComposePackage.Literals.STRING_PARAMETER,
+			XDsmlComposeValidator.INVALID_UNIT_CALL_PARAMETER_TYPE)
 	}
 }
