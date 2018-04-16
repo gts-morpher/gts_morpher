@@ -240,28 +240,29 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Check that the given rule mapping is complete
 	 */
 	private def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
-		val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
-		val elementIndex = new HashMap<String, List<GraphElement>>()
-		mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
-		mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
-		
-		val inComplete = elementIndex.entrySet.exists[e |
-			!mapping.element_mappings.exists[em |
-				((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
-				((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source))) ||
-				((em instanceof SlotMapping) && (e.value.contains((em as SlotMapping).source)))
-			]
-		]
-
-		if (inComplete) {
-			if (validator !== null) {
-				validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
-					XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
-			}
+		if (!mapping.target_identity) { // Mappings to the identity rule are implicitly complete by definition.
+			val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
+			val elementIndex = new HashMap<String, List<GraphElement>>()
+			mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
+			mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
 			
-			return false
-		}
-		
+			val inComplete = elementIndex.entrySet.exists[e |
+				!mapping.element_mappings.exists[em |
+					((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
+					((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source))) ||
+					((em instanceof SlotMapping) && (e.value.contains((em as SlotMapping).source)))
+				]
+			]
+	
+			if (inComplete) {
+				if (validator !== null) {
+					validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
+						XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
+				}
+				
+				return false
+			}
+		}		
 		true
 	}
 	

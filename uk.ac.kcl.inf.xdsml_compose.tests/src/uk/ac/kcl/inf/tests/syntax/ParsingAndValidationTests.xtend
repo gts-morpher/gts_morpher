@@ -785,7 +785,7 @@ class ParsingAndValidationTests extends AbstractTest {
 			XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.NON_EMPTY_TO_IDENTITY_RULE_MAPPING)
 
 		// Incomplete mapping errors, source not an identity 
-		assertTrue(issues.length == 7)
+		assertTrue(issues.length == 6)
 	}
 
 	/**
@@ -826,7 +826,7 @@ class ParsingAndValidationTests extends AbstractTest {
 			XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
 
 		// Incomplete mapping errors 
-		assertTrue(issues.length == 5)
+		assertTrue(issues.length == 4)
 	}
 
 	/**
@@ -866,7 +866,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertNoError(XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
 
 		// Incomplete mapping errors 
-		assertTrue(issues.length == 5)
+		assertTrue(issues.length == 4)
 	}
 
 	/**
