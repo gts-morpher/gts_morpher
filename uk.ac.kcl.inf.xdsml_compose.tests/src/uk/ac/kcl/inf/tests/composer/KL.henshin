@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_v9j0EEGREeimBIP0gtQ7RQ" name="KRules">
+  <imports href="KL.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_1eKV4EGREeimBIP0gtQ7RQ" name="init">
+    <lhs xmi:id="_1eMLEEGREeimBIP0gtQ7RQ" name="Lhs">
+      <nodes xmi:id="_49RhEEGREeimBIP0gtQ7RQ" name="k1">
+        <type href="KL.ecore#//K1_L1"/>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_1eMyIEGREeimBIP0gtQ7RQ" name="Rhs">
+      <nodes xmi:id="_49RhEUGREeimBIP0gtQ7RQ" name="k1" incoming="_BgffUEGSEeimBIP0gtQ7RQ">
+        <type href="KL.ecore#//K1_L1"/>
+      </nodes>
+      <nodes xmi:id="_99jkEEGREeimBIP0gtQ7RQ" name="newK2" outgoing="_BgffUEGSEeimBIP0gtQ7RQ">
+        <type href="KL.ecore#//source__K2"/>
+      </nodes>
+      <edges xmi:id="_BgffUEGSEeimBIP0gtQ7RQ" source="_99jkEEGREeimBIP0gtQ7RQ" target="_49RhEUGREeimBIP0gtQ7RQ">
+        <type href="KL.ecore#//source__K2/source__observed"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_49SIIEGREeimBIP0gtQ7RQ" origin="_49RhEEGREeimBIP0gtQ7RQ" image="_49RhEUGREeimBIP0gtQ7RQ"/>
+  </units>
+</henshin:Module>

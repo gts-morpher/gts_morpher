@@ -1,0 +1,9 @@
+@namespace(uri="https://metamodel.woven/k/l", prefix="k_l")
+package K_L;
+
+class K1_L1 {
+}
+
+class source__K2 {
+	ref K1_L1 source__observed;
+}
