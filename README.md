@@ -7,10 +7,11 @@ This repository hosts a set of Eclipse plugins enabling the convenient definitio
 We currently do not yet have an update site or fully functional feature. As a result, the plugins can only be used in development mode, following the steps below:
 
 1. Install Eclipse, making sure to install EMF, Xtext, and Henshin. You may also wish to include an installation of EMFatic for easier editing of Ecore metamodels.
-2. Clone the repository and import all projects except for the example project into a fresh Eclipse workspace.
-3. Right-click on the [GenerateXDsmlCompose.mwe2](src/uk/ac/kcl/inf/GenerateXDsmlCompose.mwe2) file and choose `Run As/MWE2 workflow` to ensure all implementation files are correctly generated (this may be helpful to do also when pulling a new version of the repository).
-4. Choose `Run/Launch Runtime Eclipse` to start a fresh Eclipse with the plugins installed.
-5. Create a new project (we will also soon provide some example projects in the repository) and add a file with extension `.lang_compose`. In this file, you will be able to specify your GTS morphisms.
+2. Clone the Henshin-Xtext adapters from [github:szschaler/henshin_xtext_adapter](https://github.com/szschaler/henshin_xtext_adapter) and import the plugin projects therein into your workspace. Alternatively, install the plugins into your Eclipse.
+3. Clone the repository and import all projects except for the example project into your workspace.
+4. Right-click on the [GenerateXDsmlCompose.mwe2](src/uk/ac/kcl/inf/GenerateXDsmlCompose.mwe2) file and choose `Run As/MWE2 workflow` to ensure all implementation files are correctly generated (this may be helpful to do also when pulling a new version of the repository).
+5. Choose `Run/Launch Runtime Eclipse` to start a fresh Eclipse with the plugins installed.
+6. Create a new project (we will also soon provide some example projects in the repository) and add a file with extension `.lang_compose`. In this file, you will be able to specify your GTS morphisms.
 
 ## 2. Specifying GTS morphisms
 
