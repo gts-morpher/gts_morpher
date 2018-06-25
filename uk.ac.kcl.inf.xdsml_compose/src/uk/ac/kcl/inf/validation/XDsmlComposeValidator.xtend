@@ -331,7 +331,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 								val sortedImprovements = morphismCompleter.findImprovementOptions
 			
 								// TODO Propose fixes for behaviour mapping completions, too
-								error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
+								error('''Found Â«morphismCompleter.completedMappings.sizeÂ» potential completions. Consider mapping Â«sortedImprovements.head.mapMessageÂ» to improve uniqueness.''',
 									mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
 									sortedImprovements.map [ e |
 										e.value.map[eo|e.key.issueData(eo).toString]
@@ -376,7 +376,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	def checkValidUnitCallParameters(UnitCall call) {
 		val unitParams = call.unit.parameters.filter[p | p.kind != ParameterKind.VAR]
 		if (unitParams.size != call.params.parameters.size) {
-			error('''Wrong number of parameters in transformer call. Was given «call.params.parameters.size» parameters, but expected «unitParams.size».''',
+			error('''Wrong number of parameters in transformer call. Was given Â«call.params.parameters.sizeÂ» parameters, but expected Â«unitParams.sizeÂ».''',
 				call, XDsmlComposePackage.Literals.UNIT_CALL__PARAMS, WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
 		} else {
 			call.params.parameters.forEach[p1, idx|
@@ -430,10 +430,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	}
 
 		private def mapMessage(
-			Entry<EObject, Set<EObject>> mappingChoices) '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''
+			Entry<EObject, Set<EObject>> mappingChoices) '''Â«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}Â» Â«mappingChoices.key.qualifiedNameÂ» to any of [Â«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')Â»]'''
 
 		private def issueData(EObject source,
-			EObject target) '''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
+			EObject target) '''Â«if (source instanceof EClass) {'''class'''} else {'''reference'''}Â»:Â«source.qualifiedNameÂ»=>Â«target.qualifiedNameÂ»'''
 
 		private static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
 		private static val RULE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".ruleMappings"

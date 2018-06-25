@@ -271,7 +271,7 @@ class MorphismCompleter {
 			 */
 			private def int handleFoundTGMorphism(List<EObject> unmatchedBehaviourElements, boolean findAll) {
 				// TODO Better logging
-				println('''Found TG morphism {«typeMapping.entrySet.map[ e | '''«e.key.name» => «e.value.name»'''].join(',\n\t')»}.''')
+				println('''Found TG morphism {Â«typeMapping.entrySet.map[ e | '''Â«e.key.nameÂ» => Â«e.value.nameÂ»'''].join(',\n\t')Â»}.''')
 				completedTypeMapping = true
 
 				// Check if we need to do any behaviour mapping

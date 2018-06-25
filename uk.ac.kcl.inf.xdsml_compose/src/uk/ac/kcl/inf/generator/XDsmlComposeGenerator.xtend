@@ -45,25 +45,25 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	}
 
 	private dispatch def String generate(GTSSpecification spec) '''
-		«if (spec.interface_mapping) '''interface_of '''»{
-			«spec.gts.generate»
+		Â«if (spec.interface_mapping) '''interface_of '''Â»{
+			Â«spec.gts.generateÂ»
 		}
 	'''
 
 	private dispatch def String generate(GTSLiteral gts) '''
-		metamodel: "«gts.metamodel.name»"
-		«if (gts.behaviour !== null) '''behaviour: "«gts.behaviour.name»"'''»
+		metamodel: "Â«gts.metamodel.nameÂ»"
+		Â«if (gts.behaviour !== null) '''behaviour: "Â«gts.behaviour.nameÂ»"'''Â»
 	'''
 
 	private dispatch def String generate(GTSFamilyChoice gts) '''
 		family: {
-			«gts.root.generate»
+			Â«gts.root.generateÂ»
 			
-			transformers: "«gts.transformers.name»"
+			transformers: "Â«gts.transformers.nameÂ»"
 		}
 		
 		using [
-			«gts.transformationSteps.generate»
+			Â«gts.transformationSteps.generateÂ»
 		]
 	'''
 
