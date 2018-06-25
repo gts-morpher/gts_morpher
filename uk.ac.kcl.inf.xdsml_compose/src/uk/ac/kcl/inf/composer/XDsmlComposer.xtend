@@ -48,7 +48,7 @@ class XDsmlComposer {
 			exception = e
 		}
 
-		override getMessage() '''Exception occurred during language composition: «exception.message».'''
+		override getMessage() '''Exception occurred during language composition: Â«exception.messageÂ».'''
 	}
 
 	private static class IssueIssue implements XDsmlComposer.Issue {
@@ -58,7 +58,7 @@ class XDsmlComposer {
 			this.issue = issue
 		}
 
-		override getMessage() '''«issue.severityLabel»: «issue.message» at «issue.lineNumber»:«issue.column».'''
+		override getMessage() '''Â«issue.severityLabelÂ»: Â«issue.messageÂ» at Â«issue.lineNumberÂ»:Â«issue.columnÂ».'''
 
 		private def severityLabel(org.eclipse.xtext.validation.Issue issue) {
 			switch (issue.severity) {
@@ -200,7 +200,7 @@ class XDsmlComposer {
 			result.name = weaveNames(srcPackage.name, tgtPackage.name)
 			result.nsPrefix = weaveNames(srcPackage.nsPrefix, tgtPackage.nsPrefix)
 			// TODO We can probably do better here :-)
-			result.nsURI = '''https://metamodel.woven/«srcPackage.nsPrefix»/«tgtPackage.nsPrefix»'''
+			result.nsURI = '''https://metamodel.woven/Â«srcPackage.nsPrefixÂ»/Â«tgtPackage.nsPrefixÂ»'''
 			put(srcPackage.sourceKey, result)
 			put(tgtPackage.targetKey, result)
 
@@ -583,7 +583,7 @@ class XDsmlComposer {
 		} else if ((targetName === null) || (sourceName.equals(targetName))) {
 			sourceName.toString
 		} else
-			'''«sourceName»_«targetName»'''
+			'''Â«sourceNameÂ»_Â«targetNameÂ»'''
 	}
 
 	private static def String weaveDescriptions(CharSequence sourceDescription, CharSequence targetDescription) {
@@ -596,8 +596,8 @@ class XDsmlComposer {
 		} else if ((targetDescription === null) || (sourceDescription.equals(targetDescription))) {
 			sourceDescription.toString
 		} else
-			'''Merged from «sourceDescription» and «targetDescription».'''
+			'''Merged from Â«sourceDescriptionÂ» and Â«targetDescriptionÂ».'''
 	}
 
-	private static def String originName(String name, Origin origin) '''«origin.label»__«name»'''
+	private static def String originName(String name, Origin origin) '''Â«origin.labelÂ»__Â«nameÂ»'''
 }

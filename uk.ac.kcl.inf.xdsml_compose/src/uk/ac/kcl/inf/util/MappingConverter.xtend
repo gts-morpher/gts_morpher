@@ -77,14 +77,14 @@ class MappingConverter {
 
 		mapping.mappings.filter(ClassMapping).forEach [ cm |
 			if (_mapping.containsKey(cm.source)) {
-				issues.safeError('''Duplicate mapping for EClassifier «cm.source.name».''', cm,
+				issues.safeError('''Duplicate mapping for EClassifier Â«cm.source.nameÂ».''', cm,
 					XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, DUPLICATE_CLASS_MAPPING)
 			} else {
 				if ((srcIsInterface) && (!cm.source.isInterfaceElement)) {
-					issues.safeError('''EClassifier «cm.source.name» must be annotated as interface to be mapped.''',
+					issues.safeError('''EClassifier Â«cm.source.nameÂ» must be annotated as interface to be mapped.''',
 						cm, XDsmlComposePackage.Literals.CLASS_MAPPING__SOURCE, NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
 				} else if ((tgtIsInterface) && (!cm.target.isInterfaceElement)) {
-					issues.safeError('''EClassifier «cm.target.name» must be annotated as interface to be mapped.''',
+					issues.safeError('''EClassifier Â«cm.target.nameÂ» must be annotated as interface to be mapped.''',
 						cm, XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NON_INTERFACE_CLASS_MAPPING_ATTEMPT)
 				} else {
 					_mapping.put(cm.source, cm.target)
@@ -94,14 +94,14 @@ class MappingConverter {
 
 		mapping.mappings.filter(ReferenceMapping).forEach [ cm |
 			if (_mapping.containsKey(cm.source)) {
-				issues.safeError('''Duplicate mapping for EReference «cm.source.name».''', cm,
+				issues.safeError('''Duplicate mapping for EReference Â«cm.source.nameÂ».''', cm,
 					XDsmlComposePackage.Literals.REFERENCE_MAPPING__SOURCE, DUPLICATE_REFERENCE_MAPPING)
 			} else {
 				if ((srcIsInterface) && (!cm.source.isInterfaceElement)) {
-					issues.safeError('''EReference «cm.source.name» must be annotated as interface to be mapped.''', cm,
+					issues.safeError('''EReference Â«cm.source.nameÂ» must be annotated as interface to be mapped.''', cm,
 						XDsmlComposePackage.Literals.REFERENCE_MAPPING__SOURCE, NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
 				} else if ((tgtIsInterface) && (!cm.target.isInterfaceElement)) {
-					issues.safeError('''EReference «cm.target.name» must be annotated as interface to be mapped.''', cm,
+					issues.safeError('''EReference Â«cm.target.nameÂ» must be annotated as interface to be mapped.''', cm,
 						XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
 				} else {
 					_mapping.put(cm.source, cm.target)
@@ -111,14 +111,14 @@ class MappingConverter {
 
 		mapping.mappings.filter(AttributeMapping).forEach [ cm |
 			if (_mapping.containsKey(cm.source)) {
-				issues.safeError('''Duplicate mapping for EAttribute «cm.source.name».''', cm,
+				issues.safeError('''Duplicate mapping for EAttribute Â«cm.source.nameÂ».''', cm,
 					XDsmlComposePackage.Literals.ATTRIBUTE_MAPPING__SOURCE, DUPLICATE_ATTRIBUTE_MAPPING)
 			} else {
 				if ((srcIsInterface) && (!cm.source.isInterfaceElement)) {
-					issues.safeError('''EAttribute «cm.source.name» must be annotated as interface to be mapped.''', cm,
+					issues.safeError('''EAttribute Â«cm.source.nameÂ» must be annotated as interface to be mapped.''', cm,
 						XDsmlComposePackage.Literals.ATTRIBUTE_MAPPING__SOURCE, NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT)
 				} else if ((tgtIsInterface) && (!cm.target.isInterfaceElement)) {
-					issues.safeError('''EAttribute «cm.target.name» must be annotated as interface to be mapped.''', cm,
+					issues.safeError('''EAttribute Â«cm.target.nameÂ» must be annotated as interface to be mapped.''', cm,
 						XDsmlComposePackage.Literals.ATTRIBUTE_MAPPING__TARGET, NON_INTERFACE_ATTRIBUTE_MAPPING_ATTEMPT)
 				} else {
 					_mapping.put(cm.source, cm.target)
@@ -154,10 +154,10 @@ class MappingConverter {
 						issues.safeError("Duplicate mapping for Object " + em.source.name + ".", em,
 							XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, DUPLICATE_OBJECT_MAPPING)
 					} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
-						issues.safeError('''Object «em.source.name» must be an interface element to be mapped.''', em,
+						issues.safeError('''Object Â«em.source.nameÂ» must be an interface element to be mapped.''', em,
 							XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
 					} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
-						issues.safeError('''Object «em.target.name» must be an interface element to be mapped.''', em,
+						issues.safeError('''Object Â«em.target.nameÂ» must be an interface element to be mapped.''', em,
 							XDsmlComposePackage.Literals.OBJECT_MAPPING__TARGET, NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
 					} else {
 						_mapping.put(em.source, em.target)
@@ -184,10 +184,10 @@ class MappingConverter {
 						issues.safeError("Duplicate mapping for Link " + em.source.name + ".", em,
 							XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, DUPLICATE_LINK_MAPPING)
 					} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
-						issues.safeError('''Link «em.source.name» must be an interface element to be mapped.''', em,
+						issues.safeError('''Link Â«em.source.nameÂ» must be an interface element to be mapped.''', em,
 							XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NON_INTERFACE_LINK_MAPPING_ATTEMPT)
 					} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
-						issues.safeError('''Link «em.target.name» must be an interface element to be mapped.''', em,
+						issues.safeError('''Link Â«em.target.nameÂ» must be an interface element to be mapped.''', em,
 							XDsmlComposePackage.Literals.LINK_MAPPING__TARGET, NON_INTERFACE_LINK_MAPPING_ATTEMPT)
 					} else {
 						_mapping.put(em.source, em.target)
@@ -214,10 +214,10 @@ class MappingConverter {
 						issues.safeError("Duplicate mapping for Slot " + em.source.name + ".", em,
 							XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, DUPLICATE_SLOT_MAPPING)
 					} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
-						issues.safeError('''Slot «em.source.name» must be an interface element to be mapped.''', em,
+						issues.safeError('''Slot Â«em.source.nameÂ» must be an interface element to be mapped.''', em,
 							XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
 					} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
-						issues.safeError('''Slot «em.target.name» must be an interface element to be mapped.''', em,
+						issues.safeError('''Slot Â«em.target.nameÂ» must be an interface element to be mapped.''', em,
 							XDsmlComposePackage.Literals.SLOT_MAPPING__TARGET, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
 					} else {
 						_mapping.put(em.source, em.target)
