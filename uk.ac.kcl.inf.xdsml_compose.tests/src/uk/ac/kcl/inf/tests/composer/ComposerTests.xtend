@@ -256,6 +256,7 @@ class ComposerTests extends AbstractTest {
 		assertNotNull("Identity rule mappings should generate a virtual rule", result.behaviourMapping.mappings.head.target)
 
 		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		// TODO: This doesn't quite work yet. For some reason, the behaviour mapping doesn't auto-complete inside the virtual rule
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
@@ -267,7 +268,6 @@ class ComposerTests extends AbstractTest {
 		val composedLanguage = henshin.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("KL.henshin"), true).contents.head as Module
 		
-		// TODO: Fix is probably actually to change the way target rules are provided by RuleMappings (similar to what I did for GTS Family Choice)
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 

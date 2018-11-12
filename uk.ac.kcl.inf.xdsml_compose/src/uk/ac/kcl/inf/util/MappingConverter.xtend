@@ -15,12 +15,14 @@ import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.GraphElement
+import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.scoping.IScope
+import org.eclipse.xtext.util.OnChangeEvictingCache
 import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
@@ -42,6 +44,7 @@ import static org.eclipse.xtext.scoping.Scopes.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.isInterfaceElement
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 /**
@@ -259,12 +262,21 @@ class MappingConverter {
 		_mapping
 	}
 
+	private static val ruleMappingTargetCache = new OnChangeEvictingCache
+
 	public static def getTarget(RuleMapping rm) {
-		rm.realTarget
+		if (!rm.target_identity) {
+			rm.realTarget
+		} else {
+			ruleMappingTargetCache.get(rm, rm.eResource, [
+				rm.deriveIdentityTargetRule
+			])
+		}
 	}
 
 	public static def setTarget(RuleMapping rm, Rule r) {
 		rm.realTarget = r
+		rm.target_identity = false
 		println("Called to set the target of a rule mapping... Need to enhance this to support to identity mappings.")
 	}
 
@@ -278,10 +290,10 @@ class MappingConverter {
 		if (res === null) {
 			throw new IllegalArgumentException("res must not be null")
 		}
-		
+
 		val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
 		res.contents.add(result)
-		
+
 		result.source = from.resourceLocalCopy
 		result.target = to.resourceLocalCopy
 
@@ -342,18 +354,21 @@ class MappingConverter {
 		// FIXME: Need to handle this differently depending on whether the original mapping was to identity or not
 		result.target = tgtRule.correspondingTargetElement(mapping)
 
-		 
 		result.element_mappings.addAll(behaviourMappings.filter [ e |
 			// Ensure kernel elements are included only once in the mapping and with their lhs representative
 			if ((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) {
 				if (e.key.eContainer === srcRule.rhs) {
-					!(srcRule.lhs.nodes.exists[n | n.name == e.key.name] || srcRule.lhs.edges.exists[ed | ed.name == e.key.name])
+					!(srcRule.lhs.nodes.exists[n|n.name == e.key.name] || srcRule.lhs.edges.exists [ ed |
+						ed.name == e.key.name
+					])
 				} else {
 					true
 				}
 			} else if ((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule)) {
 				if (e.key.eContainer.eContainer == srcRule.rhs) {
-					!(srcRule.lhs.nodes.exists[n | (n.name == e.key.eContainer.name) && n.attributes.exists[a | a.type === (e.key as Attribute).type]])
+					!(srcRule.lhs.nodes.exists [ n |
+						(n.name == e.key.eContainer.name) && n.attributes.exists[a|a.type === (e.key as Attribute).type]
+					])
 				} else {
 					true
 				}
@@ -479,6 +494,101 @@ class MappingConverter {
 		String code, String... issueData) {
 		if (issues !== null) {
 			issues.error(message, source, feature, code, issueData)
+		}
+	}
+
+	private static extension val HenshinFactory FACTORY = HenshinFactory.eINSTANCE
+
+	/**
+	 * Generate a virtual rule to map to for this rule mapping
+	 */
+	private static def Rule deriveIdentityTargetRule(RuleMapping rm) {
+		val gtsMapping = rm.eContainer.eContainer as GTSMapping
+		val isInterfaceMapping = gtsMapping.source.interface_mapping
+		if (rm.source.isIdentityRule(isInterfaceMapping)) {
+			// Generate a suitable identity rule
+			// Note this works here only using the information that's explictly available in the type mapping. 
+			// Need to consider what to do with auto-completion cases.
+			// TODO May need to cache this against the target metamodel resource, if any
+			val virtualRule = createRule(rm.source.name)
+			val lhs = createGraph("Lhs")
+			val rhs = createGraph("Rhs")
+
+			virtualRule.lhs = lhs
+			virtualRule.rhs = rhs
+
+			// Make sure rule is properly contained in some containment hierarchy
+			val targetGTS = gtsMapping.target
+			if (targetGTS === null) {
+				return null
+			}
+
+			val targetBehaviour = targetGTS.behaviour
+			var Resource targetBehaviourResource
+			if (targetBehaviour === null) {
+				targetBehaviourResource = targetGTS.metamodel.eResource
+				var module = (targetBehaviourResource.allContents.findFirst[eo|eo instanceof Module] as Module)
+				
+				if (module === null) {
+					module = createModule
+					targetBehaviourResource.contents.add(module)
+				}
+
+				module.units.add(virtualRule)
+			} else {
+				targetBehaviourResource = targetBehaviour.eResource;
+				(targetBehaviourResource.allContents.head as Module).units.add(virtualRule)
+			}
+
+			// Generate all the nodes
+			val nodesMap = new HashMap<Node, Pair<Node, Node>>
+			rm.source.lhs.nodes.filter[n|!isInterfaceMapping || n.isInterfaceElement].forEach [ n |
+				val lhsNode = createNode(lhs, n.type.getMapped(gtsMapping), n.name)
+				val rhsNode = createNode(lhs, n.type.getMapped(gtsMapping), n.name)
+
+				lhs.nodes.add(lhsNode)
+				rhs.nodes.add(rhsNode)
+
+				nodesMap.put(n, new Pair(lhsNode, rhsNode))
+
+				virtualRule.mappings.add(createMapping(lhsNode, rhsNode))
+			]
+
+			// Generate all edges
+			rm.source.lhs.edges.filter[e|!isInterfaceMapping || e.isInterfaceElement].forEach [ e |
+				val srcNodes = nodesMap.get(e.source)
+				val tgtNodes = nodesMap.get(e.target)
+
+				val lhsEdge = createEdge(srcNodes.key, tgtNodes.value, e.type.getMapped(gtsMapping))
+				val rhsEdge = createEdge(srcNodes.key, tgtNodes.value, e.type.getMapped(gtsMapping))
+
+				lhs.edges.add(lhsEdge)
+				rhs.edges.add(rhsEdge)
+			]
+
+			virtualRule
+		} else {
+			throw new IllegalStateException("Cannot map to a virtual identity rule if source isn't an identity")
+		}
+	}
+
+	private static def getMapped(EClass srcClass, GTSMapping gtsMapping) {
+		val mapping = gtsMapping.typeMapping.mappings.filter(ClassMapping).findFirst[mp|mp.source === srcClass]
+
+		if (mapping !== null) {
+			mapping.target as EClass
+		} else {
+			null
+		}
+	}
+
+	private static def getMapped(EReference srcRef, GTSMapping gtsMapping) {
+		val mapping = gtsMapping.typeMapping.mappings.filter(ReferenceMapping).findFirst[mp|mp.source === srcRef]
+
+		if (mapping !== null) {
+			mapping.target
+		} else {
+			null
 		}
 	}
 }
