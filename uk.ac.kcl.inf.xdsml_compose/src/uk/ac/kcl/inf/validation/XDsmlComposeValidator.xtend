@@ -54,6 +54,7 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.MappingConverter.getTarget
 
 /**
  * This class contains custom validation rules. 
@@ -146,7 +147,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 						if (!srcIsInterface || (message != GENERAL_KERNEL_MISMATCH)) {
 							error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
 								rm.source == object as Rule
-							], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+							], XDsmlComposePackage.Literals.RULE_MAPPING__REAL_TARGET, NOT_A_RULE_MORPHISM)
 						}
 					} else if (object instanceof Edge) {
 						if (!srcIsInterface || isInterfaceElement(object.type)) {

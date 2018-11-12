@@ -36,6 +36,7 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import static org.eclipse.xtext.scoping.Scopes.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import static extension uk.ac.kcl.inf.util.MappingConverter.getTarget
 
 /**
  * This class contains custom scoping description.
@@ -105,7 +106,7 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		rm_scope((context.eContainer.eContainer as GTSMapping).source)
 	}
 
-	def IScope scope_RuleMapping_target(RuleMapping context, EReference ref) {
+	def IScope scope_RuleMapping_realTarget(RuleMapping context, EReference ref) {
 		rm_scope((context.eContainer.eContainer as GTSMapping).target)
 	}
 

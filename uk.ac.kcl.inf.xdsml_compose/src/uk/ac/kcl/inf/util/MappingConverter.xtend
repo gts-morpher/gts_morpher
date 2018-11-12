@@ -145,7 +145,7 @@ class MappingConverter {
 		mapping.mappings.forEach [ rm |
 			if (_mapping.containsKey(rm.target)) {
 				issues.safeError("Duplicate mapping for Rule " + rm.target.name + ".", rm,
-					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
+					XDsmlComposePackage.Literals.RULE_MAPPING__REAL_TARGET, DUPLICATE_RULE_MAPPING)
 			} else {
 				_mapping.put(rm.target, rm.source)
 
@@ -259,6 +259,15 @@ class MappingConverter {
 		_mapping
 	}
 
+	public static def getTarget(RuleMapping rm) {
+		rm.realTarget
+	}
+
+	public static def setTarget(RuleMapping rm, Rule r) {
+		rm.realTarget = r
+		println("Called to set the target of a rule mapping... Need to enhance this to support to identity mappings.")
+	}
+
 	/**
 	 * Extract a GTSMapping from the given map, using the given from and to as source and target respectively (which 
 	 * should be taken from the original GTSMapping). Place the new mapping in the given resource.
@@ -330,6 +339,7 @@ class MappingConverter {
 		val result = XDsmlComposeFactory.eINSTANCE.createRuleMapping
 
 		result.source = srcRule.correspondingSourceElement(mapping)
+		// FIXME: Need to handle this differently depending on whether the original mapping was to identity or not
 		result.target = tgtRule.correspondingTargetElement(mapping)
 
 		 

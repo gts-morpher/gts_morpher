@@ -21,6 +21,7 @@ import uk.ac.kcl.inf.util.IProgressMonitor
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static org.junit.Assert.*
+import static extension uk.ac.kcl.inf.util.MappingConverter.getTarget
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -252,6 +253,7 @@ class ComposerTests extends AbstractTest {
 			}
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
+		assertNotNull("Identity rule mappings should generate a virtual rule", result.behaviourMapping.mappings.head.target)
 
 		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
