@@ -49,7 +49,7 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 					val subMonitor = SubMonitor.convert(monitor, selection.size())
 
 					val status = selection.iterator.map [ f |
-						subMonitor.taskName = '''Composing xDSMLs mapped in «»(f as IFile).name».'''
+						subMonitor.taskName = '''Composing xDSMLs mapped in «(f as IFile).name».'''
 						handleFile(f as IFile, event.activeShell, subMonitor.split(1))
 					].reject[s|s.OK].toList
 
