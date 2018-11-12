@@ -49,7 +49,7 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 					val subMonitor = SubMonitor.convert(monitor, selection.size())
 
 					val status = selection.iterator.map [ f |
-						subMonitor.taskName = '''Composing xDSMLs mapped in «(f as IFile).name».'''
+						subMonitor.taskName = '''Composing xDSMLs mapped in Â«(f as IFile).nameÂ».'''
 						handleFile(f as IFile, event.activeShell, subMonitor.split(1))
 					].reject[s|s.OK].toList
 
@@ -90,7 +90,7 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 		if (!issues.empty) {
 			new MultiStatus(Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, IStatus.ERROR, issues.map [ i |
 					new Status(IStatus.ERROR, Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, i.message)
-				], '''Please fix any issues with the morphism specification in «f.name» before attempting to weave xDSMLs from it.''',
+				], '''Please fix any issues with the morphism specification in Â«f.nameÂ» before attempting to weave xDSMLs from it.''',
 				null)
 		} else {
 			Status.OK_STATUS

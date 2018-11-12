@@ -31,7 +31,7 @@ class EMFHelper {
 
 	static def CharSequence getQualifiedName(EObject eo) {
 		if (eo.eContainer !== null) {
-			'''«eo.eContainer.qualifiedName».«eo.getName()»'''
+			'''Â«eo.eContainer.qualifiedNameÂ».Â«eo.getName()Â»'''
 		} else {
 			eo.getName()
 		}

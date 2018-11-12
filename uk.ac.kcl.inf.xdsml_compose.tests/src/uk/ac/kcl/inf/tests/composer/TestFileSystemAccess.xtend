@@ -24,7 +24,7 @@ class TestFileSystemAccess implements IFileSystemAccess2 {
 	}
 	
 	override getURI(String path, String outputConfiguration) {
-		URI.createURI('''«TestURIHandlerImpl.TEST_URI_SCHEME»:/tests/«path»''')
+		URI.createURI('''Â«TestURIHandlerImpl.TEST_URI_SCHEMEÂ»:/tests/Â«pathÂ»''')
 	}
 	
 	override generateFile(String fileName, InputStream content) throws RuntimeIOException { }
