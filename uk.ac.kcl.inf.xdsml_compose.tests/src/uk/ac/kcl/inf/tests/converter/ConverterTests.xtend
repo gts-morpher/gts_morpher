@@ -68,7 +68,7 @@ class ConverterTests extends AbstractTest {
 	private def testConversionClassMapping(CharSequence srcText) {
 		'''
 			map {
-				«srcText»
+				Â«srcTextÂ»
 			
 				to {
 					metamodel: "B"
@@ -93,7 +93,7 @@ class ConverterTests extends AbstractTest {
 	private def testConversionReferenceMapping(CharSequence srcText) {
 		'''
 			map {
-				«srcText»
+				Â«srcTextÂ»
 			
 				to {
 					metamodel: "B"
@@ -118,7 +118,7 @@ class ConverterTests extends AbstractTest {
 	private def testConversionAttributeMapping(CharSequence srcText) {
 		'''
 			map {
-				«srcText»
+				Â«srcTextÂ»
 			
 				to {
 					metamodel: "B"
@@ -143,7 +143,7 @@ class ConverterTests extends AbstractTest {
 	private def testConversionObjectMapping(CharSequence srcText) {
 		'''
 			map {
-				«srcText»
+				Â«srcTextÂ»
 			
 				to {
 					metamodel: "B"
@@ -175,7 +175,7 @@ class ConverterTests extends AbstractTest {
 	private def testConversionEmptyRuleMapping(CharSequence srcText) {
 		'''
 			map {
-				«srcText»
+				Â«srcTextÂ»
 			
 				to {
 					metamodel: "B"
@@ -206,7 +206,7 @@ class ConverterTests extends AbstractTest {
 	private def testConversionLinkMapping(CharSequence srcText) {
 		'''
 			map {
-				«srcText»
+				Â«srcTextÂ»
 			
 				to {
 					metamodel: "B"
@@ -238,7 +238,7 @@ class ConverterTests extends AbstractTest {
 	private def testConversionSlotMapping(CharSequence srcText) {
 		'''
 			map {
-				«srcText»
+				Â«srcTextÂ»
 			
 				to {
 					metamodel: "B"

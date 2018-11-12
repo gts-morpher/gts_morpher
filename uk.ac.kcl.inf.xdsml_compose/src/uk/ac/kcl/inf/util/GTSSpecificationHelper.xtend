@@ -135,7 +135,7 @@ class GTSSpecificationHelper {
 										unitRunner.setParameterValue(p.name, parameterValue)
 									} else {
 										issues.add(new Issue() {
-											override getMessage() '''Could not resolve parameter «p.name».'''
+											override getMessage() '''Could not resolve parameter Â«p.nameÂ».'''
 
 											override unitCall() { transformerCall }
 										})
@@ -144,7 +144,7 @@ class GTSSpecificationHelper {
 								} catch (RuntimeException re) {
 									// These are thrown by setParameterValue
 									issues.add(new Issue() {
-										override getMessage() '''Could not set parameter: «re.message».'''
+										override getMessage() '''Could not set parameter: Â«re.messageÂ».'''
 
 										override unitCall() { transformerCall }
 									})
@@ -155,7 +155,7 @@ class GTSSpecificationHelper {
 							// Execute transformation step or throw exception if impossible (need to find a way to tie this into validation somehow)
 							if (!unitRunner.execute(null)) {
 								issues.add(new Issue() {
-									override getMessage() '''Could not apply transformer «transformerCall.unit.name».'''
+									override getMessage() '''Could not apply transformer Â«transformerCall.unit.nameÂ».'''
 
 									override unitCall() { transformerCall }
 								})
