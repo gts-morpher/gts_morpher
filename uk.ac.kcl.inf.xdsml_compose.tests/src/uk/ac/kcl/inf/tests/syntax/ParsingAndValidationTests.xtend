@@ -29,7 +29,6 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
-import static extension uk.ac.kcl.inf.util.MappingConverter.getTarget
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)

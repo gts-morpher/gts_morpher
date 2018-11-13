@@ -46,7 +46,6 @@ import static extension uk.ac.kcl.inf.util.EMFHelper.isInterfaceElement
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
-import javax.sound.sampled.BooleanControl.Type
 
 /**
  * Basic util methods for extracting mappings from GTSMappings and vice versa.
@@ -149,7 +148,7 @@ class MappingConverter {
 		mapping.mappings.forEach [ rm |
 			if (_mapping.containsKey(rm.target)) {
 				issues.safeError("Duplicate mapping for Rule " + rm.target.name + ".", rm,
-					XDsmlComposePackage.Literals.RULE_MAPPING__REAL_TARGET, DUPLICATE_RULE_MAPPING)
+					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
 			} else {
 				_mapping.put(rm.target, rm.source)
 
@@ -289,21 +288,22 @@ class MappingConverter {
 
 	private static val ruleMappingTargetCache = new OnChangeEvictingCache
 
-	public static def getTarget(RuleMapping rm) {
-		if (!rm.target_identity) {
-			rm.realTarget
-		} else {
-			ruleMappingTargetCache.get(rm, rm.eResource, [
-				rm.deriveIdentityTargetRule
-			])
-		}
-	}
-
-	public static def setTarget(RuleMapping rm, Rule r) {
-		rm.realTarget = r
-		rm.target_identity = false
-		println("Called to set the target of a rule mapping... Need to enhance this to support to identity mappings.")
-	}
+	// TODO: Do rule derivation only when extracting mappings. However, in those cases directly extract the mapping, not the rule
+//	private static def getTarget(RuleMapping rm) {
+//		if (!rm.target_identity) {
+//			rm.realTarget
+//		} else {
+//			ruleMappingTargetCache.get(rm, rm.eResource, [
+//				rm.deriveIdentityTargetRule
+//			])
+//		}
+//	}
+//
+//	public static def setTarget(RuleMapping rm, Rule r) {
+//		rm.realTarget = r
+//		rm.target_identity = false
+//		println("Called to set the target of a rule mapping... Need to enhance this to support to identity mappings.")
+//	}
 
 	/**
 	 * Extract a GTSMapping from the given map, using the given from and to as source and target respectively (which 
