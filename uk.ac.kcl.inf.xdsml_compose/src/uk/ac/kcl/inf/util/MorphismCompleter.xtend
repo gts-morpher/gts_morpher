@@ -43,7 +43,7 @@ class MorphismCompleter {
 	 */
 	static def createMorphismCompleter(GTSMapping mapping) {
 		val _typeMapping = mapping.typeMapping.extractMapping(null)
-		val _behaviourMapping = mapping.behaviourMapping.extractMapping(null)
+		val _behaviourMapping = mapping.behaviourMapping.extractMapping(_typeMapping, null)
 
 		new MorphismCompleter(_typeMapping, mapping.source.metamodel, mapping.target.metamodel, _behaviourMapping,
 			mapping.source.behaviour, mapping.target.behaviour, mapping.source.interface_mapping,
@@ -281,6 +281,7 @@ class MorphismCompleter {
 				}
 
 				// Check if we stand a chance of completing the behaviour mapping at all
+				// TODO: Need to implement "dependent" extraction of behaviour mappings at this point so that we can take the given type mapping into account
 				if (!checkValidMaybeIncompleteBehaviourMorphism(typeMapping, behaviourMapping, null)) {
 					println("Behaviour mapping is already not a morphism under this TG morphism.")
 					return unmatchedBehaviourElements.size + 1

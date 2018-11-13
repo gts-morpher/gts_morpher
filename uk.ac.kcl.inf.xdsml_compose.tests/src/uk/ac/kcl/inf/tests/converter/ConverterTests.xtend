@@ -266,7 +266,7 @@ class ConverterTests extends AbstractTest {
 
 		val mapping = result.typeMapping.extractMapping(null)
 		if (result.behaviourMapping !== null) {
-			mapping.putAll(result.behaviourMapping.extractMapping(null))
+			mapping.putAll(result.behaviourMapping.extractMapping(mapping, null))
 		}
 
 		val rs = result.eResource.resourceSet

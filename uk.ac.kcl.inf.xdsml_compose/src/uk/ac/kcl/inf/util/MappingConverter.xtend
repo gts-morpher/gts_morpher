@@ -132,9 +132,12 @@ class MappingConverter {
 	}
 
 	/**
-	 * Extract the rule mapping specified as a map object. Report duplicate entries as errors via the IssueAcceptor provided, if any.
+	 * Extract the rule mapping specified as a map object. Report duplicate entries as errors via the IssueAcceptor provided, if any. 
+	 * 
+	 * Mapping extraction will create virtual rules for to-identity mappings. To inform the types to be used in these virtual rules, 
+	 * it will use the type mapping provided, which should be derived from the typemapping in the GTSSpecification of the behaviour mapping given.
 	 */
-	public static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping, IssueAcceptor issues) {
+	public static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping, Map<EObject, EObject> typeGraphMapping, IssueAcceptor issues) {
 		val _mapping = new HashMap<EObject, EObject>
 
 		if (mapping === null) {

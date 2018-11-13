@@ -486,7 +486,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				return context.get(RULE_MAPPINGS) as Map<EObject, EObject>
 			}
 
-			val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
+			val tgMapping = extractMapping((mapping.eContainer as GTSMapping).typeMapping, null)
+			val Map<EObject, EObject> _mapping = extractMapping(mapping, tgMapping, new IssueAcceptor() {
 				override error(String message, EObject source, EStructuralFeature feature, String code,
 					String... issueData) {
 					XDsmlComposeValidator.this.error(message, source, feature, code, issueData)

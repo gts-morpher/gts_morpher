@@ -110,7 +110,7 @@ class XDsmlComposer {
 					result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
 				} else {
 					var tgMapping = mapping.typeMapping.extractMapping(null)
-					var behaviourMapping = mapping.behaviourMapping.extractMapping(null)
+					var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
 
 					if (mapping.autoComplete) {
 						_monitor.split("Autocompleting.", 1)
