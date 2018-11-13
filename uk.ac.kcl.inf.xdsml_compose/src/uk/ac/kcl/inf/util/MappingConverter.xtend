@@ -46,6 +46,7 @@ import static extension uk.ac.kcl.inf.util.EMFHelper.isInterfaceElement
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import javax.sound.sampled.BooleanControl.Type
 
 /**
  * Basic util methods for extracting mappings from GTSMappings and vice versa.
@@ -152,114 +153,138 @@ class MappingConverter {
 			} else {
 				_mapping.put(rm.target, rm.source)
 
-				rm.element_mappings.filter(ObjectMapping).forEach [ em |
-					if (_mapping.containsKey(em.source)) {
-						issues.safeError("Duplicate mapping for Object " + em.source.name + ".", em,
-							XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, DUPLICATE_OBJECT_MAPPING)
-					} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
-						issues.safeError('''Object «em.source.name» must be an interface element to be mapped.''', em,
-							XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
-					} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
-						issues.safeError('''Object «em.target.name» must be an interface element to be mapped.''', em,
-							XDsmlComposePackage.Literals.OBJECT_MAPPING__TARGET, NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
-					} else {
-						_mapping.put(em.source, em.target)
-						val srcPattern = em.source.eContainer as Graph
-						val srcRule = srcPattern.eContainer as Rule
-						val tgtRule = em.target.eContainer.eContainer as Rule
-						if (srcPattern == srcRule.lhs) {
-							// Also add corresponding RHS object, if any
-							_mapping.putIfNotNull(
-								srcRule.rhs.nodes.findFirst[o|o.name.equals(em.source.name)],
-								tgtRule.rhs.nodes.findFirst[o|o.name.equals(em.target.name)]
-							)
-						} else if (srcPattern == srcRule.rhs) {
-							// Also add corresponding LHS object, if any							
-							_mapping.putIfNotNull(
-								srcRule.lhs.nodes.findFirst[o|o.name.equals(em.source.name)],
-								tgtRule.lhs.nodes.findFirst[o|o.name.equals(em.target.name)]
-							)
-						}
-					}
-				]
-				rm.element_mappings.filter(LinkMapping).forEach [ em |
-					if (_mapping.containsKey(em.source)) {
-						issues.safeError("Duplicate mapping for Link " + em.source.name + ".", em,
-							XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, DUPLICATE_LINK_MAPPING)
-					} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
-						issues.safeError('''Link «em.source.name» must be an interface element to be mapped.''', em,
-							XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NON_INTERFACE_LINK_MAPPING_ATTEMPT)
-					} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
-						issues.safeError('''Link «em.target.name» must be an interface element to be mapped.''', em,
-							XDsmlComposePackage.Literals.LINK_MAPPING__TARGET, NON_INTERFACE_LINK_MAPPING_ATTEMPT)
-					} else {
-						_mapping.put(em.source, em.target)
-						val srcPattern = em.source.eContainer as Graph
-						val srcRule = srcPattern.eContainer as Rule
-						val tgtRule = em.target.eContainer.eContainer as Rule
-						if (srcPattern == srcRule.lhs) {
-							// Also add corresponding RHS link, if any
-							_mapping.putIfNotNull(
-								srcRule.rhs.edges.findFirst[o|o.name.equals(em.source.name)],
-								tgtRule.rhs.edges.findFirst[o|o.name.equals(em.target.name)]
-							)
-						} else if (srcPattern == srcRule.rhs) {
-							// Also add corresponding LHS link, if any							
-							_mapping.putIfNotNull(
-								srcRule.lhs.edges.findFirst[o|o.name.equals(em.source.name)],
-								tgtRule.lhs.edges.findFirst[o|o.name.equals(em.target.name)]
-							)
-						}
-					}
-				]
-				rm.element_mappings.filter(SlotMapping).forEach [ em |
-					if (_mapping.containsKey(em.source)) {
-						issues.safeError("Duplicate mapping for Slot " + em.source.name + ".", em,
-							XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, DUPLICATE_SLOT_MAPPING)
-					} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
-						issues.safeError('''Slot «em.source.name» must be an interface element to be mapped.''', em,
-							XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
-					} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
-						issues.safeError('''Slot «em.target.name» must be an interface element to be mapped.''', em,
-							XDsmlComposePackage.Literals.SLOT_MAPPING__TARGET, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
-					} else {
-						_mapping.put(em.source, em.target)
-
-						val srcNode = em.source.eContainer as Node
-						val tgtNode = em.target.eContainer as Node
-
-						val srcPattern = srcNode.eContainer as Graph
-						val srcRule = srcPattern.eContainer as Rule
-
-						val tgtRule = tgtNode.eContainer.eContainer as Rule
-
-						if (srcPattern == srcRule.lhs) {
-							// Also add corresponding RHS attribute, if any
-							_mapping.putIfNotNull(
-								srcRule.rhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst [ a |
-									a.type === em.source.type
-								],
-								tgtRule.rhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst [ a |
-									a.type === em.target.type
-								]
-							)
-						} else if (srcPattern == srcRule.rhs) {
-							// Also add corresponding LHS attribute, if any							
-							_mapping.putIfNotNull(
-								srcRule.lhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst [ a |
-									a.type === em.source.type
-								],
-								tgtRule.lhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst [ a |
-									a.type === em.target.type
-								]
-							)
-						}
-					}
-				]
+				if (rm.target_identity) {
+					rm.extractTgtIdentityMapping(_mapping, srcIsInterface, tgtIsInterface, issues)
+				} else {
+					rm.extractMapping(_mapping, srcIsInterface, tgtIsInterface, issues)
+				}
 			}
 		]
 
 		_mapping
+	}
+
+	private static def extractTgtIdentityMapping(RuleMapping rm, HashMap<EObject, EObject> _mapping, boolean srcIsInterface,
+		boolean tgtIsInterface, IssueAcceptor issues) {
+		if (!rm.target_identity) {
+			throw new IllegalStateException
+		}
+		
+		rm.source.lhs.nodes.filter[n | !srcIsInterface || n.type.isInterfaceElement].forEach[n | 
+			// TODO: Find matching target node and store the mapping
+			// TODO: For all slots in n (and it's corresponding RHS node) find matching target slot and store mapping
+		]
+		rm.source.lhs.edges.filter[e  | !srcIsInterface || e.type.isInterfaceElement].forEach[e | 
+			// TODO: Find matching target edge and store the mapping
+		]
+	}
+	
+	private static def extractMapping(RuleMapping rm, HashMap<EObject, EObject> _mapping, boolean srcIsInterface,
+		boolean tgtIsInterface, IssueAcceptor issues) {
+		rm.element_mappings.filter(ObjectMapping).forEach [ em |
+			if (_mapping.containsKey(em.source)) {
+				issues.safeError("Duplicate mapping for Object " + em.source.name + ".", em,
+					XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, DUPLICATE_OBJECT_MAPPING)
+			} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
+				issues.safeError('''Object «em.source.name» must be an interface element to be mapped.''', em,
+					XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
+			} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
+				issues.safeError('''Object «em.target.name» must be an interface element to be mapped.''', em,
+					XDsmlComposePackage.Literals.OBJECT_MAPPING__TARGET, NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
+			} else {
+				_mapping.put(em.source, em.target)
+				val srcPattern = em.source.eContainer as Graph
+				val srcRule = srcPattern.eContainer as Rule
+				val tgtRule = em.target.eContainer.eContainer as Rule
+				if (srcPattern == srcRule.lhs) {
+					// Also add corresponding RHS object, if any
+					_mapping.putIfNotNull(
+						srcRule.rhs.nodes.findFirst[o|o.name.equals(em.source.name)],
+						tgtRule.rhs.nodes.findFirst[o|o.name.equals(em.target.name)]
+					)
+				} else if (srcPattern == srcRule.rhs) {
+					// Also add corresponding LHS object, if any							
+					_mapping.putIfNotNull(
+						srcRule.lhs.nodes.findFirst[o|o.name.equals(em.source.name)],
+						tgtRule.lhs.nodes.findFirst[o|o.name.equals(em.target.name)]
+					)
+				}
+			}
+		]
+		rm.element_mappings.filter(LinkMapping).forEach [ em |
+			if (_mapping.containsKey(em.source)) {
+				issues.safeError("Duplicate mapping for Link " + em.source.name + ".", em,
+					XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, DUPLICATE_LINK_MAPPING)
+			} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
+				issues.safeError('''Link «em.source.name» must be an interface element to be mapped.''', em,
+					XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NON_INTERFACE_LINK_MAPPING_ATTEMPT)
+			} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
+				issues.safeError('''Link «em.target.name» must be an interface element to be mapped.''', em,
+					XDsmlComposePackage.Literals.LINK_MAPPING__TARGET, NON_INTERFACE_LINK_MAPPING_ATTEMPT)
+			} else {
+				_mapping.put(em.source, em.target)
+				val srcPattern = em.source.eContainer as Graph
+				val srcRule = srcPattern.eContainer as Rule
+				val tgtRule = em.target.eContainer.eContainer as Rule
+				if (srcPattern == srcRule.lhs) {
+					// Also add corresponding RHS link, if any
+					_mapping.putIfNotNull(
+						srcRule.rhs.edges.findFirst[o|o.name.equals(em.source.name)],
+						tgtRule.rhs.edges.findFirst[o|o.name.equals(em.target.name)]
+					)
+				} else if (srcPattern == srcRule.rhs) {
+					// Also add corresponding LHS link, if any							
+					_mapping.putIfNotNull(
+						srcRule.lhs.edges.findFirst[o|o.name.equals(em.source.name)],
+						tgtRule.lhs.edges.findFirst[o|o.name.equals(em.target.name)]
+					)
+				}
+			}
+		]
+		rm.element_mappings.filter(SlotMapping).forEach [ em |
+			if (_mapping.containsKey(em.source)) {
+				issues.safeError("Duplicate mapping for Slot " + em.source.name + ".", em,
+					XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, DUPLICATE_SLOT_MAPPING)
+			} else if (srcIsInterface && !em.source.type.isInterfaceElement) {
+				issues.safeError('''Slot «em.source.name» must be an interface element to be mapped.''', em,
+					XDsmlComposePackage.Literals.SLOT_MAPPING__SOURCE, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
+			} else if (tgtIsInterface && !em.target.type.isInterfaceElement) {
+				issues.safeError('''Slot «em.target.name» must be an interface element to be mapped.''', em,
+					XDsmlComposePackage.Literals.SLOT_MAPPING__TARGET, NON_INTERFACE_SLOT_MAPPING_ATTEMPT)
+			} else {
+				_mapping.put(em.source, em.target)
+
+				val srcNode = em.source.eContainer as Node
+				val tgtNode = em.target.eContainer as Node
+
+				val srcPattern = srcNode.eContainer as Graph
+				val srcRule = srcPattern.eContainer as Rule
+
+				val tgtRule = tgtNode.eContainer.eContainer as Rule
+
+				if (srcPattern == srcRule.lhs) {
+					// Also add corresponding RHS attribute, if any
+					_mapping.putIfNotNull(
+						srcRule.rhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst [ a |
+							a.type === em.source.type
+						],
+						tgtRule.rhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst [ a |
+							a.type === em.target.type
+						]
+					)
+				} else if (srcPattern == srcRule.rhs) {
+					// Also add corresponding LHS attribute, if any							
+					_mapping.putIfNotNull(
+						srcRule.lhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst [ a |
+							a.type === em.source.type
+						],
+						tgtRule.lhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst [ a |
+							a.type === em.target.type
+						]
+					)
+				}
+			}
+		]
 	}
 
 	private static val ruleMappingTargetCache = new OnChangeEvictingCache
@@ -528,7 +553,7 @@ class MappingConverter {
 			if (targetBehaviour === null) {
 				targetBehaviourResource = targetGTS.metamodel.eResource
 				var module = (targetBehaviourResource.allContents.findFirst[eo|eo instanceof Module] as Module)
-				
+
 				if (module === null) {
 					module = createModule
 					targetBehaviourResource.contents.add(module)

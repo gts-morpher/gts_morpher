@@ -264,7 +264,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				
 				return false
 			}
-		}		
+		}	
 		true
 	}
 	
