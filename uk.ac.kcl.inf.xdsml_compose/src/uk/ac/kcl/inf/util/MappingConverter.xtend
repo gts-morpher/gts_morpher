@@ -593,7 +593,7 @@ class MappingConverter {
 
 			virtualRule
 		} else {
-			throw new IllegalStateException("Cannot map to a virtual identity rule if source isn't an identity")
+			null
 		}
 	}
 

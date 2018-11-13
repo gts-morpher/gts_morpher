@@ -90,7 +90,6 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
 	public static val GTS_FAMILY_ISSUE = 'uk.ac.kcl.inf.xdsml_compose.GTS_FAMILY_ISSUE'
-	public static val NON_EMPTY_TO_IDENTITY_RULE_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.NON_EMPTY_TO_IDENTITY_RULE_MAPPING'
 	public static val TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE = 'uk.ac.kcl.inf.xdsml_compose.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE'
 	
 	/**
@@ -288,17 +287,6 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			}
 			list.add(ge)
 		]
-	}
-
-	/**
-	 * Check that rule mappings to an identity rule are empty.
-	 */
-	@Check
-	def checkToIdentityRuleMapIsEmpty(RuleMapping rm) {
-		if ((rm.target_identity) && (!rm.element_mappings.empty)) {
-			error("Rule mappings to the identity rule must not contain any element mappings.", rm,
-					XDsmlComposePackage.Literals.RULE_MAPPING__ELEMENT_MAPPINGS, uk.ac.kcl.inf.validation.XDsmlComposeValidator.NON_EMPTY_TO_IDENTITY_RULE_MAPPING)
-		}
 	}
 	
 	/**

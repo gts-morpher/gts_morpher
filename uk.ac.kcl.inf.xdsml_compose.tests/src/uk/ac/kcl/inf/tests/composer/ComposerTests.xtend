@@ -247,8 +247,7 @@ class ComposerTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule init to identity {
-					}
+					rule init to identity
 				}
 			}
 		''', resourceSet)
