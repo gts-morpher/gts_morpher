@@ -71,9 +71,9 @@ NumericParameter:
 	value = INT
 ;
 
-TypeGraphMapping:
-	"type_mapping" "{"
-		mappings += TypeMapping+ 
+TypeGraphMapping: 
+	"type_mapping" "{" {TypeGraphMapping}
+		mappings += TypeMapping*
 	"}"
 ;
 
