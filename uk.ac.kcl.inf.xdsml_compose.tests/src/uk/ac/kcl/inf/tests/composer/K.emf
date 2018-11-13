@@ -3,6 +3,8 @@ package K;
 
 @Interface
 class K1 {
+	@Interface
+	attr String k1;
 }
 
 class K2 {

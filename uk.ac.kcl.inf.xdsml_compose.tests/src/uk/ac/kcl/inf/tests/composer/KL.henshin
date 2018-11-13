@@ -5,11 +5,17 @@
     <lhs xmi:id="_1eMLEEGREeimBIP0gtQ7RQ" name="Lhs">
       <nodes xmi:id="_49RhEEGREeimBIP0gtQ7RQ" name="k1">
         <type href="KL.ecore#//K1_L1"/>
+        <attributes xmi:id="_vbIPUOc7EeiwhdLRSx7MTw" value="&quot;basic&quot;">
+          <type href="KL.ecore#//K1_L1/k1_l1"/>
+        </attributes>
       </nodes>
     </lhs>
     <rhs xmi:id="_1eMyIEGREeimBIP0gtQ7RQ" name="Rhs">
       <nodes xmi:id="_49RhEUGREeimBIP0gtQ7RQ" name="k1" incoming="_BgffUEGSEeimBIP0gtQ7RQ">
         <type href="KL.ecore#//K1_L1"/>
+        <attributes xmi:id="_pXSoIOc8EeiwhdLRSx7MTw" value="&quot;basic&quot;">
+          <type href="KL.ecore#//K1_L1/k1_l1"/>
+        </attributes>
       </nodes>
       <nodes xmi:id="_99jkEEGREeimBIP0gtQ7RQ" name="source__newK2" outgoing="_BgffUEGSEeimBIP0gtQ7RQ">
         <type href="KL.ecore#//source__K2"/>

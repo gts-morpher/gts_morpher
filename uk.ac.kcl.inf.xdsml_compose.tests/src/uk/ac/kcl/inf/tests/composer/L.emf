@@ -2,4 +2,5 @@
 package L;
 
 class L1 {
+	attr String l1;
 }

@@ -42,6 +42,6 @@
     <styles xmi:type="notation:FontStyle" xmi:id="_BggtcUGSEeimBIP0gtQ7RQ" fontName="Segoe UI"/>
     <element xmi:type="henshin:Edge" href="KL.henshin#_BgffUEGSEeimBIP0gtQ7RQ"/>
     <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_BggtckGSEeimBIP0gtQ7RQ" points="[-28, -21, 83, 65]$[-92, -77, 19, 9]"/>
-    <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_BgiioEGSEeimBIP0gtQ7RQ" id="(0.7684210526315789,0.7857142857142857)"/>
+    <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_BgiioEGSEeimBIP0gtQ7RQ" id="(0.9423076923076923,0.5306122448979592)"/>
   </edges>
 </notation:Diagram>

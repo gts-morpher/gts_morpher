@@ -535,7 +535,11 @@ class MappingConverter {
 			val newNode = createNode(tgtGraph, n.type.getMapped(gtsMapping), n.name)
 			_mapping.put(n, newNode)
 
-		// TODO: Generate all the slots
+		/*
+		 * Shortcut: We *should* generate all the slots, *but* it turns out we don't need to: the slot name, type, and value are all completely
+		 * determined by the source rule and weaving will consider them accordingly. This *may* become a problem when considering auto-complete, 
+		 * but we'll cross that bridge when we get there.
+		 */
 		]
 	}
 

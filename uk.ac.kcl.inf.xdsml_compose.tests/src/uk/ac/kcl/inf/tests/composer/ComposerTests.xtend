@@ -228,7 +228,6 @@ class ComposerTests extends AbstractTest {
 
 	@Test
 	// TODO: Also need to test case where there are already some target rules
-	// TODO: Also need to test case where there are slots in the rules
 	def testGTSMorphismToIdentityRule() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
@@ -244,6 +243,7 @@ class ComposerTests extends AbstractTest {
 				
 				type_mapping {
 					class K.K1 => L.L1
+					attribute K.K1.k1 => L.L1.l1
 				}
 				
 				behaviour_mapping {
@@ -254,7 +254,6 @@ class ComposerTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
-		// TODO: This doesn't quite work yet. For some reason, the behaviour mapping doesn't auto-complete inside the virtual rule
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
