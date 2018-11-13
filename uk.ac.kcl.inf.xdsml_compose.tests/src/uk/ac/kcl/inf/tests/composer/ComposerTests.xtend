@@ -228,6 +228,7 @@ class ComposerTests extends AbstractTest {
 
 	@Test
 	// TODO: Also need to test case where there are already some target rules
+	// TODO: Also need to test case where there are slots in the rules
 	def testGTSMorphismToIdentityRule() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''

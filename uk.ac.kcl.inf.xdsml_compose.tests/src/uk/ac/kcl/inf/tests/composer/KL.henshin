@@ -11,7 +11,7 @@
       <nodes xmi:id="_49RhEUGREeimBIP0gtQ7RQ" name="k1" incoming="_BgffUEGSEeimBIP0gtQ7RQ">
         <type href="KL.ecore#//K1_L1"/>
       </nodes>
-      <nodes xmi:id="_99jkEEGREeimBIP0gtQ7RQ" name="newK2" outgoing="_BgffUEGSEeimBIP0gtQ7RQ">
+      <nodes xmi:id="_99jkEEGREeimBIP0gtQ7RQ" name="source__newK2" outgoing="_BgffUEGSEeimBIP0gtQ7RQ">
         <type href="KL.ecore#//source__K2"/>
       </nodes>
       <edges xmi:id="_BgffUEGSEeimBIP0gtQ7RQ" source="_99jkEEGREeimBIP0gtQ7RQ" target="_49RhEUGREeimBIP0gtQ7RQ">
