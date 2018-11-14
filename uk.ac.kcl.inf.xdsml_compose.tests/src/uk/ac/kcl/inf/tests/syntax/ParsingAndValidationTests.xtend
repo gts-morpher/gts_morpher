@@ -71,7 +71,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingBasic() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -112,7 +112,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingAutoComplete() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete map {
 				from {
@@ -141,7 +141,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingBasicWithBehaviour() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -208,7 +208,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingBasicWithBehaviourWithRuleMapToIdentity() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -261,7 +261,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingBasicWithBehaviourAndInterface() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from interface_of {
@@ -324,7 +324,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingUniqueAutoComplete() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete unique map {
 				from {
@@ -353,7 +353,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingBasicAttributeMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -386,7 +386,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingBasicAttributeMappingLinkError() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -415,7 +415,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingBasicAttributeMappingWithBehaviour() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -460,7 +460,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void parsingBasicGTSFamily() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -500,7 +500,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void crossedMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -552,7 +552,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void invalidGTSSpecification() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -586,7 +586,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void scopingHandlesMissingMetamodel() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -612,7 +612,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void duplicateMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -676,7 +676,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void nonMorphismMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -713,7 +713,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void morphismBehaviourMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -751,7 +751,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void morphismBehaviourMappingWithToEmptyRuleMappingSourceNotAnIdentity() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -791,7 +791,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void morphismBehaviourMappingWithToEmptyRuleMappingSourceIsAnIdentity() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from interface_of {
@@ -830,7 +830,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void nonMorphismBehaviourMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -873,7 +873,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateAutoCompletePositive() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete map {
 				from {
@@ -902,7 +902,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateUniqueAutoCompleteNegative() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete unique map {
 				from {
@@ -933,7 +933,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateUniqueAutoCompleteNegativeWithBehaviour() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete unique map {
 				from {
@@ -970,7 +970,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateUniqueAutoCompletePositiveWithBehaviour() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete unique map {
 				from {
@@ -1004,7 +1004,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateAutoCompleteNegative() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete map {
 				from {
@@ -1034,7 +1034,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateAutoCompleteBehaviourMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete map {
 				from {
@@ -1080,7 +1080,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateAutoCompleteBehaviourMappingWithEmptyRuleMap() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			auto-complete map {
 				from {
@@ -1125,7 +1125,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateCompletenessPositive() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -1159,7 +1159,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateBehaviourCompletenessPositive() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -1217,7 +1217,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateBehaviourWithInterfaceCompletenessPositive() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from interface_of {
@@ -1267,7 +1267,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateNonInterfaceElementMappingAttempts() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from interface_of {
@@ -1312,7 +1312,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateBasicGTSFamilyNegative() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -1349,7 +1349,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateBasicGTSFamilyPositive() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -1385,7 +1385,7 @@ class ParsingAndValidationTests extends AbstractTest {
 	@Test
 	def void validateBasicGTSFamilyUnitCalls() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {

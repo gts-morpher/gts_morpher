@@ -101,7 +101,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void completeMultipleWithPreserve() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -137,7 +137,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void completeMultipleWithDelete() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -176,7 +176,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void completeUniqueWithCreate() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -213,7 +213,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void completeUniqueWithPreserve() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -250,7 +250,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void completeUniqueWithDelete() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -284,7 +284,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testWeirdCase() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique 
 				map {
@@ -341,7 +341,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testWeirdCaseTGOnly() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique 
 				map {
@@ -393,7 +393,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testWeirdCaseTGOnlyNoFamily() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique 
 				map {
@@ -435,7 +435,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testWeirdCaseMinimised() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique 
 				map {
@@ -473,7 +473,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testCompletionOfAttributeMappings() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -508,7 +508,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testCompletionOfAttributeMappingsNonUnique() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -543,7 +543,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testCompletionOfAttributeMappingsNonUniqueWithUniqueSlots() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -586,7 +586,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testCompletionOfAttributeMappingsNonUniqueWithUniqueSlotsAndEmptyRuleMap() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -629,7 +629,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testCompletionOfAttributeMappingsNonUniqueWithUniqueSlotsRuleAlreadyMapped() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete unique map {
 					from {
@@ -672,7 +672,7 @@ class MorphismCompleterTests extends AbstractTest{
 	@Test
 	def void testCompletionOfAttributeMappingsUniqueWithSlotsFromInterface() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 				auto-complete map {
 					from interface_of {

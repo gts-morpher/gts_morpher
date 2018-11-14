@@ -46,7 +46,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkTGMappingOK() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -89,7 +89,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkTGMapDifferentUpperMultiplicities() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -119,7 +119,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkTGMapDifferentLowerMultiplicities() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -149,7 +149,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkTGMapAttributeMappings() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -179,7 +179,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkTGMapAttributeMappingsNegative() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -209,7 +209,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkTGMapAttributeMappingsWithInheritance() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -239,7 +239,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkEmptyRuleMapping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -288,7 +288,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkSlotMappingsPositive() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -339,7 +339,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkSlotMappingsNegativeTyping() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
@@ -391,7 +391,7 @@ class MorphismCheckerTests extends AbstractTest {
 	@Test
 	def void checkSlotMappingsNegativeValues() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
 				from {
