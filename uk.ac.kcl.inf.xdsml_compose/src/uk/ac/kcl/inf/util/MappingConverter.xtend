@@ -153,7 +153,7 @@ class MappingConverter {
 					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
 			} else {
 				if (rm.target_identity) {
-					rm.extractTgtIdentityMapping(_mapping, srcIsInterface, tgtIsInterface, issues)
+					rm.extractTgtIdentityMapping(_mapping, srcIsInterface, typeGraphMapping, issues)
 				} else {
 					rm.extractMapping(_mapping, srcIsInterface, tgtIsInterface, issues)
 				}
@@ -496,13 +496,12 @@ class MappingConverter {
 	 * Generate a virtual rule to map to for this rule mapping
 	 */
 	private static def extractTgtIdentityMapping(RuleMapping rm, HashMap<EObject, EObject> _mapping,
-		boolean srcIsInterface, boolean tgtIsInterface, IssueAcceptor issues) {
+		boolean srcIsInterface, Map<EObject, EObject> tgMapping, IssueAcceptor issues) {
 		// Just in case...
 		if (!rm.target_identity) {
 			throw new IllegalStateException
 		}
 
-		val gtsMapping = rm.eContainer.eContainer as GTSMapping
 		if (rm.source.isIdentityRule(srcIsInterface)) {
 			// Generate a suitable identity rule
 			// Note this works here only using the information that's explictly available in the type mapping. 
@@ -522,27 +521,26 @@ class MappingConverter {
 			virtualRule.rhs = rhs
 
 			// Generate all the nodes
-			_mapping.createVirtualNodesFor(rm.source.lhs, lhs, gtsMapping, srcIsInterface)
-			_mapping.createVirtualNodesFor(rm.source.rhs, rhs, gtsMapping, srcIsInterface)
+			_mapping.createVirtualNodesFor(rm.source.lhs, lhs, tgMapping, srcIsInterface)
+			_mapping.createVirtualNodesFor(rm.source.rhs, rhs, tgMapping, srcIsInterface)
 			_mapping.createVirtualMappings(rm.source, virtualRule)
 
 			// Generate all edges
-			_mapping.createVirtualEdges(rm.source.lhs, lhs, gtsMapping, srcIsInterface)
-			_mapping.createVirtualEdges(rm.source.rhs, rhs, gtsMapping, srcIsInterface)
+			_mapping.createVirtualEdges(rm.source.lhs, lhs, tgMapping, srcIsInterface)
+			_mapping.createVirtualEdges(rm.source.rhs, rhs, tgMapping, srcIsInterface)
 		}
 	}
 
 	private static def createVirtualNodesFor(Map<EObject, EObject> _mapping, Graph srcGraph, Graph tgtGraph,
-		GTSMapping gtsMapping, boolean interfaceOnly) {
+		Map<EObject, EObject> tgMapping, boolean interfaceOnly) {
 		srcGraph.nodes.filter[n|!interfaceOnly || n.isInterfaceElement].forEach [ n |
-			val newNode = createNode(tgtGraph, n.type.getMapped(gtsMapping), n.name)
+			val newNode = createNode(tgtGraph, n.type.getMapped(tgMapping), n.name)
 			_mapping.put(n, newNode)
 
-		/*
-		 * Shortcut: We *should* generate all the slots, *but* it turns out we don't need to: the slot name, type, and value are all completely
-		 * determined by the source rule and weaving will consider them accordingly. This *may* become a problem when considering auto-complete, 
-		 * but we'll cross that bridge when we get there.
-		 */
+		 	n.attributes.forEach[a | 
+		 		val newAttribute = createAttribute(newNode, a.type.getMapped(tgMapping), a.value)
+		 		_mapping.put(a, newAttribute)
+		 	]
 		]
 	}
 
@@ -555,34 +553,18 @@ class MappingConverter {
 	}
 
 	private static def createVirtualEdges(Map<EObject, EObject> _mapping, Graph srcGraph, Graph tgtGraph,
-		GTSMapping gtsMapping, boolean interfaceOnly) {
+		Map<EObject, EObject> tgMapping, boolean interfaceOnly) {
 		srcGraph.edges.filter[e|!interfaceOnly || e.isInterfaceElement].forEach [ e |
 			if (_mapping.containsKey(e.source) && _mapping.containsKey(e.target)) {
 				val newEdge = createEdge(_mapping.get(e.source) as Node, _mapping.get(e.target) as Node,
-					e.type.getMapped(gtsMapping))
+					e.type.getMapped(tgMapping))
 				_mapping.put(e, newEdge)
 
 			}
 		]
 	}
 
-	private static def getMapped(EClass srcClass, GTSMapping gtsMapping) {
-		val mapping = gtsMapping.typeMapping.mappings.filter(ClassMapping).findFirst[mp|mp.source === srcClass]
-
-		if (mapping !== null) {
-			mapping.target as EClass
-		} else {
-			null
-		}
-	}
-
-	private static def getMapped(EReference srcRef, GTSMapping gtsMapping) {
-		val mapping = gtsMapping.typeMapping.mappings.filter(ReferenceMapping).findFirst[mp|mp.source === srcRef]
-
-		if (mapping !== null) {
-			mapping.target
-		} else {
-			null
-		}
+	private static def <T extends EObject> T getMapped(T src, Map<EObject, EObject> tgMapping) {
+		tgMapping.get(src) as T
 	}
 }

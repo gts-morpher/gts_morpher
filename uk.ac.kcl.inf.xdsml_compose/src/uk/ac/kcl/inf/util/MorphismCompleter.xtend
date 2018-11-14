@@ -44,7 +44,6 @@ class MorphismCompleter {
 	 */
 	static def createMorphismCompleter(GTSMapping mapping) {
 		val _typeMapping = mapping.typeMapping.extractMapping(null)
-//		val _behaviourMapping = mapping.behaviourMapping.extractMapping(_typeMapping, null)
 
 		new MorphismCompleter(_typeMapping, mapping.source.metamodel, mapping.target.metamodel, mapping.behaviourMapping,
 			mapping.source.behaviour, mapping.target.behaviour, mapping.source.interface_mapping,
