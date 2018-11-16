@@ -258,6 +258,37 @@ class ConverterTests extends AbstractTest {
 	}
 
 	// TODO: Add tests for GTS family choice case
+	
+	
+	@Test
+	def void testBasicMappingWithToIdentityRule() {
+		testMappingWithToIdentityRule(normalSource)
+	}
+	
+	@Test
+	def void testFamilyMappingWithToIdentityRule() {
+		testMappingWithToIdentityRule(familySource)
+	}
+	
+	private def testMappingWithToIdentityRule(CharSequence srcText) {
+		'''
+			map {
+				«srcText»
+			
+				to {
+					metamodel: "B"
+				}
+			
+				type_mapping {
+					class A.A1 => B.B2
+				}
+			
+				behaviour_mapping {
+					rule do to identity
+				}
+			}'''.doTest
+	}
+
 
 	private def void doTest(CharSequence text) {
 		val result = text.parse(createNormalResourceSet)
