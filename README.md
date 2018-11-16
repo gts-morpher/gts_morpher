@@ -97,6 +97,20 @@ map {
 
 This will check the GTS described and only consider a sub-GTS typable over the metamodel elements explicitly annotated `@Interface`. This is particularly useful for GTS amalgamation as described below.
 
+### 2.4 Mapping with virtual rules
+
+When a rule in the source GTS cannot be mapped to any rule in the target GTS, it can be mapped to a virtual rule. At this point, such virtual rules must be identity rules; that is their left- and right-hand sides must be identical. Therefore, currently only identity rules can be mapped to virtual rules. It is planned to extend this in the future so that arbitrary rules can be mapped to virtual rules. Note that this will affect behaviour-preservation properties of the morphism.
+
+To specify a rule mapping to a virtual identity rule use the following form of rule mappings (where `init` is the name of a rule in the source GTS):
+
+```
+  rule init to identity
+```
+
+Note that the word `identity` is a keyword in the morphism language. It is therefore not possible to map rules named `identity`. Note that to-identity rule mappings cannot specify any element mappings. This is so because the identity rule is virtual: it is dynamically generated only when needed. At the same time, there is only one valid mapping between source rule and virtual identity rule, so there is no need to specify it explicitly.
+
+Where possible, auto-completion will consider completing by introducing to-identity rule mappings. Currently, this means auto-completion may fail (with an exception) when a morphism could only be completed by introducing a mapping to a virtual non-identity rule.
+
 ## 3. GTS families
 
 You can specify that the source or target of a GTS morphism should be taken from a GTS family by providing the definition of the family and the sequence of transformers to apply to the family's root GTS when picking the GTS you actually want. Our FASE paper [2] has more information on GTS families.
