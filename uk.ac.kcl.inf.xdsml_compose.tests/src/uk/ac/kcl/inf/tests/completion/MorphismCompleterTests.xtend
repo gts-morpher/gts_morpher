@@ -17,6 +17,7 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 import org.eclipse.emf.henshin.model.Attribute
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -741,7 +742,43 @@ class MorphismCompleterTests extends AbstractTest{
 	}
 	
 
-	private def isUniqueSetOfMappings(List<Map<? extends EObject, ? extends EObject>> mappings) {
+	@Test
+	def testGTSMorphismNeedsToIdentityRule() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			auto-complete map {
+				from interface_of {
+					metamodel: "K"
+					behaviour: "KRules"
+				}
+				
+				to {
+					metamodel: "L"
+				}
+				
+				type_mapping {
+					//class K.K1 => L.L1
+					//attribute K.K1.k1 => L.L1.l1
+				}
+				
+				//behaviour_mapping {
+					//rule init to identity
+				//}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+		
+		assertTrue("Expected to find mapping for init rule", completer.completedMappings.head.values.contains(result.source.behaviour.units.head))
+	}
+	
+	private def isUniqueSetOfMappings(List<Map<EObject, EObject>> mappings) {
 		mappings.forall[m | 
 			mappings.forall[m2 |
 				(m === m2) ||

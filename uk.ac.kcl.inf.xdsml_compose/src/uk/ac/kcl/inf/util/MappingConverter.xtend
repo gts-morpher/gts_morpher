@@ -137,7 +137,8 @@ class MappingConverter {
 	 * Mapping extraction will create virtual rules for to-identity mappings. To inform the types to be used in these virtual rules, 
 	 * it will use the type mapping provided, which should be derived from the typemapping in the GTSSpecification of the behaviour mapping given.
 	 */
-	public static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping, Map<EObject, EObject> typeGraphMapping, IssueAcceptor issues) {
+	public static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping,
+		Map<EObject, EObject> typeGraphMapping, IssueAcceptor issues) {
 		val _mapping = new HashMap<EObject, EObject>
 
 		if (mapping === null) {
@@ -153,7 +154,7 @@ class MappingConverter {
 					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
 			} else {
 				if (rm.target_identity) {
-					rm.extractTgtIdentityMapping(_mapping, srcIsInterface, typeGraphMapping, issues)
+					rm.extractTgtIdentityMapping(_mapping, srcIsInterface, typeGraphMapping)
 				} else {
 					rm.extractMapping(_mapping, srcIsInterface, tgtIsInterface, issues)
 				}
@@ -496,18 +497,27 @@ class MappingConverter {
 	 * Generate a virtual rule to map to for this rule mapping
 	 */
 	private static def extractTgtIdentityMapping(RuleMapping rm, HashMap<EObject, EObject> _mapping,
-		boolean srcIsInterface, Map<EObject, EObject> tgMapping, IssueAcceptor issues) {
+		boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
 		// Just in case...
 		if (!rm.target_identity) {
 			throw new IllegalStateException
 		}
 
-		if (rm.source.isIdentityRule(srcIsInterface)) {
+		_mapping.putAll(rm.source.extractTgtIdentityMapping(srcIsInterface, tgMapping))
+	}
+
+	/**
+	 * Generate a virtual rule to map to for this rule mapping
+	 */
+	public static def extractTgtIdentityMapping(Rule r, boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
+		var result = new HashMap<EObject, EObject>
+
+		if (r.isIdentityRule(srcIsInterface)) {
 			// Generate a suitable identity rule
 			// Note this works here only using the information that's explictly available in the type mapping. 
 			// Need to consider what to do with auto-completion cases.
-			val virtualRule = createRule(rm.source.name)
-			_mapping.putIfNotNull(virtualRule, rm.source)
+			val virtualRule = createRule(r.name)
+			result.putIfNotNull(virtualRule, r)
 
 			// Must add the rule to some module, even if we just make it up... 
 			// Weaving will assume to be able to navigate up from rules, but will actually never use the module
@@ -521,14 +531,16 @@ class MappingConverter {
 			virtualRule.rhs = rhs
 
 			// Generate all the nodes
-			_mapping.createVirtualNodesFor(rm.source.lhs, lhs, tgMapping, srcIsInterface)
-			_mapping.createVirtualNodesFor(rm.source.rhs, rhs, tgMapping, srcIsInterface)
-			_mapping.createVirtualMappings(rm.source, virtualRule)
+			result.createVirtualNodesFor(r.lhs, lhs, tgMapping, srcIsInterface)
+			result.createVirtualNodesFor(r.rhs, rhs, tgMapping, srcIsInterface)
+			result.createVirtualMappings(r, virtualRule)
 
 			// Generate all edges
-			_mapping.createVirtualEdges(rm.source.lhs, lhs, tgMapping, srcIsInterface)
-			_mapping.createVirtualEdges(rm.source.rhs, rhs, tgMapping, srcIsInterface)
+			result.createVirtualEdges(r.lhs, lhs, tgMapping, srcIsInterface)
+			result.createVirtualEdges(r.rhs, rhs, tgMapping, srcIsInterface)
 		}
+
+		result
 	}
 
 	private static def createVirtualNodesFor(Map<EObject, EObject> _mapping, Graph srcGraph, Graph tgtGraph,
@@ -537,10 +549,10 @@ class MappingConverter {
 			val newNode = createNode(tgtGraph, n.type.getMapped(tgMapping), n.name)
 			_mapping.put(n, newNode)
 
-		 	n.attributes.forEach[a | 
-		 		val newAttribute = createAttribute(newNode, a.type.getMapped(tgMapping), a.value)
-		 		_mapping.put(a, newAttribute)
-		 	]
+			n.attributes.forEach [ a |
+				val newAttribute = createAttribute(newNode, a.type.getMapped(tgMapping), a.value)
+				_mapping.put(a, newAttribute)
+			]
 		]
 	}
 
