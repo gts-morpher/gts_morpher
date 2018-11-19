@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="K" nsURI="http://kcl.ac.uk/xdsml/K" nsPrefix="k">
+  <eClassifiers xsi:type="ecore:EClass" name="K1">
+    <eAnnotations source="Interface"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="k1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="K2">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="observed" eType="#//K1"/>
+  </eClassifiers>
+</ecore:EPackage>

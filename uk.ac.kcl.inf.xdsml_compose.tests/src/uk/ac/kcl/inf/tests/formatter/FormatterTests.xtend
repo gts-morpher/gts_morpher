@@ -110,6 +110,35 @@ class FormatterTests extends AbstractTest {
 	}
 
 	@Test
+	def testSimpleMorphismRuleMappingToIdentity() {
+		val expectedResult = '''
+			map {
+				from {
+					metamodel: "a"
+					behaviour: "arules"
+				}
+			
+				to {
+					metamodel: "b"
+					behaviour: "brules"
+				}
+			
+				type_mapping {
+					class a.A => b.B
+					reference a.A.a => b.B.b
+					attribute a.A.b => b.B.c
+				}
+			
+				behaviour_mapping {
+					rule a to identity
+				}
+			}'''
+		val testInput = '''map{from{metamodel  :"a"behaviour  :"arules"}to{metamodel  :"b"behaviour  :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   identity}}'''
+		
+		doTest(testInput, expectedResult)
+	}
+
+	@Test
 	def testMorphismFromFamily() {
 		val expectedResult = '''
 			map {

@@ -54,6 +54,7 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
 
 /**
  * This class contains custom validation rules. 
@@ -88,7 +89,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val WRONG_PARAMETER_NUMBER_IN_UNIT_CALL = 'uk.ac.kcl.inf.xdsml_compose.WRONG_PARAMETER_NUMBER_IN_UNIT_CALL'
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
 	public static val GTS_FAMILY_ISSUE = 'uk.ac.kcl.inf.xdsml_compose.GTS_FAMILY_ISSUE'
-
+	public static val TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE = 'uk.ac.kcl.inf.xdsml_compose.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE'
+	
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
 	 */
@@ -238,28 +240,29 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Check that the given rule mapping is complete
 	 */
 	private def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
-		val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
-		val elementIndex = new HashMap<String, List<GraphElement>>()
-		mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
-		mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
-		
-		val inComplete = elementIndex.entrySet.exists[e |
-			!mapping.element_mappings.exists[em |
-				((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
-				((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source))) ||
-				((em instanceof SlotMapping) && (e.value.contains((em as SlotMapping).source)))
-			]
-		]
-
-		if (inComplete) {
-			if (validator !== null) {
-				validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
-					XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
-			}
+		if (!mapping.target_identity) { // Mappings to the identity rule are implicitly complete by definition.
+			val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
+			val elementIndex = new HashMap<String, List<GraphElement>>()
+			mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
+			mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
 			
-			return false
-		}
-		
+			val inComplete = elementIndex.entrySet.exists[e |
+				!mapping.element_mappings.exists[em |
+					((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
+					((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source))) ||
+					((em instanceof SlotMapping) && (e.value.contains((em as SlotMapping).source)))
+				]
+			]
+	
+			if (inComplete) {
+				if (validator !== null) {
+					validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
+						XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
+				}
+				
+				return false
+			}
+		}	
 		true
 	}
 	
@@ -284,7 +287,22 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			list.add(ge)
 		]
 	}
-
+	
+	/**
+	 * Check source of a to-identity rule map is an identity rule.
+	 */
+	@Check
+	def checkToIdentityRuleMapSourceIsIdentity(RuleMapping rm) {
+		if ((rm.target_identity) && (!rm.source.isIdentityRule(rm.sourceIsInterface))) {
+			error("Source of to-identity rule mapping must be an identity rule.", rm,
+				XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, uk.ac.kcl.inf.validation.XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
+		}
+	}
+	
+	private def sourceIsInterface(RuleMapping rm) {
+		(rm.eContainer.eContainer as GTSMapping).source.interface_mapping
+	}
+	
 	/**
 	 * Check that we can auto-complete, if requested to do so
 	 */
@@ -468,7 +486,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				return context.get(RULE_MAPPINGS) as Map<EObject, EObject>
 			}
 
-			val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
+			val tgMapping = extractMapping((mapping.eContainer as GTSMapping).typeMapping, null)
+			val Map<EObject, EObject> _mapping = extractMapping(mapping, tgMapping, new IssueAcceptor() {
 				override error(String message, EObject source, EStructuralFeature feature, String code,
 					String... issueData) {
 					XDsmlComposeValidator.this.error(message, source, feature, code, issueData)

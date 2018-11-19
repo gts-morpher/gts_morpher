@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_UPYc0EGREeimBIP0gtQ7RQ" name="KRules">
+  <imports href="K.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_VCcRcEGREeimBIP0gtQ7RQ" name="init">
+    <lhs xmi:id="_VCmCcEGREeimBIP0gtQ7RQ" name="Lhs">
+      <nodes xmi:id="_WWcP8EGREeimBIP0gtQ7RQ" name="k1">
+        <type href="K.ecore#//K1"/>
+        <attributes xmi:id="_jNemsOc7EeiwhdLRSx7MTw" value="&quot;basic&quot;">
+          <type href="K.ecore#//K1/k1"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_VCmpgEGREeimBIP0gtQ7RQ" name="Rhs">
+      <nodes xmi:id="_WWc3AEGREeimBIP0gtQ7RQ" name="k1" incoming="_a_s6EEGREeimBIP0gtQ7RQ">
+        <type href="K.ecore#//K1"/>
+        <attributes xmi:id="_m3SwkOc8EeiwhdLRSx7MTw" value="&quot;basic&quot;">
+          <type href="K.ecore#//K1/k1"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_Y04BQEGREeimBIP0gtQ7RQ" name="newK2" outgoing="_a_s6EEGREeimBIP0gtQ7RQ">
+        <type href="K.ecore#//K2"/>
+      </nodes>
+      <edges xmi:id="_a_s6EEGREeimBIP0gtQ7RQ" source="_Y04BQEGREeimBIP0gtQ7RQ" target="_WWc3AEGREeimBIP0gtQ7RQ">
+        <type href="K.ecore#//K2/observed"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_WWc3AUGREeimBIP0gtQ7RQ" origin="_WWcP8EGREeimBIP0gtQ7RQ" image="_WWc3AEGREeimBIP0gtQ7RQ"/>
+  </units>
+</henshin:Module>

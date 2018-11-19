@@ -71,9 +71,9 @@ NumericParameter:
 	value = INT
 ;
 
-TypeGraphMapping:
-	"type_mapping" "{"
-		mappings += TypeMapping+ 
+TypeGraphMapping: 
+	"type_mapping" "{" {TypeGraphMapping}
+		mappings += TypeMapping*
 	"}"
 ;
 
@@ -100,9 +100,9 @@ BehaviourMapping:
 ;
 
 RuleMapping:
-	"rule" source=[gts::Rule | ID] "to" target=[gts::Rule | ID] "{"
+	"rule" source=[gts::Rule | ID] "to" ((target_identity?="identity") | (target=[gts::Rule | ID] "{"
 		element_mappings += RuleElementMapping*
-	"}"
+	"}"))
 ;
 
 RuleElementMapping:

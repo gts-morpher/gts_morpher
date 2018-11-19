@@ -30,7 +30,10 @@ class ConverterTests extends AbstractTest {
 		#[
 			"A.ecore",
 			"B.ecore",
+			"K.ecore",
+			"L.ecore",
 			"A.henshin",
+			"K.henshin",
 			"B.henshin",
 			"transformers.henshin"
 		].createResourceSet
@@ -258,6 +261,31 @@ class ConverterTests extends AbstractTest {
 	}
 
 	// TODO: Add tests for GTS family choice case
+	
+	
+	@Test
+	def void testBasicMappingWithToIdentityRule() {
+		'''
+			map {
+				from interface_of {
+					metamodel: "K"
+					behaviour: "KRules"
+				}
+			
+				to {
+					metamodel: "L"
+				}
+			
+				type_mapping {
+					class K.K1 => L.L1
+				}
+			
+				behaviour_mapping {
+					rule init to identity
+				}
+			}'''.doTest
+	}
+
 
 	private def void doTest(CharSequence text) {
 		val result = text.parse(createNormalResourceSet)
@@ -266,7 +294,7 @@ class ConverterTests extends AbstractTest {
 
 		val mapping = result.typeMapping.extractMapping(null)
 		if (result.behaviourMapping !== null) {
-			mapping.putAll(result.behaviourMapping.extractMapping(null))
+			mapping.putAll(result.behaviourMapping.extractMapping(mapping, null))
 		}
 
 		val rs = result.eResource.resourceSet

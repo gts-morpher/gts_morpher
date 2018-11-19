@@ -110,11 +110,11 @@ class XDsmlComposer {
 					result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
 				} else {
 					var tgMapping = mapping.typeMapping.extractMapping(null)
-					var behaviourMapping = mapping.behaviourMapping.extractMapping(null)
+					var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
 
 					if (mapping.autoComplete) {
 						_monitor.split("Autocompleting.", 1)
-						
+
 						if (!mapping.uniqueCompletion) {
 							result.add(new MessageIssue("Can only weave based on unique auto-completions."))
 							return result
@@ -124,11 +124,15 @@ class XDsmlComposer {
 						val completer = mapping.createMorphismCompleter
 						if (completer.findMorphismCompletions(false) == 0) {
 							if (completer.completedMappings.size == 1) {
-								tgMapping = new HashMap(completer.completedMappings.head.filter[k, v | (k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)] as Map<EObject, EObject>)
-								behaviourMapping = new HashMap(completer.completedMappings.head.filter[k, v | !((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))] as Map<EObject, EObject>)
+								tgMapping = new HashMap(completer.completedMappings.head.filter [k, v |
+									(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
+								] as Map<EObject, EObject>)
+								behaviourMapping = new HashMap(completer.completedMappings.head.filter [k, v |
+									!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
+								] as Map<EObject, EObject>)
 							} else {
 								result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
-								return result								
+								return result
 							}
 						} else {
 							result.add(new MessageIssue("Was unable to auto-complete the morphism."))
@@ -145,7 +149,8 @@ class XDsmlComposer {
 					composedTG.saveModel(fsa, resource, "tg.ecore")
 
 					_monitor.split("Composing rules.", 1)
-					val composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour, behaviourMapping, mapping.source.metamodel, tgWeaver)
+					val composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
+						behaviourMapping, mapping.source.metamodel, tgWeaver)
 					if (composedModule !== null) {
 						composedModule.saveModel(fsa, resource, "rules.henshin")
 					}
@@ -158,7 +163,7 @@ class XDsmlComposer {
 
 		result
 	}
-	
+
 	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String fileName) {
 		val composedTGResource = baseResource.resourceSet.createResource(
 			fsa.getURI(baseResource.URI.trimFileExtension.lastSegment + "_composed/" + fileName))
@@ -218,71 +223,81 @@ class XDsmlComposer {
 		private def invertedIndex(Map<EObject, EObject> tgMapping) {
 			// Build inverted index so that we can merge objects as required
 			val invertedIndex = new HashMap<EObject, List<EObject>>()
-			tgMapping.forEach[k, v|
+			tgMapping.forEach [ k, v |
 				invertedIndex.putIfAbsent(v, new ArrayList<EObject>)
 				invertedIndex.get(v).add(k)
 			]
 			invertedIndex
 		}
 
-		private def weaveClasses(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements, List<EObject> unmappedTgtElements, EPackage composedPackage) {
+		private def weaveClasses(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
+			List<EObject> unmappedTgtElements, EPackage composedPackage) {
 			// Weave from inverted index for mapped classes 
-			invertedIndex.entrySet.filter[e | e.key instanceof EClass].forEach[e |
-				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [n | composedPackage.createEClass(n)])
-							
+			invertedIndex.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
+				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [n |
+					composedPackage.createEClass(n)
+				])
+
 				put(e.key.targetKey, composed)
-				e.value.forEach[eo | put(eo.sourceKey, composed)]
+				e.value.forEach[eo|put(eo.sourceKey, composed)]
 			]
-			
+
 			// Create copies for all unmapped classes
 			composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE)
 			composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET)
 		}
-		
-		private def weaveReferences(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements, List<EObject> unmappedTgtElements) {
+
+		private def weaveReferences(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
+			List<EObject> unmappedTgtElements) {
 			// Weave mapped references
 			// Because the mapping is a morphism, this must work :-)
 			invertedIndex.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
-				val EReference composed = e.value.createWithWovenName(e.key.name.toString, [n | createEReference(e.key as EReference, n)])
-				
+				val EReference composed = e.value.createWithWovenName(e.key.name.toString, [n |
+					createEReference(e.key as EReference, n)
+				])
+
 				put(e.key.targetKey, composed)
-				e.value.forEach[eo | put(eo.sourceKey, composed)]
+				e.value.forEach[eo|put(eo.sourceKey, composed)]
 			]
-			
+
 			// Create copied for unmapped references
 			unmappedSrcElements.createForEachEReference(Origin.SOURCE)
-			unmappedTgtElements.createForEachEReference(Origin.TARGET)			
+			unmappedTgtElements.createForEachEReference(Origin.TARGET)
 		}
 
-		private def weaveAttributes(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements, List<EObject> unmappedTgtElements) {
+		private def weaveAttributes(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
+			List<EObject> unmappedTgtElements) {
 			// Weave mapped attributes
 			// Because the mapping is a morphism, this must work :-)
 			invertedIndex.entrySet.filter[e|e.key instanceof EAttribute].forEach [ e |
-				val EAttribute composed = e.value.createWithWovenName(e.key.name.toString, [n | createEAttribute(e.key as EAttribute, n)])
-				
+				val EAttribute composed = e.value.createWithWovenName(e.key.name.toString, [n |
+					createEAttribute(e.key as EAttribute, n)
+				])
+
 				put(e.key.targetKey, composed)
-				e.value.forEach[eo | put(eo.sourceKey, composed)]
+				e.value.forEach[eo|put(eo.sourceKey, composed)]
 			]
-			
+
 			// Create copies for unmapped attributes
 			unmappedSrcElements.createForEachEAttribute(Origin.SOURCE)
-			unmappedTgtElements.createForEachEAttribute(Origin.TARGET)			
+			unmappedTgtElements.createForEachEAttribute(Origin.TARGET)
 		}
 
 		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin) {
-			elements.createForEach(EClass, origin, [eo | composedPackage.createEClass(eo.name.originName(origin))])			
+			elements.createForEach(EClass, origin, [eo|composedPackage.createEClass(eo.name.originName(origin))])
 		}
 
 		private def createForEachEReference(List<EObject> elements, Origin origin) {
-			elements.createForEach(EReference, origin, [er | er.createEReference(er.name.originName(origin), origin)])
+			elements.createForEach(EReference, origin, [er|er.createEReference(er.name.originName(origin), origin)])
 		}
-		
+
 		private def createForEachEAttribute(List<EObject> elements, Origin origin) {
-			elements.createForEach(EAttribute, origin, [er | er.createEAttribute(er.name.originName(origin), origin)])
+			elements.createForEach(EAttribute, origin, [er|er.createEAttribute(er.name.originName(origin), origin)])
 		}
-		
-		private def <T extends ENamedElement> createForEach(List<EObject> elements, Class<T> clazz, Origin origin, Function<T, T> creator) {
-			elements.filter(clazz).forEach [eo |
+
+		private def <T extends ENamedElement> createForEach(List<EObject> elements, Class<T> clazz, Origin origin,
+			Function<T, T> creator) {
+			elements.filter(clazz).forEach [ eo |
 				put(eo.origKey(origin), creator.apply(eo))
 			]
 		}
@@ -322,7 +337,7 @@ class XDsmlComposer {
 			val opposite = get(source.EOpposite.origKey(origin)) as EReference
 			if (opposite !== null) {
 				result.EOpposite = opposite
-				opposite.EOpposite = result			
+				opposite.EOpposite = result
 			}
 			result.lowerBound = source.lowerBound
 			result.ordered = source.ordered
@@ -375,16 +390,16 @@ class XDsmlComposer {
 		}
 	}
 
-	private def Module composeBehaviour(Module srcBehaviour, Module tgtBehaviour, Map<EObject, EObject> behaviourMapping, EPackage srcPackage, Map<Pair<Origin, EObject>, EObject> tgMapping) {
-		if ((srcBehaviour === null) || (tgtBehaviour === null)) {
+	private def Module composeBehaviour(Module srcBehaviour, Module tgtBehaviour,
+		Map<EObject, EObject> behaviourMapping, EPackage srcPackage, Map<Pair<Origin, EObject>, EObject> tgMapping) {
+		if ((srcBehaviour === null)) {
 			return null
 		}
 
 		val result = HenshinFactory.eINSTANCE.createModule
-		result.description = weaveDescriptions(srcBehaviour.description,
-			tgtBehaviour.description)
+		result.description = weaveDescriptions(srcBehaviour, tgtBehaviour)
 		result.imports.add(tgMapping.get(srcPackage.sourceKey) as EPackage)
-		result.name = XDsmlComposer.weaveNames(srcBehaviour.name, tgtBehaviour.name)
+		result.name = weaveNames(srcBehaviour, tgtBehaviour)
 
 		result.units.addAll(behaviourMapping.keySet.filter(Rule).map[r|r.createComposed(behaviourMapping, tgMapping)])
 
@@ -434,9 +449,8 @@ class XDsmlComposer {
 			Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel) {
 			this.srcPattern = srcPattern
 			this.tgtPattern = tgtPattern
-			this.behaviourMapping = behaviourMapping.filter[key, value|
-				(key.eContainer === srcPattern) ||
-				(key.eContainer.eContainer === srcPattern) // to include slots 
+			this.behaviourMapping = behaviourMapping.filter [ key, value |
+				(key.eContainer === srcPattern) || (key.eContainer.eContainer === srcPattern) // to include slots 
 			]
 			this.tgMapping = tgMapping
 
@@ -454,54 +468,56 @@ class XDsmlComposer {
 		private def weaveMappedElements() {
 			// Construct inverted index, then compose from that
 			val invertedIndex = new HashMap<EObject, List<EObject>>()
-			behaviourMapping.forEach[k, v|
+			behaviourMapping.forEach [ k, v |
 				invertedIndex.putIfAbsent(v, new ArrayList<EObject>)
 				invertedIndex.get(v).add(k)
 			]
-			
+
 			invertedIndex.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.Node].forEach [ e |
-				val composed = e.value.createWithWovenName(e.key.name.toString, [n | createNode(e.key as org.eclipse.emf.henshin.model.Node, n)])
-							
+				val composed = e.value.createWithWovenName(e.key.name.toString, [n |
+					createNode(e.key as org.eclipse.emf.henshin.model.Node, n)
+				])
+
 				put((e.key as org.eclipse.emf.henshin.model.Node).targetKey, composed)
-				e.value.forEach[eo | put((eo as org.eclipse.emf.henshin.model.Node).sourceKey, composed)]
-			]			
+				e.value.forEach[eo|put((eo as org.eclipse.emf.henshin.model.Node).sourceKey, composed)]
+			]
 
 			invertedIndex.entrySet.filter[e|e.key instanceof Edge].forEach [ e |
 				val composed = createEdge(e.key as Edge)
-				
+
 				put((e.key as Edge).targetKey, composed)
-				e.value.forEach[eo | put((eo as Edge).sourceKey, composed)]
+				e.value.forEach[eo|put((eo as Edge).sourceKey, composed)]
 			]
 
 			invertedIndex.entrySet.filter[e|e.key instanceof Attribute].forEach [ e |
 				val composed = createSlot(e.key as Attribute)
-				
+
 				put((e.key as Attribute).targetKey, composed)
-				e.value.forEach[eo | put((eo as Attribute).sourceKey, composed)]
+				e.value.forEach[eo|put((eo as Attribute).sourceKey, composed)]
 			]
 		}
 
 		private def weaveUnmappedElements() {
-			srcPattern.nodes.reject[n|behaviourMapping.containsKey(n)].forEach [n |
+			srcPattern.nodes.reject[n|behaviourMapping.containsKey(n)].forEach [ n |
 				put(n.sourceKey, n.createNode(n.name.originName(Origin.SOURCE), Origin.SOURCE))
 			]
-			tgtPattern.nodes.reject[n|behaviourMapping.values.contains(n)].forEach [n |
+			tgtPattern.nodes.reject[n|behaviourMapping.values.contains(n)].forEach [ n |
 				put(n.targetKey, n.createNode(n.name.originName(Origin.TARGET), Origin.TARGET))
 			]
 
-			srcPattern.edges.reject[e|behaviourMapping.containsKey(e)].forEach [e|
+			srcPattern.edges.reject[e|behaviourMapping.containsKey(e)].forEach [ e |
 				put(e.sourceKey, e.createEdge(Origin.SOURCE))
 			]
-			tgtPattern.edges.reject[e|behaviourMapping.values.contains(e)].forEach [e|
+			tgtPattern.edges.reject[e|behaviourMapping.values.contains(e)].forEach [ e |
 				put(e.targetKey, e.createEdge(Origin.TARGET))
 			]
-			
-			srcPattern.nodes.map[n | n.attributes.reject[a | behaviourMapping.containsKey(a)]].flatten.forEach[a | 
-				put (a.sourceKey, a.createSlot(Origin.SOURCE))
+
+			srcPattern.nodes.map[n|n.attributes.reject[a|behaviourMapping.containsKey(a)]].flatten.forEach [ a |
+				put(a.sourceKey, a.createSlot(Origin.SOURCE))
 			]
-			tgtPattern.nodes.map[n | n.attributes.reject[a | behaviourMapping.values.contains(a)]].flatten.forEach[a | 
-				put (a.sourceKey, a.createSlot(Origin.TARGET))
-			] 
+			tgtPattern.nodes.map[n|n.attributes.reject[a|behaviourMapping.values.contains(a)]].flatten.forEach [ a |
+				put(a.sourceKey, a.createSlot(Origin.TARGET))
+			]
 		}
 
 		private def org.eclipse.emf.henshin.model.Node createNode(org.eclipse.emf.henshin.model.Node nSrc,
@@ -569,10 +585,16 @@ class XDsmlComposer {
 		}
 	}
 
-	private static def <T extends EObject> T createWithWovenName(List<? extends EObject> objects, String startName, Function<String, T> creator) {
-		creator.apply(objects.map[eo | eo.name.toString].sort.reverseView.fold(startName, [acc, n | weaveNames(n, acc)]))
+	private static def <T extends EObject> T createWithWovenName(List<? extends EObject> objects, String startName,
+		Function<String, T> creator) {
+		creator.apply(objects.map[eo|eo.name.toString].sort.reverseView.fold(startName, [acc, n|weaveNames(n, acc)]))
 	}
 
+	private static def String weaveNames(Module sourceModule, Module targetModule) {
+		weaveNames(if(sourceModule !== null) sourceModule.name else null,
+			if(targetModule !== null) targetModule.name else null)
+	}
+	
 	private static def String weaveNames(CharSequence sourceName, CharSequence targetName) {
 		if (sourceName === null) {
 			if (targetName !== null) {
@@ -584,6 +606,11 @@ class XDsmlComposer {
 			sourceName.toString
 		} else
 			'''«sourceName»_«targetName»'''
+	}
+
+	private static def String weaveDescriptions(Module sourceModule, Module targetModule) {
+		weaveDescriptions(if(sourceModule !== null) sourceModule.description else null,
+			if(targetModule !== null) targetModule.description else null)
 	}
 
 	private static def String weaveDescriptions(CharSequence sourceDescription, CharSequence targetDescription) {
