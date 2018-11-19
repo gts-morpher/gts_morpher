@@ -1,0 +1,10 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/K", prefix="k")
+package K;
+
+@Interface
+class K1 {
+}
+
+class K2 {
+	ref K1 observed;
+}

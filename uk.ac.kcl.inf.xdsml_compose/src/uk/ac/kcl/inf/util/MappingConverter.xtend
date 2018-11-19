@@ -235,35 +235,55 @@ class MappingConverter {
 		val result = XDsmlComposeFactory.eINSTANCE.createRuleMapping
 
 		result.source = srcRule.correspondingSourceElement(mapping)
-		// FIXME: Need to handle this differently depending on whether the original mapping was to identity or not
-		result.target = tgtRule.correspondingTargetElement(mapping)
-
-		result.element_mappings.addAll(behaviourMappings.filter [ e |
-			// Ensure kernel elements are included only once in the mapping and with their lhs representative
-			if ((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) {
-				if (e.key.eContainer === srcRule.rhs) {
-					!(srcRule.lhs.nodes.exists[n|n.name == e.key.name] || srcRule.lhs.edges.exists [ ed |
-						ed.name == e.key.name
-					])
+		
+		// Need to handle this differently depending on whether the original mapping was to identity or not
+		if (tgtRule.isVirtualIdentityRule) {
+			result.target_identity = true
+		} else {
+			result.target = tgtRule.correspondingTargetElement(mapping)
+	
+			result.element_mappings.addAll(behaviourMappings.filter [ e |
+				// Ensure kernel elements are included only once in the mapping and with their lhs representative
+				if ((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) {
+					if (e.key.eContainer === srcRule.rhs) {
+						!(srcRule.lhs.nodes.exists[n|n.name == e.key.name] || srcRule.lhs.edges.exists [ ed |
+							ed.name == e.key.name
+						])
+					} else {
+						true
+					}
+				} else if ((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule)) {
+					if (e.key.eContainer.eContainer == srcRule.rhs) {
+						!(srcRule.lhs.nodes.exists [ n |
+							(n.name == e.key.eContainer.name) && n.attributes.exists[a|a.type === (e.key as Attribute).type]
+						])
+					} else {
+						true
+					}
 				} else {
-					true
+					false
 				}
-			} else if ((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule)) {
-				if (e.key.eContainer.eContainer == srcRule.rhs) {
-					!(srcRule.lhs.nodes.exists [ n |
-						(n.name == e.key.eContainer.name) && n.attributes.exists[a|a.type === (e.key as Attribute).type]
-					])
-				} else {
-					true
-				}
-			} else {
-				false
-			}
-		].map [ e |
-			e.key.extractRuleElementMapping(e.value, mapping)
-		])
+			].map [ e |
+				e.key.extractRuleElementMapping(e.value, mapping)
+			])
+		}
 
 		result
+	}
+	
+	public static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
+
+	private static def isVirtualIdentityRule(Rule r) {
+		r.annotations.exists[a | a.key == IDENTITY_RULE_ANNOTATION_KEY]
+	}
+	
+	private static def setIsVirtualIdentityRule(Rule r, boolean b) {
+		r.annotations.removeIf([a | a.key == IDENTITY_RULE_ANNOTATION_KEY])
+		if (b) {
+			val annotation = createAnnotation
+			annotation.key = IDENTITY_RULE_ANNOTATION_KEY
+			r.annotations.add(annotation)
+		}
 	}
 
 	private static dispatch def RuleElementMapping extractRuleElementMapping(EObject src, EObject tgt,
@@ -518,6 +538,7 @@ class MappingConverter {
 			// Need to consider what to do with auto-completion cases.
 			val virtualRule = createRule(r.name)
 			result.putIfNotNull(virtualRule, r)
+			virtualRule.isVirtualIdentityRule = true
 
 			// Must add the rule to some module, even if we just make it up... 
 			// Weaving will assume to be able to navigate up from rules, but will actually never use the module

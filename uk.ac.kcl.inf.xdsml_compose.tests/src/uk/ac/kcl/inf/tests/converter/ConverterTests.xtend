@@ -30,7 +30,10 @@ class ConverterTests extends AbstractTest {
 		#[
 			"A.ecore",
 			"B.ecore",
+			"K.ecore",
+			"L.ecore",
 			"A.henshin",
+			"K.henshin",
 			"B.henshin",
 			"transformers.henshin"
 		].createResourceSet
@@ -262,29 +265,23 @@ class ConverterTests extends AbstractTest {
 	
 	@Test
 	def void testBasicMappingWithToIdentityRule() {
-		testMappingWithToIdentityRule(normalSource)
-	}
-	
-	@Test
-	def void testFamilyMappingWithToIdentityRule() {
-		testMappingWithToIdentityRule(familySource)
-	}
-	
-	private def testMappingWithToIdentityRule(CharSequence srcText) {
 		'''
 			map {
-				«srcText»
+				from interface_of {
+					metamodel: "K"
+					behaviour: "KRules"
+				}
 			
 				to {
-					metamodel: "B"
+					metamodel: "L"
 				}
 			
 				type_mapping {
-					class A.A1 => B.B2
+					class K.K1 => L.L1
 				}
 			
 				behaviour_mapping {
-					rule do to identity
+					rule init to identity
 				}
 			}'''.doTest
 	}
