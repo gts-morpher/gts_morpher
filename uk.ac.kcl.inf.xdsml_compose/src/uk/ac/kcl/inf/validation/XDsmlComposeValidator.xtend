@@ -240,7 +240,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Check that the given rule mapping is complete
 	 */
 	private def checkIsCompleteRuleMapping(RuleMapping mapping, XDsmlComposeValidator validator) {
-		if (!mapping.target_identity) { // Mappings to the identity rule are implicitly complete by definition.
+		if (!mapping.target_virtual) { // Mappings to the virtual rules are implicitly complete by definition.
 			val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
 			val elementIndex = new HashMap<String, List<GraphElement>>()
 			mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)

@@ -855,7 +855,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		val issues = result.validate()
 
 		// Incomplete mapping errors 
-		assertTrue(issues.length == 4)
+		assertTrue(issues.length == 3)
 	}
 
 	/**
