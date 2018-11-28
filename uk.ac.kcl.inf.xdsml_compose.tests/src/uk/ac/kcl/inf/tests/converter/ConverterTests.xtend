@@ -281,7 +281,7 @@ class ConverterTests extends AbstractTest {
 				}
 			
 				behaviour_mapping {
-					rule init to identity
+					rule init to virtual identity
 				}
 			}'''.doTest
 	}

@@ -238,6 +238,7 @@ class MappingConverter {
 		
 		// Need to handle this differently depending on whether the original mapping was to identity or not
 		if (tgtRule.isVirtualIdentityRule) {
+			result.target_virtual = true
 			result.target_identity = true
 		} else {
 			result.target = tgtRule.correspondingTargetElement(mapping)

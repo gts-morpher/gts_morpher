@@ -226,7 +226,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule process to identity
+					rule process to virtual identity
 				}
 			}
 		''', createNormalResourceSet)
@@ -770,7 +770,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule produce to identity
+					rule produce to virtual identity
 				}
 			}
 		''', createNormalResourceSet)
@@ -810,7 +810,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule addObserver to identity
+					rule addObserver to virtual identity
 				}
 			}
 		''', createInterfaceResourceSet)
@@ -819,6 +819,40 @@ class ParsingAndValidationTests extends AbstractTest {
 		val issues = result.validate()
 
 		result.assertNoError(XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
+
+		// Incomplete mapping errors 
+		assertTrue(issues.length == 4)
+	}
+
+	@Test
+	def void morphismBehaviourMappingWithToVirtualRuleMappingSourceNotAnIdentity() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.GenHandle
+					class server.Queue => devsmm.Conveyor
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule produce to virtual
+				}
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
 
 		// Incomplete mapping errors 
 		assertTrue(issues.length == 4)
