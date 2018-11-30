@@ -48,7 +48,7 @@
       </children>
     </children>
     <element xmi:type="henshin:Rule" href="CD2.henshin#_r0MvEPMnEeixtsqi6x2cPA"/>
-    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_r0MvEvMnEeixtsqi6x2cPA" x="142" y="99" width="513" height="262"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_r0MvEvMnEeixtsqi6x2cPA" x="142" y="98" width="513" height="262"/>
   </children>
   <styles xmi:type="notation:DiagramStyle" xmi:id="_nIf08fMnEeixtsqi6x2cPA"/>
   <element xmi:type="henshin:Module" href="CD2.henshin#_nIWrAPMnEeixtsqi6x2cPA"/>
