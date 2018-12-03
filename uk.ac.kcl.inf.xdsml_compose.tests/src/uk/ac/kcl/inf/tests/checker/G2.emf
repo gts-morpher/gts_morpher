@@ -1,0 +1,6 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/G", prefix="g")
+package G2;
+
+class G1 {
+	attr String a2;
+}

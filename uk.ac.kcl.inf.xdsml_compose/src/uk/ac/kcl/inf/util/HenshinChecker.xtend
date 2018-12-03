@@ -1,5 +1,6 @@
 package uk.ac.kcl.inf.util
 
+import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 
@@ -12,9 +13,7 @@ class HenshinChecker {
 			rule.mappings.exists [ m |
 				(m.origin === n) && // All attribute values remain unchanged
 				n.attributes.forall [ a |
-					m.image.attributes.exists [ a2 |
-						(a.type === a2.type) && (a.value == a2.value)
-					]
+					m.image.attributes.exists [ a2 | a.equals(a2, isInterface) ]
 				]
 			]
 		] && // All RHS nodes are mapped
@@ -22,9 +21,7 @@ class HenshinChecker {
 			rule.mappings.exists [ m |
 				(m.image === n) && // All attribute values remain unchanged
 				n.attributes.forall [ a |
-					m.origin.attributes.exists [ a2 |
-						(a.type === a2.type) && (a.value == a2.value)
-					]
+					m.origin.attributes.exists [ a2 | a.equals(a2, isInterface) ]
 				]
 			]
 		] && // All LHS edges exist on RHS side of the rule
@@ -38,6 +35,10 @@ class HenshinChecker {
 				e.type === e2.type && e.source.mapped === e2.source && e.target.mapped === e2.target
 			]
 		]
+	}
+	
+	public static def equals(Attribute a1, Attribute a2, boolean isInterface) {
+		(a1.type === a2.type) && ((isInterface && !a1.type.isInterfaceElement) || (a1.value == a2.value))
 	}
 
 	private static def getMapped(Node node) {

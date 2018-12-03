@@ -35,6 +35,7 @@ class MorphismCheckerTests extends AbstractTest {
 			"B2.henshin",
 			"F.ecore",
 			"G.ecore",
+			"G2.ecore",
 			"F.henshin",
 			"G.henshin"
 		].createResourceSet
@@ -277,6 +278,102 @@ class MorphismCheckerTests extends AbstractTest {
 				result.source.behaviour.units.head as Rule,
 				typeMapping,
 				result.behaviourMapping.extractMapping(typeMapping, null),
+				null
+			)
+		)
+	}
+
+	/**
+	 * Tests morphism checker accepts virtual rule mappings. 
+	 */
+	@Test
+	def void checkVirtualRuleMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				to {
+					metamodel: "G"
+					//behaviour: "GRules"
+				}
+				
+				type_mapping {
+					class F.F1 => G.G1
+					attribute F.F1.a1 => G.G1.a1
+					attribute F.F1.a2 => G.G1.a2
+				}
+				
+				behaviour_mapping {
+					rule do to virtual
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val typeMapping = result.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		val behaviourMapping = result.behaviourMapping.extractMapping(typeMapping, null)
+		assertTrue(
+			"Should be a rule morphism",
+			checkRuleMorphism(
+				behaviourMapping.keySet.findFirst[eo | behaviourMapping.get(eo) === result.source.behaviour.units.head]as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				behaviourMapping,
+				null
+			)
+		)
+	}
+
+	/**
+	 * Tests morphism checker accepts virtual rule mappings. 
+	 */
+	@Test
+	def void checkVirtualIdentityRuleMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				to {
+					metamodel: "G2"
+				}
+				
+				type_mapping {
+					class F.F1 => G2.G1
+					attribute F.F1.a2 => G2.G1.a2
+				}
+				
+				behaviour_mapping {
+					rule do to virtual identity
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val typeMapping = result.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		val behaviourMapping = result.behaviourMapping.extractMapping(typeMapping, null)
+		assertTrue(
+			"Should be a rule morphism",
+			checkRuleMorphism(
+				behaviourMapping.keySet.findFirst[eo | behaviourMapping.get(eo) === result.source.behaviour.units.head]as Rule,
+				result.source.behaviour.units.head as Rule,
+				typeMapping,
+				behaviourMapping,
 				null
 			)
 		)
