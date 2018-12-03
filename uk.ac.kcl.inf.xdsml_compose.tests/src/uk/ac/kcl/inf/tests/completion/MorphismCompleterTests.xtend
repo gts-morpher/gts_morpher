@@ -51,6 +51,7 @@ class MorphismCompleterTests extends AbstractTest {
 			"I.henshin",
 			"J.henshin",
 			"K.henshin",
+			"K2.henshin",
 			"K.ecore",
 			"L.ecore",
 			"pls.ecore",
