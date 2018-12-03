@@ -264,6 +264,29 @@ class ConverterTests extends AbstractTest {
 	
 	
 	@Test
+	def void testBasicMappingWithToVirtualRule() {
+		'''
+			map {
+				from interface_of {
+					metamodel: "K"
+					behaviour: "KRules"
+				}
+			
+				to {
+					metamodel: "L"
+				}
+			
+				type_mapping {
+					class K.K1 => L.L1
+				}
+			
+				behaviour_mapping {
+					rule init to virtual
+				}
+			}'''.doTest
+	}
+
+	@Test
 	def void testBasicMappingWithToIdentityRule() {
 		'''
 			map {
@@ -285,7 +308,6 @@ class ConverterTests extends AbstractTest {
 				}
 			}'''.doTest
 	}
-
 
 	private def void doTest(CharSequence text) {
 		val result = text.parse(createNormalResourceSet)
