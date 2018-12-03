@@ -906,10 +906,7 @@ class MorphismCompleter {
 			if (r.isIdentityRule(srcIsInterface)) {
 				recombinedMorphism.putAll(r.extractTgtIdentityMapping(srcIsInterface, recombinedMorphism))
 			} else {
-				// TODO: For now, we only attempt to add in to-identity mappings and report an error for other cases. 
-				// In principle, this can easily be extended here
-				throw new UnsupportedOperationException(
-					"Auto-completing for rules that need mapping to non-identity virtual target rules not yet supported")
+				recombinedMorphism.putAll(r.extractTgtVirtualMapping(srcIsInterface, recombinedMorphism))
 			}
 		]
 
