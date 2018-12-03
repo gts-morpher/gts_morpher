@@ -278,14 +278,14 @@ class MappingConverter {
 		result
 	}
 	
-	public static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
-	public static val VIRTUAL_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual"
+	private static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
+	private static val VIRTUAL_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual"
 
-	private static def isVirtualRule(Rule r) {
+	public static def isVirtualRule(Rule r) {
 		r.annotations.exists[a | a.key == VIRTUAL_RULE_ANNOTATION_KEY]
 	}
 	
-	private static def setIsVirtualRule(Rule r, boolean b) {
+	public static def setIsVirtualRule(Rule r, boolean b) {
 		r.annotations.removeIf([a | a.key == VIRTUAL_RULE_ANNOTATION_KEY])
 		if (b) {
 			val annotation = createAnnotation
@@ -294,11 +294,11 @@ class MappingConverter {
 		}
 	}
 
-	private static def isVirtualIdentityRule(Rule r) {
+	public static def isVirtualIdentityRule(Rule r) {
 		r.annotations.exists[a | a.key == IDENTITY_RULE_ANNOTATION_KEY]
 	}
 	
-	private static def setIsVirtualIdentityRule(Rule r, boolean b) {
+	public static def setIsVirtualIdentityRule(Rule r, boolean b) {
 		r.annotations.removeIf([a | a.key == IDENTITY_RULE_ANNOTATION_KEY])
 		if (b) {
 			val annotation = createAnnotation
