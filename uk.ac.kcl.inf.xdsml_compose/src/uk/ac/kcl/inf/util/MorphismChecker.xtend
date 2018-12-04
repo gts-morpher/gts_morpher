@@ -14,6 +14,7 @@ import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import static extension uk.ac.kcl.inf.util.MappingConverter.isVirtualRule
 
 /**
  * Utility class to check type mappings for morphism properties.
@@ -252,15 +253,21 @@ class MorphismChecker {
 	static def boolean checkRuleMorphism(Rule tgtRule, Rule srcRule, Map<EObject, EObject> typeMapping,
 		Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
 
-		val srcLhsPattern = srcRule.lhs
-		val srcRhsPattern = srcRule.rhs
-		val tgtLhsPattern = tgtRule.lhs
-		val tgtRhsPattern = tgtRule.rhs
-
-		// TODO: Consider adding checks for the actual patterns. We don't explicitly map them at the moment (and this only really makes sense for NACs/PACs, but Kinga's original code checked this nonetheless
-		checkPatternMorphism(srcLhsPattern, tgtLhsPattern, typeMapping, behaviourMapping, issues) &&
-			checkPatternMorphism(srcRhsPattern, tgtRhsPattern, typeMapping, behaviourMapping, issues) &&
-			checkKPatternMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues)
+		if (!tgtRule.isVirtualRule) {
+			val srcLhsPattern = srcRule.lhs
+			val srcRhsPattern = srcRule.rhs
+			val tgtLhsPattern = tgtRule.lhs
+			val tgtRhsPattern = tgtRule.rhs
+	
+			// TODO: Consider adding checks for the actual patterns. We don't explicitly map them at the moment (and this only really makes sense for NACs/PACs, but Kinga's original code checked this nonetheless
+			checkPatternMorphism(srcLhsPattern, tgtLhsPattern, typeMapping, behaviourMapping, issues) &&
+				checkPatternMorphism(srcRhsPattern, tgtRhsPattern, typeMapping, behaviourMapping, issues) &&
+				checkKPatternMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues)
+				
+		} else {
+			// to-virtual rule mappings are valid by default, so no need to check in detail
+			true
+		}
 	}
 
 	static private def boolean checkPatternMorphism(Graph srcPattern, Graph tgtPattern,
