@@ -48,7 +48,7 @@ class MorphismCompleter {
 
 		new MorphismCompleter(_typeMapping, mapping.source.metamodel, mapping.target.metamodel,
 			mapping.behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
-			mapping.source.interface_mapping, mapping.target.interface_mapping)
+			mapping.source.interface_mapping, mapping.target.interface_mapping, mapping.toIdentityOnly)
 	}
 
 	/**
@@ -81,13 +81,16 @@ class MorphismCompleter {
 	private var boolean srcIsInterface = false
 	private var boolean tgtIsInterface = false
 
+	private var boolean toIdentityOnly = false
+
 	new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage, BehaviourMapping behaviourMapping,
-		Module srcModule, Module tgtModule, boolean srcIsInterface, boolean tgtIsInterface) {
+		Module srcModule, Module tgtModule, boolean srcIsInterface, boolean tgtIsInterface, boolean toIdentityOnly) {
 		this.typeMapping = new HashMap<EObject, EObject>(typeMapping)
 		this.srcPackage = srcPackage
 		this.tgtPackage = tgtPackage
 		this.srcIsInterface = srcIsInterface
 		this.tgtIsInterface = tgtIsInterface
+		this.toIdentityOnly = toIdentityOnly
 
 		allSrcModelElements = srcPackage.allContents
 		if (srcIsInterface) {
@@ -613,9 +616,7 @@ class MorphismCompleter {
 		} else {
 			// Matched all rules, now need to merge results
 			// No need to consider findAll; that's already been taken into account in the search
-			recombineFoundMappings(resultData.value)
-
-			return 0
+			return recombineFoundMappings(resultData.value)
 		}
 	}
 
@@ -873,44 +874,58 @@ class MorphismCompleter {
 		doRecombineFoundMappings(mappings.entrySet.toList, new HashMap(typeMapping))
 	}
 
-	private def void doRecombineFoundMappings(List<Map.Entry<Rule, MorphismOrNonmatchedCount>> remainingMappings,
+	private def int doRecombineFoundMappings(List<Map.Entry<Rule, MorphismOrNonmatchedCount>> remainingMappings,
 		Map<EObject, EObject> recombinedMorphism) {
 		if (remainingMappings.empty) {
-			saveFullMapping(recombinedMorphism)
-			return
+			return saveFullMapping(recombinedMorphism)
 		}
 
 		val pick = remainingMappings.remove(0)
+		val result = new ValueHolder(Integer.MAX_VALUE)
 
 		(pick.value as Morphism).mappingVariants.forEach [ v |
 			// TODO Move creation of new map to end of recursion
 			val newMorphism = new HashMap(recombinedMorphism)
 			newMorphism.put(pick.key, v.key)
 			v.value.forEach[vv|newMorphism.put(vv.key, vv.value)]
-			doRecombineFoundMappings(remainingMappings, newMorphism)
+			val resultDown = doRecombineFoundMappings(remainingMappings, newMorphism)
+			if (resultDown < result.value) {
+				result.value = resultDown
+			}
 		]
 
 		remainingMappings.add(0, pick)
+		
+		result.value
 	}
 
 	/**
 	 * Save the given mapping. Before that, however, check if all source rules have been mapped and, if not, create suitable virtual mappings for them.
 	 */
-	private def void saveFullMapping(Map<EObject, EObject> recombinedMorphism) {
+	private def int saveFullMapping(Map<EObject, EObject> recombinedMorphism) {
 		/*
 		 * Check all source rules have been mapped to, too.
 		 * 
 		 * Need to do this at the end of recombining, because only here do we know which source rules haven't been mapped to.
 		 */
+		val numUnMatched = new ValueHolder(0)
 		allSrcBehaviorElements.filter(Rule).reject[r|recombinedMorphism.containsValue(r)].forEach [ r |
 			if (r.isIdentityRule(srcIsInterface)) {
 				recombinedMorphism.putAll(r.extractTgtIdentityMapping(srcIsInterface, recombinedMorphism))
 			} else {
-				recombinedMorphism.putAll(r.extractTgtVirtualMapping(srcIsInterface, recombinedMorphism))
+				if (toIdentityOnly) {
+					numUnMatched.value = numUnMatched.value + 2 + r.eAllContents.size 
+				} else {
+					recombinedMorphism.putAll(r.extractTgtVirtualMapping(srcIsInterface, recombinedMorphism))				
+				}
 			}
 		]
 
-		completedMappings.add(recombinedMorphism)
+		if (numUnMatched.value === 0) {
+			completedMappings.add(recombinedMorphism)		
+		} 
+
+		numUnMatched.value
 	}
 
 	/**
