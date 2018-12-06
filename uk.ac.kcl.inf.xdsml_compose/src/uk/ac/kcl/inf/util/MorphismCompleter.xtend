@@ -9,6 +9,7 @@ import java.util.List
 import java.util.ListIterator
 import java.util.Map
 import java.util.Set
+import org.eclipse.emf.ecore.EAnnotation
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EModelElement
@@ -32,8 +33,8 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-import static extension uk.ac.kcl.inf.util.MappingConverter.*
 import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
+import static extension uk.ac.kcl.inf.util.MappingConverter.*
 
 /**
  * Helper for completing type mappings into clan morphisms 
@@ -540,7 +541,7 @@ class MorphismCompleter {
 	private def List<EObject> getUnmatchedTGElements() {
 		allSrcModelElements.filter [ eo |
 			!typeMapping.containsKey(eo)
-		].toList
+		].reject[eo|eo instanceof EAnnotation].toList
 	}
 
 	/**
@@ -895,7 +896,7 @@ class MorphismCompleter {
 		]
 
 		remainingMappings.add(0, pick)
-		
+
 		result.value
 	}
 
@@ -914,16 +915,16 @@ class MorphismCompleter {
 				recombinedMorphism.putAll(r.extractTgtIdentityMapping(srcIsInterface, recombinedMorphism))
 			} else {
 				if (toIdentityOnly) {
-					numUnMatched.value = numUnMatched.value + 2 + r.eAllContents.size 
+					numUnMatched.value = numUnMatched.value + 2 + r.eAllContents.size
 				} else {
-					recombinedMorphism.putAll(r.extractTgtVirtualMapping(srcIsInterface, recombinedMorphism))				
+					recombinedMorphism.putAll(r.extractTgtVirtualMapping(srcIsInterface, recombinedMorphism))
 				}
 			}
 		]
 
 		if (numUnMatched.value === 0) {
-			completedMappings.add(recombinedMorphism)		
-		} 
+			completedMappings.add(recombinedMorphism)
+		}
 
 		numUnMatched.value
 	}

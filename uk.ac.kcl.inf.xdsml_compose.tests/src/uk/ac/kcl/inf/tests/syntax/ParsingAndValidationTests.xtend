@@ -1294,7 +1294,77 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertNoIssues
 	}
 	
-	// TODO: Need a test for to-Identity-Only where we actually need to create to-identity rules
+	/**
+	 * Tests auto-completion of behaviour morphisms claiming identity-only. Here, auto-completion actually needs 
+	 * to generate virtual rules, both of which can be identity rules.
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithIdentityOnlyRuleMapPositiveVirtualNeeded() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete to-identity-only map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+				}
+				
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		result.assertNoIssues
+	}
+
+	/**
+	 * Tests auto-completion of behaviour morphisms claiming identity-only. Here, auto-completion actually needs 
+	 * to generate virtual rules, both of which can be identity rules.
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithIdentityOnlyRuleMapNegativeVirtualNeeded() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete to-identity-only map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					class server.Element => server.Element
+					class server.Input => server.Input
+					class server.Output => server.Output
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+					reference server.Queue.elts => server.Queue.elts
+				}
+				
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_BEHAVIOUR_MAPPING) 
+	}
 
 	/**
 	 * Tests that completeness check works correctly for complete mappings
