@@ -99,17 +99,35 @@ This will check the GTS described and only consider a sub-GTS typable over the m
 
 ### 2.4 Mapping with virtual rules
 
-When a rule in the source GTS cannot be mapped to any rule in the target GTS, it can be mapped to a virtual rule. At this point, such virtual rules must be identity rules; that is their left- and right-hand sides must be identical. Therefore, currently only identity rules can be mapped to virtual rules. It is planned to extend this in the future so that arbitrary rules can be mapped to virtual rules. Note that this will affect behaviour-preservation properties of the morphism.
-
-To specify a rule mapping to a virtual identity rule use the following form of rule mappings (where `init` is the name of a rule in the source GTS):
+When a rule in the source GTS cannot be mapped to any rule in the target GTS, it can be mapped to a virtual rule. To indicate that a rule should be mapped to a virtual rule, write a rule mapping of the following form:
 
 ```
-  rule init to identity
+  rule init to virtual
 ```
 
-Note that the word `identity` is a keyword in the morphism language. It is therefore not possible to map rules named `identity`. Note that to-identity rule mappings cannot specify any element mappings. This is so because the identity rule is virtual: it is dynamically generated only when needed. At the same time, there is only one valid mapping between source rule and virtual identity rule, so there is no need to specify it explicitly.
+Note that `virtual` is a language keyword, rules named `"virtual"` are not supported. From such a rule mapping, the tool will generate a virtual rule with the same structure as the source rule and use that in the mapping. Note that to-virtual rule mappings cannot specify any element mappings; these are all implicit. This is so because the rule is dynamically generated only when needed. At the same time, there is only one valid mapping between source rule and virtual rule, so there is no need to specify it explicitly. 
 
-Where possible, auto-completion will consider completing by introducing to-identity rule mappings. Currently, this means auto-completion may fail (with an exception) when a morphism could only be completed by introducing a mapping to a virtual non-identity rule.
+Mapping to arbitrary virtual rues may affect behaviour-preservation properties of the morphism. To help with this, it is possible to constrain virtual rules to be identity rules; that is their left- and right-hand sides must be identical. Only identity rules can be mapped to virtual identity rules, of course, and the tool will check this. To specify a rule mapping to a virtual identity rule use the following form of rule mappings (where `init` is the name of a rule in the source GTS):
+
+```
+  rule init to virtual identity
+```
+
+Note that the word `identity` is a keyword in the morphism language. It is therefore not possible to map rules named `"identity"`. 
+
+Where possible, auto-completion will consider completing by introducing to-virtual or even to-identity rule mappings. This behaviour can be restricted by claiming auto-completion is possible using only to-identity rule mappings or without using to-virtual mappings at all. To do so, use one of the following forms:
+
+```
+auto-complete to-identity-only map { ... }
+```
+
+to claim that only to-identity mappings might need to be introduced and 
+
+```
+auto-complete without-to-virtual map { ... }
+```
+
+to claim that no to-virtual mappings will need to be introduced to complete the morphism.
 
 ## 3. GTS families
 
