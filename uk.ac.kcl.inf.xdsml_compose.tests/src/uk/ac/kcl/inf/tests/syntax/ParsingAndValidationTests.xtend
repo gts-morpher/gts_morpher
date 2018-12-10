@@ -1367,6 +1367,44 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	/**
+	 * Tests auto-completion of behaviour morphisms claiming identity-only. Here, auto-completion actually needs 
+	 * to generate virtual rules, both of which can be identity rules.
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithoutRuleMapNegativeVirtualNeeded() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete without-to-virtual map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					class server.Element => server.Element
+					class server.Input => server.Input
+					class server.Output => server.Output
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+					reference server.Queue.elts => server.Queue.elts
+				}
+				
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_BEHAVIOUR_MAPPING) 
+	}
+
+	/**
 	 * Tests that completeness check works correctly for complete mappings
 	 */
 	@Test
