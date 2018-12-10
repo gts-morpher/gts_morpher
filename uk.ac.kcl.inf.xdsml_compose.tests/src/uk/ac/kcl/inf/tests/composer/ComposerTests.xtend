@@ -59,7 +59,8 @@ class ComposerTests extends AbstractTest {
 			"J.henshin",
 			"K.ecore",
 			"L.ecore",
-			"K.henshin"
+			"K.henshin",
+			"K2.henshin"
 		].createResourceSet
 	}
 
@@ -227,6 +228,131 @@ class ComposerTests extends AbstractTest {
 	}
 
 	@Test
+	def testNonInjectiveGTSMorphismToVirtualRule() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "C"
+					behaviour: "CRules"
+				}
+				
+				to {
+					metamodel: "D"
+				}
+				
+				type_mapping {
+					class C.C1 => D.D1
+					class C.C2 => D.D1
+					reference C.C2.c1 => D.D1.d1
+				}
+				
+				behaviour_mapping {
+					rule change to virtual
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+
+		// Check contents of generated resources and compare against oracle
+		val henshin = resourceSet.findComposedHenshin
+		assertNotNull("Couldn't find composed henshin rules", henshin)
+		
+		val composedLanguage = henshin.contents.head
+		val composedOracle = resourceSet.getResource(createFileURI("CD2.henshin"), true).contents.head as Module
+		
+		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+	}
+
+	@Test
+	// TODO: Also need to test case where there are already some target rules
+	def testGTSMorphismToVirtualRule() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "K"
+					behaviour: "KRules"
+				}
+				
+				to {
+					metamodel: "L"
+				}
+				 
+				type_mapping {
+					class K.K1 => L.L1
+					attribute K.K1.k1 => L.L1.l1
+				}
+				
+				behaviour_mapping {
+					rule init to virtual
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+
+		// Check contents of generated resources and compare against oracle
+		val henshin = resourceSet.findComposedHenshin
+		assertNotNull("Couldn't find composed henshin rules", henshin)
+		
+		val composedLanguage = henshin.contents.head
+		val composedOracle = resourceSet.getResource(createFileURI("KL.henshin"), true).contents.head as Module
+		
+		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+	}
+
+	@Test
+	def testGTSMorphismToVirtualRuleWithAutoComplete() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			auto-complete unique map {
+				from interface_of {
+					metamodel: "K"
+					behaviour: "K2Rules"
+				}
+				
+				to {
+					metamodel: "L"
+				}
+				
+				type_mapping {
+					class K.K1 => L.L1
+					//attribute K.K1.k1 => L.L1.l1
+				}
+				
+				//behaviour_mapping {
+				//	rule init to virtual
+				//}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
+		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
+
+		assertTrue("Expected to see no issues.", issues.empty)
+
+		// Check contents of generated resources and compare against oracle
+		val henshin = resourceSet.findComposedHenshin
+		assertNotNull("Couldn't find composed henshin rules", henshin)
+		
+		val composedLanguage = henshin.contents.head
+		val composedOracle = resourceSet.getResource(createFileURI("KL2.henshin"), true).contents.head as Module
+		
+		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
+	}
+
+	@Test
 	// TODO: Also need to test case where there are already some target rules
 	def testGTSMorphismToIdentityRule() {
 		val resourceSet = createNormalResourceSet
@@ -247,7 +373,7 @@ class ComposerTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule init to identity
+					rule init to virtual identity
 				}
 			}
 		''', resourceSet)

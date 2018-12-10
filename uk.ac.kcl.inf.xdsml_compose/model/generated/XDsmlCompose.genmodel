@@ -9,6 +9,8 @@
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSMapping">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/autoComplete"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/uniqueCompletion"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/withoutToVirtual"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/toIdentityOnly"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/source"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/typeMapping"/>
@@ -69,6 +71,7 @@
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//RuleMapping">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/source"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//RuleMapping/target_virtual"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//RuleMapping/target_identity"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//RuleMapping/element_mappings"/>

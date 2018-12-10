@@ -5,6 +5,8 @@
   <eClassifiers xsi:type="ecore:EClass" name="GTSMapping">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="autoComplete" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uniqueCompletion" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="withoutToVirtual" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="toIdentityOnly" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="#//GTSSpecification"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//GTSSpecification"
@@ -77,6 +79,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RuleMapping">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Rule"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="target_virtual" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="target_identity" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Rule"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="element_mappings" upperBound="-1"

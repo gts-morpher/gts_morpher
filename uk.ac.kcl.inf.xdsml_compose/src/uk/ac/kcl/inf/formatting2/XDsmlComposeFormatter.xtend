@@ -139,6 +139,8 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 	def dispatch void format(RuleMapping mapping, extension IFormattableDocument document) {
 		mapping.regionFor.keyword("rule").append[oneSpace]
 		mapping.regionFor.keyword("to").surround[oneSpace]
+		mapping.regionFor.keyword("virtual").surround[oneSpace]
+		mapping.regionFor.keyword("identity").surround[oneSpace]
 		mapping.regionFor.keyword("{").prepend[oneSpace]
 		mapping.blockIndent(document)
 		

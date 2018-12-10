@@ -4,6 +4,8 @@ import com.google.inject.Inject
 import java.util.List
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.henshin.model.Attribute
+import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.testing.util.ParseHelper
@@ -15,16 +17,16 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static org.junit.Assert.*
 
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
-import org.eclipse.emf.henshin.model.Attribute
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import static extension uk.ac.kcl.inf.util.MappingConverter.*
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
-class MorphismCompleterTests extends AbstractTest{
+class MorphismCompleterTests extends AbstractTest {
 	@Inject
 	ParseHelper<GTSMapping> parseHelper
-	
+
 	private def createNormalResourceSet() {
 		#[
 			"A.ecore",
@@ -49,6 +51,7 @@ class MorphismCompleterTests extends AbstractTest{
 			"I.henshin",
 			"J.henshin",
 			"K.henshin",
+			"K2.henshin",
 			"K.ecore",
 			"L.ecore",
 			"pls.ecore",
@@ -59,7 +62,7 @@ class MorphismCompleterTests extends AbstractTest{
 			"transformers.henshin"
 		].createResourceSet
 	}
-	
+
 	/**
 	 * Tests that auto-completion with behaviour works where there are multiple possible completions for the create nodes in the behaviour.
 	 */
@@ -68,31 +71,30 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-						behaviour: "ARules"
-					}
-					
-					to {
-						metamodel: "B"
-						behaviour: "BRules"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
+					behaviour: "ARules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-	
+				
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)	
+		val numUncompleted = completer.findMorphismCompletions(true)
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
-		
+
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 	}
 
@@ -104,31 +106,30 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-						behaviour: "A2Rules"
-					}
-					
-					to {
-						metamodel: "B"
-						behaviour: "B2Rules"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
+					behaviour: "A2Rules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-	
+				
+				to {
+					metamodel: "B"
+					behaviour: "B2Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)	
+		val numUncompleted = completer.findMorphismCompletions(true)
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
-		
+
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 	}
 
@@ -140,31 +141,30 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-						behaviour: "A3Rules"
-					}
-					
-					to {
-						metamodel: "B"
-						behaviour: "B3Rules"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-	
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)	
+		val numUncompleted = completer.findMorphismCompletions(true)
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
-		
+
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 	}
 
@@ -179,32 +179,31 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-						behaviour: "ARules"
-					}
-					
-					to {
-						metamodel: "B"
-						behaviour: "BRulesUniqueComplete"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
+					behaviour: "ARules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "B"
+					behaviour: "BRulesUniqueComplete"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)	
+		val numUncompleted = completer.findMorphismCompletions(true)
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
 	}
-	
+
 	/**
 	 * Tests that unique auto-completion works with behaviour present and preserve nodes.
 	 * 
@@ -216,32 +215,31 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-						behaviour: "A2Rules"
-					}
-					
-					to {
-						metamodel: "B"
-						behaviour: "B2RulesUniqueComplete"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
+					behaviour: "A2Rules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "B"
+					behaviour: "B2RulesUniqueComplete"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)	
+		val numUncompleted = completer.findMorphismCompletions(true)
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
 	}
-	
+
 	/**
 	 * Tests that unique auto-completion works with behaviour present and delete nodes.
 	 * 
@@ -253,32 +251,31 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "A"
-						behaviour: "A3Rules"
-					}
-					
-					to {
-						metamodel: "B"
-						behaviour: "B3RulesUniqueComplete"
-					}
-					
-					type_mapping {
-						class A.A1 => B.B1
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3RulesUniqueComplete"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)	
+		val numUncompleted = completer.findMorphismCompletions(true)
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
 	}
-	
+
 	/**
 	 * Tests a strange case where completion used to produce weird results.
 	 */
@@ -287,47 +284,46 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique 
-				map {
-					from interface_of {
-						family: {
-							metamodel: "server"
-							behaviour: "serverRules"
-							transformers: "transformerRules"
-						}
-						
-						using [
-							addSubClass(server.Queue, "InputQueue"),
-							addSubClass(server.Queue, "OutputQueue"),
-							reTypeToSubClass(serverRules.process, server.Queue, server.InputQueue, "iq"),
-							reTypeToSubClass(serverRules.process, server.Queue, server.OutputQueue, "oq"),
-							mvAssocDown(server.Server.in, server.InputQueue),
-							mvAssocDown(server.Server.out, server.OutputQueue)
-						] 
+			auto-complete unique 
+			map {
+				from interface_of {
+					family: {
+						metamodel: "server"
+						behaviour: "serverRules"
+						transformers: "transformerRules"
 					}
 					
-					to {
-						metamodel: "pls"
-						behaviour: "plsRules"
-					}
-					
-					type_mapping {
-				//		class server.Server => pls.Polisher
-						class server.Queue => pls.Container
-						class server.InputQueue => pls.Tray
-						class server.OutputQueue => pls.Conveyor
-						reference server.Server.in => pls.Machine.in
-						reference server.Server.out => pls.Machine.out
-						reference server.Queue.elts => pls.Container.parts
-				//		class server.Input => pls.Part
-				//		class server.Output => pls.Part
-				//		class server.Element => pls.Part
-					}
+					using [
+						addSubClass(server.Queue, "InputQueue"),
+						addSubClass(server.Queue, "OutputQueue"),
+						reTypeToSubClass(serverRules.process, server.Queue, server.InputQueue, "iq"),
+						reTypeToSubClass(serverRules.process, server.Queue, server.OutputQueue, "oq"),
+						mvAssocDown(server.Server.in, server.InputQueue),
+						mvAssocDown(server.Server.out, server.OutputQueue)
+					] 
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "pls"
+					behaviour: "plsRules"
+				}
+				
+				type_mapping {
+			//		class server.Server => pls.Polisher
+					class server.Queue => pls.Container
+					class server.InputQueue => pls.Tray
+					class server.OutputQueue => pls.Conveyor
+					reference server.Server.in => pls.Machine.in
+					reference server.Server.out => pls.Machine.out
+					reference server.Queue.elts => pls.Container.parts
+			//		class server.Input => pls.Part
+			//		class server.Output => pls.Part
+			//		class server.Element => pls.Part
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -344,43 +340,42 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique 
-				map {
-					from interface_of {
-						family: {
-							metamodel: "server"
-							transformers: "transformerRules"
-						}
-						
-						using [
-							addSubClass(server.Queue, "InputQueue"),
-							addSubClass(server.Queue, "OutputQueue"),
-							mvAssocDown(server.Server.in, server.InputQueue),
-							mvAssocDown(server.Server.out, server.OutputQueue)
-						] 
+			auto-complete unique 
+			map {
+				from interface_of {
+					family: {
+						metamodel: "server"
+						transformers: "transformerRules"
 					}
 					
-					to {
-						metamodel: "pls"
-					}
-					
-					type_mapping {
-				//		class server.Server => pls.Polisher
-						class server.Queue => pls.Container
-						class server.InputQueue => pls.Tray
-						class server.OutputQueue => pls.Conveyor
-						reference server.Server.in => pls.Machine.in
-						reference server.Server.out => pls.Machine.out
-						reference server.Queue.elts => pls.Container.parts
-				//		class server.Input => pls.Part
-				//		class server.Output => pls.Part
-				//		class server.Element => pls.Part
-					}
+					using [
+						addSubClass(server.Queue, "InputQueue"),
+						addSubClass(server.Queue, "OutputQueue"),
+						mvAssocDown(server.Server.in, server.InputQueue),
+						mvAssocDown(server.Server.out, server.OutputQueue)
+					] 
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "pls"
+				}
+				
+				type_mapping {
+			//		class server.Server => pls.Polisher
+					class server.Queue => pls.Container
+					class server.InputQueue => pls.Tray
+					class server.OutputQueue => pls.Conveyor
+					reference server.Server.in => pls.Machine.in
+					reference server.Server.out => pls.Machine.out
+					reference server.Queue.elts => pls.Container.parts
+			//		class server.Input => pls.Part
+			//		class server.Output => pls.Part
+			//		class server.Element => pls.Part
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -396,33 +391,32 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique 
-				map {
-					from interface_of {
-						metamodel: "server2"
-					}
-					
-					to {
-						metamodel: "pls"
-					}
-					
-					type_mapping {
-				//		class server2.Server => pls.Polisher
-						class server2.Queue => pls.Container
-						class server2.InputQueue => pls.Tray
-						class server2.OutputQueue => pls.Conveyor
-						reference server2.Server.in => pls.Machine.in
-						reference server2.Server.out => pls.Machine.out
-						reference server2.Queue.elts => pls.Container.parts
-				//		class server2.Input => pls.Part
-				//		class server2.Output => pls.Part
-				//		class server2.Element => pls.Part
-					}
+			auto-complete unique 
+			map {
+				from interface_of {
+					metamodel: "server2"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "pls"
+				}
+				
+				type_mapping {
+			//		class server2.Server => pls.Polisher
+					class server2.Queue => pls.Container
+					class server2.InputQueue => pls.Tray
+					class server2.OutputQueue => pls.Conveyor
+					reference server2.Server.in => pls.Machine.in
+					reference server2.Server.out => pls.Machine.out
+					reference server2.Queue.elts => pls.Container.parts
+			//		class server2.Input => pls.Part
+			//		class server2.Output => pls.Part
+			//		class server2.Element => pls.Part
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -438,28 +432,27 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique 
-				map {
-					from {
-						metamodel: "c"
-					}
-					
-					to {
-						metamodel: "d"
-					}
-					
-					type_mapping {
-				//		class c.C1 => d.D1
-				//		class c.C2 => d.D2
-				//		class c.C3 => d.D3
-						reference c.C1.c2 => d.D1.d2
-						reference c.C1.c3 => d.D1.d3
-					}
+			auto-complete unique 
+			map {
+				from {
+					metamodel: "c"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "d"
+				}
+				
+				type_mapping {
+			//		class c.C1 => d.D1
+			//		class c.C2 => d.D2
+			//		class c.C3 => d.D3
+					reference c.C1.c2 => d.D1.d2
+					reference c.C1.c3 => d.D1.d3
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -476,25 +469,24 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "E"
-					}
-					
-					to {
-						metamodel: "F"
-					}
-					
-					type_mapping {
-						class E.E1 => F.F1
-				//      attribute E.E1.a1 => F.F1.a1
-				//      attribute E.E1.a2 => F.F1.a2
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "E"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "F"
+				}
+				
+				type_mapping {
+					class E.E1 => F.F1
+			//      attribute E.E1.a1 => F.F1.a1
+			//      attribute E.E1.a2 => F.F1.a2
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -511,25 +503,24 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "E"
-					}
-					
-					to {
-						metamodel: "F"
-					}
-					
-					type_mapping {
-						class E.E1 => F.F2
-				//      attribute E.E1.a1 => F.F1.a1 (or F.F2.a3)
-				//      attribute E.E1.a2 => F.F1.a2
-					}
+			auto-complete unique map {
+				from {
+					metamodel: "E"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "F"
+				}
+				
+				type_mapping {
+					class E.E1 => F.F2
+			//      attribute E.E1.a1 => F.F1.a1 (or F.F2.a3)
+			//      attribute E.E1.a2 => F.F1.a2
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -546,33 +537,32 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "E"
-						behaviour: "ERules"
-					}
-					
-					to {
-						metamodel: "F"
-						behaviour: "FRules"
-					}
-					
-					type_mapping {
-						class E.E1 => F.F2
-				//      attribute E.E1.a1 => F.F1.a1 ( but no longer F.F2.a3 because that's prevented by the rule morphism)
-				//      attribute E.E1.a2 => F.F1.a2
-					}
-					
-					//behaviour_mapping {
-					//	rule do to do {
-					//		object e1 => f2
-					//	}
-					//}
+			auto-complete unique map {
+				from {
+					metamodel: "E"
+					behaviour: "ERules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				type_mapping {
+					class E.E1 => F.F2
+			//      attribute E.E1.a1 => F.F1.a1 ( but no longer F.F2.a3 because that's prevented by the rule morphism)
+			//      attribute E.E1.a2 => F.F1.a2
+				}
+				
+				//behaviour_mapping {
+				//	rule do to do {
+				//		object e1 => f2
+				//	}
+				//}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -589,33 +579,32 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "E"
-						behaviour: "ERules"
-					}
-					
-					to {
-						metamodel: "F"
-						behaviour: "FRules"
-					}
-					
-					type_mapping {
-						class E.E1 => F.F2
-				//      attribute E.E1.a1 => F.F1.a1 ( but no longer F.F2.a3 because that's prevented by the rule morphism)
-				//      attribute E.E1.a2 => F.F1.a2
-					}
-					
-					behaviour_mapping {
-						rule do to do {
-					//		object e1 => f2
-						}
+			auto-complete unique map {
+				from {
+					metamodel: "E"
+					behaviour: "ERules"
+				}
+				
+				to {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				type_mapping {
+					class E.E1 => F.F2
+			//      attribute E.E1.a1 => F.F1.a1 ( but no longer F.F2.a3 because that's prevented by the rule morphism)
+			//      attribute E.E1.a2 => F.F1.a2
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+				//		object e1 => f2
 					}
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -632,33 +621,32 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete unique map {
-					from {
-						metamodel: "E"
-						behaviour: "ERules"
-					}
-					
-					to {
-						metamodel: "F"
-						behaviour: "FRules"
-					}
-					
-					type_mapping {
-						class E.E1 => F.F2
-				//      attribute E.E1.a1 => F.F1.a1 ( but no longer F.F2.a3 because that's prevented by the rule morphism)
-				//      attribute E.E1.a2 => F.F1.a2
-					}
-					
-					behaviour_mapping {
-						rule do to do {
-							object e1 => f2
-						}
+			auto-complete unique map {
+				from {
+					metamodel: "E"
+					behaviour: "ERules"
+				}
+				
+				to {
+					metamodel: "F"
+					behaviour: "FRules"
+				}
+				
+				type_mapping {
+					class E.E1 => F.F2
+			//      attribute E.E1.a1 => F.F1.a1 ( but no longer F.F2.a3 because that's prevented by the rule morphism)
+			//      attribute E.E1.a2 => F.F1.a2
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						object e1 => f2
 					}
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
@@ -675,38 +663,71 @@ class MorphismCompleterTests extends AbstractTest{
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-				auto-complete map {
-					from interface_of {
-						metamodel: "I"
-						behaviour: "IRules"
-					}
-					
-					to {
-						metamodel: "J"
-						behaviour: "JRules"
-					}
-					
-					type_mapping {
-						class I.I1 => J.J1
-						attribute I.I1.a1 => J.J1.a1
-				//		attribute I.I1.a2 => J.J1.a2
-					}
+			auto-complete map {
+				from interface_of {
+					metamodel: "I"
+					behaviour: "IRules"
 				}
-			''',
-			createNormalResourceSet)
-		assertNotNull("Did not produce parse result", result)		
-		
+				
+				to {
+					metamodel: "J"
+					behaviour: "JRules"
+				}
+				
+				type_mapping {
+					class I.I1 => J.J1
+					attribute I.I1.a1 => J.J1.a1
+			//		attribute I.I1.a2 => J.J1.a2
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
 		val completer = result.createMorphismCompleter
 		val numUncompleted = completer.findMorphismCompletions(true)
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
-		
+
 		assertTrue("Expected to find slots mapped in the completion",
 			completer.completedMappings.head.keySet.filter(Attribute).size > 0)
 	}
-	
+
+	@Test
+	def testGTSMorphismToVirtualRule() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			auto-complete map {
+				from interface_of {
+					metamodel: "K"
+					behaviour: "KRules"
+				}
+				
+				to {
+					metamodel: "L"
+				}
+				
+				type_mapping {
+					//class K.K1 => L.L1
+					//attribute K.K1.k1 => L.L1.l1
+				}
+				
+				behaviour_mapping {
+					rule init to virtual
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+	}
+
 	@Test
 	def testGTSMorphismToIdentityRule() {
 		val resourceSet = createNormalResourceSet
@@ -727,7 +748,7 @@ class MorphismCompleterTests extends AbstractTest{
 				}
 				
 				behaviour_mapping {
-					rule init to identity
+					rule init to virtual identity
 				}
 			}
 		''', resourceSet)
@@ -738,9 +759,51 @@ class MorphismCompleterTests extends AbstractTest{
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
-		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)		
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
 	}
-	
+
+	@Test
+	def testGTSMorphismNeedsToVirtualRule() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			auto-complete map {
+				from interface_of {
+					metamodel: "K"
+					behaviour: "K2Rules"
+				}
+				
+				to {
+					metamodel: "L"
+				}
+				
+				type_mapping {
+					//class K.K1 => L.L1
+					//attribute K.K1.k1 => L.L1.l1
+				}
+				
+				//behaviour_mapping {
+					//rule init to virtual
+				//}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+
+		val initRule = result.source.behaviour.units.head
+		assertTrue("Expected to find mapping for init rule", completer.completedMappings.head.values.contains(initRule))
+		val virtualInitRule = completer.completedMappings.head.keySet.findFirst [ eo |
+			completer.completedMappings.head.get(eo) === initRule
+		] as Rule
+		assertTrue("Expected init rule to be mapped to virtual rule", (virtualInitRule).isVirtualRule)
+		assertFalse("Expected init rule not to be mapped to virtual identity rule",
+			(virtualInitRule).isVirtualIdentityRule)
+	}
 
 	@Test
 	def testGTSMorphismNeedsToIdentityRule() {
@@ -762,7 +825,7 @@ class MorphismCompleterTests extends AbstractTest{
 				}
 				
 				//behaviour_mapping {
-					//rule init to identity
+					//rule init to virtual identity
 				//}
 			}
 		''', resourceSet)
@@ -774,15 +837,18 @@ class MorphismCompleterTests extends AbstractTest{
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
-		
-		assertTrue("Expected to find mapping for init rule", completer.completedMappings.head.values.contains(result.source.behaviour.units.head))
+
+		val initRule = result.source.behaviour.units.head
+		assertTrue("Expected to find mapping for init rule", completer.completedMappings.head.values.contains(initRule))
+		assertTrue("Expected init rule to be mapped to virtual identity",
+			(completer.completedMappings.head.keySet.
+				findFirst[eo|completer.completedMappings.head.get(eo) === initRule] as Rule).isVirtualIdentityRule)
 	}
-	
+
 	private def isUniqueSetOfMappings(List<Map<EObject, EObject>> mappings) {
-		mappings.forall[m | 
-			mappings.forall[m2 |
-				(m === m2) ||
-				(m.keySet.exists[eo | m.get(eo) != m2.get(eo)])
+		mappings.forall [ m |
+			mappings.forall [ m2 |
+				(m === m2) || (m.keySet.exists[eo|m.get(eo) != m2.get(eo)])
 			]
 		]
 	}

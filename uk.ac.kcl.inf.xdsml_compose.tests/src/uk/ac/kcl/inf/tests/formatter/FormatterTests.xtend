@@ -110,6 +110,35 @@ class FormatterTests extends AbstractTest {
 	}
 
 	@Test
+	def testSimpleMorphismRuleMappingToVirtual() {
+		val expectedResult = '''
+			map {
+				from {
+					metamodel: "a"
+					behaviour: "arules"
+				}
+			
+				to {
+					metamodel: "b"
+					behaviour: "brules"
+				}
+			
+				type_mapping {
+					class a.A => b.B
+					reference a.A.a => b.B.b
+					attribute a.A.b => b.B.c
+				}
+			
+				behaviour_mapping {
+					rule a to virtual
+				}
+			}'''
+		val testInput = '''map{from{metamodel  :"a"behaviour  :"arules"}to{metamodel  :"b"behaviour  :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   virtual    }}'''
+		
+		doTest(testInput, expectedResult)
+	}
+
+	@Test
 	def testSimpleMorphismRuleMappingToIdentity() {
 		val expectedResult = '''
 			map {
@@ -130,10 +159,10 @@ class FormatterTests extends AbstractTest {
 				}
 			
 				behaviour_mapping {
-					rule a to identity
+					rule a to virtual identity
 				}
 			}'''
-		val testInput = '''map{from{metamodel  :"a"behaviour  :"arules"}to{metamodel  :"b"behaviour  :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   identity}}'''
+		val testInput = '''map{from{metamodel  :"a"behaviour  :"arules"}to{metamodel  :"b"behaviour  :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   virtual    identity}}'''
 		
 		doTest(testInput, expectedResult)
 	}

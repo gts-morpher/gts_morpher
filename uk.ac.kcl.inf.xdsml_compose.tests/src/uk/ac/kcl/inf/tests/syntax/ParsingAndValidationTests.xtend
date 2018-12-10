@@ -136,6 +136,70 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	/**
+	 * Test basic parsing with auto-complete annotation claiming that can auto-complete without creating to-virtual rule mappings.
+	 */
+	@Test
+	def void parsingAutoCompleteNoToVirtual() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete without-to-virtual map {
+				from {
+					metamodel: "server"
+				}
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Not set to auto-complete", result.autoComplete)
+		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
+		
+		assertTrue("Not set to without-to-virtual", result.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.toIdentityOnly)
+	}
+
+	/**
+	 * Test basic parsing with auto-complete annotation claiming that can auto-complete without creating to-virtual rule mappings.
+	 */
+	@Test
+	def void parsingAutoCompleteOnlyToIdentity() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete to-identity-only map {
+				from {
+					metamodel: "server"
+				}
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Not set to auto-complete", result.autoComplete)
+		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
+		
+		assertFalse("Set to without-to-virtual", result.withoutToVirtual)
+		assertTrue("Not set to toIdentityOnly", result.toIdentityOnly)
+	}
+
+	/**
 	 * Tests basic parsing and linking with behaviour mapping
 	 */
 	@Test
@@ -226,7 +290,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule process to identity
+					rule process to virtual identity
 				}
 			}
 		''', createNormalResourceSet)
@@ -770,7 +834,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule produce to identity
+					rule produce to virtual identity
 				}
 			}
 		''', createNormalResourceSet)
@@ -810,7 +874,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				}
 				
 				behaviour_mapping {
-					rule addObserver to identity
+					rule addObserver to virtual identity
 				}
 			}
 		''', createInterfaceResourceSet)
@@ -822,6 +886,40 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		// Incomplete mapping errors 
 		assertTrue(issues.length == 4)
+	}
+
+	@Test
+	def void morphismBehaviourMappingWithToVirtualRuleMappingSourceNotAnIdentity() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.GenHandle
+					class server.Queue => devsmm.Conveyor
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule produce to virtual
+				}
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		// Incomplete mapping errors 
+		assertTrue(issues.length == 3)
 	}
 
 	/**
@@ -1114,9 +1212,196 @@ class ParsingAndValidationTests extends AbstractTest {
 		val issues = result.validate()
 
 		// For now 
-		// TODO: update with proper size
 		assertTrue(issues.empty)
 	// TODO Add more meaningful tests
+	}
+
+	/**
+	 * Tests auto-completion of behaviour morphisms claiming identity-only
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithIdentityOnlyRuleMapNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete to-identity-only map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					//behaviour: "serverRules"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					class server.Element => server.Element
+					class server.Input => server.Input
+					class server.Output => server.Output
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+					reference server.Queue.elts => server.Queue.elts
+				}
+				
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		assertFalse("Expected to see issues", issues.empty)
+		result.assertError (XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_BEHAVIOUR_MAPPING)
+	}
+
+	/**
+	 * Tests auto-completion of behaviour morphisms claiming identity-only. Here, the rules can all be 
+	 * mapped to existing rules, so no virtual rules are needed at all.
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithIdentityOnlyRuleMapPositiveNoVirtualNeeded() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete to-identity-only map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					class server.Element => server.Element
+					class server.Input => server.Input
+					class server.Output => server.Output
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+					reference server.Queue.elts => server.Queue.elts
+				}
+				
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		result.assertNoIssues
+	}
+	
+	/**
+	 * Tests auto-completion of behaviour morphisms claiming identity-only. Here, auto-completion actually needs 
+	 * to generate virtual rules, both of which can be identity rules.
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithIdentityOnlyRuleMapPositiveVirtualNeeded() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete to-identity-only map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+				}
+				
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		result.assertNoIssues
+	}
+
+	/**
+	 * Tests auto-completion of behaviour morphisms claiming identity-only. Here, auto-completion actually needs 
+	 * to generate virtual rules, both of which can be identity rules.
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithIdentityOnlyRuleMapNegativeVirtualNeeded() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete to-identity-only map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					class server.Element => server.Element
+					class server.Input => server.Input
+					class server.Output => server.Output
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+					reference server.Queue.elts => server.Queue.elts
+				}
+				
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_BEHAVIOUR_MAPPING) 
+	}
+
+	/**
+	 * Tests auto-completion of behaviour morphisms claiming identity-only. Here, auto-completion actually needs 
+	 * to generate virtual rules, both of which can be identity rules.
+	 */
+	@Test
+	def void validateAutoCompleteBehaviourMappingWithoutRuleMapNegativeVirtualNeeded() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete without-to-virtual map {
+				from {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+				}
+				
+				type_mapping {
+					class server.Server => server.Server
+					class server.Queue => server.Queue
+					class server.Element => server.Element
+					class server.Input => server.Input
+					class server.Output => server.Output
+					reference server.Server.Out => server.Server.Out
+					reference server.Server.In => server.Server.In
+					reference server.Queue.elts => server.Queue.elts
+				}
+				
+			}
+		''', createNormalResourceSet)
+
+		assertNotNull("Did not produce parse result", result)
+		val issues = result.validate()
+
+		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_BEHAVIOUR_MAPPING) 
 	}
 
 	/**

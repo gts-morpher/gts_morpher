@@ -1,7 +1,9 @@
 @namespace(uri="http://kcl.ac.uk/xdsml/F", prefix="f")
 package F;
 
+@Interface
 class F1 {
 	attr int a1;
+	@Interface
 	attr String a2;
 }

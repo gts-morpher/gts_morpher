@@ -153,8 +153,12 @@ class MappingConverter {
 				issues.safeError("Duplicate mapping for Rule " + rm.target.name + ".", rm,
 					XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, DUPLICATE_RULE_MAPPING)
 			} else {
-				if (rm.target_identity) {
-					rm.extractTgtIdentityMapping(_mapping, srcIsInterface, typeGraphMapping)
+				if (rm.target_virtual) {
+					if (rm.target_identity) {
+						rm.extractTgtIdentityMapping(_mapping, srcIsInterface, typeGraphMapping)
+					} else {
+						rm.extractTgtVirtualMapping(_mapping, srcIsInterface, typeGraphMapping)						
+					}	
 				} else {
 					rm.extractMapping(_mapping, srcIsInterface, tgtIsInterface, issues)
 				}
@@ -235,10 +239,13 @@ class MappingConverter {
 		val result = XDsmlComposeFactory.eINSTANCE.createRuleMapping
 
 		result.source = srcRule.correspondingSourceElement(mapping)
-		
-		// Need to handle this differently depending on whether the original mapping was to identity or not
-		if (tgtRule.isVirtualIdentityRule) {
-			result.target_identity = true
+
+		if (tgtRule.isVirtualRule) {
+			result.target_virtual = true
+			
+			if (tgtRule.isVirtualIdentityRule) {
+				result.target_identity = true
+			}	
 		} else {
 			result.target = tgtRule.correspondingTargetElement(mapping)
 	
@@ -271,13 +278,27 @@ class MappingConverter {
 		result
 	}
 	
-	public static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
+	private static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
+	private static val VIRTUAL_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual"
 
-	private static def isVirtualIdentityRule(Rule r) {
+	public static def isVirtualRule(Rule r) {
+		r.annotations.exists[a | a.key == VIRTUAL_RULE_ANNOTATION_KEY]
+	}
+	
+	public static def setIsVirtualRule(Rule r, boolean b) {
+		r.annotations.removeIf([a | a.key == VIRTUAL_RULE_ANNOTATION_KEY])
+		if (b) {
+			val annotation = createAnnotation
+			annotation.key = VIRTUAL_RULE_ANNOTATION_KEY
+			r.annotations.add(annotation)
+		}
+	}
+
+	public static def isVirtualIdentityRule(Rule r) {
 		r.annotations.exists[a | a.key == IDENTITY_RULE_ANNOTATION_KEY]
 	}
 	
-	private static def setIsVirtualIdentityRule(Rule r, boolean b) {
+	public static def setIsVirtualIdentityRule(Rule r, boolean b) {
 		r.annotations.removeIf([a | a.key == IDENTITY_RULE_ANNOTATION_KEY])
 		if (b) {
 			val annotation = createAnnotation
@@ -514,7 +535,7 @@ class MappingConverter {
 	private static extension val HenshinFactory FACTORY = HenshinFactory.eINSTANCE
 
 	/**
-	 * Generate a virtual rule to map to for this rule mapping
+	 * Generate a virtual identity rule to map to for this rule mapping
 	 */
 	private static def extractTgtIdentityMapping(RuleMapping rm, HashMap<EObject, EObject> _mapping,
 		boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
@@ -529,37 +550,61 @@ class MappingConverter {
 	/**
 	 * Generate a virtual rule to map to for this rule mapping
 	 */
+	private static def extractTgtVirtualMapping(RuleMapping rm, HashMap<EObject, EObject> _mapping,
+		boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
+		// Just in case...
+		if (!rm.target_virtual) {
+			throw new IllegalStateException
+		}
+
+		_mapping.putAll(rm.source.extractTgtVirtualMapping(srcIsInterface, tgMapping))
+	}
+
+	/**
+	 * Generate a virtual identity rule to map to for this rule mapping
+	 */
 	public static def extractTgtIdentityMapping(Rule r, boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
+		if (r.isIdentityRule(srcIsInterface)) {
+			val result = r.extractTgtVirtualMapping(srcIsInterface, tgMapping)
+			
+			(result.keySet.findFirst[vr | result.get(vr) == r] as Rule).isVirtualIdentityRule = true
+			
+			result
+		} else {
+			emptyMap
+		}
+	}
+	
+	/**
+	 * Generate a virtual rule to map to for this rule mapping
+	 */
+	public static def extractTgtVirtualMapping(Rule r, boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
 		var result = new HashMap<EObject, EObject>
 
-		if (r.isIdentityRule(srcIsInterface)) {
-			// Generate a suitable identity rule
-			// Note this works here only using the information that's explictly available in the type mapping. 
-			// Need to consider what to do with auto-completion cases.
-			val virtualRule = createRule(r.name)
-			result.putIfNotNull(virtualRule, r)
-			virtualRule.isVirtualIdentityRule = true
+		// Generate a suitable virtual rule
+		val virtualRule = createRule(r.name)
+		result.putIfNotNull(virtualRule, r)
+		virtualRule.isVirtualRule = true
 
-			// Must add the rule to some module, even if we just make it up... 
-			// Weaving will assume to be able to navigate up from rules, but will actually never use the module
-			val module = createModule
-			module.units.add(virtualRule)
+		// Must add the rule to some module, even if we just make it up... 
+		// Weaving will assume to be able to navigate up from rules, but will actually never use the module
+		val module = createModule
+		module.units.add(virtualRule)
 
-			val lhs = createGraph("Lhs")
-			val rhs = createGraph("Rhs")
+		val lhs = createGraph("Lhs")
+		val rhs = createGraph("Rhs")
 
-			virtualRule.lhs = lhs
-			virtualRule.rhs = rhs
+		virtualRule.lhs = lhs
+		virtualRule.rhs = rhs
 
-			// Generate all the nodes
-			result.createVirtualNodesFor(r.lhs, lhs, tgMapping, srcIsInterface)
-			result.createVirtualNodesFor(r.rhs, rhs, tgMapping, srcIsInterface)
-			result.createVirtualMappings(r, virtualRule)
+		// Generate all the nodes
+		result.createVirtualNodesFor(r.lhs, lhs, tgMapping, srcIsInterface)
+		result.createVirtualNodesFor(r.rhs, rhs, tgMapping, srcIsInterface)
+		result.createVirtualMappings(r, virtualRule)
 
-			// Generate all edges
-			result.createVirtualEdges(r.lhs, lhs, tgMapping, srcIsInterface)
-			result.createVirtualEdges(r.rhs, rhs, tgMapping, srcIsInterface)
-		}
+		// Generate all edges
+		result.createVirtualEdges(r.lhs, lhs, tgMapping, srcIsInterface)
+		result.createVirtualEdges(r.rhs, rhs, tgMapping, srcIsInterface)
 
 		result
 	}

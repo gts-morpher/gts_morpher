@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_nIWrAPMnEeixtsqi6x2cPA" name="CRules">
+  <imports href="CD.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_r0MvEPMnEeixtsqi6x2cPA" name="change">
+    <lhs xmi:id="_r0MvFfMnEeixtsqi6x2cPA" name="Lhs">
+      <nodes xmi:id="_vvMlAPMnEeixtsqi6x2cPA" name="source__c3" incoming="_6um44PMnEeixtsqi6x2cPA" outgoing="_8yDXUPMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//source__C3"/>
+      </nodes>
+      <nodes xmi:id="_yTSSYPMnEeixtsqi6x2cPA" name="c1" incoming="_7q0CcPMnEeixtsqi6x2cPA" outgoing="_6um44PMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//C1_C2_D1"/>
+      </nodes>
+      <nodes xmi:id="_ykglQPMnEeixtsqi6x2cPA" name="c1b">
+        <type href="CD.ecore#//C1_C2_D1"/>
+      </nodes>
+      <nodes xmi:id="_yxeDMPMnEeixtsqi6x2cPA" name="c2" incoming="_8yDXUPMnEeixtsqi6x2cPA" outgoing="_7q0CcPMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//C1_C2_D1"/>
+      </nodes>
+      <edges xmi:id="_6um44PMnEeixtsqi6x2cPA" source="_yTSSYPMnEeixtsqi6x2cPA" target="_vvMlAPMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//C1_C2_D1/source__bs"/>
+      </edges>
+      <edges xmi:id="_7q0CcPMnEeixtsqi6x2cPA" source="_yxeDMPMnEeixtsqi6x2cPA" target="_yTSSYPMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//C1_C2_D1/c1_d1"/>
+      </edges>
+      <edges xmi:id="_8yDXUPMnEeixtsqi6x2cPA" source="_vvMlAPMnEeixtsqi6x2cPA" target="_yxeDMPMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//source__C3/source__c2s"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_r0MvFvMnEeixtsqi6x2cPA" name="Rhs">
+      <nodes xmi:id="_vvMlAfMnEeixtsqi6x2cPA" name="source__c3" incoming="_6BKkEPMnEeixtsqi6x2cPA" outgoing="_8yDXUfMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//source__C3"/>
+      </nodes>
+      <nodes xmi:id="_yTSSYfMnEeixtsqi6x2cPA" name="c1">
+        <type href="CD.ecore#//C1_C2_D1"/>
+      </nodes>
+      <nodes xmi:id="_ykglQfMnEeixtsqi6x2cPA" name="c1b" incoming="_7P19sPMnEeixtsqi6x2cPA" outgoing="_6BKkEPMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//C1_C2_D1"/>
+      </nodes>
+      <nodes xmi:id="_yxeDMfMnEeixtsqi6x2cPA" name="c2" incoming="_8yDXUfMnEeixtsqi6x2cPA" outgoing="_7P19sPMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//C1_C2_D1"/>
+      </nodes>
+      <edges xmi:id="_8yDXUfMnEeixtsqi6x2cPA" source="_vvMlAfMnEeixtsqi6x2cPA" target="_yxeDMfMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//source__C3/source__c2s"/>
+      </edges>
+      <edges xmi:id="_6BKkEPMnEeixtsqi6x2cPA" source="_ykglQfMnEeixtsqi6x2cPA" target="_vvMlAfMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//C1_C2_D1/source__bs"/>
+      </edges>
+      <edges xmi:id="_7P19sPMnEeixtsqi6x2cPA" source="_yxeDMfMnEeixtsqi6x2cPA" target="_ykglQfMnEeixtsqi6x2cPA">
+        <type href="CD.ecore#//C1_C2_D1/c1_d1"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_vvMlAvMnEeixtsqi6x2cPA" origin="_vvMlAPMnEeixtsqi6x2cPA" image="_vvMlAfMnEeixtsqi6x2cPA"/>
+    <mappings xmi:id="_yTSSYvMnEeixtsqi6x2cPA" origin="_yTSSYPMnEeixtsqi6x2cPA" image="_yTSSYfMnEeixtsqi6x2cPA"/>
+    <mappings xmi:id="_ykglQvMnEeixtsqi6x2cPA" origin="_ykglQPMnEeixtsqi6x2cPA" image="_ykglQfMnEeixtsqi6x2cPA"/>
+    <mappings xmi:id="_yxeDMvMnEeixtsqi6x2cPA" origin="_yxeDMPMnEeixtsqi6x2cPA" image="_yxeDMfMnEeixtsqi6x2cPA"/>
+  </units>
+</henshin:Module>
