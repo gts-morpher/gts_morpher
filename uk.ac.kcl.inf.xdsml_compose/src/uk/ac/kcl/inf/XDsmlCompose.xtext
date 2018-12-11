@@ -102,9 +102,14 @@ BehaviourMapping:
 ;
 
 RuleMapping:
-	"rule" source=[gts::Rule | ID] "to" ((target_virtual?="virtual" (target_identity?="identity")?) | (target=[gts::Rule | ID] "{"
-		element_mappings += RuleElementMapping*
-	"}"))
+	"rule" 
+		(
+			(source_empty?="empty" "to" target=[gts::Rule | ID]) 
+			|
+			(source=[gts::Rule | ID] "to" ((target_virtual?="virtual" (target_identity?="identity")?) | (target=[gts::Rule | ID] "{"
+				element_mappings += RuleElementMapping*
+			"}")))
+		)
 ;
 
 RuleElementMapping:
