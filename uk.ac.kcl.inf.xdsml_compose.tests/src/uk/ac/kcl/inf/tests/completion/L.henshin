@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_qWwb0P4LEeiHv8hQJfPV5g" name="LRules">
+  <imports href="L.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_rDF9YP4LEeiHv8hQJfPV5g" name="fiddleSticks">
+    <lhs xmi:id="_rDQVcv4LEeiHv8hQJfPV5g" name="Lhs">
+      <nodes xmi:id="_uTUYAP4LEeiHv8hQJfPV5g" name="l1">
+        <type href="L.ecore#//L1"/>
+        <attributes xmi:id="_wEASgP4LEeiHv8hQJfPV5g" value="&quot;a&quot;">
+          <type href="L.ecore#//L1/l1"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_rDQVc_4LEeiHv8hQJfPV5g" name="Rhs">
+      <nodes xmi:id="_uTUYAf4LEeiHv8hQJfPV5g" name="l1">
+        <type href="L.ecore#//L1"/>
+        <attributes xmi:id="_wEASgf4LEeiHv8hQJfPV5g" value="&quot;b&quot;">
+          <type href="L.ecore#//L1/l1"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_uTUYAv4LEeiHv8hQJfPV5g" origin="_uTUYAP4LEeiHv8hQJfPV5g" image="_uTUYAf4LEeiHv8hQJfPV5g"/>
+  </units>
+</henshin:Module>
