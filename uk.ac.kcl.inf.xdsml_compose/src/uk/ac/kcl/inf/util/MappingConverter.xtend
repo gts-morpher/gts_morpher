@@ -157,8 +157,8 @@ class MappingConverter {
 					if (rm.target_identity) {
 						rm.extractTgtIdentityMapping(_mapping, srcIsInterface, typeGraphMapping)
 					} else {
-						rm.extractTgtVirtualMapping(_mapping, srcIsInterface, typeGraphMapping)						
-					}	
+						rm.extractTgtVirtualMapping(_mapping, srcIsInterface, typeGraphMapping)
+					}
 				} else if (rm.source_empty) {
 					rm.extractSrcEmptyMapping(_mapping)
 				} else {
@@ -240,67 +240,74 @@ class MappingConverter {
 		Iterable<? extends Entry<? extends EObject, ? extends EObject>> behaviourMappings, GTSMapping mapping) {
 		val result = XDsmlComposeFactory.eINSTANCE.createRuleMapping
 
-		result.source = srcRule.correspondingSourceElement(mapping)
-
-		if (tgtRule.isVirtualRule) {
-			result.target_virtual = true
-			
-			if (tgtRule.isVirtualIdentityRule) {
-				result.target_identity = true
-			}	
-		} else {
+		if (srcRule.isEmptyRule) {
+			result.source_empty = true
 			result.target = tgtRule.correspondingTargetElement(mapping)
-	
-			result.element_mappings.addAll(behaviourMappings.filter [ e |
-				// Ensure kernel elements are included only once in the mapping and with their lhs representative
-				if ((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) {
-					if (e.key.eContainer === srcRule.rhs) {
-						!(srcRule.lhs.nodes.exists[n|n.name == e.key.name] || srcRule.lhs.edges.exists [ ed |
-							ed.name == e.key.name
-						])
-					} else {
-						true
-					}
-				} else if ((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule)) {
-					if (e.key.eContainer.eContainer == srcRule.rhs) {
-						!(srcRule.lhs.nodes.exists [ n |
-							(n.name == e.key.eContainer.name) && n.attributes.exists[a|a.type === (e.key as Attribute).type]
-						])
-					} else {
-						true
-					}
-				} else {
-					false
+		} else {
+			result.source = srcRule.correspondingSourceElement(mapping)
+
+			if (tgtRule.isVirtualRule) {
+				result.target_virtual = true
+
+				if (tgtRule.isVirtualIdentityRule) {
+					result.target_identity = true
 				}
-			].map [ e |
-				e.key.extractRuleElementMapping(e.value, mapping)
-			])
+			} else {
+				result.target = tgtRule.correspondingTargetElement(mapping)
+
+				result.element_mappings.addAll(behaviourMappings.filter [ e |
+					// Ensure kernel elements are included only once in the mapping and with their lhs representative
+					if ((e.key instanceof GraphElement) && (e.key.eContainer.eContainer === srcRule)) {
+						if (e.key.eContainer === srcRule.rhs) {
+							!(srcRule.lhs.nodes.exists[n|n.name == e.key.name] || srcRule.lhs.edges.exists [ ed |
+								ed.name == e.key.name
+							])
+						} else {
+							true
+						}
+					} else if ((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule)) {
+						if (e.key.eContainer.eContainer == srcRule.rhs) {
+							!(srcRule.lhs.nodes.exists [ n |
+								(n.name == e.key.eContainer.name) && n.attributes.exists [a|
+									a.type === (e.key as Attribute).type
+								]
+							])
+						} else {
+							true
+						}
+					} else {
+						false
+					}
+				].map [ e |
+					e.key.extractRuleElementMapping(e.value, mapping)
+				])
+			}
 		}
 
 		result
 	}
-	
+
 	private static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
 	private static val VIRTUAL_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual"
 	private static val EMPTY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.empty"
 
 	private static def hasAnnotation(Rule r, String sAnnotation) {
-		r.annotations.exists[a | a.key == sAnnotation]
+		r.annotations.exists[a|a.key == sAnnotation]
 	}
 
 	private static def setAnnotation(Rule r, String sAnnotation, boolean set) {
-		r.annotations.removeIf([a | a.key == sAnnotation])
+		r.annotations.removeIf([a|a.key == sAnnotation])
 		if (set) {
 			val annotation = createAnnotation
 			annotation.key = sAnnotation
 			r.annotations.add(annotation)
-		}		
+		}
 	}
-	
+
 	public static def isEmptyRule(Rule r) {
 		r.hasAnnotation(EMPTY_RULE_ANNOTATION_KEY)
 	}
-	
+
 	public static def setIsEmptyRule(Rule r, boolean b) {
 		r.setAnnotation(EMPTY_RULE_ANNOTATION_KEY, b)
 	}
@@ -308,7 +315,7 @@ class MappingConverter {
 	public static def isVirtualRule(Rule r) {
 		r.hasAnnotation(VIRTUAL_RULE_ANNOTATION_KEY)
 	}
-	
+
 	public static def setIsVirtualRule(Rule r, boolean b) {
 		r.setAnnotation(VIRTUAL_RULE_ANNOTATION_KEY, b)
 	}
@@ -316,7 +323,7 @@ class MappingConverter {
 	public static def isVirtualIdentityRule(Rule r) {
 		r.hasAnnotation(IDENTITY_RULE_ANNOTATION_KEY)
 	}
-	
+
 	public static def setIsVirtualIdentityRule(Rule r, boolean b) {
 		r.setAnnotation(IDENTITY_RULE_ANNOTATION_KEY, b)
 	}
@@ -547,16 +554,16 @@ class MappingConverter {
 	}
 
 	private static extension val HenshinFactory FACTORY = HenshinFactory.eINSTANCE
-	
+
 	/**
 	 * Generate a mapping from a virtual empty rule for this rule mapping
 	 */
 	private static def extractSrcEmptyMapping(RuleMapping rm, HashMap<EObject, EObject> _mapping) {
 		// Just in case...
 		if (!rm.source_empty) {
-			throw new IllegalStateException			
+			throw new IllegalStateException
 		}
-		
+
 		_mapping.putAll(rm.target.extractSrcEmptyMapping)
 	}
 
@@ -575,9 +582,9 @@ class MappingConverter {
 
 		virtualRule.lhs = lhs
 		virtualRule.rhs = rhs
-		
+
 		val result = new HashMap<EObject, EObject>
-		result.putIfNotNull(targetRule, virtualRule)		
+		result.putIfNotNull(targetRule, virtualRule)
 		result
 	}
 
@@ -613,15 +620,15 @@ class MappingConverter {
 	public static def extractTgtIdentityMapping(Rule r, boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
 		if (r.isIdentityRule(srcIsInterface)) {
 			val result = r.extractTgtVirtualMapping(srcIsInterface, tgMapping)
-			
-			(result.keySet.findFirst[vr | result.get(vr) == r] as Rule).isVirtualIdentityRule = true
-			
+
+			(result.keySet.findFirst[vr|result.get(vr) == r] as Rule).isVirtualIdentityRule = true
+
 			result
 		} else {
 			emptyMap
 		}
 	}
-	
+
 	/**
 	 * Generate a virtual rule to map to for this rule mapping
 	 */

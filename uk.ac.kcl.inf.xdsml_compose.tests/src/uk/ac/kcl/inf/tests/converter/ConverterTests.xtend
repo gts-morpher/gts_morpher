@@ -309,6 +309,29 @@ class ConverterTests extends AbstractTest {
 			}'''.doTest
 	}
 
+	@Test
+	public def testBasicMappingWithFromEmptyRule() {
+		'''
+			map {
+				from {
+					metamodel: "A"
+				}
+
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+			
+				type_mapping {
+					class A.A1 => B.B2
+				}
+			
+				behaviour_mapping {
+					rule empty to do
+				}
+			}'''.doTest
+	}
+
 	private def void doTest(CharSequence text) {
 		val result = text.parse(createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
