@@ -159,6 +159,8 @@ class MappingConverter {
 					} else {
 						rm.extractTgtVirtualMapping(_mapping, srcIsInterface, typeGraphMapping)						
 					}	
+				} else if (rm.source_empty) {
+					rm.extractSrcEmptyMapping(_mapping)
 				} else {
 					rm.extractMapping(_mapping, srcIsInterface, tgtIsInterface, issues)
 				}
@@ -280,31 +282,43 @@ class MappingConverter {
 	
 	private static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
 	private static val VIRTUAL_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual"
+	private static val EMPTY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.empty"
+
+	private static def hasAnnotation(Rule r, String sAnnotation) {
+		r.annotations.exists[a | a.key == sAnnotation]
+	}
+
+	private static def setAnnotation(Rule r, String sAnnotation, boolean set) {
+		r.annotations.removeIf([a | a.key == sAnnotation])
+		if (set) {
+			val annotation = createAnnotation
+			annotation.key = sAnnotation
+			r.annotations.add(annotation)
+		}		
+	}
+	
+	public static def isEmptyRule(Rule r) {
+		r.hasAnnotation(EMPTY_RULE_ANNOTATION_KEY)
+	}
+	
+	public static def setIsEmptyRule(Rule r, boolean b) {
+		r.setAnnotation(EMPTY_RULE_ANNOTATION_KEY, b)
+	}
 
 	public static def isVirtualRule(Rule r) {
-		r.annotations.exists[a | a.key == VIRTUAL_RULE_ANNOTATION_KEY]
+		r.hasAnnotation(VIRTUAL_RULE_ANNOTATION_KEY)
 	}
 	
 	public static def setIsVirtualRule(Rule r, boolean b) {
-		r.annotations.removeIf([a | a.key == VIRTUAL_RULE_ANNOTATION_KEY])
-		if (b) {
-			val annotation = createAnnotation
-			annotation.key = VIRTUAL_RULE_ANNOTATION_KEY
-			r.annotations.add(annotation)
-		}
+		r.setAnnotation(VIRTUAL_RULE_ANNOTATION_KEY, b)
 	}
 
 	public static def isVirtualIdentityRule(Rule r) {
-		r.annotations.exists[a | a.key == IDENTITY_RULE_ANNOTATION_KEY]
+		r.hasAnnotation(IDENTITY_RULE_ANNOTATION_KEY)
 	}
 	
 	public static def setIsVirtualIdentityRule(Rule r, boolean b) {
-		r.annotations.removeIf([a | a.key == IDENTITY_RULE_ANNOTATION_KEY])
-		if (b) {
-			val annotation = createAnnotation
-			annotation.key = IDENTITY_RULE_ANNOTATION_KEY
-			r.annotations.add(annotation)
-		}
+		r.setAnnotation(IDENTITY_RULE_ANNOTATION_KEY, b)
 	}
 
 	private static dispatch def RuleElementMapping extractRuleElementMapping(EObject src, EObject tgt,
@@ -533,6 +547,35 @@ class MappingConverter {
 	}
 
 	private static extension val HenshinFactory FACTORY = HenshinFactory.eINSTANCE
+	
+	/**
+	 * Generate a mapping from a virtual empty rule for this rule mapping
+	 */
+	private static def extractSrcEmptyMapping(RuleMapping rm, HashMap<EObject, EObject> _mapping) {
+		// Just in case...
+		if (!rm.source_empty) {
+			throw new IllegalStateException			
+		}
+		
+		val targetRule = rm.target
+		
+		// Generate a suitable virtual rule
+		val virtualRule = createRule(targetRule.name)
+		virtualRule.isEmptyRule = true
+
+		// Must add the rule to some module, even if we just make it up... 
+		// Weaving will assume to be able to navigate up from rules, but will actually never use the module
+		val module = createModule
+		module.units.add(virtualRule)
+
+		val lhs = createGraph("Lhs")
+		val rhs = createGraph("Rhs")
+
+		virtualRule.lhs = lhs
+		virtualRule.rhs = rhs
+
+		_mapping.putIfNotNull(targetRule, virtualRule)		
+	}
 
 	/**
 	 * Generate a virtual identity rule to map to for this rule mapping

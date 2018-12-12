@@ -392,7 +392,7 @@ class XDsmlComposer {
 
 	private def Module composeBehaviour(Module srcBehaviour, Module tgtBehaviour,
 		Map<EObject, EObject> behaviourMapping, EPackage srcPackage, Map<Pair<Origin, EObject>, EObject> tgMapping) {
-		if ((srcBehaviour === null)) {
+		if (behaviourMapping.empty) {
 			return null
 		}
 
