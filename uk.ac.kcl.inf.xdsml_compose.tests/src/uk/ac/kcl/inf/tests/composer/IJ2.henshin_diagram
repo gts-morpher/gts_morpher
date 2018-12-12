@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmi:id="_AeoMkP01EeifGYy2WR9a5Q" type="Henshin" measurementUnit="Pixel">
+  <children xmi:type="notation:Shape" xmi:id="_Afa2wv01EeifGYy2WR9a5Q" type="2001" fontName="Segoe UI" italic="true" lineColor="0">
+    <children xmi:type="notation:DecorationNode" xmi:id="_Afa2xP01EeifGYy2WR9a5Q" type="5001"/>
+    <children xmi:type="notation:DecorationNode" xmi:id="_Afa2xf01EeifGYy2WR9a5Q" type="7001">
+      <children xmi:type="notation:Shape" xmi:id="_AflO0P01EeifGYy2WR9a5Q" type="3001" fontName="Segoe UI">
+        <children xmi:type="notation:DecorationNode" xmi:id="_AflO0v01EeifGYy2WR9a5Q" type="5002"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_AflO0_01EeifGYy2WR9a5Q" type="5003"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_AflO1P01EeifGYy2WR9a5Q" type="7002">
+          <styles xmi:type="notation:SortingStyle" xmi:id="_AflO1f01EeifGYy2WR9a5Q"/>
+          <styles xmi:type="notation:FilteringStyle" xmi:id="_AflO1v01EeifGYy2WR9a5Q"/>
+        </children>
+        <element xmi:type="henshin:Node" href="IJ2.henshin#_BJkv8CugEei9gqjpeQ_q3A"/>
+        <layoutConstraint xmi:type="notation:Bounds" xmi:id="_AflO0f01EeifGYy2WR9a5Q" x="53" y="19"/>
+      </children>
+    </children>
+    <element xmi:type="henshin:Rule" href="IJ2.henshin#_8SLjMCufEei9gqjpeQ_q3A"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_Afa2w_01EeifGYy2WR9a5Q" x="145" y="115" height="154"/>
+  </children>
+  <styles xmi:type="notation:DiagramStyle" xmi:id="_AeoMkf01EeifGYy2WR9a5Q"/>
+  <element xmi:type="henshin:Module" href="IJ2.henshin#_7gm8UCufEei9gqjpeQ_q3A"/>
+</notation:Diagram>
