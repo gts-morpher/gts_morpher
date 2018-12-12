@@ -129,6 +129,22 @@ auto-complete without-to-virtual map { ... }
 
 to claim that no to-virtual mappings will need to be introduced to complete the morphism.
 
+Conversely, you can also establish rule mappings from virtual empty source rules. Note that there is no need to consider identity source rules or any other more complex source rules: morphisms of the graphs constituting a rule will be from the source rule to the target rule, so for empty source rules such morphisms will trivially exist. 
+
+To define a rule mapping from an empty source rule write:
+
+```
+  rule empty to do
+```
+
+where `do` is the name of a rule in the target GTS. `"empty"` is a keyword in the language and cannot be the name of a rule. 
+
+You can ask auto-completion to consider introducing from-empty rule mappings automatically. Note that this is very likely to reduce the chances of producing *unique* auto-completions as from-empty mappings can be trivially introduced and can be trivially complemented with to-virtual mappings to ensure all rules in both GTSs have a mapping. In order to produce somewhat more intuitive behaviour, the tool will (1) not try to introduce from-empty mappings if a mapping with an actual source rule can be found, and (2) only try to introduce from-empty rule mappings if explicitly instructed to do so. To allow from-empty mappings to be included, use the following syntax:
+
+```
+auto-complete allow-from-empty map { ... }
+``` 
+
 ## 3. GTS families
 
 You can specify that the source or target of a GTS morphism should be taken from a GTS family by providing the definition of the family and the sequence of transformers to apply to the family's root GTS when picking the GTS you actually want. Our FASE paper [2] has more information on GTS families.
