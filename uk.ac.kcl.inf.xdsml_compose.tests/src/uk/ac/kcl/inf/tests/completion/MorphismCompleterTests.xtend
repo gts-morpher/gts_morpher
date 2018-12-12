@@ -798,6 +798,40 @@ class MorphismCompleterTests extends AbstractTest {
 	}
 
 	@Test
+	def testGTSMorphismNeedsFromEmptyRule() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			auto-complete allow-from-empty map {
+				from interface_of {
+					metamodel: "K"
+				}
+				
+				to {
+					metamodel: "L"
+					behaviour: "LRules"
+				}
+				
+				type_mapping {
+					//class K.K1 => L.L1
+					//attribute K.K1.k1 => L.L1.l1
+				}
+				
+				//behaviour_mapping {
+				//	rule empty to fiddleSticks
+				//}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val completer = result.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+	}
+
+	@Test
 	def testGTSMorphismNeedsToVirtualRule() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''

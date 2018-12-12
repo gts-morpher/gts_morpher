@@ -171,6 +171,39 @@ class ParsingAndValidationTests extends AbstractTest {
 	 * Test basic parsing with auto-complete annotation claiming that can auto-complete without creating to-virtual rule mappings.
 	 */
 	@Test
+	def void parsingAutoCompleteAllowFromEmpty() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete allow-from-empty map {
+				from {
+					metamodel: "server"
+				}
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Not set to auto-complete", result.autoComplete)
+		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
+		
+//		assertTrue("Not set to allow-from-empty", result.allowFromEmtpy)
+		assertFalse("Set to without-to-virtual", result.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.toIdentityOnly)
+	}
+
+	/**
+	 * Test basic parsing with auto-complete annotation claiming that can auto-complete without creating to-virtual rule mappings.
+	 */
+	@Test
 	def void parsingAutoCompleteOnlyToIdentity() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below

@@ -557,8 +557,10 @@ class MappingConverter {
 			throw new IllegalStateException			
 		}
 		
-		val targetRule = rm.target
-		
+		_mapping.putAll(rm.target.extractSrcEmptyMapping)
+	}
+
+	public static def extractSrcEmptyMapping(Rule targetRule) {
 		// Generate a suitable virtual rule
 		val virtualRule = createRule(targetRule.name)
 		virtualRule.isEmptyRule = true
@@ -573,8 +575,10 @@ class MappingConverter {
 
 		virtualRule.lhs = lhs
 		virtualRule.rhs = rhs
-
-		_mapping.putIfNotNull(targetRule, virtualRule)		
+		
+		val result = new HashMap<EObject, EObject>
+		result.putIfNotNull(targetRule, virtualRule)		
+		result
 	}
 
 	/**

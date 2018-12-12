@@ -50,45 +50,48 @@ class MorphismCompleter {
 		new MorphismCompleter(_typeMapping, mapping.source.metamodel, mapping.target.metamodel,
 			mapping.behaviourMapping, mapping.source.behaviour, mapping.target.behaviour,
 			mapping.source.interface_mapping, mapping.target.interface_mapping, mapping.toIdentityOnly,
-			mapping.withoutToVirtual)
-		}
+			mapping.withoutToVirtual, mapping.allowFromEmtpy)
+	}
 
-		/**
-		 * This will contain the results, if any
-		 */
-		@Accessors(PUBLIC_GETTER)
-		private var List<Map<EObject, EObject>> completedMappings = new ArrayList
+	/**
+	 * This will contain the results, if any
+	 */
+	@Accessors(PUBLIC_GETTER)
+	private var List<Map<EObject, EObject>> completedMappings = new ArrayList
 
-		/**
-		 * If true, then we were able to at least complete a type mapping.
-		 */
-		@Accessors(PUBLIC_GETTER)
-		private var boolean completedTypeMapping = false
+	/**
+	 * If true, then we were able to at least complete a type mapping.
+	 */
+	@Accessors(PUBLIC_GETTER)
+	private var boolean completedTypeMapping = false
 
-		private var Map<EObject, EObject> typeMapping
-		private var EPackage srcPackage
-		private var EPackage tgtPackage
-		private var List<EObject> allSrcModelElements
-		private var List<EObject> allTgtModelElements
-		private var List<EClass> allTgtClasses
-		private var List<EReference> allTgtReferences
-		private var List<EAttribute> allTgtAttributes
+	private var Map<EObject, EObject> typeMapping
+	private var EPackage srcPackage
+	private var EPackage tgtPackage
+	private var List<EObject> allSrcModelElements
+	private var List<EObject> allTgtModelElements
+	private var List<EClass> allTgtClasses
+	private var List<EReference> allTgtReferences
+	private var List<EAttribute> allTgtAttributes
 
-		private var BehaviourMapping behaviourMapping
-		private var Module srcModule
-		private var Module tgtModule
-		private List<EObject> allSrcBehaviorElements
-		private List<EObject> allTgtBehaviorElements
+	private var BehaviourMapping behaviourMapping
+	private var Module srcModule
+	private var Module tgtModule
+	private List<EObject> allSrcBehaviorElements
+	private List<EObject> allTgtBehaviorElements
 
-		private var boolean srcIsInterface = false
-		private var boolean tgtIsInterface = false
+	private var boolean srcIsInterface = false
+	private var boolean tgtIsInterface = false
 
-		private var boolean toIdentityOnly = false
-		private var boolean withoutToVirtualMappings = false
+	private var boolean toIdentityOnly = false
+	private var boolean withoutToVirtualMappings = false
 
-		private new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage,
-			BehaviourMapping behaviourMapping, Module srcModule, Module tgtModule, boolean srcIsInterface,
-			boolean tgtIsInterface, boolean toIdentityOnly, boolean withoutToVirtualMappings) {
+	private var boolean allowFromEmtpyMappings = false
+
+	private new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage,
+		BehaviourMapping behaviourMapping, Module srcModule, Module tgtModule, boolean srcIsInterface,
+		boolean tgtIsInterface, boolean toIdentityOnly, boolean withoutToVirtualMappings,
+		boolean allowFromEmtpyMappings) {
 			this.typeMapping = new HashMap<EObject, EObject>(typeMapping)
 			this.srcPackage = srcPackage
 			this.tgtPackage = tgtPackage
@@ -96,6 +99,7 @@ class MorphismCompleter {
 			this.tgtIsInterface = tgtIsInterface
 			this.toIdentityOnly = toIdentityOnly
 			this.withoutToVirtualMappings = withoutToVirtualMappings
+			this.allowFromEmtpyMappings = allowFromEmtpyMappings
 
 			allSrcModelElements = srcPackage.allContents
 			if (srcIsInterface) {
@@ -631,7 +635,9 @@ class MorphismCompleter {
 		private def doTryMapRules(Map<EObject, EObject> behaviourMapping, List<Rule> unmappedRules,
 			List<EObject> unmappedBehaviourElements, boolean findAll, Map<Rule, MorphismOrNonmatchedCount> result) {
 			unmappedRules.forEach [ pick |
-				val ValueHolder<MorphismOrNonmatchedCount> resultForPick = new ValueHolder(null)
+				// Assume we won't be able to match this rule at all...
+				val ValueHolder<MorphismOrNonmatchedCount> resultForPick = new ValueHolder(
+					new NonmatchedCount(pick.eAllContents.size))
 
 				allSrcBehaviorElements.filter(Rule).forEach [ r |
 					behaviourMapping.put(pick, r)
@@ -661,6 +667,18 @@ class MorphismCompleter {
 
 					behaviourMapping.remove(pick)
 				]
+
+				// Include a variant with an empty source rule 
+				if (allowFromEmtpyMappings && (resultForPick.value instanceof NonmatchedCount)) {
+					val fromEmptyMapping = pick.extractSrcEmptyMapping
+					val fromEmptyMorphism = tryCompleteRuleMorphism(pick, fromEmptyMapping.get(pick) as Rule,
+						behaviourMapping, unmappedBehaviourElements, false)
+					if (fromEmptyMorphism instanceof Morphism) { // It would be strange if it wasn't...
+						resultForPick.value = fromEmptyMorphism						
+					} else {
+						throw new IllegalStateException("From empty mappings should always auto-complete")
+					}
+				}
 
 				result.put(pick, resultForPick.value)
 			]
