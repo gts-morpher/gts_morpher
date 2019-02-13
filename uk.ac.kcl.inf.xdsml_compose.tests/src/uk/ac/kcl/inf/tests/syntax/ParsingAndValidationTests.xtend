@@ -426,6 +426,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				type_mapping {
 					class server.Server => devsmm.Machine
 					reference server.Server.Out => devsmm.Machine.out
+					class server.Element => devsmm.Part
 				}
 				
 				behaviour_mapping {
@@ -453,6 +454,8 @@ class ParsingAndValidationTests extends AbstractTest {
 			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		assertNotNull("Did not load target reference",
 			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+
+		assertNull("Wrongly loaded source class", (result.typeMapping.mappings.get(2) as ClassMapping).source.name)
 
 		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
 		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
