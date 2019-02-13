@@ -37,6 +37,9 @@ import static org.eclipse.xtext.scoping.Scopes.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
+import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import org.eclipse.emf.ecore.EModelElement
+
 /**
  * This class contains custom scoping description.
  * 
@@ -89,16 +92,37 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		])
 	}
 
-	// FIXME: remove non-interface elements for interface_of GTSs
 	private def IScope sourceScope(TypeGraphMapping tgm) {
-		safeScopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents.toList],
-			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+		interfaceRespectingScopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents.toList], [
+			(tgm.eContainer as GTSMapping).source.interface_mapping
+		])
+	}
+
+	private def IScope targetScope(TypeGraphMapping tgm) {
+		interfaceRespectingScopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents.toList], [
+			(tgm.eContainer as GTSMapping).target.interface_mapping
+		])
 	}
 
 	// FIXME: remove non-interface elements for interface_of GTSs
-	private def IScope targetScope(TypeGraphMapping tgm) {
-		safeScopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents.toList],
-			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+	private def interfaceRespectingScopeFor(Provider<Iterable<? extends EObject>> scopeElements,
+		Provider<Boolean> needInterfaceCheck) {
+		try {
+			val doNeedInterfaceCheck = needInterfaceCheck.get
+
+			if (doNeedInterfaceCheck) {
+				new FilteringScope(
+					safeScopeFor(scopeElements, new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE), [ eod |
+						(!(eod.EObjectOrProxy instanceof EModelElement)) ||
+						((eod.EObjectOrProxy as EModelElement).isInterfaceElement)
+					])
+
+			} else {
+				safeScopeFor(scopeElements, new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+			}
+		} catch (NullPointerException npe) {
+			return IScope.NULLSCOPE
+		}
 	}
 
 	def IScope scope_RuleMapping_source(RuleMapping context, EReference ref) {
@@ -166,7 +190,7 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		}
 
 	}
-	
+
 	val graphRelativeNameProvider = new HenshinQualifiedNameProvider() {
 		override getFullyQualifiedName(EObject obj) {
 			if (obj instanceof Graph) {

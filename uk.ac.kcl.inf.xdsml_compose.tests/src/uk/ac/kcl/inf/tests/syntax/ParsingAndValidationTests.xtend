@@ -426,7 +426,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				type_mapping {
 					class server.Server => devsmm.Machine
 					reference server.Server.Out => devsmm.Machine.out
-					class server.Element => devsmm.Part
+					class server.ServerObserver => devsmm.Part
 				}
 				
 				behaviour_mapping {
