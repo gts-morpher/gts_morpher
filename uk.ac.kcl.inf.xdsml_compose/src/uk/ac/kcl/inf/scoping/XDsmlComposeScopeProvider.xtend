@@ -104,7 +104,7 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		])
 	}
 
-	// FIXME: remove non-interface elements for interface_of GTSs
+	// Remove non-interface elements for interface_of GTSs if needed
 	private def interfaceRespectingScopeFor(Provider<Iterable<? extends EObject>> scopeElements,
 		Provider<Boolean> needInterfaceCheck) {
 		try {
