@@ -500,6 +500,7 @@ class ParsingAndValidationTests extends AbstractTest {
 						object so => so
 						link [so->server:server] => [so->server:server]
 						slot in_queue.count2 => in_queue.count2
+						slot in_queue.count1 => in_queue.count1
 					}
 				}
 			}
@@ -536,8 +537,11 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNull("Wrongly found source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.type)
 		assertNull("wrongly found target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.type)
 
-//		assertNull("Wrongly found source slot", (ruleMap.element_mappings.get(2) as SlotMapping).source.name)
-//		assertNull("wrongly found target slot", (ruleMap.element_mappings.get(2) as SlotMapping).target.name)
+		assertNull("Wrongly found source slot", (ruleMap.element_mappings.get(2) as SlotMapping).source.type)
+		assertNull("wrongly found target slot", (ruleMap.element_mappings.get(2) as SlotMapping).target.type)
+
+		assertNotNull("Wrongly didn't find source slot", (ruleMap.element_mappings.get(3) as SlotMapping).source.type)
+		assertNotNull("wrongly didn't find target slot", (ruleMap.element_mappings.get(3) as SlotMapping).target.type)
 	}
 
 	/**

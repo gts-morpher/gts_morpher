@@ -40,6 +40,7 @@ import static org.eclipse.xtext.scoping.Scopes.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import org.eclipse.emf.henshin.model.GraphElement
+import org.eclipse.emf.henshin.model.Attribute
 
 /**
  * This class contains custom scoping description.
@@ -231,7 +232,7 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 				new FilteringScope(
 					safeScopeFor(elementProvider, graphRelativeNameProvider, IScope.NULLSCOPE), [ eod |
 						(!(eod.EObjectOrProxy instanceof GraphElement)) ||
-							((eod.EObjectOrProxy as GraphElement).type.isInterfaceElement)
+						((eod.EObjectOrProxy as GraphElement).type.isInterfaceElement)
 					])
 
 			} else {

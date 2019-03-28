@@ -8,6 +8,7 @@ import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.ModelElement
@@ -70,4 +71,5 @@ class EMFHelper {
 	public static dispatch def getType(GraphElement ge) { null }
 	public static dispatch def getType(Node n) { n.type }
 	public static dispatch def getType(Edge e) { e.type }	
+	public static dispatch def getType(Attribute a) { a.type }	
 }
