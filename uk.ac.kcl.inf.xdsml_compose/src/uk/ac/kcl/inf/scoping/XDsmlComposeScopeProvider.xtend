@@ -6,12 +6,12 @@ package uk.ac.kcl.inf.scoping
 import com.google.common.base.Function
 import com.google.inject.Inject
 import com.google.inject.Provider
-import java.util.List
 import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.henshin.model.Graph
+import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.HenshinPackage
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
@@ -39,8 +39,6 @@ import static org.eclipse.xtext.scoping.Scopes.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-import org.eclipse.emf.henshin.model.GraphElement
-import org.eclipse.emf.henshin.model.Attribute
 
 /**
  * This class contains custom scoping description.
