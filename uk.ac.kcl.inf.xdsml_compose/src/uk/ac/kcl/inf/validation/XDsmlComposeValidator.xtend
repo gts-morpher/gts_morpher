@@ -478,7 +478,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		}
 
 		/**
-		 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 
+		 * Extract the behaviour mapping information as a Map. Also ensure no element is mapped more than once; report errors 
 		 * otherwise. Expects to be called in a validation context.
 		 */
 		private def extractMapping(BehaviourMapping mapping) {

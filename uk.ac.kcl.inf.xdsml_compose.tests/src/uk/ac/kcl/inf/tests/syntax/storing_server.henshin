@@ -103,4 +103,83 @@
     </rhs>
     <mappings xmi:id="_arxCwT5iEeisVpNvdsJxUQ" origin="_arwbsD5iEeisVpNvdsJxUQ" image="_arxCwD5iEeisVpNvdsJxUQ"/>
   </units>
+  <units xsi:type="henshin:Rule" xmi:id="_h6RbQFFbEemWA4t8vty1Sg" name="process2">
+    <lhs xmi:id="_h6RbQVFbEemWA4t8vty1Sg" name="Lhs">
+      <nodes xmi:id="_h6RbQlFbEemWA4t8vty1Sg" name="server" incoming="_h6RbSlFbEemWA4t8vty1Sg" outgoing="_h6RbR1FbEemWA4t8vty1Sg _h6RbSVFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_h6RbQ1FbEemWA4t8vty1Sg" name="in_queue" incoming="_h6RbR1FbEemWA4t8vty1Sg" outgoing="_h6RbSFFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Queue"/>
+        <attributes xmi:id="_rS5XgFFbEemWA4t8vty1Sg" value="0">
+          <type href="storing_server.ecore#//Queue/count1"/>
+        </attributes>
+        <attributes xmi:id="_saJTcFFbEemWA4t8vty1Sg" value="0">
+          <type href="storing_server.ecore#//Queue/count2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_h6RbRFFbEemWA4t8vty1Sg" name="out_queue" incoming="_h6RbSVFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_h6RbRVFbEemWA4t8vty1Sg" name="input" incoming="_h6RbSFFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Input"/>
+      </nodes>
+      <nodes xmi:id="_h6RbRlFbEemWA4t8vty1Sg" name="so" outgoing="_h6RbSlFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//ServerObserver"/>
+      </nodes>
+      <edges xmi:id="_h6RbR1FbEemWA4t8vty1Sg" source="_h6RbQlFbEemWA4t8vty1Sg" target="_h6RbQ1FbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Server/In"/>
+      </edges>
+      <edges xmi:id="_h6RbSFFbEemWA4t8vty1Sg" source="_h6RbQ1FbEemWA4t8vty1Sg" target="_h6RbRVFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Queue/elts"/>
+      </edges>
+      <edges xmi:id="_h6RbSVFbEemWA4t8vty1Sg" source="_h6RbQlFbEemWA4t8vty1Sg" target="_h6RbRFFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Server/Out"/>
+      </edges>
+      <edges xmi:id="_h6RbSlFbEemWA4t8vty1Sg" source="_h6RbRlFbEemWA4t8vty1Sg" target="_h6RbQlFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//ServerObserver/server"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_h6RbS1FbEemWA4t8vty1Sg" name="Rhs">
+      <nodes xmi:id="_h6RbTFFbEemWA4t8vty1Sg" name="server" incoming="_h6RbVFFbEemWA4t8vty1Sg" outgoing="_h6RbUVFbEemWA4t8vty1Sg _h6RbUlFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_h6RbTVFbEemWA4t8vty1Sg" name="in_queue" incoming="_h6RbUVFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Queue"/>
+        <attributes xmi:id="_rS7zwFFbEemWA4t8vty1Sg" value="0">
+          <type href="storing_server.ecore#//Queue/count1"/>
+        </attributes>
+        <attributes xmi:id="_saJTcVFbEemWA4t8vty1Sg" value="0">
+          <type href="storing_server.ecore#//Queue/count2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_h6RbTlFbEemWA4t8vty1Sg" name="out_queue" incoming="_h6RbUlFbEemWA4t8vty1Sg" outgoing="_h6RbU1FbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_h6RbT1FbEemWA4t8vty1Sg" name="output" incoming="_h6RbU1FbEemWA4t8vty1Sg _h6RbVVFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Output"/>
+      </nodes>
+      <nodes xmi:id="_h6RbUFFbEemWA4t8vty1Sg" name="so" outgoing="_h6RbVFFbEemWA4t8vty1Sg _h6RbVVFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//ServerObserver"/>
+      </nodes>
+      <edges xmi:id="_h6RbUVFbEemWA4t8vty1Sg" source="_h6RbTFFbEemWA4t8vty1Sg" target="_h6RbTVFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Server/In"/>
+      </edges>
+      <edges xmi:id="_h6RbUlFbEemWA4t8vty1Sg" source="_h6RbTFFbEemWA4t8vty1Sg" target="_h6RbTlFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Server/Out"/>
+      </edges>
+      <edges xmi:id="_h6RbU1FbEemWA4t8vty1Sg" source="_h6RbTlFbEemWA4t8vty1Sg" target="_h6RbT1FbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//Queue/elts"/>
+      </edges>
+      <edges xmi:id="_h6RbVFFbEemWA4t8vty1Sg" source="_h6RbUFFbEemWA4t8vty1Sg" target="_h6RbTFFbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//ServerObserver/server"/>
+      </edges>
+      <edges xmi:id="_h6RbVVFbEemWA4t8vty1Sg" source="_h6RbUFFbEemWA4t8vty1Sg" target="_h6RbT1FbEemWA4t8vty1Sg">
+        <type href="storing_server.ecore#//ServerObserver/produced"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_h6RbVlFbEemWA4t8vty1Sg" origin="_h6RbQlFbEemWA4t8vty1Sg" image="_h6RbTFFbEemWA4t8vty1Sg"/>
+    <mappings xmi:id="_h6RbV1FbEemWA4t8vty1Sg" origin="_h6RbQ1FbEemWA4t8vty1Sg" image="_h6RbTVFbEemWA4t8vty1Sg"/>
+    <mappings xmi:id="_h6RbWFFbEemWA4t8vty1Sg" origin="_h6RbRFFbEemWA4t8vty1Sg" image="_h6RbTlFbEemWA4t8vty1Sg"/>
+    <mappings xmi:id="_h6RbWVFbEemWA4t8vty1Sg" origin="_h6RbRlFbEemWA4t8vty1Sg" image="_h6RbUFFbEemWA4t8vty1Sg"/>
+  </units>
 </henshin:Module>

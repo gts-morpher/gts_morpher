@@ -6,10 +6,12 @@ package uk.ac.kcl.inf.scoping
 import com.google.common.base.Function
 import com.google.inject.Inject
 import com.google.inject.Provider
+import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.henshin.model.Graph
+import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.HenshinPackage
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
@@ -35,6 +37,7 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 
 import static org.eclipse.xtext.scoping.Scopes.*
 
+import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 /**
@@ -89,16 +92,37 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		])
 	}
 
-	// FIXME: remove non-interface elements for interface_of GTSs
 	private def IScope sourceScope(TypeGraphMapping tgm) {
-		safeScopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents.toList],
-			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+		interfaceRespectingScopeFor([(tgm.eContainer as GTSMapping).source.metamodel.eAllContents.toList], [
+			(tgm.eContainer as GTSMapping).source.interface_mapping
+		])
 	}
 
-	// FIXME: remove non-interface elements for interface_of GTSs
 	private def IScope targetScope(TypeGraphMapping tgm) {
-		safeScopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents.toList],
-			new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+		interfaceRespectingScopeFor([(tgm.eContainer as GTSMapping).target.metamodel.eAllContents.toList], [
+			(tgm.eContainer as GTSMapping).target.interface_mapping
+		])
+	}
+
+	// Remove non-interface elements for interface_of GTSs if needed
+	private def interfaceRespectingScopeFor(Provider<Iterable<? extends EObject>> scopeElements,
+		Provider<Boolean> needInterfaceCheck) {
+		try {
+			val doNeedInterfaceCheck = needInterfaceCheck.get
+
+			if (doNeedInterfaceCheck) {
+				new FilteringScope(
+					safeScopeFor(scopeElements, new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE), [ eod |
+						(!(eod.EObjectOrProxy instanceof EModelElement)) ||
+							((eod.EObjectOrProxy as EModelElement).isInterfaceElement)
+					])
+
+			} else {
+				safeScopeFor(scopeElements, new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE)
+			}
+		} catch (NullPointerException npe) {
+			return IScope.NULLSCOPE
+		}
 	}
 
 	def IScope scope_RuleMapping_source(RuleMapping context, EReference ref) {
@@ -166,7 +190,7 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		}
 
 	}
-	
+
 	val graphRelativeNameProvider = new HenshinQualifiedNameProvider() {
 		override getFullyQualifiedName(EObject obj) {
 			if (obj instanceof Graph) {
@@ -186,11 +210,36 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	private def sourceScope(RuleMapping rm) {
-		safeScopeFor([rm.source.eAllContents.toList], graphRelativeNameProvider, IScope.NULLSCOPE)
+		graphElementScopeFor([rm.source.eAllContents.toList], [
+			(rm.eContainer.eContainer as GTSMapping).source.interface_mapping
+		])
 	}
 
 	private def targetScope(RuleMapping rm) {
-		safeScopeFor([rm.target.eAllContents.toList], graphRelativeNameProvider, IScope.NULLSCOPE)
+		graphElementScopeFor([rm.target.eAllContents.toList], [
+			(rm.eContainer.eContainer as GTSMapping).target.interface_mapping
+		])
+	}
+
+	private def graphElementScopeFor(Provider<Iterable<? extends EObject>> elementProvider,
+		Provider<Boolean> needInterfaceCheck) {
+		try {
+			val doNeedInterfaceCheck = needInterfaceCheck.get
+
+			if (doNeedInterfaceCheck) {
+				new FilteringScope(
+					safeScopeFor(elementProvider, graphRelativeNameProvider, IScope.NULLSCOPE), [ eod |
+						(!(eod.EObjectOrProxy instanceof GraphElement)) ||
+						((eod.EObjectOrProxy as GraphElement).type.isInterfaceElement)
+					])
+
+			} else {
+				safeScopeFor(elementProvider, graphRelativeNameProvider, IScope.NULLSCOPE)
+			}
+		}
+		catch (NullPointerException npe) {
+			return IScope.NULLSCOPE
+		}
 	}
 
 	private def safeScopeFor(Provider<Iterable<? extends EObject>> scopeElements,

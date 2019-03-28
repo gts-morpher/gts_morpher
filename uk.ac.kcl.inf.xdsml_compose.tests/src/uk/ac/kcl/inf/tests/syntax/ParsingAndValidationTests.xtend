@@ -469,6 +469,82 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	/**
+	 * Tests interface_of scoping rules
+	 */
+	@Test
+	def void parsingInterfaceOfScopingRules() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping {
+					class server.ServerObserver => server.Server
+					reference server.ServerObserver.server => server.Server.Out
+					class server.Server => server.ServerObserver
+					reference server.Server.Out => server.ServerObserver.server
+					attribute server.Queue.count2 => server.Queue.count1 
+					attribute server.Queue.count1 => server.Queue.count2 
+				}
+				
+				behaviour_mapping {
+					rule process2 to process2 {
+						object so => so
+						link [so->server:server] => [so->server:server]
+						slot in_queue.count2 => in_queue.count2
+						slot in_queue.count1 => in_queue.count1
+					}
+				}
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertFalse("Set to auto-complete", result.autoComplete)
+
+		assertNotNull("No type mapping", result.typeMapping)
+
+		assertNotNull("Did not load source package", result.source.metamodel.name)
+		assertNotNull("Did not load target package", result.target.metamodel.name)
+
+		assertNull("Wrongly loaded source class", (result.typeMapping.mappings.get(0) as ClassMapping).source.name)
+		assertNull("Wrongly loaded source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+
+		assertNull("Wrongly loaded target class", (result.typeMapping.mappings.get(2) as ClassMapping).target.name)
+		assertNull("Wrongly loaded target reference", (result.typeMapping.mappings.get(3) as ReferenceMapping).target.name)
+
+		assertNull("Wrongly loaded source attribute", (result.typeMapping.mappings.get(4) as AttributeMapping).source.name)
+		assertNull("Wrongly loaded target attribute", (result.typeMapping.mappings.get(5) as AttributeMapping).target.name)
+
+		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+
+		val ruleMap = result.behaviourMapping.mappings.head
+		assertNotNull("Did not find source rule", ruleMap.source.name)
+		assertNotNull("Did not find target rule", ruleMap.target.name)
+
+		assertNull("Wrongly found source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+		assertNull("Wrongly found target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNull("Wrongly found source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.type)
+		assertNull("wrongly found target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.type)
+
+		assertNull("Wrongly found source slot", (ruleMap.element_mappings.get(2) as SlotMapping).source.type)
+		assertNull("wrongly found target slot", (ruleMap.element_mappings.get(2) as SlotMapping).target.type)
+
+		assertNotNull("Wrongly didn't find source slot", (ruleMap.element_mappings.get(3) as SlotMapping).source.type)
+		assertNotNull("wrongly didn't find target slot", (ruleMap.element_mappings.get(3) as SlotMapping).target.type)
+	}
+
+	/**
 	 * Test basic parsing with unique auto-complete annotation.
 	 */
 	@Test
@@ -1670,11 +1746,16 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
 			XDsmlComposeValidator.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
 
+		/*
+		 * Removed: these are now checked by the scoping mechanism, so the mapper never gets a look in...
+		 * 
 		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING,
 			XDsmlComposeValidator.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING,
 			XDsmlComposeValidator.NON_INTERFACE_LINK_MAPPING_ATTEMPT)
 		result.assertNoError(XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
+		* 
+		*/
 	}
 
 	/**
