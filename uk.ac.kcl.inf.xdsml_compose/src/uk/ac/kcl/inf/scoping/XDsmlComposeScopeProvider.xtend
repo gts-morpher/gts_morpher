@@ -6,6 +6,8 @@ package uk.ac.kcl.inf.scoping
 import com.google.common.base.Function
 import com.google.inject.Inject
 import com.google.inject.Provider
+import java.util.List
+import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
@@ -35,10 +37,9 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 
 import static org.eclipse.xtext.scoping.Scopes.*
 
-import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import org.eclipse.emf.ecore.EModelElement
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import org.eclipse.emf.henshin.model.GraphElement
 
 /**
  * This class contains custom scoping description.
@@ -114,7 +115,7 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 				new FilteringScope(
 					safeScopeFor(scopeElements, new DefaultDeclarativeQualifiedNameProvider, IScope.NULLSCOPE), [ eod |
 						(!(eod.EObjectOrProxy instanceof EModelElement)) ||
-						((eod.EObjectOrProxy as EModelElement).isInterfaceElement)
+							((eod.EObjectOrProxy as EModelElement).isInterfaceElement)
 					])
 
 			} else {
@@ -210,11 +211,36 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	private def sourceScope(RuleMapping rm) {
-		safeScopeFor([rm.source.eAllContents.toList], graphRelativeNameProvider, IScope.NULLSCOPE)
+		graphElementScopeFor([rm.source.eAllContents.toList], [
+			(rm.eContainer.eContainer as GTSMapping).source.interface_mapping
+		])
 	}
 
 	private def targetScope(RuleMapping rm) {
-		safeScopeFor([rm.target.eAllContents.toList], graphRelativeNameProvider, IScope.NULLSCOPE)
+		graphElementScopeFor([rm.target.eAllContents.toList], [
+			(rm.eContainer.eContainer as GTSMapping).target.interface_mapping
+		])
+	}
+
+	private def graphElementScopeFor(Provider<Iterable<? extends EObject>> elementProvider,
+		Provider<Boolean> needInterfaceCheck) {
+		try {
+			val doNeedInterfaceCheck = needInterfaceCheck.get
+
+			if (doNeedInterfaceCheck) {
+				new FilteringScope(
+					safeScopeFor(elementProvider, graphRelativeNameProvider, IScope.NULLSCOPE), [ eod |
+						(!(eod.EObjectOrProxy instanceof GraphElement)) ||
+							((eod.EObjectOrProxy as GraphElement).type.isInterfaceElement)
+					])
+
+			} else {
+				safeScopeFor(elementProvider, graphRelativeNameProvider, IScope.NULLSCOPE)
+			}
+		}
+		catch (NullPointerException npe) {
+			return IScope.NULLSCOPE
+		}
 	}
 
 	private def safeScopeFor(Provider<Iterable<? extends EObject>> scopeElements,

@@ -531,11 +531,11 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not find target rule", ruleMap.target.name)
 
 		assertNull("Wrongly found source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
-//		assertNull("Wrongly found target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
-//
-//		assertNull("Wrongly found source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
-//		assertNull("wrongly found target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
-//
+		assertNull("Wrongly found target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNull("Wrongly found source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.type)
+		assertNull("wrongly found target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.type)
+
 //		assertNull("Wrongly found source slot", (ruleMap.element_mappings.get(2) as SlotMapping).source.name)
 //		assertNull("wrongly found target slot", (ruleMap.element_mappings.get(2) as SlotMapping).target.name)
 	}
@@ -1742,11 +1742,16 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
 			XDsmlComposeValidator.NON_INTERFACE_REFERENCE_MAPPING_ATTEMPT)
 
+		/*
+		 * Removed: these are now checked by the scoping mechanism, so the mapper never gets a look in...
+		 * 
 		result.assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING,
 			XDsmlComposeValidator.NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
 		result.assertError(XDsmlComposePackage.Literals.LINK_MAPPING,
 			XDsmlComposeValidator.NON_INTERFACE_LINK_MAPPING_ATTEMPT)
 		result.assertNoError(XDsmlComposeValidator.NOT_A_RULE_MORPHISM)
+		* 
+		*/
 	}
 
 	/**
