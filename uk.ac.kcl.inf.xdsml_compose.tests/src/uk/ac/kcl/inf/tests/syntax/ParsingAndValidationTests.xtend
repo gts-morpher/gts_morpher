@@ -426,9 +426,6 @@ class ParsingAndValidationTests extends AbstractTest {
 				type_mapping {
 					class server.Server => devsmm.Machine
 					reference server.Server.Out => devsmm.Machine.out
-					// Shouldn't load this as the source is in an interface_of non-interface part
-					class server.ServerObserver => devsmm.Part
-					reference server.ServerObserver.server => devsmm.Machine.out
 				}
 				
 				behaviour_mapping {
@@ -457,9 +454,6 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not load target reference",
 			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
-		assertNull("Wrongly loaded source class", (result.typeMapping.mappings.get(2) as ClassMapping).source.name)
-		assertNull("Wrongly loaded source reference", (result.typeMapping.mappings.get(3) as ReferenceMapping).source.name)
-
 		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
 		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
 
@@ -472,6 +466,69 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		assertNotNull("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
 		assertNotNull("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
+	}
+
+	/**
+	 * Tests interface_of scoping rules
+	 */
+	@Test
+	def void parsingInterfaceOfScopingRules() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping {
+					class server.ServerObserver => server.Server
+					reference server.ServerObserver.server => server.Server.Out
+					class server.Server => server.ServerObserver
+					reference server.Server.Out => server.ServerObserver.server
+				}
+				
+				/*behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
+					}
+				}*/
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertFalse("Set to auto-complete", result.autoComplete)
+
+		assertNotNull("No type mapping", result.typeMapping)
+
+		assertNotNull("Did not load source package", result.source.metamodel.name)
+		assertNotNull("Did not load target package", result.target.metamodel.name)
+
+		assertNull("Wrongly loaded source class", (result.typeMapping.mappings.get(0) as ClassMapping).source.name)
+		assertNull("Wrongly loaded source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+
+		assertNull("Wrongly loaded target class", (result.typeMapping.mappings.get(2) as ClassMapping).target.name)
+		assertNull("Wrongly loaded target reference", (result.typeMapping.mappings.get(3) as ReferenceMapping).target.name)
+
+//		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
+//		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+//
+//		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
+//		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
+//
+//		val ruleMap = result.behaviourMapping.mappings.get(0)
+//		assertNotNull("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+//		assertNotNull("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+//
+//		assertNotNull("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+//		assertNotNull("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
 	}
 
 	/**
