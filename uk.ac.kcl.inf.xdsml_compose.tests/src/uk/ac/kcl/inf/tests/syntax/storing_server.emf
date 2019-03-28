@@ -13,6 +13,9 @@ class Server {
 class Queue {
   @Interface
   ref Element[*] elts;
+  @Interface
+  attr EInt count1;
+  attr EInt count2;  
 }
 
 @Interface

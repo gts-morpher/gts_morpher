@@ -491,6 +491,8 @@ class ParsingAndValidationTests extends AbstractTest {
 					reference server.ServerObserver.server => server.Server.Out
 					class server.Server => server.ServerObserver
 					reference server.Server.Out => server.ServerObserver.server
+					attribute server.Queue.count2 => server.Queue.count1 
+					attribute server.Queue.count1 => server.Queue.count2 
 				}
 				
 				/*behaviour_mapping {
@@ -516,6 +518,9 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		assertNull("Wrongly loaded target class", (result.typeMapping.mappings.get(2) as ClassMapping).target.name)
 		assertNull("Wrongly loaded target reference", (result.typeMapping.mappings.get(3) as ReferenceMapping).target.name)
+
+		assertNull("Wrongly loaded source attribute", (result.typeMapping.mappings.get(4) as AttributeMapping).source.name)
+		assertNull("Wrongly loaded target attribute", (result.typeMapping.mappings.get(5) as AttributeMapping).target.name)
 
 //		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
 //		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
