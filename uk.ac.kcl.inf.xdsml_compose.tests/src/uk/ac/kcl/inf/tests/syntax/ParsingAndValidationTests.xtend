@@ -495,12 +495,13 @@ class ParsingAndValidationTests extends AbstractTest {
 					attribute server.Queue.count1 => server.Queue.count2 
 				}
 				
-				/*behaviour_mapping {
-					rule process to process {
-						object input => in_part
-						link [in_queue->input:elts] => [tray->in_part:parts]
+				behaviour_mapping {
+					rule process2 to process2 {
+						object so => so
+						link [so->server:server] => [so->server:server]
+						slot in_queue.count2 => in_queue.count2
 					}
-				}*/
+				}
 			}
 		''', createInterfaceResourceSet)
 		assertNotNull("Did not produce parse result", result)
@@ -522,18 +523,21 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNull("Wrongly loaded source attribute", (result.typeMapping.mappings.get(4) as AttributeMapping).source.name)
 		assertNull("Wrongly loaded target attribute", (result.typeMapping.mappings.get(5) as AttributeMapping).target.name)
 
-//		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
-//		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+
+		val ruleMap = result.behaviourMapping.mappings.head
+		assertNotNull("Did not find source rule", ruleMap.source.name)
+		assertNotNull("Did not find target rule", ruleMap.target.name)
+
+		assertNull("Wrongly found source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+//		assertNull("Wrongly found target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
 //
-//		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
-//		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
+//		assertNull("Wrongly found source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+//		assertNull("wrongly found target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
 //
-//		val ruleMap = result.behaviourMapping.mappings.get(0)
-//		assertNotNull("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
-//		assertNotNull("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
-//
-//		assertNotNull("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
-//		assertNotNull("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
+//		assertNull("Wrongly found source slot", (ruleMap.element_mappings.get(2) as SlotMapping).source.name)
+//		assertNull("wrongly found target slot", (ruleMap.element_mappings.get(2) as SlotMapping).target.name)
 	}
 
 	/**
