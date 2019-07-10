@@ -21,9 +21,11 @@ Require-Bundle: org.eclipse.xtext,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.kcl.inf,
  uk.ac.kcl.inf.composer,
+ uk.ac.kcl.inf.formatting2,
  uk.ac.kcl.inf.generator,
+ uk.ac.kcl.inf.henshin,
  uk.ac.kcl.inf.parser.antlr,
- uk.ac.kcl.inf.parser.antlr.internal,
+ uk.ac.kcl.inf.parser.antlr.internal;x-internal:=true,
  uk.ac.kcl.inf.scoping,
  uk.ac.kcl.inf.serializer,
  uk.ac.kcl.inf.services,
@@ -31,6 +33,5 @@ Export-Package: uk.ac.kcl.inf,
  uk.ac.kcl.inf.validation,
  uk.ac.kcl.inf.xDsmlCompose,
  uk.ac.kcl.inf.xDsmlCompose.impl,
- uk.ac.kcl.inf.xDsmlCompose.util,
- uk.ac.kcl.inf.formatting2
+ uk.ac.kcl.inf.xDsmlCompose.util
 Import-Package: org.apache.log4j

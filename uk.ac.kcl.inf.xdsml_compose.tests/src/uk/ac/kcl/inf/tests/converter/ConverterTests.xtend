@@ -310,7 +310,7 @@ class ConverterTests extends AbstractTest {
 	}
 
 	@Test
-	public def testBasicMappingWithFromEmptyRule() {
+	def testBasicMappingWithFromEmptyRule() {
 		'''
 			map {
 				from {

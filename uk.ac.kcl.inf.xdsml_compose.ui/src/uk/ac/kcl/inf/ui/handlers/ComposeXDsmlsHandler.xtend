@@ -29,16 +29,16 @@ import static extension org.eclipse.ui.handlers.HandlerUtil.*
 class ComposeXDsmlsHandler extends AbstractHandler {
 
 	@Inject
-	private Provider<XtextResourceSet> resourceSetProvider
+	Provider<XtextResourceSet> resourceSetProvider
 
 	@Inject
-	private Provider<EclipseResourceFileSystemAccess2> fileSystemAccessProvider
+	Provider<EclipseResourceFileSystemAccess2> fileSystemAccessProvider
 
 	@Inject
-	private EclipseOutputConfigurationProvider outputConfigurationProvider
+	EclipseOutputConfigurationProvider outputConfigurationProvider
 
 	@Inject
-	private XDsmlComposer composer
+	XDsmlComposer composer
 
 	override execute(ExecutionEvent event) throws ExecutionException {
 		val selection = event.currentSelection

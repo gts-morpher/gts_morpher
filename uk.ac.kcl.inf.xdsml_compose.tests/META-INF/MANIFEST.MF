@@ -13,7 +13,14 @@ Require-Bundle: uk.ac.kcl.inf.xdsml_compose,
  org.eclipse.emf.henshin.model;bundle-version="1.4.0",
  uk.ac.kcl.inf.henshinsupport;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: uk.ac.kcl.inf.tests;x-internal=true
+Export-Package: uk.ac.kcl.inf.tests;x-internal=true,
+ uk.ac.kcl.inf.tests.checker,
+ uk.ac.kcl.inf.tests.completion,
+ uk.ac.kcl.inf.tests.composer,
+ uk.ac.kcl.inf.tests.converter,
+ uk.ac.kcl.inf.tests.formatter,
+ uk.ac.kcl.inf.tests.gtsfamilies,
+ uk.ac.kcl.inf.tests.syntax
 Import-Package: org.hamcrest.core,
  org.junit;version="4.5.0",
  org.junit.runners.model;version="4.5.0",
