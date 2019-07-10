@@ -74,10 +74,10 @@ class ParsingAndValidationTests extends AbstractTest {
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			map {
-				from {
+				from gts ServerSystem {
 					metamodel: "server"
 				}
-				to {
+				to gts DEVsMMSystem {
 					metamodel: "devsmm"
 				}
 				

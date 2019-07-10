@@ -19,6 +19,7 @@ GTSMapping:
 ;
 
 GTSSpecification:
+	("gts" name=ID)?
 	(interface_mapping ?= "interface_of")?
 	"{"
 		gts = GTSSelection	
