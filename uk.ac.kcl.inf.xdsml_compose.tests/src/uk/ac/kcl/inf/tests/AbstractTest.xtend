@@ -9,7 +9,7 @@ import org.eclipse.xtext.resource.XtextResourceSet
 
 abstract class AbstractTest {
 	@Inject
-	private Provider<XtextResourceSet> resourceSetProvider;
+	Provider<XtextResourceSet> resourceSetProvider;
 	
 	protected def createResourceSet(String[] fileNames) {
 		val resourceSet = resourceSetProvider.get

@@ -1451,7 +1451,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
-		val issues = result.validate()
+		result.validate()
 
 		result.assertNoIssues
 	}
@@ -1485,7 +1485,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
-		val issues = result.validate()
+		result.validate()
 
 		result.assertNoIssues
 	}
@@ -1523,7 +1523,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
-		val issues = result.validate()
+		result.validate()
 
 		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_BEHAVIOUR_MAPPING) 
 	}
@@ -1561,7 +1561,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		''', createNormalResourceSet)
 
 		assertNotNull("Did not produce parse result", result)
-		val issues = result.validate()
+		result.validate()
 
 		result.assertError(XDsmlComposePackage.Literals.GTS_MAPPING, XDsmlComposeValidator.UNCOMPLETABLE_BEHAVIOUR_MAPPING) 
 	}
