@@ -77,7 +77,7 @@ class MultiResourceOnChangeEvictingCache {
 	/**
 	 * A cached item that needs special attention when clearing the cache.
 	 */
-	public interface IClearableItem {
+	interface IClearableItem {
 		/**
 		 * Notify the item that it is being cleared from the cache. Any required cleanup should be undertaken here.
 		 */
@@ -86,7 +86,7 @@ class MultiResourceOnChangeEvictingCache {
 	
 	private static class Cache {
 		static val NULL = new Object
-		private val Map<Object, Object> values = new ConcurrentHashMap<Object, Object>()
+		val Map<Object, Object> values = new ConcurrentHashMap<Object, Object>()
 		
 		def Object get(Object key) {
 			values.get(key)
@@ -104,9 +104,9 @@ class MultiResourceOnChangeEvictingCache {
 	
 	private static class CacheAdapter extends EContentAdapter {
 		@Accessors(PUBLIC_GETTER)
-		private List<Cache> caches = Collections.synchronizedList(new ArrayList<Cache>)
+		List<Cache> caches = Collections.synchronizedList(new ArrayList<Cache>)
 		
-		override def isAdapterForType(Object type) { type === class }
+		override isAdapterForType(Object type) { type === class }
 		
 		override notifyChanged(Notification notification) {
 			super.notifyChanged(notification)
@@ -116,7 +116,7 @@ class MultiResourceOnChangeEvictingCache {
 			}
 		}
 		
-		override protected def resolve() { false }
+		override protected resolve() { false }
 		
 		private def isSemanticStateChange(Notification notification) {
 			!notification.isTouch() && 

@@ -18,7 +18,7 @@ import uk.ac.kcl.inf.validation.XDsmlComposeValidator
 import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
@@ -34,7 +34,7 @@ import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 @InjectWith(XDsmlComposeInjectorProvider)
 class ParsingAndValidationTests extends AbstractTest {
 	@Inject
-	ParseHelper<GTSMapping> parseHelper
+	ParseHelper<GTSSpecificationModule> parseHelper
 
 	@Inject
 	extension ValidationTestHelper
@@ -90,20 +90,38 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Set to auto-complete", !result.autoComplete)
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
 
-		assertNotNull("No type mapping", result.typeMapping)
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
 
-		assertNotNull("Did not load source package", result.source.metamodel.name)
-		assertNotNull("Did not load target package", result.target.metamodel.name)
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
 
-		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
-		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
 
 		assertNotNull("Did not load source reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		assertNotNull("Did not load target reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+	}
+
+	/**
+	 * Tests basic parsing and linking for a sunshine case with only a GTS Specification
+	 */
+	@Test
+	def void parsingBasicJustGTS() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem {
+				metamodel: "server"
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertNotNull("Did not load metamodel", result.gtss.head.metamodel.name)
 	}
 
 	/**
@@ -131,8 +149,8 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Not set to auto-complete", result.autoComplete)
-		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertFalse("Set to unique auto-completion", result.mappings.head.uniqueCompletion)
 	}
 
 	/**
@@ -160,11 +178,11 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Not set to auto-complete", result.autoComplete)
-		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertFalse("Set to unique auto-completion", result.mappings.head.uniqueCompletion)
 		
-		assertTrue("Not set to without-to-virtual", result.withoutToVirtual)
-		assertFalse("Set to toIdentityOnly", result.toIdentityOnly)
+		assertTrue("Not set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.mappings.head.toIdentityOnly)
 	}
 
 	/**
@@ -192,12 +210,12 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Not set to auto-complete", result.autoComplete)
-		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertFalse("Set to unique auto-completion", result.mappings.head.uniqueCompletion)
 		
 //		assertTrue("Not set to allow-from-empty", result.allowFromEmtpy)
-		assertFalse("Set to without-to-virtual", result.withoutToVirtual)
-		assertFalse("Set to toIdentityOnly", result.toIdentityOnly)
+		assertFalse("Set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.mappings.head.toIdentityOnly)
 	}
 
 	/**
@@ -225,11 +243,11 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Not set to auto-complete", result.autoComplete)
-		assertFalse("Set to unique auto-completion", result.uniqueCompletion)
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertFalse("Set to unique auto-completion", result.mappings.head.uniqueCompletion)
 		
-		assertFalse("Set to without-to-virtual", result.withoutToVirtual)
-		assertTrue("Not set to toIdentityOnly", result.toIdentityOnly)
+		assertFalse("Set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertTrue("Not set to toIdentityOnly", result.mappings.head.toIdentityOnly)
 	}
 
 	/**
@@ -270,28 +288,28 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Set to auto-complete", !result.autoComplete)
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
 
-		assertNotNull("No type mapping", result.typeMapping)
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
 
-		assertNotNull("Did not load source package", result.source.metamodel.name)
-		assertNotNull("Did not load target package", result.target.metamodel.name)
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
 
-		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
-		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
 
 		assertNotNull("Did not load source reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		assertNotNull("Did not load target reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
-		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
-		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		assertNotNull("Did not load source behaviour", result.mappings.head.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.mappings.head.target.behaviour.name)
 
-		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
-		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
+		assertNotNull("Did not find source rule", result.mappings.head.behaviourMapping.mappings.get(0).source.name)
+		assertNotNull("Did not find target rule", result.mappings.head.behaviourMapping.mappings.get(0).target.name)
 
-		val ruleMap = result.behaviourMapping.mappings.get(0)
+		val ruleMap = result.mappings.head.behaviourMapping.mappings.get(0)
 		assertNotNull("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
 		assertNotNull("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
 
@@ -330,26 +348,26 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Set to auto-complete", !result.autoComplete)
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
 
-		assertNotNull("No type mapping", result.typeMapping)
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
 
-		assertNotNull("Did not load source package", result.source.metamodel.name)
-		assertNotNull("Did not load target package", result.target.metamodel.name)
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
 
-		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
-		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
 
 		assertNotNull("Did not load source reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		assertNotNull("Did not load target reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
-		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
-		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		assertNotNull("Did not load source behaviour", result.mappings.head.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.mappings.head.target.behaviour.name)
 
-		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
-		assertTrue("Expected rule to be marked as identity target", result.behaviourMapping.mappings.get(0).target_identity)
+		assertNotNull("Did not find source rule", result.mappings.head.behaviourMapping.mappings.get(0).source.name)
+		assertTrue("Expected rule to be marked as identity target", result.mappings.head.behaviourMapping.mappings.get(0).target_identity)
 	}
 
 	/**
@@ -383,26 +401,26 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Set to auto-complete", !result.autoComplete)
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
 
-		assertNotNull("No type mapping", result.typeMapping)
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
 
-		assertNotNull("Did not load source package", result.source.metamodel.name)
-		assertNotNull("Did not load target package", result.target.metamodel.name)
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
 
-		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
-		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
 
 		assertNotNull("Did not load source reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		assertNotNull("Did not load target reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
-		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
-		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		assertNotNull("Did not load source behaviour", result.mappings.head.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.mappings.head.target.behaviour.name)
 
-		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
-		assertTrue("Expected rule to be marked as empty source", result.behaviourMapping.mappings.get(0).source_empty)
+		assertNotNull("Did not find target rule", result.mappings.head.behaviourMapping.mappings.get(0).target.name)
+		assertTrue("Expected rule to be marked as empty source", result.mappings.head.behaviourMapping.mappings.get(0).source_empty)
 	}
 
 	/**
@@ -439,28 +457,28 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Set to auto-complete", !result.autoComplete)
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
 
-		assertNotNull("No type mapping", result.typeMapping)
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
 
-		assertNotNull("Did not load source package", result.source.metamodel.name)
-		assertNotNull("Did not load target package", result.target.metamodel.name)
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
 
-		assertNotNull("Did not load source class", (result.typeMapping.mappings.head as ClassMapping).source.name)
-		assertNotNull("Did not load target class", (result.typeMapping.mappings.head as ClassMapping).target.name)
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
 
 		assertNotNull("Did not load source reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 		assertNotNull("Did not load target reference",
-			(result.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
 
-		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
-		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		assertNotNull("Did not load source behaviour", result.mappings.head.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.mappings.head.target.behaviour.name)
 
-		assertNotNull("Did not find source rule", result.behaviourMapping.mappings.get(0).source.name)
-		assertNotNull("Did not find target rule", result.behaviourMapping.mappings.get(0).target.name)
+		assertNotNull("Did not find source rule", result.mappings.head.behaviourMapping.mappings.get(0).source.name)
+		assertNotNull("Did not find target rule", result.mappings.head.behaviourMapping.mappings.get(0).target.name)
 
-		val ruleMap = result.behaviourMapping.mappings.get(0)
+		val ruleMap = result.mappings.head.behaviourMapping.mappings.get(0)
 		assertNotNull("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
 		assertNotNull("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
 
@@ -508,26 +526,26 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertFalse("Set to auto-complete", result.autoComplete)
+		assertFalse("Set to auto-complete", result.mappings.head.autoComplete)
 
-		assertNotNull("No type mapping", result.typeMapping)
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
 
-		assertNotNull("Did not load source package", result.source.metamodel.name)
-		assertNotNull("Did not load target package", result.target.metamodel.name)
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
 
-		assertNull("Wrongly loaded source class", (result.typeMapping.mappings.get(0) as ClassMapping).source.name)
-		assertNull("Wrongly loaded source reference", (result.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNull("Wrongly loaded source class", (result.mappings.head.typeMapping.mappings.get(0) as ClassMapping).source.name)
+		assertNull("Wrongly loaded source reference", (result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
 
-		assertNull("Wrongly loaded target class", (result.typeMapping.mappings.get(2) as ClassMapping).target.name)
-		assertNull("Wrongly loaded target reference", (result.typeMapping.mappings.get(3) as ReferenceMapping).target.name)
+		assertNull("Wrongly loaded target class", (result.mappings.head.typeMapping.mappings.get(2) as ClassMapping).target.name)
+		assertNull("Wrongly loaded target reference", (result.mappings.head.typeMapping.mappings.get(3) as ReferenceMapping).target.name)
 
-		assertNull("Wrongly loaded source attribute", (result.typeMapping.mappings.get(4) as AttributeMapping).source.name)
-		assertNull("Wrongly loaded target attribute", (result.typeMapping.mappings.get(5) as AttributeMapping).target.name)
+		assertNull("Wrongly loaded source attribute", (result.mappings.head.typeMapping.mappings.get(4) as AttributeMapping).source.name)
+		assertNull("Wrongly loaded target attribute", (result.mappings.head.typeMapping.mappings.get(5) as AttributeMapping).target.name)
 
-		assertNotNull("Did not load source behaviour", result.source.behaviour.name)
-		assertNotNull("Did not load target behaviour", result.target.behaviour.name)
+		assertNotNull("Did not load source behaviour", result.mappings.head.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.mappings.head.target.behaviour.name)
 
-		val ruleMap = result.behaviourMapping.mappings.head
+		val ruleMap = result.mappings.head.behaviourMapping.mappings.head
 		assertNotNull("Did not find source rule", ruleMap.source.name)
 		assertNotNull("Did not find target rule", ruleMap.target.name)
 
@@ -569,8 +587,8 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Not set to auto-complete", result.autoComplete)
-		assertTrue("Not set to unique auto-complete", result.uniqueCompletion)
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertTrue("Not set to unique auto-complete", result.mappings.head.uniqueCompletion)
 	}
 
 	/**
@@ -599,9 +617,9 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
 		assertNotNull("Did not resolve source attribute",
-			(result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as AttributeMapping).source.name)
 		assertNotNull("Did not resolve target attribute",
-			(result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as AttributeMapping).target.name)
 	}
 
 	/**
@@ -631,8 +649,8 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertNull("Did resolve source attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
-		assertNull("Did resolve target attribute", (result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+		assertNull("Did resolve source attribute", (result.mappings.head.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+		assertNull("Did resolve target attribute", (result.mappings.head.typeMapping.mappings.get(1) as AttributeMapping).target.name)
 	}
 
 	/**
@@ -670,14 +688,14 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
 		assertNotNull("Did not resolve source attribute",
-			(result.typeMapping.mappings.get(1) as AttributeMapping).source.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as AttributeMapping).source.name)
 		assertNotNull("Did not resolve target attribute",
-			(result.typeMapping.mappings.get(1) as AttributeMapping).target.name)
+			(result.mappings.head.typeMapping.mappings.get(1) as AttributeMapping).target.name)
 
 		assertNotNull("Did not resolve source slot",
-			(result.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).source.name)
+			(result.mappings.head.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).source.name)
 		assertNotNull("Did not resolve target slot",
-			(result.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).target.name)
+			(result.mappings.head.behaviourMapping.mappings.head.element_mappings.get(1) as SlotMapping).target.name)
 	}
 
 	/**
@@ -714,10 +732,10 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertNotNull("Didn't manage to load transformers.", (result.source.gts as GTSFamilyChoice).transformers.name)
+		assertNotNull("Didn't manage to load transformers.", (result.mappings.head.source.gts as GTSFamilyChoice).transformers.name)
 
 		assertNotNull("Didn't find transformer being invoked",
-			(result.source.gts as GTSFamilyChoice).transformationSteps.steps.head.unit.name)
+			(result.mappings.head.source.gts as GTSFamilyChoice).transformationSteps.steps.head.unit.name)
 	}
 
 	/**
@@ -800,7 +818,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		// Expecting validation errors as there is an invalid GTS specification
 		val issues = result.validate()
 
-		result.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION,
+		result.mappings.head.source.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION,
 			XDsmlComposeValidator.INVALID_BEHAVIOUR_SPEC)
 
 		assertTrue("Also failed check on target GTS", issues.length == 4) // There's also three incomplete mapping warnings (one for the metamodel and two for the rules)
@@ -876,15 +894,15 @@ class ParsingAndValidationTests extends AbstractTest {
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
 
-		result.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING,
+		result.mappings.head.typeMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.CLASS_MAPPING,
 			XDsmlComposeValidator.DUPLICATE_CLASS_MAPPING, "Duplicate mapping for EClassifier Server.")
-		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
+		result.mappings.head.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
 			XDsmlComposeValidator.DUPLICATE_REFERENCE_MAPPING, "Duplicate mapping for EReference In.")
 
-		result.behaviourMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.RULE_MAPPING,
+		result.mappings.head.behaviourMapping.mappings.get(1).assertError(XDsmlComposePackage.Literals.RULE_MAPPING,
 			XDsmlComposeValidator.DUPLICATE_RULE_MAPPING, "Duplicate mapping for Rule process.")
 
-		val ruleMapping = result.behaviourMapping.mappings.get(0)
+		val ruleMapping = result.mappings.head.behaviourMapping.mappings.get(0)
 		ruleMapping.element_mappings.get(1).assertError(XDsmlComposePackage.Literals.OBJECT_MAPPING,
 			XDsmlComposeValidator.DUPLICATE_OBJECT_MAPPING, "Duplicate mapping for Object server.")
 		ruleMapping.element_mappings.get(3).assertError(XDsmlComposePackage.Literals.LINK_MAPPING,
@@ -924,11 +942,11 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		// Expecting validation errors as there are duplicate mappings
 		val issues = result.validate()
-		result.typeMapping.mappings.get(2).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
+		result.mappings.head.typeMapping.mappings.get(2).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
 			XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
-		result.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
+		result.mappings.head.typeMapping.mappings.get(3).assertError(XDsmlComposePackage.Literals.REFERENCE_MAPPING,
 			XDsmlComposeValidator.NOT_A_CLAN_MORPHISM)
-		result.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING,
+		result.mappings.head.assertWarning(XDsmlComposePackage.Literals.GTS_MAPPING,
 			XDsmlComposeValidator.INCOMPLETE_TYPE_GRAPH_MAPPING)
 		assertTrue(issues.length == 3)
 	}
@@ -1004,7 +1022,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		val issues = result.validate()
 
-		result.behaviourMapping.mappings.get(0).assertError(
+		result.mappings.head.behaviourMapping.mappings.get(0).assertError(
 			XDsmlComposePackage.Literals.RULE_MAPPING, XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
 
 		// Incomplete mapping errors 

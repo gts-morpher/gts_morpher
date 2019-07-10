@@ -6,6 +6,10 @@
     complianceLevel="6.0" copyrightFields="false" runtimeVersion="2.18" usedGenPackages="platform:/resource/org.eclipse.emf.henshin.model/model/henshin.genmodel#//henshin">
   <genPackages prefix="XDsmlCompose" basePackage="uk.ac.kcl.inf" disposableProviderFactory="true"
       fileExtensions="lang_compose" ecorePackage="XDsmlCompose.ecore#/">
+    <genClasses ecoreClass="XDsmlCompose.ecore#//GTSSpecificationModule">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecificationModule/gtss"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecificationModule/mappings"/>
+    </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSMapping">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/autoComplete"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/uniqueCompletion"/>
