@@ -36,7 +36,12 @@ import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRefOrInterfaceSpec
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
+import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
@@ -53,11 +58,8 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
-import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
-import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 
 /**
  * This class contains custom validation rules. 
@@ -95,6 +97,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE = 'uk.ac.kcl.inf.xdsml_compose.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE'
 	public static val WEAVE_WITH_DIFFERENT_SOURCES = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_WITH_DIFFERENT_SOURCES'
 	public static val WEAVE_NEEDS_INTERFACE_OF_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_NEEDS_INTERFACE_OF_MAPPING'
+	public static val WEAVE_WITH_INVALID_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_WITH_INVALID_MORPHISM'
 	
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -130,15 +133,29 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkIsMorphismMaybeIncomplete(GTSMapping mapping) {
+		checkIsMorphismMaybeIncomplete(mapping, true)
+	}
+		
+	private def boolean checkIsMorphismMaybeIncomplete(GTSMapping mapping, boolean issueErrors) {
+		val result = new ValueHolder(true)
+			
 		var typeMapping = extractMapping(mapping.typeMapping)
 		val isValidTypeMorphism = checkValidMaybeIncompleteClanMorphism(typeMapping, [ object, message |
 			if (object instanceof EClassifier) {
-				error(message, mapping.typeMapping.mappings.filter(ClassMapping).findFirst[m|m.source == object],
-					XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+				result.value = false
+				
+				if (issueErrors) {
+					error(message, mapping.typeMapping.mappings.filter(ClassMapping).findFirst[m|m.source == object],
+						XDsmlComposePackage.Literals.CLASS_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+				}
 			} else if (object instanceof EReference) {
-				error(message, mapping.typeMapping.mappings.filter(ReferenceMapping).findFirst [ m |
-					m.source == object
-				], XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+				result.value = false
+				
+				if (issueErrors) {
+					error(message, mapping.typeMapping.mappings.filter(ReferenceMapping).findFirst [ m |
+						m.source == object
+					], XDsmlComposePackage.Literals.REFERENCE_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
+				}
 			}
 		])
 
@@ -149,28 +166,39 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 					if (object instanceof Rule) {
 						// Interface mapping may create spuriour kernel mismatch errors, which we shouldn't reflect to the user
 						if (!srcIsInterface || (message != GENERAL_KERNEL_MISMATCH)) {
-							error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
-								rm.source == object as Rule
-							], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
+							result.value = true
+							if (issueErrors) {
+								error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
+									rm.source == object as Rule
+								], XDsmlComposePackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)								
+							}
 						}
 					} else if (object instanceof Edge) {
 						if (!srcIsInterface || isInterfaceElement(object.type)) {
-							error(message, mapping.behaviourMapping.mappings.
-								map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
-									lm.source == object as Edge
-								], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)							
+							result.value = true
+							if (issueErrors) {
+								error(message, mapping.behaviourMapping.mappings.
+									map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
+										lm.source == object as Edge
+									], XDsmlComposePackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+							}							
 						}
 					} else if (object instanceof Node) {
 						if (!srcIsInterface || isInterfaceElement(object.type)) {
-							error(message, mapping.behaviourMapping.mappings.map [ rm |
-								rm.element_mappings.filter(ObjectMapping)
-							].flatten.findFirst [ om |
-								om.source == object as Object
-							], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+							result.value = true
+							if (issueErrors) {
+								error(message, mapping.behaviourMapping.mappings.map [ rm |
+									rm.element_mappings.filter(ObjectMapping)
+								].flatten.findFirst [ om |
+									om.source == object as Object
+								], XDsmlComposePackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+							}
 						}
 					}
 				])
 		}
+		
+		result.value
 	}
 
 	/**
@@ -301,7 +329,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	def checkToIdentityRuleMapSourceIsIdentity(RuleMapping rm) {
 		if ((rm.target_identity) && (!rm.source.isIdentityRule(rm.sourceIsInterface))) {
 			error("Source of to-identity rule mapping must be an identity rule.", rm,
-				XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, uk.ac.kcl.inf.validation.XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
+				XDsmlComposePackage.Literals.RULE_MAPPING__SOURCE, XDsmlComposeValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
 		}
 	}
 	
@@ -331,6 +359,16 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Helper function for completability checking factoring repeated code from the two variants of the check as above.
 	 */
 	private def checkCompletability(GTSMapping mapping, boolean checkUniqueness) {
+		checkCompletability(mapping, checkUniqueness, true)
+	}
+
+	/**
+	 * Helper function for completability checking factoring repeated code from the two variants of the check as above.
+	 * 
+	 * @param issueErrors set to false to indicate that no errors should be produced. Only the result will be set
+	 */
+	private def boolean checkCompletability(GTSMapping mapping, boolean checkUniqueness, boolean issueErrors) {
+		var result = true
 		if (mapping.autoComplete) {
 			// Check we can auto-complete type mapping
 			val typeMapping = mapping.typeMapping
@@ -342,24 +380,34 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 
 					if (morphismCompleter.findMorphismCompletions(checkUniqueness) != 0) {
 						if (!morphismCompleter.completedTypeMapping) {
-							error("Cannot complete type mapping to a valid morphism", mapping,
-								XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)							
+							result = false
+							if (issueErrors) {
+								error("Cannot complete type mapping to a valid morphism", mapping,
+									XDsmlComposePackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)								
+							}
 						} else {
-							error("Cannot complete behaviour mapping to a valid morphism", mapping,
-								XDsmlComposePackage.Literals.GTS_MAPPING__BEHAVIOUR_MAPPING, UNCOMPLETABLE_BEHAVIOUR_MAPPING)
+							result = false
+							if (issueErrors) {
+								error("Cannot complete behaviour mapping to a valid morphism", mapping,
+									XDsmlComposePackage.Literals.GTS_MAPPING__BEHAVIOUR_MAPPING, UNCOMPLETABLE_BEHAVIOUR_MAPPING)								
+							}
 						}
 					} else if (mapping.uniqueCompletion) {
 						if (checkUniqueness) {
 							if (morphismCompleter.completedMappings.size > 1) {
 								// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
-								val sortedImprovements = morphismCompleter.findImprovementOptions
-			
-								// TODO Propose fixes for behaviour mapping completions, too
-								error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
-									mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
-									sortedImprovements.map [ e |
-										e.value.map[eo|e.key.issueData(eo).toString]
-									].flatten)
+								result = false
+								
+								if (issueErrors) {
+									val sortedImprovements = morphismCompleter.findImprovementOptions
+				
+									// TODO Propose fixes for behaviour mapping completions, too
+									error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
+										mapping, XDsmlComposePackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
+										sortedImprovements.map [ e |
+											e.value.map[eo|e.key.issueData(eo).toString]
+										].flatten)									
+								}
 							} else {
 								println("Validation ran and confirmed that morphism can be uniquely completed.")
 							}
@@ -375,7 +423,9 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 				warning("Morphism is already complete", mapping,
 					XDsmlComposePackage.Literals.GTS_MAPPING__AUTO_COMPLETE)
 			}
-		}		
+		}
+		
+	 	result
 	}
 
 	/**
@@ -462,6 +512,39 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	def checkWeaveHasInterfaceOf(GTSWeave weave) {
 		if (!(weave.mapping1 instanceof GTSMappingInterfaceSpec || weave.mapping2 instanceof GTSMappingInterfaceSpec)) {
 			error("Weaving requires at least one mapping to be an interface_of mapping.", weave.eContainer, XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, WEAVE_NEEDS_INTERFACE_OF_MAPPING)
+		}
+	}
+
+	/**
+	 * Check weavings to ensure they're based on valid mappings
+	 */
+	@Check
+	def checkWeaveHasValidMappings(GTSWeave weave) {
+		weave.mapping1.checkIsValidMapping
+		weave.mapping2.checkIsValidMapping
+	}
+	
+	private dispatch def checkIsValidMapping(GTSMappingRefOrInterfaceSpec spec) {
+		throw new IllegalStateException("checkIsValidMapping() not implemented for " + spec.eClass.name)
+	}
+	
+	private dispatch def checkIsValidMapping(GTSMappingInterfaceSpec spec) {
+		// Nothing to be done: these are fine by definition
+	}
+	
+	private dispatch def checkIsValidMapping(GTSMappingRef ref) {
+		val mapping = ref.ref
+		
+		if (!(
+			(mapping.autoComplete && mapping.checkCompletability(true, false)) ||
+			(!mapping.autoComplete && 
+				!mapping.typeMapping.isInCompleteMapping && 
+				mapping.doCheckIsCompleteBehaviourMapping(null) && 
+				mapping.checkIsMorphismMaybeIncomplete(false)))) {
+			val weave = ref.eContainer as GTSWeave
+			error("Can only weave from complete and valid morphisms", weave,
+				 if (ref === weave.mapping1) { XDsmlComposePackage.Literals.GTS_WEAVE__MAPPING1 } else { XDsmlComposePackage.Literals.GTS_WEAVE__MAPPING2 },
+				 WEAVE_WITH_INVALID_MORPHISM)
 		}
 	}
 
