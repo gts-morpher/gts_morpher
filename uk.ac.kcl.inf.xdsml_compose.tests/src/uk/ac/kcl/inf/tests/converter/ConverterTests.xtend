@@ -13,16 +13,17 @@ import org.junit.runner.RunWith
 import uk.ac.kcl.inf.tests.AbstractTest
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.tests.composer.TestURIHandlerImpl
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
+import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
 class ConverterTests extends AbstractTest {
-	@Inject extension ParseHelper<GTSMapping>
+	@Inject extension ParseHelper<GTSSpecificationModule>
 
 	@Inject extension ISerializer
 
@@ -337,21 +338,26 @@ class ConverterTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		EcoreUtil.resolveAll(result)
 
-		val mapping = result.typeMapping.extractMapping(null)
-		if (result.behaviourMapping !== null) {
-			mapping.putAll(result.behaviourMapping.extractMapping(mapping, null))
+		val mapping = result.mappings.head.typeMapping.extractMapping(null)
+		if (result.mappings.head.behaviourMapping !== null) {
+			mapping.putAll(result.mappings.head.behaviourMapping.extractMapping(mapping, null))
 		}
 
 		val rs = result.eResource.resourceSet
 
 		rs.URIConverter.URIHandlers.add(0, new TestURIHandlerImpl)
 		val resource = rs.createResource(URI.createURI("test:/synthetic.lang_compose"))
+		
+		val module = XDsmlComposeFactory.eINSTANCE.createGTSSpecificationModule
+		resource.contents.add(module)
+		// FIXME: Handle the fact that resources now contain GTSSpecificationModules, not mappings directly
+		module.mappings.add(mapping.extractGTSMapping(result.mappings.head.source, result.mappings.head.target, resource))
 
 		assertEquals(
 			"Extraction failed",
 			result.serialize(
 				SaveOptions.newBuilder.format.options),
-			mapping.extractGTSMapping(result.source, result.target, resource).serialize(
+			module.serialize(
 				SaveOptions.newBuilder.format.options)
 		)
 	}

@@ -9,7 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import uk.ac.kcl.inf.tests.AbstractTest
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 
 import static org.junit.Assert.*
 
@@ -21,7 +21,7 @@ import static extension uk.ac.kcl.inf.util.MorphismChecker.*
 @InjectWith(XDsmlComposeInjectorProvider)
 class MorphismCheckerTests extends AbstractTest {
 	@Inject
-	ParseHelper<GTSMapping> parseHelper
+	ParseHelper<GTSSpecificationModule> parseHelper
 
 	private def createNormalResourceSet() {
 		#[
@@ -70,15 +70,15 @@ class MorphismCheckerTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		assertTrue("Should confirm as clan morphism",
-			result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
-		val tgMapping = result.typeMapping.extractMapping(null)
+			result.mappings.head.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+		val tgMapping = result.mappings.head.typeMapping.extractMapping(null)
 		assertTrue(
 			"Empty rule map should be a morphism",
 			checkRuleMorphism(
-				result.target.behaviour.units.head as Rule,
-				result.source.behaviour.units.head as Rule,
+				result.mappings.head.target.behaviour.units.head as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
 				tgMapping,
-				result.behaviourMapping.extractMapping(tgMapping, null),
+				result.mappings.head.behaviourMapping.extractMapping(tgMapping, null),
 				null
 			)
 		)
@@ -111,7 +111,7 @@ class MorphismCheckerTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		assertTrue("Should not be a clan morphism",
-			!result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+			!result.mappings.head.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
 	}
 
 	/**
@@ -141,7 +141,7 @@ class MorphismCheckerTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		assertTrue("Should not be a clan morphism",
-			!result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+			!result.mappings.head.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
 	}
 
 	/**
@@ -171,7 +171,7 @@ class MorphismCheckerTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		assertTrue("Should be a clan morphism",
-			result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+			result.mappings.head.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
 	}
 
 	/**
@@ -201,7 +201,7 @@ class MorphismCheckerTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		assertTrue("Should not be a clan morphism",
-			!result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+			!result.mappings.head.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
 	}
 	
 	/**
@@ -231,7 +231,7 @@ class MorphismCheckerTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		assertTrue("Should be a clan morphism",
-			result.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
+			result.mappings.head.typeMapping.extractMapping(null).checkValidMaybeIncompleteClanMorphism(null))
 	}
 	
 	/**
@@ -267,17 +267,17 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val typeMapping = result.typeMapping.extractMapping(null)
+		val typeMapping = result.mappings.head.typeMapping.extractMapping(null)
 		assertTrue("Should be a clan morphism",
 			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
 
 		assertTrue(
 			"Should be a rule morphism",
 			checkRuleMorphism(
-				result.target.behaviour.units.head as Rule,
-				result.source.behaviour.units.head as Rule,
+				result.mappings.head.target.behaviour.units.head as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
 				typeMapping,
-				result.behaviourMapping.extractMapping(typeMapping, null),
+				result.mappings.head.behaviourMapping.extractMapping(typeMapping, null),
 				null
 			)
 		)
@@ -315,16 +315,16 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val typeMapping = result.typeMapping.extractMapping(null)
+		val typeMapping = result.mappings.head.typeMapping.extractMapping(null)
 		assertTrue("Should be a clan morphism",
 			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
 
-		val behaviourMapping = result.behaviourMapping.extractMapping(typeMapping, null)
+		val behaviourMapping = result.mappings.head.behaviourMapping.extractMapping(typeMapping, null)
 		assertTrue(
 			"Should be a rule morphism",
 			checkRuleMorphism(
-				behaviourMapping.keySet.findFirst[eo | behaviourMapping.get(eo) === result.source.behaviour.units.head]as Rule,
-				result.source.behaviour.units.head as Rule,
+				behaviourMapping.keySet.findFirst[eo | behaviourMapping.get(eo) === result.mappings.head.source.behaviour.units.head]as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
 				typeMapping,
 				behaviourMapping,
 				null
@@ -362,16 +362,16 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val typeMapping = result.typeMapping.extractMapping(null)
+		val typeMapping = result.mappings.head.typeMapping.extractMapping(null)
 		assertTrue("Should be a clan morphism",
 			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
 
-		val behaviourMapping = result.behaviourMapping.extractMapping(typeMapping, null)
+		val behaviourMapping = result.mappings.head.behaviourMapping.extractMapping(typeMapping, null)
 		assertTrue(
 			"Should be a rule morphism",
 			checkRuleMorphism(
-				behaviourMapping.keySet.findFirst[eo | behaviourMapping.get(eo) === result.source.behaviour.units.head]as Rule,
-				result.source.behaviour.units.head as Rule,
+				behaviourMapping.keySet.findFirst[eo | behaviourMapping.get(eo) === result.mappings.head.source.behaviour.units.head]as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
 				typeMapping,
 				behaviourMapping,
 				null
@@ -414,17 +414,17 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val typeMapping = result.typeMapping.extractMapping(null)
+		val typeMapping = result.mappings.head.typeMapping.extractMapping(null)
 		assertTrue("Should be a clan morphism",
 			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
 
 		assertTrue(
 			"Should be a rule morphism",
 			checkRuleMorphism(
-				result.target.behaviour.units.head as Rule,
-				result.source.behaviour.units.head as Rule,
+				result.mappings.head.target.behaviour.units.head as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
 				typeMapping,
-				result.behaviourMapping.extractMapping(typeMapping, null),
+				result.mappings.head.behaviourMapping.extractMapping(typeMapping, null),
 				null
 			)
 		)
@@ -466,17 +466,17 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val typeMapping = result.typeMapping.extractMapping(null)
+		val typeMapping = result.mappings.head.typeMapping.extractMapping(null)
 		assertTrue("Should be a clan morphism",
 			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
 
 		assertTrue(
 			"Should not be a rule morphism",
 			!checkRuleMorphism(
-				result.target.behaviour.units.head as Rule,
-				result.source.behaviour.units.head as Rule,
+				result.mappings.head.target.behaviour.units.head as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
 				typeMapping,
-				result.behaviourMapping.extractMapping(typeMapping, null),
+				result.mappings.head.behaviourMapping.extractMapping(typeMapping, null),
 				null
 			)
 		)
@@ -517,17 +517,17 @@ class MorphismCheckerTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val typeMapping = result.typeMapping.extractMapping(null)
+		val typeMapping = result.mappings.head.typeMapping.extractMapping(null)
 		assertTrue("Should be a clan morphism",
 			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
 
 		assertTrue(
 			"Should not be a rule morphism",
 			!checkRuleMorphism(
-				result.target.behaviour.units.head as Rule,
-				result.source.behaviour.units.head as Rule,
+				result.mappings.head.target.behaviour.units.head as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
 				typeMapping,
-				result.behaviourMapping.extractMapping(typeMapping, null),
+				result.mappings.head.behaviourMapping.extractMapping(typeMapping, null),
 				null
 			)
 		)

@@ -175,6 +175,7 @@ class MappingConverter {
 	 * should be taken from the original GTSMapping). Place the new mapping in the given resource.
 	 */
 	// TODO Write tests for this to see why the resulting GTSMapping is still internally inconsistent.
+	// FIXME: Handle the fact that resources now contain GTSSpecificationModules, not mappings directly
 	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecification from,
 		GTSSpecification to, Resource res) {
 		if (res === null) {

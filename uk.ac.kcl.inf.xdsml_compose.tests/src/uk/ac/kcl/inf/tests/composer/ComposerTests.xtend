@@ -18,7 +18,7 @@ import uk.ac.kcl.inf.composer.XDsmlComposer
 import uk.ac.kcl.inf.tests.AbstractTest
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.util.IProgressMonitor
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 
 import static org.junit.Assert.*
 
@@ -29,7 +29,7 @@ class ComposerTests extends AbstractTest {
 	XDsmlComposer composer
 
 	@Inject
-	ParseHelper<GTSMapping> parseHelper
+	ParseHelper<GTSSpecificationModule> parseHelper
 
 	override protected createResourceSet(String[] fileNames) {
 		val rs = super.createResourceSet(fileNames)

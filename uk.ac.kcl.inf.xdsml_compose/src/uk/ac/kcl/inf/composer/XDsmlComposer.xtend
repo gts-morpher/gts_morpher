@@ -104,6 +104,7 @@ class XDsmlComposer {
 			if (!issues.empty) {
 				result.addAll(issues.map[i|new IssueIssue(i)])
 			} else {
+				// FIXME: Handle the fact that resources now contain GTSSpecificationModules, not mappings directly
 				val mapping = resource.contents.head as GTSMapping
 
 				if (mapping.target.interface_mapping) {
