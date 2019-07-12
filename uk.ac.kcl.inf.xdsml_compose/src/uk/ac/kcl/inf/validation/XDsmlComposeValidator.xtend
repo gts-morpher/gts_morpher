@@ -57,6 +57,7 @@ import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompl
 import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 
 /**
  * This class contains custom validation rules. 
@@ -93,6 +94,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val GTS_FAMILY_ISSUE = 'uk.ac.kcl.inf.xdsml_compose.GTS_FAMILY_ISSUE'
 	public static val TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE = 'uk.ac.kcl.inf.xdsml_compose.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE'
 	public static val WEAVE_WITH_DIFFERENT_SOURCES = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_WITH_DIFFERENT_SOURCES'
+	public static val WEAVE_NEEDS_INTERFACE_OF_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_NEEDS_INTERFACE_OF_MAPPING'
 	
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -447,6 +449,19 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			(map1Source.behaviour !== map2Source.behaviour) ||
 			(map1Source.interface_mapping !== map2Source.interface_mapping)) {
 			error("Weaving requires both mappings to have the same source GTS.", weave.eContainer, XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, WEAVE_WITH_DIFFERENT_SOURCES)
+		}
+	}
+	
+	/**
+	 * Check weavings to ensure there is at least one interface_of mapping.
+	 * 
+	 * TODO: This is meant to be temporary and to be eventually replaced by a more general composition algorithm that can handle arbitrary morphism combinations. 
+	 * For now, the algorithm has been simplified to make assumption on interface_of mappings, though.
+	 */
+	@Check
+	def checkWeaveHasInterfaceOf(GTSWeave weave) {
+		if (!(weave.mapping1 instanceof GTSMappingInterfaceSpec || weave.mapping2 instanceof GTSMappingInterfaceSpec)) {
+			error("Weaving requires at least one mapping to be an interface_of mapping.", weave.eContainer, XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 		}
 	}
 

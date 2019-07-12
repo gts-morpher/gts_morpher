@@ -994,6 +994,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		// Here, there's nothing to assert for the moment, though later we should probably assert something about identifying incompleteness of
 		// morphisms
 		result.assertNoError(XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
+		result.assertNoError(XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 	}
 
 	/**
@@ -1042,6 +1043,69 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
 		result.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
+		result.assertNoError(XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
+
+		/*
+		 * TODO: What do I want to assert validation-wise about weave-GTSs? 
+		 * 
+		 * Clearly need to assert enough to ensure I will be able to execute the composition:
+		 * 
+		 * 1. Source of both maps needs to be the same GTS
+		 * 2. At least one map needs to be an interface_of map (at least for now)
+		 * 3. Both mappings need to be complete or uniquely auto-completable and be valid morphisms
+		 */
+		 
+		// Here, there's nothing to assert for the moment, though later we should probably assert something about identifying incompleteness of
+		// morphisms
+	}
+
+	/**
+	 * Tests basic validation of algebraic weave descriptions: checking that both mappings come from a common source
+	 */
+	@Test
+	def void validateAlgebraicWeaveNoInterfaceOf() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem {
+				metamodel: "server"
+				behaviour: "serverRules"
+			}
+						
+			gts DEVSMMSystem {
+				metamodel: "devsmm"
+				behaviour: "devsmmRules"
+			}
+
+			map ServerToDEVSMM {
+				from ServerSystem
+				to DEVSMMSystem
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
+					}
+				}
+			}
+			
+			gts DEVSMMWithServer {
+				weave: {
+					map1: ServerToDEVSMM
+					map2: ServerToDEVSMM
+				}
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		result.assertNoError(XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
+		result.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 
 		/*
 		 * TODO: What do I want to assert validation-wise about weave-GTSs? 
