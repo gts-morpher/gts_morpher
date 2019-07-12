@@ -21,16 +21,51 @@ import uk.ac.kcl.inf.util.MultiResourceOnChangeEvictingCache.IClearableItem
 import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRefOrInterfaceSpec
+import uk.ac.kcl.inf.xDsmlCompose.GTSReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSSelection
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
+import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
 import uk.ac.kcl.inf.xDsmlCompose.StringParameter
 import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import uk.ac.kcl.inf.xDsmlCompose.UnitParameter
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
+import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 class GTSSpecificationHelper {
+
+	static dispatch def GTSSpecificationOrReference getSource(GTSMappingRefOrInterfaceSpec spec) { null }
+	static dispatch def GTSSpecificationOrReference getSource(GTSMappingRef ref) { ref.ref.source }
+	static dispatch def GTSSpecificationOrReference getSource(GTSMappingInterfaceSpec spec) {
+		// TODO: Should probably cache this suitably
+		
+		val gtsref = XDsmlComposeFactory.eINSTANCE.createGTSReference
+		gtsref.ref = spec.gts_ref
+		val gtsspec = XDsmlComposeFactory.eINSTANCE.createGTSSpecification
+		gtsspec.interface_mapping = true
+		gtsspec.gts = gtsref
+		
+		gtsspec
+	}
+
+	static dispatch def GTSSelection getGts(GTSSpecificationOrReference spec) { null }
+	static dispatch def GTSSelection getGts(GTSReference ref) { ref.ref.gts } 
+	static dispatch def GTSSelection getGts(GTSSpecification spec) { spec.gts }
+
+	static dispatch def boolean getInterface_mapping(GTSSpecificationOrReference spec) { false }
+	static dispatch def boolean getInterface_mapping(GTSReference ref) { ref.ref.interface_mapping } 
+	static dispatch def boolean getInterface_mapping(GTSSpecification spec) { spec.interface_mapping }
+
+	static dispatch def EPackage getMetamodel(GTSSpecificationOrReference spec) { null }
+
+	static dispatch def EPackage getMetamodel(GTSReference ref) {
+		ref.ref.metamodel 
+	}
+
 	static dispatch def EPackage getMetamodel(GTSSpecification spec) {
 		spec.gts.metamodel
 	}
@@ -45,6 +80,8 @@ class GTSSpecificationHelper {
 
 	static dispatch def EPackage getMetamodel(Void spec) { null }
 
+	static dispatch def Module getBehaviour(GTSSpecificationOrReference spec) { null }
+	static dispatch def Module getBehaviour(GTSReference ref) { ref.ref.behaviour }
 	static dispatch def Module getBehaviour(GTSSpecification spec) {
 		spec.gts.behaviour
 	}
@@ -59,11 +96,11 @@ class GTSSpecificationHelper {
 
 	static dispatch def Module getBehaviour(Void spec) { null }
 
-	private static val familyCache = new MultiResourceOnChangeEvictingCache
-	private static val FAMILY_CONTENTS_KEY = "FAMILY_CONTENTS_KEY"
-	private static val SYNTHETIC_RESOURCE_BASE_NAME = "___gts_synthetic___"
-	private static val DERIVED_GTS_CONTENT_TYPE = GTSSpecificationHelper.name + ".DERIVED_GTS_CONTENT_TYPE"
-	private static val DERIVED_GTS_RESOURCE_FACTORY = new ResourceFactoryImpl
+	static val familyCache = new MultiResourceOnChangeEvictingCache
+	static val FAMILY_CONTENTS_KEY = "FAMILY_CONTENTS_KEY"
+	static val SYNTHETIC_RESOURCE_BASE_NAME = "___gts_synthetic___"
+	static val DERIVED_GTS_CONTENT_TYPE = GTSSpecificationHelper.name + ".DERIVED_GTS_CONTENT_TYPE"
+	static val DERIVED_GTS_RESOURCE_FACTORY = new ResourceFactoryImpl
 
 	static interface Issue {
 		def String getMessage()
@@ -83,10 +120,10 @@ class GTSSpecificationHelper {
 	
 	@Data
 	private static class PickedGTSInfo implements IClearableItem {
-		private val EPackage tg
-		private val Module rules
-		private val List<Issue> issues
-		private val Resource res
+		val EPackage tg
+		val Module rules
+		val List<Issue> issues
+		val Resource res
 		
 		override onClearedFromCache() {
 			if (res !== null) {

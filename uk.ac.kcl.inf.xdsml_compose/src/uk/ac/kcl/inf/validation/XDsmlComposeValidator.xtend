@@ -55,6 +55,8 @@ import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
+import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 
 /**
  * This class contains custom validation rules. 
@@ -90,6 +92,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val INVALID_UNIT_CALL_PARAMETER_TYPE = 'uk.ac.kcl.inf.xdsml_compose.INVALID_UNIT_CALL_PARAMETER_TYPE'
 	public static val GTS_FAMILY_ISSUE = 'uk.ac.kcl.inf.xdsml_compose.GTS_FAMILY_ISSUE'
 	public static val TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE = 'uk.ac.kcl.inf.xdsml_compose.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE'
+	public static val WEAVE_WITH_DIFFERENT_SOURCES = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_WITH_DIFFERENT_SOURCES'
 	
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -206,7 +209,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		result.value
 	}
 	
-	private def boolean checkIsCompletelyCovered(GTSSpecification gts, BehaviourMapping behaviourMapping,
+	private def boolean checkIsCompletelyCovered(GTSSpecificationOrReference gts, BehaviourMapping behaviourMapping,
 		Function<RuleMapping, Rule> ruleGetter, XDsmlComposeValidator validator) {
 		val Iterable<Rule> rules = gts.behaviour.units.filter(Rule)
 		if (rules.empty) {
@@ -226,6 +229,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			val mappedRules = behaviourMapping.mappings.map[rm | ruleGetter.apply(rm)].toList
 			if (rules.exists[r | !mappedRules.contains(r)]) {
 				if (validator !== null) {
+					// FIXME: This breaks for GTS references
 					validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
 							XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)				
 				}
@@ -432,6 +436,20 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		gts.issues.forEach[i | error(i.message, i.unitCall, XDsmlComposePackage.Literals.UNIT_CALL__UNIT, GTS_FAMILY_ISSUE)]
 	}
 
+	/**
+	 * Checks weavings to ensure they start from common sources.
+	 */
+	@Check
+	def checkWeaveHasCommonSource(GTSWeave weave) {
+		val map1Source = weave.mapping1.source 
+		val map2Source = weave.mapping2.source
+		if ((map1Source.metamodel !== map2Source.metamodel) ||
+			(map1Source.behaviour !== map2Source.behaviour) ||
+			(map1Source.interface_mapping !== map2Source.interface_mapping)) {
+			error("Weaving requires both mappings to have the same source GTS.", weave.eContainer, XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, WEAVE_WITH_DIFFERENT_SOURCES)
+		}
+	}
+
 	private def findImprovementOptions(MorphismCompleter morphismCompleter) {
 		// Sort all newly mapped elements by number of potential mappings, descending
 		// and remove those elements with only one mapping
@@ -453,8 +471,8 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		private def issueData(EObject source,
 			EObject target) '''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
 
-		private static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
-		private static val RULE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".ruleMappings"
+		static val TYPE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".typeMappings"
+		static val RULE_MAPPINGS = XDsmlComposeValidator.canonicalName + ".ruleMappings"
 
 		/**
 		 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 

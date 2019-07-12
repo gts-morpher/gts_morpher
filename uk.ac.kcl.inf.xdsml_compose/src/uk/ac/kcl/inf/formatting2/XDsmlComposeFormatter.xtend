@@ -12,15 +12,17 @@ import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
 import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeMapping
 import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
-import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 import uk.ac.kcl.inf.xDsmlCompose.UnitParameterList
+import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 
 class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
@@ -49,6 +51,9 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 		
 		mapping.behaviourMapping.format			
 	}
+
+	def dispatch void format(GTSSpecificationOrReference gts, extension IFormattableDocument document) { }
+	def dispatch void format(GTSReference gts, extension IFormattableDocument document) { }
 
 	def dispatch void format(GTSSpecification gts, extension IFormattableDocument document) {
 		gts.regionFor.keyword("interface_of").append[oneSpace]

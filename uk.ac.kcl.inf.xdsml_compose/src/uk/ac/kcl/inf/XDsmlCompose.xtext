@@ -16,13 +16,22 @@ GTSMapping:
 	(autoComplete ?= "auto-complete" (uniqueCompletion ?= "unique")?
 		                             (allowFromEmtpy?="allow-from-empty")? 
 		                             ((withoutToVirtual ?= "without-to-virtual")|(toIdentityOnly?="to-identity-only"))?)? 
-		                             "map" "{"
-		"from" source = GTSSpecification
-		"to" target = GTSSpecification 
+	"map" (name = ID)? "{"
+		"from" source = GTSSpecificationOrReference
+		"to" target = GTSSpecificationOrReference 
 	 
 		typeMapping = TypeGraphMapping
 		(behaviourMapping = BehaviourMapping)?
 	"}"
+;
+
+GTSSpecificationOrReference:
+	GTSSpecification | 
+	GTSReference
+;
+
+GTSReference:
+	ref = [GTSSpecification]
 ;
 
 GTSSpecification:
@@ -35,7 +44,9 @@ GTSSpecification:
 
 GTSSelection:
 	GTSLiteral |
-	GTSFamilyChoice
+	GTSFamilyChoice |
+	GTSReference |
+	GTSWeave
 ;
 
 GTSLiteral:
@@ -52,6 +63,27 @@ GTSFamilyChoice:
 	"using" "["
 		transformationSteps = UnitCallList
 	"]"
+;
+
+GTSWeave:
+	"weave" ":" "{"
+		"map1" ":" mapping1 = GTSMappingRefOrInterfaceSpec
+		"map2" ":" mapping2 = GTSMappingRefOrInterfaceSpec
+	"}"
+;
+
+GTSMappingRefOrInterfaceSpec:
+	GTSMappingRef |
+	GTSMappingInterfaceSpec
+;
+
+GTSMappingRef:
+	ref = [GTSMapping]
+;
+
+// TODO: Eventually, want to generalise this so that these can all be named and used wherever a mapping can
+GTSMappingInterfaceSpec:
+	"interface_of" "(" gts_ref=[GTSSpecification] ")"
 ;
 
 UnitCallList:

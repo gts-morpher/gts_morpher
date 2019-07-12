@@ -27,7 +27,9 @@ import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
@@ -64,14 +66,14 @@ class MappingConverter {
 	public static val NON_INTERFACE_LINK_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_LINK_MAPPING_ATTEMPT'
 	public static val NON_INTERFACE_SLOT_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.xdsml_compose.NON_INTERFACE_SLOT_MAPPING_ATTEMPT'
 
-	public static interface IssueAcceptor {
+	static interface IssueAcceptor {
 		def void error(String message, EObject source, EStructuralFeature feature, String code, String... issueData)
 	}
 
 	/**
 	 * Extract the type mapping specified as a map object. Report duplicate entries as errors via the IssueAcceptor provided, if any.
 	 */
-	public static def Map<EObject, EObject> extractMapping(TypeGraphMapping mapping, IssueAcceptor issues) {
+	static def Map<EObject, EObject> extractMapping(TypeGraphMapping mapping, IssueAcceptor issues) {
 		val Map<EObject, EObject> _mapping = new HashMap
 
 		val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
@@ -137,7 +139,7 @@ class MappingConverter {
 	 * Mapping extraction will create virtual rules for to-identity mappings. To inform the types to be used in these virtual rules, 
 	 * it will use the type mapping provided, which should be derived from the typemapping in the GTSSpecification of the behaviour mapping given.
 	 */
-	public static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping,
+	static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping,
 		Map<EObject, EObject> typeGraphMapping, IssueAcceptor issues) {
 		val _mapping = new HashMap<EObject, EObject>
 
@@ -168,6 +170,23 @@ class MappingConverter {
 		]
 
 		_mapping
+	}
+
+	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecificationOrReference from,
+		GTSSpecificationOrReference to, Resource res) {
+		if (from instanceof GTSSpecification) {
+			if (to instanceof GTSSpecification) {
+				mapping.extractGTSMapping(from, to, res)
+			} else {
+				mapping.extractGTSMapping(from, (to as GTSReference).ref, res)
+			}
+		} else {
+			if (to instanceof GTSSpecification) {
+				mapping.extractGTSMapping((from as GTSReference).ref, to, res)
+			} else {
+				mapping.extractGTSMapping((from as GTSReference).ref, (to as GTSReference).ref, res)
+			}
+		}
 	}
 
 	/**
@@ -288,9 +307,9 @@ class MappingConverter {
 		result
 	}
 
-	private static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
-	private static val VIRTUAL_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual"
-	private static val EMPTY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.empty"
+	static val IDENTITY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual.identity"
+	static val VIRTUAL_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.virtual"
+	static val EMPTY_RULE_ANNOTATION_KEY = "uk.ac.kcl.inf.xdsml_compose.rule_mappings.empty"
 
 	private static def hasAnnotation(Rule r, String sAnnotation) {
 		r.annotations.exists[a|a.key == sAnnotation]
@@ -305,27 +324,27 @@ class MappingConverter {
 		}
 	}
 
-	public static def isEmptyRule(Rule r) {
+	static def isEmptyRule(Rule r) {
 		r.hasAnnotation(EMPTY_RULE_ANNOTATION_KEY)
 	}
 
-	public static def setIsEmptyRule(Rule r, boolean b) {
+	static def setIsEmptyRule(Rule r, boolean b) {
 		r.setAnnotation(EMPTY_RULE_ANNOTATION_KEY, b)
 	}
 
-	public static def isVirtualRule(Rule r) {
+	static def isVirtualRule(Rule r) {
 		r.hasAnnotation(VIRTUAL_RULE_ANNOTATION_KEY)
 	}
 
-	public static def setIsVirtualRule(Rule r, boolean b) {
+	static def setIsVirtualRule(Rule r, boolean b) {
 		r.setAnnotation(VIRTUAL_RULE_ANNOTATION_KEY, b)
 	}
 
-	public static def isVirtualIdentityRule(Rule r) {
+	static def isVirtualIdentityRule(Rule r) {
 		r.hasAnnotation(IDENTITY_RULE_ANNOTATION_KEY)
 	}
 
-	public static def setIsVirtualIdentityRule(Rule r, boolean b) {
+	static def setIsVirtualIdentityRule(Rule r, boolean b) {
 		r.setAnnotation(IDENTITY_RULE_ANNOTATION_KEY, b)
 	}
 
@@ -372,8 +391,8 @@ class MappingConverter {
 		copy
 	}
 
-	private static val IQualifiedNameProvider nameProvider = new DefaultDeclarativeQualifiedNameProvider
-	private static val IQualifiedNameProvider henshinNameProvider = new HenshinQualifiedNameProvider
+	static val IQualifiedNameProvider nameProvider = new DefaultDeclarativeQualifiedNameProvider
+	static val IQualifiedNameProvider henshinNameProvider = new HenshinQualifiedNameProvider
 
 	/**
 	 * Find the corresponding element in the given GTS specification. This is necessary as some parts of the type graph and rules will be virtual (e.g., generated from a family choice) 
@@ -387,6 +406,8 @@ class MappingConverter {
 		object.correspondingElement(mapping.target) as T
 	}
 
+	private static dispatch def EObject correspondingElement(EObject object, GTSSpecificationOrReference specification) { null }
+	private static dispatch def EObject correspondingElement(EObject object, GTSReference specification) { null }
 	private static dispatch def EObject correspondingElement(EObject object, GTSSpecification specification) { null }
 
 	private static dispatch def EObject correspondingElement(EClass clazz, GTSSpecification specification) {
@@ -554,7 +575,7 @@ class MappingConverter {
 		]
 	}
 
-	private static extension val HenshinFactory FACTORY = HenshinFactory.eINSTANCE
+	static extension val HenshinFactory FACTORY = HenshinFactory.eINSTANCE
 
 	/**
 	 * Generate a mapping from a virtual empty rule for this rule mapping
@@ -568,7 +589,7 @@ class MappingConverter {
 		_mapping.putAll(rm.target.extractSrcEmptyMapping)
 	}
 
-	public static def extractSrcEmptyMapping(Rule targetRule) {
+	static def extractSrcEmptyMapping(Rule targetRule) {
 		// Generate a suitable virtual rule
 		val virtualRule = createRule(targetRule.name)
 		virtualRule.isEmptyRule = true
@@ -618,7 +639,7 @@ class MappingConverter {
 	/**
 	 * Generate a virtual identity rule to map to for this rule mapping
 	 */
-	public static def extractTgtIdentityMapping(Rule r, boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
+	static def extractTgtIdentityMapping(Rule r, boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
 		if (r.isIdentityRule(srcIsInterface)) {
 			val result = r.extractTgtVirtualMapping(srcIsInterface, tgMapping)
 
@@ -633,7 +654,7 @@ class MappingConverter {
 	/**
 	 * Generate a virtual rule to map to for this rule mapping
 	 */
-	public static def extractTgtVirtualMapping(Rule r, boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
+	static def extractTgtVirtualMapping(Rule r, boolean srcIsInterface, Map<EObject, EObject> tgMapping) {
 		var result = new HashMap<EObject, EObject>
 
 		// Generate a suitable virtual rule

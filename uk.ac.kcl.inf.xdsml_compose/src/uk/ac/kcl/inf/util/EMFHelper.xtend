@@ -60,16 +60,16 @@ class EMFHelper {
 		}
 	}
 
-	public static def isInterfaceElement(EModelElement em) {
+	static def isInterfaceElement(EModelElement em) {
 		em.EAnnotations.exists[a | a.source.equalsIgnoreCase("Interface")]
 	}
 	
-	public static def isInterfaceElement(GraphElement ge) {
+	static def isInterfaceElement(GraphElement ge) {
 		ge.type.isInterfaceElement
 	}
 	
-	public static dispatch def getType(GraphElement ge) { null }
-	public static dispatch def getType(Node n) { n.type }
-	public static dispatch def getType(Edge e) { e.type }	
-	public static dispatch def getType(Attribute a) { a.type }	
+	static dispatch def getType(GraphElement ge) { null }
+	static dispatch def getType(Node n) { n.type }
+	static dispatch def getType(Edge e) { e.type }	
+	static dispatch def getType(Attribute a) { a.type }	
 }

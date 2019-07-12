@@ -125,6 +125,55 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	/**
+	 * Tests basic parsing and linking for a sunshine case
+	 */
+	@Test
+	def void parsingBasicWithGTSReference() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem {
+				metamodel: "server"
+			}
+
+			gts DEVsMMSystem {
+				metamodel: "devsmm"
+			}
+			
+			map {
+				from ServerSystem
+				
+				to DEVsMMSystem
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertNotNull("Did not load metamodel", result.gtss.head.metamodel.name)
+		assertNotNull("Did not load metamodel", result.gtss.get(1).metamodel.name)
+
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
+
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
+
+		assertNotNull("Did not load source reference",
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference",
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+	}
+
+	/**
 	 * Test basic parsing with auto-complete annotation.
 	 */
 	@Test
@@ -321,6 +370,82 @@ class ParsingAndValidationTests extends AbstractTest {
 	 * Tests basic parsing and linking with behaviour mapping
 	 */
 	@Test
+	def void parsingBasicWithBehaviourWithGTSReference() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem {
+				metamodel: "server"
+				behaviour: "serverRules"
+			}
+			
+			gts DEVSMMSystem {
+				metamodel: "devsmm"
+				behaviour: "devsmmRules"
+			}
+
+			map {
+				from ServerSystem
+				to DEVSMMSystem
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
+					}
+					
+					rule process to process {
+						// Test that empty rule maps are allowed
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertNotNull("Did not load source package", result.gtss.head.metamodel.name)
+		assertNotNull("Did not load target package", result.gtss.get(1).metamodel.name)
+		assertNotNull("Did not load source behaviour", result.gtss.head.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.gtss.get(1).behaviour.name)
+
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
+
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
+
+		assertNotNull("Did not load source reference",
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference",
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+
+		assertNotNull("Did not load source behaviour", result.mappings.head.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.mappings.head.target.behaviour.name)
+
+		assertNotNull("Did not find source rule", result.mappings.head.behaviourMapping.mappings.get(0).source.name)
+		assertNotNull("Did not find target rule", result.mappings.head.behaviourMapping.mappings.get(0).target.name)
+
+		val ruleMap = result.mappings.head.behaviourMapping.mappings.get(0)
+		assertNotNull("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+		assertNotNull("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNotNull("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+		assertNotNull("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
+	}
+
+	/**
+	 * Tests basic parsing and linking with behaviour mapping
+	 */
+	@Test
 	def void parsingBasicWithBehaviourWithRuleMapToIdentity() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
@@ -440,6 +565,73 @@ class ParsingAndValidationTests extends AbstractTest {
 					metamodel: "devsmm"
 					behaviour: "devsmmRules"
 				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
+					}
+				}
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
+
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
+
+		assertNotNull("Did not load source reference",
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference",
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+
+		assertNotNull("Did not load source behaviour", result.mappings.head.source.behaviour.name)
+		assertNotNull("Did not load target behaviour", result.mappings.head.target.behaviour.name)
+
+		assertNotNull("Did not find source rule", result.mappings.head.behaviourMapping.mappings.get(0).source.name)
+		assertNotNull("Did not find target rule", result.mappings.head.behaviourMapping.mappings.get(0).target.name)
+
+		val ruleMap = result.mappings.head.behaviourMapping.mappings.get(0)
+		assertNotNull("Did not find source object", (ruleMap.element_mappings.get(0) as ObjectMapping).source.name)
+		assertNotNull("Did not find target object", (ruleMap.element_mappings.get(0) as ObjectMapping).target.name)
+
+		assertNotNull("Did not find source link", (ruleMap.element_mappings.get(1) as LinkMapping).source.name)
+		assertNotNull("Did not find target link", (ruleMap.element_mappings.get(1) as LinkMapping).target.name)
+	}
+
+	/**
+	 * Tests basic parsing and linking with behaviour mapping for an interface-mapping
+	 */
+	@Test
+	def void parsingBasicWithBehaviourAndInterfaceAndGTSReferences() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem interface_of {
+				metamodel: "server"
+				behaviour: "serverRules"
+			}
+			
+			gts DEVSMMSystem {
+				metamodel: "devsmm"
+				behaviour: "devsmmRules"
+			}
+
+			map {
+				from ServerSystem
+				to DEVSMMSystem
 				
 				type_mapping {
 					class server.Server => devsmm.Machine
@@ -736,6 +928,133 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		assertNotNull("Didn't find transformer being invoked",
 			(result.mappings.head.source.gts as GTSFamilyChoice).transformationSteps.steps.head.unit.name)
+	}
+
+	/**
+	 * Tests basic parsing of algebraic weave descriptions
+	 */
+	@Test
+	def void parsingBasicAlgebraicWeave() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem {
+				metamodel: "server"
+				behaviour: "serverRules"
+			}
+			
+			gts ServerInterface interface_of { ServerSystem }
+			
+			gts DEVSMMSystem {
+				metamodel: "devsmm"
+				behaviour: "devsmmRules"
+			}
+
+			map ServerToDEVSMM {
+				from ServerInterface
+				to DEVSMMSystem
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
+					}
+				}
+			}
+			
+			gts DEVSMMWithServer {
+				weave: {
+					map1: interface_of (ServerSystem)
+					map2: ServerToDEVSMM
+				}
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertNotNull("Did not resolve GTS metamodel reference", result.gtss.get(1).metamodel.name)
+		assertNotNull("Did not resolve GTS behaviour reference", result.gtss.get(1).behaviour.name)
+		assertTrue("Not set to interface_of", result.gtss.get(1).interface_mapping)
+
+		/*
+		 * TODO: What do I want to assert validation-wise about weave-GTSs? 
+		 * 
+		 * Clearly need to assert enough to ensure I will be able to execute the composition:
+		 * 
+		 * 1. Source of both maps needs to be the same GTS
+		 * 2. At least one map needs to be an interface_of map (at least for now)
+		 * 3. Both mappings need to be complete or uniquely auto-completable and be valid morphisms
+		 */
+		 
+		// Here, there's nothing to assert for the moment, though later we should probably assert something about identifying incompleteness of
+		// morphisms
+		result.assertNoError(XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
+	}
+
+	/**
+	 * Tests basic validation of algebraic weave descriptions: checking that both mappings come from a common source
+	 */
+	@Test
+	def void validateAlgebraicWeaveCommonSource() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem {
+				metamodel: "server"
+				behaviour: "serverRules"
+			}
+						
+			gts DEVSMMSystem {
+				metamodel: "devsmm"
+				behaviour: "devsmmRules"
+			}
+
+			map ServerToDEVSMM {
+				from ServerSystem
+				to DEVSMMSystem
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
+					}
+				}
+			}
+			
+			gts DEVSMMWithServer {
+				weave: {
+					map1: interface_of (ServerSystem)
+					map2: ServerToDEVSMM
+				}
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		result.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
+
+		/*
+		 * TODO: What do I want to assert validation-wise about weave-GTSs? 
+		 * 
+		 * Clearly need to assert enough to ensure I will be able to execute the composition:
+		 * 
+		 * 1. Source of both maps needs to be the same GTS
+		 * 2. At least one map needs to be an interface_of map (at least for now)
+		 * 3. Both mappings need to be complete or uniquely auto-completable and be valid morphisms
+		 */
+		 
+		// Here, there's nothing to assert for the moment, though later we should probably assert something about identifying incompleteness of
+		// morphisms
 	}
 
 	/**
