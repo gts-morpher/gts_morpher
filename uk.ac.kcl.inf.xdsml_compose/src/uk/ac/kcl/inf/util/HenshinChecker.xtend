@@ -7,7 +7,7 @@ import org.eclipse.emf.henshin.model.Rule
 import static extension uk.ac.kcl.inf.util.EMFHelper.isInterfaceElement
 
 class HenshinChecker {
-	public static def isIdentityRule(Rule rule, boolean isInterface) {
+	static def isIdentityRule(Rule rule, boolean isInterface) {
 		// All LHS nodes are mapped
 		rule.lhs.nodes.filter[n|(!isInterface) || n.interfaceElement].forall [ n |
 			rule.mappings.exists [ m |
@@ -37,7 +37,7 @@ class HenshinChecker {
 		]
 	}
 	
-	public static def equals(Attribute a1, Attribute a2, boolean isInterface) {
+	static def equals(Attribute a1, Attribute a2, boolean isInterface) {
 		(a1.type === a2.type) && ((isInterface && !a1.type.isInterfaceElement) || (a1.value == a2.value))
 	}
 

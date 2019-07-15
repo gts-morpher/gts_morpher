@@ -4,7 +4,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 
 class ValueHolder<T> {
 	@Accessors
-	private var T value
+	var T value
 	
 	new (T value) {
 		setValue(value)
