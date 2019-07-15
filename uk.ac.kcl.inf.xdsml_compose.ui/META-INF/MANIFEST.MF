@@ -28,3 +28,4 @@ Export-Package: uk.ac.kcl.inf.ui,
  uk.ac.kcl.inf.ui.quickfix,
  uk.ac.kcl.inf.xdsml_compose.ui.internal;x-internal:=true
 Bundle-Activator: uk.ac.kcl.inf.xdsml_compose.ui.internal.Xdsml_composeActivator
+Automatic-Module-Name: uk.ac.kcl.inf.xdsml_compose.ui

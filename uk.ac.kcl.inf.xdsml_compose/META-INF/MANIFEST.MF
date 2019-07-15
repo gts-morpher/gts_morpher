@@ -35,3 +35,4 @@ Export-Package: uk.ac.kcl.inf,
  uk.ac.kcl.inf.xDsmlCompose.impl,
  uk.ac.kcl.inf.xDsmlCompose.util
 Import-Package: org.apache.log4j
+Automatic-Module-Name: uk.ac.kcl.inf.xdsml_compose
