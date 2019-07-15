@@ -982,18 +982,6 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not resolve GTS behaviour reference", result.gtss.get(1).behaviour.name)
 		assertTrue("Not set to interface_of", result.gtss.get(1).interface_mapping)
 
-		/*
-		 * TODO: What do I want to assert validation-wise about weave-GTSs? 
-		 * 
-		 * Clearly need to assert enough to ensure I will be able to execute the composition:
-		 * 
-		 * 1. Source of both maps needs to be the same GTS
-		 * 2. At least one map needs to be an interface_of map (at least for now)
-		 * 3. Both mappings need to be complete or uniquely auto-completable and be valid morphisms
-		 */
-		 
-		// Here, there's nothing to assert for the moment, though later we should probably assert something about identifying incompleteness of
-		// morphisms
 		result.assertNoError(XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
 		result.assertNoError(XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 	}
@@ -1045,19 +1033,6 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		result.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
 		result.assertNoError(XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
-
-		/*
-		 * TODO: What do I want to assert validation-wise about weave-GTSs? 
-		 * 
-		 * Clearly need to assert enough to ensure I will be able to execute the composition:
-		 * 
-		 * 1. Source of both maps needs to be the same GTS
-		 * 2. At least one map needs to be an interface_of map (at least for now)
-		 * 3. Both mappings need to be complete or uniquely auto-completable and be valid morphisms
-		 */
-		 
-		// Here, there's nothing to assert for the moment, though later we should probably assert something about identifying incompleteness of
-		// morphisms
 	}
 
 	/**
@@ -1107,19 +1082,6 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		result.assertNoError(XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
 		result.assertError(XDsmlComposePackage.Literals.GTS_SPECIFICATION, XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
-
-		/*
-		 * TODO: What do I want to assert validation-wise about weave-GTSs? 
-		 * 
-		 * Clearly need to assert enough to ensure I will be able to execute the composition:
-		 * 
-		 * 1. Source of both maps needs to be the same GTS
-		 * 2. At least one map needs to be an interface_of map (at least for now)
-		 * 3. Both mappings need to be complete or uniquely auto-completable and be valid morphisms
-		 */
-		 
-		// Here, there's nothing to assert for the moment, though later we should probably assert something about identifying incompleteness of
-		// morphisms
 	}
 
 	/**
@@ -1173,19 +1135,6 @@ class ParsingAndValidationTests extends AbstractTest {
 		result.assertNoError(XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 		
 		result.assertError(XDsmlComposePackage.Literals.GTS_WEAVE, XDsmlComposeValidator.WEAVE_WITH_INVALID_MORPHISM)
-
-		/*
-		 * TODO: What do I want to assert validation-wise about weave-GTSs? 
-		 * 
-		 * Clearly need to assert enough to ensure I will be able to execute the composition:
-		 * 
-		 * 1. Source of both maps needs to be the same GTS
-		 * 2. At least one map needs to be an interface_of map (at least for now)
-		 * 3. Both mappings need to be complete or uniquely auto-completable and be valid morphisms
-		 */
-		 
-		// Here, there's nothing to assert for the moment, though later we should probably assert something about identifying incompleteness of
-		// morphisms
 	}
 
 	/**
