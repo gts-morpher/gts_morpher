@@ -68,16 +68,25 @@ class ComposerTests extends AbstractTest {
 	def testSimpleTGMorphism() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "A"
-				}
+			gts A {
+				metamodel: "A"
+			}
+			
+			map A2B {
+				from interface_of { A }
 				to {
 					metamodel: "B"
 				}
 				
 				type_mapping {
 					class A.A1 => B.B1
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (A)
+					map2: A2B
 				}
 			}
 		''', resourceSet)
@@ -102,11 +111,13 @@ class ComposerTests extends AbstractTest {
 	def testSimpleGTSMorphism() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "A"
-					behaviour: "ARules"
-				}
+			gts A {
+				metamodel: "A"
+				behaviour: "ARules"
+			}
+			
+			map A2B{
+				from interface_of { A }
 				to {
 					metamodel: "B"
 					behaviour: "BRules"
@@ -120,6 +131,13 @@ class ComposerTests extends AbstractTest {
 					rule process to process {
 						object a1 => b1
 					}
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (A)
+					map2: A2B
 				}
 			}
 		''', resourceSet)
@@ -146,10 +164,12 @@ class ComposerTests extends AbstractTest {
 	def testNonInjectiveTGMorphism() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "C"
-				}
+			gts C {
+				metamodel: "C"
+			}
+			
+			map C2D {
+				from interface_of { C }
 				to {
 					metamodel: "D"
 				}
@@ -158,6 +178,13 @@ class ComposerTests extends AbstractTest {
 					class C.C1 => D.D1
 					class C.C2 => D.D1
 					reference C.C2.c1 => D.D1.d1
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of(C)
+					map2: C2D
 				}
 			}
 		''', resourceSet)
@@ -182,11 +209,13 @@ class ComposerTests extends AbstractTest {
 	def testNonInjectiveGTSMorphism() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "C"
-					behaviour: "CRules"
-				}
+			gts C {
+				metamodel: "C"
+				behaviour: "CRules"
+			}
+			
+			map C2D {
+				from interface_of { C }
 				
 				to {
 					metamodel: "D"
@@ -207,6 +236,13 @@ class ComposerTests extends AbstractTest {
 						link [c2->c1:c1] => [d1->d1:d1]
 						link [c2->c1b:c1] => [d1->d1b:d1]
 					}
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (C)
+					map2: C2D
 				}
 			}
 		''', resourceSet)
@@ -231,11 +267,13 @@ class ComposerTests extends AbstractTest {
 	def testNonInjectiveGTSMorphismToVirtualRule() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "C"
-					behaviour: "CRules"
-				}
+			gts C {
+				metamodel: "C"
+				behaviour: "CRules"
+			}
+			
+			map C2D {
+				from interface_of { C }
 				
 				to {
 					metamodel: "D"
@@ -249,6 +287,13 @@ class ComposerTests extends AbstractTest {
 				
 				behaviour_mapping {
 					rule change to virtual
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (C)
+					map2: C2D
 				}
 			}
 		''', resourceSet)
@@ -274,11 +319,13 @@ class ComposerTests extends AbstractTest {
 	def testGTSMorphismToVirtualRule() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "K"
-					behaviour: "KRules"
-				}
+			gts K {
+				metamodel: "K"
+				behaviour: "KRules"
+			}
+			
+			map K2L {
+				from interface_of { K }
 				
 				to {
 					metamodel: "L"
@@ -291,6 +338,13 @@ class ComposerTests extends AbstractTest {
 				
 				behaviour_mapping {
 					rule init to virtual
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (K)
+					map2: K2L
 				}
 			}
 		''', resourceSet)
@@ -315,11 +369,13 @@ class ComposerTests extends AbstractTest {
 	def testGTSMorphismToVirtualRuleWithAutoComplete() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			auto-complete unique map {
-				from interface_of {
-					metamodel: "K"
-					behaviour: "K2Rules"
-				}
+			gts K {
+				metamodel: "K"
+				behaviour: "K2Rules"
+			}
+			
+			auto-complete unique map K2L {
+				from interface_of { K }
 				
 				to {
 					metamodel: "L"
@@ -333,6 +389,13 @@ class ComposerTests extends AbstractTest {
 				//behaviour_mapping {
 				//	rule init to virtual
 				//}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of(K)
+					map2: K2L
+				}
 			}
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
@@ -357,11 +420,13 @@ class ComposerTests extends AbstractTest {
 	def testGTSMorphismToIdentityRule() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "K"
-					behaviour: "KRules"
-				}
+			gts K {
+				metamodel: "K"
+				behaviour: "KRules"
+			}
+			
+			map K2L {
+				from interface_of { K }
 				
 				to {
 					metamodel: "L"
@@ -374,6 +439,13 @@ class ComposerTests extends AbstractTest {
 				
 				behaviour_mapping {
 					rule init to virtual identity
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (K)
+					map2: K2L
 				}
 			}
 		''', resourceSet)
@@ -398,11 +470,13 @@ class ComposerTests extends AbstractTest {
 	def testGTSMorphismToIdentityRuleWithAutoComplete() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			auto-complete unique map {
-				from interface_of {
-					metamodel: "K"
-					behaviour: "KRules"
-				}
+			gts K {
+				metamodel: "K"
+				behaviour: "KRules"
+			}
+			
+			auto-complete unique map K2L {
+				from interface_of { K }
 				
 				to {
 					metamodel: "L"
@@ -416,6 +490,13 @@ class ComposerTests extends AbstractTest {
 				//behaviour_mapping {
 				//	rule init to identity
 				//}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of(K)
+					map2: K2L
+				}
 			}
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
@@ -439,10 +520,12 @@ class ComposerTests extends AbstractTest {
 	def testFromEmptyRuleMapping() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "I"
-				}
+			gts I {
+				metamodel: "I"
+			}
+			
+			map I2J {
+				from interface_of { I }
 				to {
 					metamodel: "J"
 					behaviour: "JRules"
@@ -456,7 +539,13 @@ class ComposerTests extends AbstractTest {
 					rule empty to do
 				}
 			}
-
+			
+			gts woven {
+				weave: {
+					map1: interface_of (I)
+					map2: I2J
+				}
+			}
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
@@ -488,10 +577,12 @@ class ComposerTests extends AbstractTest {
 	def testFromEmptyRuleMappingWithAutoComplete() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			auto-complete unique allow-from-empty map {
-				from interface_of {
-					metamodel: "I"
-				}
+			gts I {
+				metamodel: "I"
+			}
+			
+			auto-complete unique allow-from-empty map I2J {
+				from interface_of { I }
 				to {
 					metamodel: "J"
 					behaviour: "JRules"
@@ -506,6 +597,12 @@ class ComposerTests extends AbstractTest {
 				//}
 			}
 
+			gts woven {
+				weave: {
+					map1: interface_of(I)
+					map2: I2J
+				}
+			}
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
@@ -537,10 +634,12 @@ class ComposerTests extends AbstractTest {
 	def testClanBasedReferences() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "E"
-				}
+			gts E {
+				metamodel: "E"
+			}
+			
+			map E2F {
+				from interface_of { E }
 				
 				to {
 					metamodel: "F"
@@ -550,6 +649,13 @@ class ComposerTests extends AbstractTest {
 					class E.E1 => F.F1
 					class E.E2 => F.F2
 					reference E.E1.e2 => F.F0.f2
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (E)
+					map2: E2F
 				}
 			}
 		''', resourceSet)
@@ -565,10 +671,12 @@ class ComposerTests extends AbstractTest {
 	def testInheritanceFolding() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "G"
-				}
+			gts G {
+				metamodel: "G"
+			}
+			
+			map G2H {
+				from interface_of { G }
 				
 				to {
 					metamodel: "H"
@@ -577,6 +685,13 @@ class ComposerTests extends AbstractTest {
 				type_mapping {
 					class G.G1 => H.H1
 					class G.G2 => H.H1
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (G)
+					map2: G2H
 				}
 			}
 		''', resourceSet)
@@ -601,11 +716,13 @@ class ComposerTests extends AbstractTest {
 	def testAttributeComposition() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			map {
-				from interface_of {
-					metamodel: "I"
-					behaviour: "IRules"
-				}
+			gts I {
+				metamodel: "I"
+				behaviour: "IRules"
+			}
+			
+			map I2J {
+				from interface_of { I }
 				to {
 					metamodel: "J"
 					behaviour: "JRules"
@@ -620,6 +737,13 @@ class ComposerTests extends AbstractTest {
 						object i1 => j1
 						slot i1.a1 => j1.a1
 					}
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (I)
+					map2: I2J
 				}
 			}
 
@@ -654,11 +778,13 @@ class ComposerTests extends AbstractTest {
 	def testAttributeCompositionWithAutoComplete() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			auto-complete unique map {
-				from interface_of {
-					metamodel: "I"
-					behaviour: "IRules"
-				}
+			gts I {
+				metamodel: "I"
+				behaviour: "IRules"
+			}
+			
+			auto-complete unique map I2J {
+				from interface_of { I }
 				
 				to {
 					metamodel: "J"
@@ -668,6 +794,13 @@ class ComposerTests extends AbstractTest {
 				type_mapping {
 					class I.I1 => J.J1
 					attribute I.I1.a1 => J.J1.a1
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (I)
+					map2: I2J
 				}
 			}
 		''', resourceSet)
@@ -701,11 +834,13 @@ class ComposerTests extends AbstractTest {
 	def testAttributeCompositionWithAutoCompleteWithEmptyRuleMap() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
-			auto-complete unique map {
-				from interface_of {
-					metamodel: "I"
-					behaviour: "IRules"
-				}
+			gts I {
+				metamodel: "I"
+				behaviour: "IRules"
+			}
+			
+			auto-complete unique map I2J {
+				from interface_of { I }
 				
 				to {
 					metamodel: "J"
@@ -720,6 +855,13 @@ class ComposerTests extends AbstractTest {
 				behaviour_mapping {
 					rule do to do {
 					}
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of(I)
+					map2: I2J
 				}
 			}
 		''', resourceSet)
