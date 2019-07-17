@@ -36,6 +36,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
+import org.eclipse.xtend.lib.annotations.Data
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -86,6 +87,13 @@ class XDsmlComposer {
 		override getMessage() { message }
 	}
 
+	@Data
+	static class Triple<A, B, C> {
+		val A a;
+		val B b;
+		val C c;
+	}
+
 	@Inject
 	IResourceValidator resourceValidator
 
@@ -123,11 +131,18 @@ class XDsmlComposer {
 			} else {
 				val gtsModule = resource.contents.head as GTSSpecificationModule
 
-				// TODO: Consider doing only the final one and lazily pulling the ones required
-				result.addAll(gtsModule.gtss.filter[gts | gts.gts instanceof GTSWeave].map[gts |
-					// Need submonitor here... 
-					gts.doCompose(resource, fsa, _monitor.split("Composing " + gts.name, 1))
-				].flatten)
+				// TODO: Only do GTSWeave's marked as 'export'
+				gtsModule.gtss.filter[gts | gts.gts instanceof GTSWeave].map[gts |
+					gts.doCompose(_monitor.split("Composing " + gts.name, 1))
+				].forEach[t | 
+					result.addAll(t.a)
+					if (t.b !== null) {
+						t.b.saveModel(fsa, resource, "tg.ecore")						
+					}
+					if (t.c !== null) {
+						t.c.saveModel(fsa, resource, "rules.henshin")
+					}
+				]
 			}
 		} catch (Exception e) {
 			e.printStackTrace
@@ -148,10 +163,11 @@ class XDsmlComposer {
 	 * 
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
-	private def List<XDsmlComposer.Issue> doCompose(GTSSpecification gts, Resource resource, IFileSystemAccess2 fsa, IProgressMonitor monitor) {
+	private def Triple<List<XDsmlComposer.Issue>,EPackage,Module> doCompose(GTSSpecification gts, IProgressMonitor monitor) {
 		val result = new ArrayList<XDsmlComposer.Issue>
+		var Module composedModule = null 
+		var EPackage composedTG = null 
 		val _monitor = monitor.convert(4)
-		
 		
 		// Assume gts is a weaving
 		val weaving = gts.gts as GTSWeave
@@ -177,7 +193,7 @@ class XDsmlComposer {
 
 				if (!mapping.uniqueCompletion) {
 					result.add(new MessageIssue("Can only weave based on unique auto-completions."))
-					return result
+					return new Triple(result, null, null)
 				}
 
 				// Auto-complete
@@ -192,11 +208,11 @@ class XDsmlComposer {
 						] as Map<EObject, EObject>)
 					} else {
 						result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
-						return result
+						return new Triple(result, null, null)
 					}
 				} else {
 					result.add(new MessageIssue("Was unable to auto-complete the morphism."))
-					return result
+					return new Triple(result, null, null)
 				}
 			} else {
 				_monitor.split("", 1)
@@ -205,18 +221,14 @@ class XDsmlComposer {
 			// Weave
 			_monitor.split("Composing type graph.", 1)
 			val tgWeaver = new TGWeaver
-			val composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
-			composedTG.saveModel(fsa, resource, "tg.ecore")
+			composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
 
 			_monitor.split("Composing rules.", 1)
-			val composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
+			composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
 				behaviourMapping, mapping.source.metamodel, tgWeaver)
-			if (composedModule !== null) {
-				composedModule.saveModel(fsa, resource, "rules.henshin")
-			}
 		}
 
-		result
+		new Triple(result, composedTG, composedModule)
 	}
 
 	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String fileName) {
