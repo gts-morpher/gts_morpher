@@ -27,6 +27,7 @@ import org.eclipse.emf.henshin.model.ParameterKind
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
+import uk.ac.kcl.inf.util.GTSSpecificationHelper.UnitCallIssue
 import uk.ac.kcl.inf.util.MappingConverter
 import uk.ac.kcl.inf.util.MappingConverter.IssueAcceptor
 import uk.ac.kcl.inf.util.MorphismCompleter
@@ -39,6 +40,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRefOrInterfaceSpec
+import uk.ac.kcl.inf.xDsmlCompose.GTSReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
@@ -98,6 +100,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	public static val WEAVE_WITH_DIFFERENT_SOURCES = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_WITH_DIFFERENT_SOURCES'
 	public static val WEAVE_NEEDS_INTERFACE_OF_MAPPING = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_NEEDS_INTERFACE_OF_MAPPING'
 	public static val WEAVE_WITH_INVALID_MORPHISM = 'uk.ac.kcl.inf.xdsml_compose.WEAVE_WITH_INVALID_MORPHISM'
+	public static val GTS_WEAVE_ISSUE = 'uk.ac.kcl.inf.xdsml_compose.GTS_WEAVE_ISSUE'
 	
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -250,25 +253,31 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		
 		if (behaviourMapping === null) {
 			// Really should have some behaviour mappings if there are any rules at all...
-			if (validator !== null) {
-				validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
-					XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)
-			}
+			gts.incompleteBehaviourMappingWarning(validator, "Incomplete mapping. Ensure all rules in this behaviour are mapped.")
 			result = false
 		} else {
 			val mappedRules = behaviourMapping.mappings.map[rm | ruleGetter.apply(rm)].toList
 			if (rules.exists[r | !mappedRules.contains(r)]) {
-				if (validator !== null) {
-					// FIXME: This breaks for GTS references
-					validator.warning("Incomplete mapping. Ensure all rules in this behaviour are mapped.", gts,
-							XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)				
-				}
+				gts.incompleteBehaviourMappingWarning(validator, "Incomplete mapping. Ensure all rules in this behaviour are mapped.")
 				result = false
 			}			
 		}
 		
 		result
 	}
+	
+	private def dispatch incompleteBehaviourMappingWarning(GTSSpecificationOrReference gts, XDsmlComposeValidator validator, String message) { }
+	private def dispatch incompleteBehaviourMappingWarning(GTSSpecification gts, XDsmlComposeValidator validator, String message) {
+		if (validator !== null) {
+			validator.warning(message, gts, XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)
+		}
+	}
+	private def dispatch incompleteBehaviourMappingWarning(GTSReference gts, XDsmlComposeValidator validator, String message) {
+		if (validator !== null) {
+			validator.warning(message, gts, XDsmlComposePackage.Literals.GTS_REFERENCE__REF, INCOMPLETE_BEHAVIOUR_MAPPING)
+		}
+	}
+	
 
 	/**
 	 * Check that the given rule mapping is complete
@@ -485,7 +494,7 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 */
 	@Check
 	def checkGTSFamilyChoiceIssues(GTSFamilyChoice gts) {
-		gts.issues.forEach[i | error(i.message, i.unitCall, XDsmlComposePackage.Literals.UNIT_CALL__UNIT, GTS_FAMILY_ISSUE)]
+		gts.issues.forEach[i | error(i.message, (i as UnitCallIssue).unitCall, XDsmlComposePackage.Literals.UNIT_CALL__UNIT, GTS_FAMILY_ISSUE)]
 	}
 
 	/**
@@ -524,6 +533,14 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		weave.mapping2.checkIsValidMapping
 	}
 	
+	/**
+	 * Report any issues from processing GTS weave transformations.
+	 */
+	@Check
+	def checkGTSWeaveIssues(GTSWeave gts) {
+		gts.issues.forEach[i | error(i.message, gts.eContainer, XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, GTS_WEAVE_ISSUE)]
+	}
+
 	private dispatch def checkIsValidMapping(GTSMappingRefOrInterfaceSpec spec) {
 		throw new IllegalStateException("checkIsValidMapping() not implemented for " + spec.eClass.name)
 	}

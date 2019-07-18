@@ -9,9 +9,11 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.diagnostics.Diagnostic
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.testing.util.ParseHelper
+import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.ac.kcl.inf.composer.XDsmlComposer
@@ -30,7 +32,10 @@ class ComposerTests extends AbstractTest {
 
 	@Inject
 	ParseHelper<GTSSpecificationModule> parseHelper
-
+	
+	@Inject
+	extension ValidationTestHelper
+	
 	override protected createResourceSet(String[] fileNames) {
 		val rs = super.createResourceSet(fileNames)
 
@@ -889,6 +894,64 @@ class ComposerTests extends AbstractTest {
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
 		
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
+	}
+
+	@Test
+	def testSimpleGTSMorphismReferencing() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts A {
+				metamodel: "A"
+				behaviour: "ARules"
+			}
+			
+			map A2B{
+				from interface_of { A }
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object a1 => b1
+					}
+				}
+			}
+			
+			gts woven {
+				weave: {
+					map1: interface_of (A)
+					map2: A2B
+				}
+			}
+			
+			map woven2C {
+				from woven
+				
+				to {
+					metamodel: "C"
+					behaviour: "CRules"
+				}
+				
+				type_mapping {
+					class A_B.A1_B1 => C.C1
+				}
+				
+				behaviour_mapping {
+					rule process to change {
+						object a1_b1 => c1
+					}
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertNoError(Diagnostic.LINKING_DIAGNOSTIC)
 	}
 
 	private def findComposedEcore(ResourceSet resourceSet) {

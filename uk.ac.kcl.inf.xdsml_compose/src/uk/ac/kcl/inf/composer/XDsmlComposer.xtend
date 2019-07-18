@@ -33,7 +33,6 @@ import org.eclipse.emf.henshin.model.Attribute
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 import org.eclipse.xtend.lib.annotations.Data
@@ -131,8 +130,8 @@ class XDsmlComposer {
 			} else {
 				val gtsModule = resource.contents.head as GTSSpecificationModule
 
-				gtsModule.gtss.filter[gts | gts.export && gts.gts instanceof GTSWeave].map[gts |
-					gts.doCompose(_monitor.split("Composing " + gts.name, 1))
+				gtsModule.gtss.filter[gts | gts.export].map[it.gts].filter(GTSWeave).map[weave |
+					weave.doCompose(_monitor.split("Composing", 1))
 				].forEach[t | 
 					result.addAll(t.a)
 					if (t.b !== null) {
@@ -162,15 +161,12 @@ class XDsmlComposer {
 	 * 
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
-	private def Triple<List<XDsmlComposer.Issue>,EPackage,Module> doCompose(GTSSpecification gts, IProgressMonitor monitor) {
+	def Triple<List<XDsmlComposer.Issue>,EPackage,Module> doCompose(GTSWeave weaving, IProgressMonitor monitor) {
 		val result = new ArrayList<XDsmlComposer.Issue>
 		var Module composedModule = null 
 		var EPackage composedTG = null 
 		val _monitor = monitor.convert(4)
-		
-		// Assume gts is a weaving
-		val weaving = gts.gts as GTSWeave
-		
+				
 		// TODO: Should probably validate weaving before going on...
 		
 		// Assume one mapping is an interface_of mapping, then find the other one and use it to do the weave
