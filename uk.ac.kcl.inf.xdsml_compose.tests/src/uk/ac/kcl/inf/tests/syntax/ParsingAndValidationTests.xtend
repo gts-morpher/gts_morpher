@@ -122,6 +122,26 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
 		assertNotNull("Did not load metamodel", result.gtss.head.metamodel.name)
+		assertFalse("Export flag set", result.gtss.head.export)
+	}
+
+	/**
+	 * Tests basic parsing and linking for a sunshine case with only a GTS Specification
+	 */
+	@Test
+	def void parsingBasicJustGTSWithExport() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			export gts ServerSystem {
+				metamodel: "server"
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertNotNull("Did not load metamodel", result.gtss.head.metamodel.name)
+		assertTrue("Export flag not set", result.gtss.head.export)
 	}
 
 	/**

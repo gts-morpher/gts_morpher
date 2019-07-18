@@ -35,7 +35,7 @@ GTSReference:
 ;
 
 GTSSpecification:
-	("gts" name=ID)?
+	((export ?= "export")? "gts" name=ID)?
 	(interface_mapping ?= "interface_of")?
 	"{"
 		gts = GTSSelection	
