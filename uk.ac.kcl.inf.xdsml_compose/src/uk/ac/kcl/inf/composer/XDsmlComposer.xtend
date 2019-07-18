@@ -36,6 +36,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 import org.eclipse.xtend.lib.annotations.Data
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -119,14 +120,17 @@ class XDsmlComposer {
 				val gtsModule = resource.contents.head as GTSSpecificationModule
 
 				gtsModule.gtss.filter[gts | gts.export].map[it.gts].filter(GTSWeave).map[weave |
-					weave.doCompose(_monitor.split("Composing", 1))
-				].forEach[t | 
-					result.addAll(t.a)
-					if (t.b !== null) {
-						t.b.saveModel(fsa, resource, "tg.ecore")						
+					new Pair((weave.eContainer as GTSSpecification).name, weave.doCompose(_monitor.split("Composing", 1)))
+				].forEach[p |
+					val weaveResult = p.value
+					val name = p.key
+					 
+					result.addAll(weaveResult.a)
+					if (weaveResult.b !== null) {
+						weaveResult.b.saveModel(fsa, resource, name, "tg.ecore")						
 					}
-					if (t.c !== null) {
-						t.c.saveModel(fsa, resource, "rules.henshin")
+					if (weaveResult.c !== null) {
+						weaveResult.c.saveModel(fsa, resource, name, "rules.henshin")
 					}
 				]
 			}
@@ -214,9 +218,9 @@ class XDsmlComposer {
 		new Triple(result, composedTG, composedModule)
 	}
 
-	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String fileName) {
+	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String gtsName, String fileName) {
 		val composedTGResource = baseResource.resourceSet.createResource(
-			fsa.getURI(baseResource.URI.trimFileExtension.lastSegment + "_composed/" + fileName))
+			fsa.getURI(gtsName + "/" + fileName))
 		composedTGResource.contents.clear
 		composedTGResource.contents.add(model)
 		composedTGResource.save(emptyMap)

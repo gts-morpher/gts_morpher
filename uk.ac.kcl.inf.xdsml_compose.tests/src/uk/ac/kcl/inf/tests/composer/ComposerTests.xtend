@@ -32,10 +32,10 @@ class ComposerTests extends AbstractTest {
 
 	@Inject
 	ParseHelper<GTSSpecificationModule> parseHelper
-	
+
 	@Inject
 	extension ValidationTestHelper
-	
+
 	override protected createResourceSet(String[] fileNames) {
 		val rs = super.createResourceSet(fileNames)
 
@@ -88,7 +88,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			export gts woven {
+			export gts woven_with_different_name {
 				weave: {
 					map1: interface_of (A)
 					map2: A2B
@@ -103,12 +103,12 @@ class ComposerTests extends AbstractTest {
 		assertTrue("Expected to see no issues.", issues.empty)
 
 		// Check contents of generated resources and compare against oracle
-		val ecore = resourceSet.findComposedEcore
+		val ecore = resourceSet.findComposedEcore("woven_with_different_name")
 		assertNotNull("Couldn't find composed ecore", ecore)
-		
+
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("AB.ecore"), true).contents.head as EPackage
-		
+
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -139,7 +139,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			export gts woven {
+			export gts woven_with_different_name {
 				weave: {
 					map1: interface_of (A)
 					map2: A2B
@@ -154,14 +154,14 @@ class ComposerTests extends AbstractTest {
 		assertTrue("Expected to see no issues.", issues.empty)
 
 		// Check contents of generated resources and compare against oracle
-		val henshin = resourceSet.findComposedHenshin
+		val henshin = resourceSet.findComposedHenshin("woven_with_different_name")
 		assertNotNull("Couldn't find composed Henshin rules", henshin)
-		
+
 		val composedLanguage = henshin.contents.head
 		EcoreUtil2.resolveAll(composedLanguage)
 		val composedOracle = resourceSet.getResource(createFileURI("AB.henshin"), true).contents.head as Module
 		EcoreUtil2.resolveAll(composedOracle)
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -203,10 +203,10 @@ class ComposerTests extends AbstractTest {
 		// Check contents of generated resources and compare against oracle
 		val ecore = resourceSet.findComposedEcore
 		assertNotNull("Couldn't find composed ecore", ecore)
-		
+
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("CD.ecore"), true).contents.head as EPackage
-		
+
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -261,10 +261,10 @@ class ComposerTests extends AbstractTest {
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedLanguage = henshin.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("CD.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -312,10 +312,10 @@ class ComposerTests extends AbstractTest {
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedLanguage = henshin.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("CD2.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -363,10 +363,10 @@ class ComposerTests extends AbstractTest {
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedLanguage = henshin.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("KL.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -413,10 +413,10 @@ class ComposerTests extends AbstractTest {
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedLanguage = henshin.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("KL2.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -464,10 +464,10 @@ class ComposerTests extends AbstractTest {
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedLanguage = henshin.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("KL.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -514,10 +514,10 @@ class ComposerTests extends AbstractTest {
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedLanguage = henshin.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("KL.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -558,23 +558,23 @@ class ComposerTests extends AbstractTest {
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
-		
+
 		// Check contents of generated resources and compare against oracle
 		val ecore = resourceSet.findComposedEcore
 		assertNotNull("Couldn't find composed ecore", ecore)
-		
+
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
-		
+
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedHenshin = henshin.contents.head
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ2.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
 	}
 
@@ -601,7 +601,7 @@ class ComposerTests extends AbstractTest {
 				//	rule empty to do
 				//}
 			}
-
+			
 			export gts woven {
 				weave: {
 					map1: interface_of(I)
@@ -615,23 +615,23 @@ class ComposerTests extends AbstractTest {
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
-		
+
 		// Check contents of generated resources and compare against oracle
 		val ecore = resourceSet.findComposedEcore
 		assertNotNull("Couldn't find composed ecore", ecore)
-		
+
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
-		
+
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedHenshin = henshin.contents.head
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ2.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
 	}
 
@@ -706,14 +706,14 @@ class ComposerTests extends AbstractTest {
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
-		
+
 		// Check contents of generated resources and compare against oracle
 		val ecore = resourceSet.findComposedEcore
 		assertNotNull("Couldn't find composed ecore", ecore)
-		
+
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("GH.ecore"), true).contents.head as EPackage
-		
+
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 	}
 
@@ -751,7 +751,7 @@ class ComposerTests extends AbstractTest {
 					map2: I2J
 				}
 			}
-
+			
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
@@ -759,23 +759,23 @@ class ComposerTests extends AbstractTest {
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
-		
+
 		// Check contents of generated resources and compare against oracle
 		val ecore = resourceSet.findComposedEcore
 		assertNotNull("Couldn't find composed ecore", ecore)
-		
+
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
-		
+
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedHenshin = henshin.contents.head
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
 	}
 
@@ -815,23 +815,23 @@ class ComposerTests extends AbstractTest {
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
-		
+
 		// Check contents of generated resources and compare against oracle
 		val ecore = resourceSet.findComposedEcore
 		assertNotNull("Couldn't find composed ecore", ecore)
-		
+
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
-		
+
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedHenshin = henshin.contents.head
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
 	}
 
@@ -876,23 +876,23 @@ class ComposerTests extends AbstractTest {
 		val issues = composer.doCompose(result.eResource, new TestFileSystemAccess, IProgressMonitor.NULL_IMPL)
 
 		assertTrue("Expected to see no issues.", issues.empty)
-		
+
 		// Check contents of generated resources and compare against oracle
 		val ecore = resourceSet.findComposedEcore
 		assertNotNull("Couldn't find composed ecore", ecore)
-		
+
 		val composedLanguage = ecore.contents.head
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
-		
+
 		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(composedLanguage, composedOracle))
 
 		// Check contents of generated resources and compare against oracle
 		val henshin = resourceSet.findComposedHenshin
 		assertNotNull("Couldn't find composed henshin rules", henshin)
-		
+
 		val composedHenshin = henshin.contents.head
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
-		
+
 		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(composedHenshin, composedHenshinOracle))
 	}
 
@@ -950,45 +950,55 @@ class ComposerTests extends AbstractTest {
 			}
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
-		
+
 		result.assertNoError(Diagnostic.LINKING_DIAGNOSTIC)
 	}
 
 	private def findComposedEcore(ResourceSet resourceSet) {
-		resourceSet.findComposed("ecore")
+		resourceSet.findComposedEcore("woven")
+	}
+	
+	private def findComposedEcore(ResourceSet resourceSet, String gtsName) {
+		resourceSet.findComposed("ecore", gtsName)
 	}
 
 	private def findComposedHenshin(ResourceSet resourceSet) {
-		resourceSet.findComposed("henshin")
+		resourceSet.findComposedHenshin("woven")
 	}
-		
-	private def findComposed(ResourceSet resourceSet, String ext) {
-		resourceSet.resources.filter[r|TestURIHandlerImpl.TEST_URI_SCHEME.equals(r.URI.scheme)].filter [r |
+	
+	private def findComposedHenshin(ResourceSet resourceSet, String gtsName) {
+		resourceSet.findComposed("henshin", gtsName)
+	}
+	
+	private def findComposed(ResourceSet resourceSet, String ext, String gtsName) {
+		resourceSet.resources.filter[r|TestURIHandlerImpl.TEST_URI_SCHEME.equals(r.URI.scheme)].filter [ r |
+			gtsName.equals(r.URI.segments.get(r.URI.segmentCount - 2))
+		].filter [ r |
 			ext.equals(r.URI.fileExtension)
 		].head
 	}
 
 	private static class EqualityHelper extends EcoreUtil.EqualityHelper {
-		
+
 		override protected haveEqualReference(EObject eObject1, EObject eObject2, EReference reference) {
 //			if (reference.ordered) {
 //				super.haveEqualReference(eObject1, eObject2, reference)
 //			} else {
-				val Object value1 = eObject1.eGet(reference);
-				val Object value2 = eObject2.eGet(reference);
-	
-				if (reference.many) {
-					equalsUnordered(value1 as List<EObject>, value2 as List<EObject>)
-				} else {
-					equals(value1 as EObject, value2 as EObject)
-				}
+			val Object value1 = eObject1.eGet(reference);
+			val Object value2 = eObject2.eGet(reference);
+
+			if (reference.many) {
+				equalsUnordered(value1 as List<EObject>, value2 as List<EObject>)
+			} else {
+				equals(value1 as EObject, value2 as EObject)
+			}
 //			}
 		}
-	
+
 		protected def equalsUnordered(List<EObject> l1, List<EObject> l2) {
-			(l1.size == l2.size) &&
-			l1.forall[eo | l2.exists[eo2 | equals(eo, eo2)]] &&
-			l2.forall[eo | l1.exists[eo2 | equals(eo, eo2)]]
+			(l1.size == l2.size) && l1.forall[eo|l2.exists[eo2|equals(eo, eo2)]] && l2.forall [ eo |
+				l1.exists[eo2|equals(eo, eo2)]
+			]
 		}
 	}
 }
