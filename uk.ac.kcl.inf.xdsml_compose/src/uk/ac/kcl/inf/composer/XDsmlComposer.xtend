@@ -131,8 +131,7 @@ class XDsmlComposer {
 			} else {
 				val gtsModule = resource.contents.head as GTSSpecificationModule
 
-				// TODO: Only do GTSWeave's marked as 'export'
-				gtsModule.gtss.filter[gts | gts.gts instanceof GTSWeave].map[gts |
+				gtsModule.gtss.filter[gts | gts.export && gts.gts instanceof GTSWeave].map[gts |
 					gts.doCompose(_monitor.split("Composing " + gts.name, 1))
 				].forEach[t | 
 					result.addAll(t.a)

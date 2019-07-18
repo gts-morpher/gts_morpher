@@ -83,7 +83,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (A)
 					map2: A2B
@@ -134,7 +134,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (A)
 					map2: A2B
@@ -181,7 +181,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of(C)
 					map2: C2D
@@ -239,7 +239,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (C)
 					map2: C2D
@@ -290,7 +290,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (C)
 					map2: C2D
@@ -341,7 +341,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (K)
 					map2: K2L
@@ -391,7 +391,7 @@ class ComposerTests extends AbstractTest {
 				//}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of(K)
 					map2: K2L
@@ -442,7 +442,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (K)
 					map2: K2L
@@ -492,7 +492,7 @@ class ComposerTests extends AbstractTest {
 				//}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of(K)
 					map2: K2L
@@ -540,7 +540,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (I)
 					map2: I2J
@@ -597,7 +597,7 @@ class ComposerTests extends AbstractTest {
 				//}
 			}
 
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of(I)
 					map2: I2J
@@ -652,7 +652,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (E)
 					map2: E2F
@@ -688,7 +688,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (G)
 					map2: G2H
@@ -740,7 +740,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (I)
 					map2: I2J
@@ -797,7 +797,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of (I)
 					map2: I2J
@@ -858,7 +858,7 @@ class ComposerTests extends AbstractTest {
 				}
 			}
 			
-			gts woven {
+			export gts woven {
 				weave: {
 					map1: interface_of(I)
 					map2: I2J
