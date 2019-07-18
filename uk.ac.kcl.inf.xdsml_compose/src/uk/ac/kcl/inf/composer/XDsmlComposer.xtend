@@ -108,18 +108,6 @@ class XDsmlComposer {
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
 	def List<XDsmlComposer.Issue> doCompose(Resource resource, IFileSystemAccess2 fsa, IProgressMonitor monitor) {
-		/*
-		 * TODO: This should go through all gts-weave statements in the resource and run them one by one. A sub-ordinate 
-		 * method for running one weave should do what is currently below. There are two steps here, as far as I can see:
-		 * 
-		 * 1. Make it work for resources with one gts-weave statement
-		 * 2. Make it work for resources with multiple gts-weave statements that may reference each other -- here we will need to cache the woven stuff
-		 * 
-		 * We will need the caching also for scoping of mappings based on woven gts to work.
-		 * 
-		 * Step 1 should be fairly easy to do: we essentially need to adjust all current tests to include a gts-weave at the end and then re-run them. 
-		 * When we get them to go green we should be where we want to be for step 1. 
-		 */
 		val result = new ArrayList<XDsmlComposer.Issue>
 		val _monitor = monitor.convert(2)
 		try {
