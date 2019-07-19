@@ -15,4 +15,14 @@ interface IProgressMonitor extends CancelIndicator {
 		
 		override split(String taskName, int units) { this }
 	}
+	
+	static def wrapCancelIndicator(CancelIndicator ci) {
+		new IProgressMonitor() {
+			override isCanceled() { ci.isCanceled() }
+			
+			override convert(int units) { this }
+			
+			override split(String taskName, int units) { this }			
+		}
+	}
 }

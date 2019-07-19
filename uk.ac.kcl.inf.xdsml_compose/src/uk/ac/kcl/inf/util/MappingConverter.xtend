@@ -201,9 +201,12 @@ class MappingConverter {
 			throw new IllegalArgumentException("res must not be null")
 		}
 
+		val module = XDsmlComposeFactory.eINSTANCE.createGTSSpecificationModule
+		res.contents.add(module)
+		
 		val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
-		res.contents.add(result)
-
+		module.mappings.add(result)
+		
 		result.source = from.resourceLocalCopy
 		result.target = to.resourceLocalCopy
 

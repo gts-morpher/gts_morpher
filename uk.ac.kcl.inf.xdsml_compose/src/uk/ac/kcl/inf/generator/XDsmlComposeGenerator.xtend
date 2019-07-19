@@ -3,15 +3,13 @@
  */
 package uk.ac.kcl.inf.generator
 
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import uk.ac.kcl.inf.util.ValueHolder
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-
-import static extension uk.ac.kcl.inf.util.MappingConverter.extractGTSMapping
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import uk.ac.kcl.inf.composer.XDsmlComposer
+import uk.ac.kcl.inf.util.IProgressMonitor
 
 /**
  * Generates code from your model files on save.
@@ -20,36 +18,13 @@ import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompl
  */
 class XDsmlComposeGenerator extends AbstractGenerator {
 
+	@Inject
+	extension XDsmlComposer composer
+
+	/**
+	 * Generate all composed GTSs
+	 */
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		val mapping = resource.allContents.head as GTSMapping
-		if (mapping.autoComplete) {
-			val completedMappings = mapping.completedMappings
-			val idx = new ValueHolder<Integer>(0)
-
-			completedMappings.forEach [ mp |
-				val uri = fsa.getURI(resource.URI.trimFileExtension.lastSegment + idx.value + '.complete.lang_compose')
-				var saveRes = resource.resourceSet.getResource(uri, false)
-				if (saveRes === null) {
-					saveRes = resource.resourceSet.createResource(uri)
-				} else {
-					saveRes.contents.clear
-				}
-				mp.extractGTSMapping(mapping.source, mapping.target, saveRes)
-				saveRes.save(emptyMap)
-				idx.value = idx.value + 1
-			]
-		}
-	}
-
-	private static def getCompletedMappings(GTSMapping mapping) {
-		val completer = mapping.createMorphismCompleter
-
-		if (completer.findMorphismCompletions(true) == 0) {
-			// Found morphism(s)
-			completer.completedMappings
-		} else {
-			// We have a problem
-			#[]
-		}
+		doCompose(resource, fsa, IProgressMonitor.wrapCancelIndicator(context.cancelIndicator))
 	}
 }
