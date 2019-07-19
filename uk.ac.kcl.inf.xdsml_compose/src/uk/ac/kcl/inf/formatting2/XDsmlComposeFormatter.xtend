@@ -12,9 +12,12 @@ import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
+import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.RuleElementMapping
 import uk.ac.kcl.inf.xDsmlCompose.RuleMapping
 import uk.ac.kcl.inf.xDsmlCompose.TypeGraphMapping
@@ -23,6 +26,7 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitCall
 import uk.ac.kcl.inf.xDsmlCompose.UnitCallList
 import uk.ac.kcl.inf.xDsmlCompose.UnitParameterList
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 
 class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
@@ -32,6 +36,7 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 		mapping.regionFor.keyword("auto-complete").append[oneSpace]
 		mapping.regionFor.keyword("unique").surround[oneSpace]
 		mapping.regionFor.keyword("map").append[oneSpace]
+		mapping.regionFor.feature(XDsmlComposePackage.Literals.GTS_MAPPING__NAME).surround[oneSpace]
 		
 		mapping.blockIndent(document)
 		
@@ -49,18 +54,29 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 			mapping.typeMapping.append[newLines = 2]
 		}
 		
-		mapping.behaviourMapping.format			
+		mapping.behaviourMapping.format
+		
+		mapping.regionFor.keyword("}").append[newLines = 2]
 	}
 
 	def dispatch void format(GTSSpecificationOrReference gts, extension IFormattableDocument document) { }
 	def dispatch void format(GTSReference gts, extension IFormattableDocument document) { }
 
 	def dispatch void format(GTSSpecification gts, extension IFormattableDocument document) {
+		gts.regionFor.keyword("export").append[oneSpace]
+		gts.regionFor.keyword("gts").append[oneSpace]
+		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_SPECIFICATION__NAME).surround[oneSpace]
+
 		gts.regionFor.keyword("interface_of").append[oneSpace]
-		
+
 		gts.blockIndent(document)
 
 		gts.gts.format
+		
+		// Top level GTS specifications are followed by a newline
+		if (gts.eContainer instanceof GTSSpecificationModule) {
+			gts.regionFor.keyword("}").append[newLines = 2]
+		}
 	}
 	
 	def dispatch void format(GTSLiteral gts, extension IFormattableDocument document) {
@@ -89,6 +105,30 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 		gts.transformationSteps.format
 	}
 	
+	def dispatch void format(GTSWeave gts, extension IFormattableDocument document) {
+		gts.regionFor.keyword("weave").surround[noSpace]
+		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_1).append[oneSpace]
+		gts.blockIndent(document)
+		
+		gts.regionFor.keyword("map1").surround[noSpace]
+		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_4).append[oneSpace]
+		gts.mapping1.format
+
+		gts.regionFor.keyword("map2").surround[noSpace].prepend[newLine]
+		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_7).append[oneSpace]
+		gts.mapping2.format
+	}
+	
+	def dispatch void format(GTSMappingRef gts, extension IFormattableDocument document) {
+		gts.append[noSpace]
+	}
+	
+	def dispatch void format(GTSMappingInterfaceSpec gts, extension IFormattableDocument document) {
+		gts.regionFor.keyword("interface_of").append[noSpace]
+		gts.regionFor.keyword("(").surround[noSpace]
+		gts.regionFor.keyword(")").surround[noSpace]
+	}
+
 	def dispatch void format(UnitCallList ucl, extension IFormattableDocument document) {
 		ucl.steps.forEach[s, idx |
 			if (idx > 0) {
@@ -166,6 +206,6 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 			object.regionFor.keyword("{").append[newLine],
 			object.regionFor.keyword("}").prepend[newLine],
 			[indent]
-		)		
+		)
 	}
 }
