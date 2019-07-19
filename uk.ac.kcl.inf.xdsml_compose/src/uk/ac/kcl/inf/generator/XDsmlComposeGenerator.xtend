@@ -8,10 +8,7 @@ import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import uk.ac.kcl.inf.util.ValueHolder
-import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
-import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 
 import static extension uk.ac.kcl.inf.util.MappingConverter.extractGTSMapping
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
@@ -43,29 +40,6 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 			]
 		}
 	}
-
-	private dispatch def String generate(GTSSpecification spec) '''
-		«if (spec.interface_mapping) '''interface_of '''»{
-			«spec.gts.generate»
-		}
-	'''
-
-	private dispatch def String generate(GTSLiteral gts) '''
-		metamodel: "«gts.metamodel.name»"
-		«if (gts.behaviour !== null) '''behaviour: "«gts.behaviour.name»"'''»
-	'''
-
-	private dispatch def String generate(GTSFamilyChoice gts) '''
-		family: {
-			«gts.root.generate»
-			
-			transformers: "«gts.transformers.name»"
-		}
-		
-		using [
-			«gts.transformationSteps.generate»
-		]
-	'''
 
 	private static def getCompletedMappings(GTSMapping mapping) {
 		val completer = mapping.createMorphismCompleter
