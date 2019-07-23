@@ -411,8 +411,8 @@
        point="org.eclipse.ui.commands">
     <command
           defaultHandler="uk.ac.kcl.inf.ui.XDsmlComposeExecutableExtensionFactory:uk.ac.kcl.inf.ui.handlers.ComposeXDsmlsHandler"
-          id="uk.ac.kcl.inf.xdsml_compose.ui.command.ComposeXDSMLs"
-          name="Weave xDSMLs">
+          id="uk.ac.kcl.inf.xdsml_compose.ui.command.AutoCompleteMappings"
+          name="Generate auto-completions">
     </command>
  </extension>
  <extension
@@ -420,9 +420,9 @@
     <menuContribution
             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
     	<command
-             commandId="uk.ac.kcl.inf.xdsml_compose.ui.command.ComposeXDSMLs"
+             commandId="uk.ac.kcl.inf.xdsml_compose.ui.command.AutoCompleteMappings"
              style="push"
-             tooltip="Weave languages as per specification">
+             tooltip="Generate mappings showing the auto-completion of any auto-completable mappings in this specification">
                     <visibleWhen>
 				           <with variable="activeMenuSelection">
 				            <iterate

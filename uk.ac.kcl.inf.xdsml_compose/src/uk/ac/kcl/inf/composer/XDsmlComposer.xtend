@@ -31,13 +31,19 @@ import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 import org.eclipse.emf.henshin.model.Attribute
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
+import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
+import org.eclipse.xtend.lib.annotations.Data
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
  */
 class XDsmlComposer {
 
-	public interface Issue {
+	interface Issue {
 		def String getMessage()
 	}
 
@@ -81,8 +87,15 @@ class XDsmlComposer {
 		override getMessage() { message }
 	}
 
+	@Data
+	static class Triple<A, B, C> {
+		val A a;
+		val B b;
+		val C c;
+	}
+
 	@Inject
-	private IResourceValidator resourceValidator
+	IResourceValidator resourceValidator
 
 	/**
 	 * Perform the composition.
@@ -97,64 +110,29 @@ class XDsmlComposer {
 	 */
 	def List<XDsmlComposer.Issue> doCompose(Resource resource, IFileSystemAccess2 fsa, IProgressMonitor monitor) {
 		val result = new ArrayList<XDsmlComposer.Issue>
-		val _monitor = monitor.convert(4)
+		val _monitor = monitor.convert(2)
 		try {
 			val issues = resourceValidator.validate(resource, CheckMode.ALL, _monitor.split("Validating resource.", 1))
 
 			if (!issues.empty) {
 				result.addAll(issues.map[i|new IssueIssue(i)])
 			} else {
-				val mapping = resource.contents.head as GTSMapping
+				val gtsModule = resource.contents.head as GTSSpecificationModule
 
-				if (mapping.target.interface_mapping) {
-					result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
-				} else {
-					var tgMapping = mapping.typeMapping.extractMapping(null)
-					var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
-
-					if (mapping.autoComplete) {
-						_monitor.split("Autocompleting.", 1)
-
-						if (!mapping.uniqueCompletion) {
-							result.add(new MessageIssue("Can only weave based on unique auto-completions."))
-							return result
-						}
-
-						// Auto-complete
-						val completer = mapping.createMorphismCompleter
-						if (completer.findMorphismCompletions(false) == 0) {
-							if (completer.completedMappings.size == 1) {
-								tgMapping = new HashMap(completer.completedMappings.head.filter [k, v |
-									(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
-								] as Map<EObject, EObject>)
-								behaviourMapping = new HashMap(completer.completedMappings.head.filter [k, v |
-									!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
-								] as Map<EObject, EObject>)
-							} else {
-								result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
-								return result
-							}
-						} else {
-							result.add(new MessageIssue("Was unable to auto-complete the morphism."))
-							return result
-						}
-					} else {
-						_monitor.split("", 1)
+				gtsModule.gtss.filter[gts | gts.export].map[it.gts].filter(GTSWeave).map[weave |
+					new Pair((weave.eContainer as GTSSpecification).name, weave.doCompose(_monitor.split("Composing", 1)))
+				].forEach[p |
+					val weaveResult = p.value
+					val name = p.key
+					 
+					result.addAll(weaveResult.a)
+					if (weaveResult.b !== null) {
+						weaveResult.b.saveModel(fsa, resource, name, "tg.ecore")						
 					}
-
-					// Weave
-					_monitor.split("Composing type graph.", 1)
-					val tgWeaver = new TGWeaver
-					val composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
-					composedTG.saveModel(fsa, resource, "tg.ecore")
-
-					_monitor.split("Composing rules.", 1)
-					val composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
-						behaviourMapping, mapping.source.metamodel, tgWeaver)
-					if (composedModule !== null) {
-						composedModule.saveModel(fsa, resource, "rules.henshin")
+					if (weaveResult.c !== null) {
+						weaveResult.c.saveModel(fsa, resource, name, "rules.henshin")
 					}
-				}
+				]
 			}
 		} catch (Exception e) {
 			e.printStackTrace
@@ -164,9 +142,85 @@ class XDsmlComposer {
 		result
 	}
 
-	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String fileName) {
+	/**
+	 * Perform the composition.
+	 * 
+	 * @param resource a resource with the morphism specification. If source is <code>interface_of</code> performs a 
+	 * full pushout, otherwise assumes that interface and full language are identical for the source. Currently does 
+	 * not support use of <code>interface_of</code> in the target GTS.
+	 * 
+	 * @param fsa used for file-system access
+	 * 
+	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
+	 */
+	def Triple<List<XDsmlComposer.Issue>,EPackage,Module> doCompose(GTSWeave weaving, IProgressMonitor monitor) {
+		val result = new ArrayList<XDsmlComposer.Issue>
+		var Module composedModule = null 
+		var EPackage composedTG = null 
+		val _monitor = monitor.convert(4)
+				
+		// TODO: Should probably validate weaving before going on...
+		
+		// Assume one mapping is an interface_of mapping, then find the other one and use it to do the weave
+		var GTSMapping mapping
+		if (weaving.mapping1 instanceof GTSMappingInterfaceSpec) {
+			mapping = (weaving.mapping2 as GTSMappingRef).ref
+		} else {
+			mapping = (weaving.mapping1 as GTSMappingRef).ref
+		}
+
+		if (mapping.target.interface_mapping) {
+			result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
+		} else {
+			var tgMapping = mapping.typeMapping.extractMapping(null)
+			var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
+
+			if (mapping.autoComplete) {
+				_monitor.split("Autocompleting.", 1)
+
+				if (!mapping.uniqueCompletion) {
+					result.add(new MessageIssue("Can only weave based on unique auto-completions."))
+					return new Triple(result, null, null)
+				}
+
+				// Auto-complete
+				val completer = mapping.createMorphismCompleter
+				if (completer.findMorphismCompletions(false) == 0) {
+					if (completer.completedMappings.size == 1) {
+						tgMapping = new HashMap(completer.completedMappings.head.filter [k, v |
+							(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
+						] as Map<EObject, EObject>)
+						behaviourMapping = new HashMap(completer.completedMappings.head.filter [k, v |
+							!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
+						] as Map<EObject, EObject>)
+					} else {
+						result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
+						return new Triple(result, null, null)
+					}
+				} else {
+					result.add(new MessageIssue("Was unable to auto-complete the morphism."))
+					return new Triple(result, null, null)
+				}
+			} else {
+				_monitor.split("", 1)
+			}
+
+			// Weave
+			_monitor.split("Composing type graph.", 1)
+			val tgWeaver = new TGWeaver
+			composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
+
+			_monitor.split("Composing rules.", 1)
+			composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
+				behaviourMapping, mapping.source.metamodel, tgWeaver)
+		}
+
+		new Triple(result, composedTG, composedModule)
+	}
+
+	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String gtsName, String fileName) {
 		val composedTGResource = baseResource.resourceSet.createResource(
-			fsa.getURI(baseResource.URI.trimFileExtension.lastSegment + "_composed/" + fileName))
+			fsa.getURI(gtsName + "/" + fileName))
 		composedTGResource.contents.clear
 		composedTGResource.contents.add(model)
 		composedTGResource.save(emptyMap)
@@ -438,12 +492,12 @@ class XDsmlComposer {
 	 */
 	private static class PatternWeaver extends HashMap<Pair<Origin, GraphElement>, GraphElement> {
 
-		private var Graph srcPattern
-		private var Graph tgtPattern
-		private var Map<EObject, EObject> behaviourMapping
-		private var Map<Pair<Origin, EObject>, EObject> tgMapping
+		var Graph srcPattern
+		var Graph tgtPattern
+		var Map<EObject, EObject> behaviourMapping
+		var Map<Pair<Origin, EObject>, EObject> tgMapping
 
-		private var Graph wovenGraph
+		var Graph wovenGraph
 
 		new(Graph srcPattern, Graph tgtPattern, Map<EObject, EObject> behaviourMapping,
 			Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel) {

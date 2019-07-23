@@ -57,36 +57,36 @@ class MorphismCompleter {
 	 * This will contain the results, if any
 	 */
 	@Accessors(PUBLIC_GETTER)
-	private var List<Map<EObject, EObject>> completedMappings = new ArrayList
+	var List<Map<EObject, EObject>> completedMappings = new ArrayList
 
 	/**
 	 * If true, then we were able to at least complete a type mapping.
 	 */
 	@Accessors(PUBLIC_GETTER)
-	private var boolean completedTypeMapping = false
+	var boolean completedTypeMapping = false
 
-	private var Map<EObject, EObject> typeMapping
-	private var EPackage srcPackage
-	private var EPackage tgtPackage
-	private var List<EObject> allSrcModelElements
-	private var List<EObject> allTgtModelElements
-	private var List<EClass> allTgtClasses
-	private var List<EReference> allTgtReferences
-	private var List<EAttribute> allTgtAttributes
+	var Map<EObject, EObject> typeMapping
+	var EPackage srcPackage
+	var EPackage tgtPackage
+	var List<EObject> allSrcModelElements
+	var List<EObject> allTgtModelElements
+	var List<EClass> allTgtClasses
+	var List<EReference> allTgtReferences
+	var List<EAttribute> allTgtAttributes
 
-	private var BehaviourMapping behaviourMapping
-	private var Module srcModule
-	private var Module tgtModule
-	private List<EObject> allSrcBehaviorElements
-	private List<EObject> allTgtBehaviorElements
+	var BehaviourMapping behaviourMapping
+	var Module srcModule
+	var Module tgtModule
+	var List<EObject> allSrcBehaviorElements
+	var List<EObject> allTgtBehaviorElements
 
-	private var boolean srcIsInterface = false
-	private var boolean tgtIsInterface = false
+	var boolean srcIsInterface = false
+	var boolean tgtIsInterface = false
 
-	private var boolean toIdentityOnly = false
-	private var boolean withoutToVirtualMappings = false
+	var boolean toIdentityOnly = false
+	var boolean withoutToVirtualMappings = false
 
-	private var boolean allowFromEmtpyMappings = false
+	var boolean allowFromEmtpyMappings = false
 
 	private new(Map<EObject, EObject> typeMapping, EPackage srcPackage, EPackage tgtPackage,
 		BehaviourMapping behaviourMapping, Module srcModule, Module tgtModule, boolean srcIsInterface,
@@ -571,12 +571,12 @@ class MorphismCompleter {
 
 		@Data
 		private static class Morphism extends MorphismOrNonmatchedCount {
-			private val List<Pair<Rule, List<Pair<EObject, EObject>>>> mappingVariants
+			val List<Pair<Rule, List<Pair<EObject, EObject>>>> mappingVariants
 		}
 
 		@Data
 		private static class NonmatchedCount extends MorphismOrNonmatchedCount {
-			private val int numUnmatched
+			val int numUnmatched
 		}
 
 		/**

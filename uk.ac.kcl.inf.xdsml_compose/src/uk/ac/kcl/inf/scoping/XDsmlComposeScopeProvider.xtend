@@ -26,7 +26,7 @@ import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
@@ -178,7 +178,7 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 	// An adapted variant of SimpleNameProvider that handles Henshin naming graciously
 	val nameProvider = new IQualifiedNameProvider.AbstractImpl {
 
-		private val delegate = new HenshinQualifiedNameProvider
+		val delegate = new HenshinQualifiedNameProvider
 
 		override getFullyQualifiedName(EObject obj) {
 			val name = delegate.getFullyQualifiedName(obj)
@@ -201,7 +201,7 @@ class XDsmlComposeScopeProvider extends AbstractDeclarativeScopeProvider {
 		}
 	}
 
-	private def rm_scope(GTSSpecification gts) {
+	private def rm_scope(GTSSpecificationOrReference gts) {
 		safeScopeFor([
 			gts.behaviour.eAllContents.filter [ eo |
 				eo instanceof Rule

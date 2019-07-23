@@ -5,20 +5,37 @@ generate xDsmlCompose "http://www.ac.uk/kcl/inf/XDsmlCompose"
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 import "http://www.eclipse.org/emf/2011/Henshin" as gts
 
+GTSSpecificationModule:
+	(
+		gtss += GTSSpecification |
+		mappings += GTSMapping
+	)*
+;
+
 GTSMapping:
 	(autoComplete ?= "auto-complete" (uniqueCompletion ?= "unique")?
 		                             (allowFromEmtpy?="allow-from-empty")? 
 		                             ((withoutToVirtual ?= "without-to-virtual")|(toIdentityOnly?="to-identity-only"))?)? 
-		                             "map" "{"
-		"from" source = GTSSpecification
-		"to" target = GTSSpecification 
+	"map" (name = ID)? "{"
+		"from" source = GTSSpecificationOrReference
+		"to" target = GTSSpecificationOrReference 
 	 
 		typeMapping = TypeGraphMapping
 		(behaviourMapping = BehaviourMapping)?
 	"}"
 ;
 
+GTSSpecificationOrReference:
+	GTSSpecification | 
+	GTSReference
+;
+
+GTSReference:
+	ref = [GTSSpecification]
+;
+
 GTSSpecification:
+	((export ?= "export")? "gts" name=ID)?
 	(interface_mapping ?= "interface_of")?
 	"{"
 		gts = GTSSelection	
@@ -27,7 +44,9 @@ GTSSpecification:
 
 GTSSelection:
 	GTSLiteral |
-	GTSFamilyChoice
+	GTSFamilyChoice |
+	GTSReference |
+	GTSWeave
 ;
 
 GTSLiteral:
@@ -44,6 +63,27 @@ GTSFamilyChoice:
 	"using" "["
 		transformationSteps = UnitCallList
 	"]"
+;
+
+GTSWeave:
+	"weave" ":" "{"
+		"map1" ":" mapping1 = GTSMappingRefOrInterfaceSpec
+		"map2" ":" mapping2 = GTSMappingRefOrInterfaceSpec
+	"}"
+;
+
+GTSMappingRefOrInterfaceSpec:
+	GTSMappingRef |
+	GTSMappingInterfaceSpec
+;
+
+GTSMappingRef:
+	ref = [GTSMapping]
+;
+
+// TODO: Eventually, want to generalise this so that these can all be named and used wherever a mapping can
+GTSMappingInterfaceSpec:
+	"interface_of" "(" gts_ref=[GTSSpecification] ")"
 ;
 
 UnitCallList:

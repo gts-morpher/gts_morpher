@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Shell
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2
 import org.eclipse.xtext.resource.XtextResourceSet
-import uk.ac.kcl.inf.composer.XDsmlComposer
+import uk.ac.kcl.inf.generator.AutoCompletionGenerator
 import uk.ac.kcl.inf.xdsml_compose.ui.internal.Xdsml_composeActivator
 
 import static com.google.common.collect.Maps.uniqueIndex
@@ -38,18 +38,18 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 	EclipseOutputConfigurationProvider outputConfigurationProvider
 
 	@Inject
-	XDsmlComposer composer
+	AutoCompletionGenerator generator
 
 	override execute(ExecutionEvent event) throws ExecutionException {
 		val selection = event.currentSelection
 		if (selection instanceof TreeSelection) {
 
-			val job = new Job("Composing xDSMLs") {
+			val job = new Job("Auto-completing") {
 				override protected run(IProgressMonitor monitor) {
 					val subMonitor = SubMonitor.convert(monitor, selection.size())
 
 					val status = selection.iterator.map [ f |
-						subMonitor.taskName = '''Composing xDSMLs mapped in «(f as IFile).name».'''
+						subMonitor.taskName = '''Auto-completing mappings in «(f as IFile).name».'''
 						handleFile(f as IFile, event.activeShell, subMonitor.split(1))
 					].reject[s|s.OK].toList
 
@@ -57,7 +57,7 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 						Status.OK_STATUS
 					} else {
 						new MultiStatus(Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, IStatus.ERROR, status,
-							"There have been issues composing some of the xDSMLs.", null)
+							"There have been issues auto-completing some of the mappings.", null)
 					}
 				}
 			}
@@ -84,16 +84,9 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 //		refreshOutputFolders(context, outputConfigurations, subMonitor.newChild(1));
 		fileSystemAccess.outputConfigurations = outputConfigIndex
 
-		subMonitor.taskName = "Composing..."
-		val issues = composer.doCompose(resource, fileSystemAccess, new EclipseProgressMonitor(subMonitor.split(1)))
-
-		if (!issues.empty) {
-			new MultiStatus(Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, IStatus.ERROR, issues.map [ i |
-					new Status(IStatus.ERROR, Xdsml_composeActivator.UK_AC_KCL_INF_XDSMLCOMPOSE, i.message)
-				], '''Please fix any issues with the morphism specification in «f.name» before attempting to weave xDSMLs from it.''',
-				null)
-		} else {
-			Status.OK_STATUS
-		}
+		subMonitor.taskName = "Auto-completing..."
+		generator.doGenerate(resource, fileSystemAccess, new EclipseProgressMonitor(subMonitor.split(1)))
+		
+		Status.OK_STATUS
 	}
 }

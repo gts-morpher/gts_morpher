@@ -25,7 +25,7 @@ class MorphismChecker {
 
 	public static val GENERAL_KERNEL_MISMATCH = "General kernel mismatch"
 
-	public static interface IssueAcceptor {
+	static interface IssueAcceptor {
 		def void issue(EObject object, String message)
 	}
 

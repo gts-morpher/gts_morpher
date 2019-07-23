@@ -11,13 +11,50 @@ We currently do not yet have an update site or fully functional feature. As a re
 3. Clone the repository and import all projects except for the example project into your workspace.
 4. Right-click on the [GenerateXDsmlCompose.mwe2](src/uk/ac/kcl/inf/GenerateXDsmlCompose.mwe2) file and choose `Run As/MWE2 workflow` to ensure all implementation files are correctly generated (this may be helpful to do also when pulling a new version of the repository).
 5. Choose `Run/Launch Runtime Eclipse` to start a fresh Eclipse with the plugins installed.
-6. Create a new project (we will also soon provide some example projects in the repository) and add a file with extension `.lang_compose`. In this file, you will be able to specify your GTS morphisms.
+6. Create a new project (or import the example projects in the repository) and add a file with extension `.lang_compose`. In this file, you will be able to specify your GTS morphisms.
 
 ## 2. Specifying GTS morphisms
 
-### 2.1. Basic morphism syntax
+GTSs and GTS morphisms are expressed in `.lang_compose` files. These are text files using the syntax below (syntax completion is available throughout the Eclipse editor).
 
-GTS morphisms are expressed in `.lang_compose` files. These are text files using the following syntax (syntax completion is available throughout the Eclipse editor):
+### 2.1. Basic GTS syntax
+
+A GTS consists of a type graph (an Ecore metamodel) and an optional Henshin module with Henshin graph-transformation rules (note that Henshin units are not currently supported by the tool). You can specify a GTS using a GTS literal as below:
+
+```
+gts name {
+  metamodel: "XXX"
+  behaviour: "YYY"
+}
+```
+
+Here, `name` can be an arbitrary, optional name for the GTS that may later be used to reference the GTS. The `metamodel` clause references an Ecore package (which must be found in a `.ecore` file on the classpath of the containing project) defining the metamodel (or typegraph) of the GTS. The `behaviour` clause references a Henshin module (which must be found in a `.henshin` file on the classpath of the containing project) the rules of which are considered to be the rules of the GTS. We currently only support Henshin (although we have plans to support other graph-transformation engines in the future) and do not support Henshin units. It is acceptable to leave out the `behaviour` clause.
+
+Some alternative forms of specifying GTSs exist; these all differ primarily by what is specified between the curly braces. We will discuss GTS families and GTS amalgamation further down in this documentation.
+
+Any GTS specification may be annotated with two modifiers: 
+
+1. `export` in front of the `gts` keyword indicates that the `.ecore` (and optionally the `.henshin`) file of the GTS should be generated into the `src-gen` folder of the containing project. This currently works only for amalgamated GTSs, but we expect to also support family-based GTSs in the future.
+2. `interface_of` GTSs are formed from the original metamodel and rules by only considering a sub-GTS typable over the metamodel elements explicitly annotated with `@Interface`. This is particularly useful for GTS amalgamation as described below.
+
+Finally, a GTS specification can reference another named GTS. This is particularly useful when referencing a pre-defined GTS from a mapping specification (see below). The example below shows how:
+
+```
+gts MyGTS {
+  metamodel: "A"
+  behaviour: "B"
+}
+
+gts MyReferencingGTS interface_of {
+  MyGTS
+}
+```
+
+Here, `MyReferencingGTS` is the same as `MyGTS` except that it only uses elements annotated `@Interface` in the metamodel.
+
+### 2.2. Basic morphism syntax
+
+:
 
 ```
 map {
@@ -48,7 +85,7 @@ map {
 }
 ```
 
-Here, `from` and `to` each specify a GTS by reference to external models. The `metamodel` clause references an Ecore package (which must be found in a `.ecore` file on the classpath of the containing project) defining the metamodel (or typegraph) of the GTS. The `behaviour` clause references a Henshin module (which must be found in a `.henshin` file on the classpath of the containing project) the rules of which are considered to be the rules of the GTS. We currently only support Henshin (although we have plans to support other graph-transformation engines in the future) and do not support Henshin units. It is acceptable to leave out the `behaviour` clauses, in which case the `behaviour_mapping` clause should also be left out and the file only specifies a clan-morphism between the metamodels.
+Here, `from` and `to` each specify a GTS. The block in curly braces after `from` and `to` is actually a GTS specification (see above) with the gts keyword left out. If you want to name a GTS in such an in-line position, you can simply add the `gts` keyword and the name between `from`/`to` and `{`. If your GTSs do not have rules the `behaviour_mapping` clause should also be left out and the file only specifies a clan-morphism between the metamodels.
 
 The mandatory `type_mapping` section describes the type-graph morphism part of the GTS morphism by providing a clan morphism between the two metamodels. This is achieved through a list of mapping statements that map either a `class` or a `reference`.
 
@@ -80,24 +117,9 @@ auto-complete unique map {
 
 The editor will add a warning marker to the `unique` keyword to show that this claim has not been checked yet. To check unique completability, explicitly request a validation by running the first `Validate` item from the editor's context menu. If auto-completion is not unique, an error marker will be added to the file. This provides quick-fix suggestions for mappings to add to sufficiently constrain the possible auto-completions. Suggestions are provided in order of potential impact; the top suggestion should offer the quickest path to unique auto-completion.
 
-### 2.3. `interface_of` morphisms
+To see the results of auto-completion, right-click on your `.lang_compose` file and select "Generate auto-completions". The auto-completions will be saved in files in the `src-gen/` folder of your project.
 
-When specifying the source or target GTS, the keyword `interface_of` can be added to the specification:
-
-```
-map {
-  from interface_of {
-    metamodel: "YYY"
-    behaviour: "YYY"
-  }
-  
-  ...
-}
-```
-
-This will check the GTS described and only consider a sub-GTS typable over the metamodel elements explicitly annotated `@Interface`. This is particularly useful for GTS amalgamation as described below.
-
-### 2.4 Mapping with virtual rules
+### 2.3 Mapping with virtual rules
 
 When a rule in the source GTS cannot be mapped to any rule in the target GTS, it can be mapped to a virtual rule. To indicate that a rule should be mapped to a virtual rule, write a rule mapping of the following form:
 
@@ -174,9 +196,20 @@ GTS family specifications as above can be used anywhere a GTS is expected to be 
 
 Once a valid morphism has been described (either as a complete map or by using ___unique___ auto-completion), GTS amalgamation can be performed (as per [1]). Where the source GTS is declared using `interface_of`, amalgamation will assume an inclusion to be defined by the `@Interface` annotations. It is currently not checked whether this is also an extension, so use at your own peril. `interface_of` for the target GTS is currently not supported when amalgamating GTSs.
 
-To trigger amalgamation, right-click on the `.lang_compose` file and select the `Weave xDSMLs` menu option. Assuming there are no errors, this will produce a `tg.ecore` and a `rules.henshin` (assuming there is a behaviour mapping) file in a sub-folder of `/src-gen` named after the `.lang_compose` file.
+To specify GTS amalgamation, use a special form of GTS specification:
 
-So far, no further checks of the morphisms are undertaken and no guarantees are given wrt semantics preservation of the amalgamation step.
+```
+gts name {
+  weave: {
+    map1: interface_of(A)
+    map2: AB
+  }
+}
+```
+
+Here, `A` is a reference to an existing named GTS. `AB` is a reference to a named mapping (name mappings by adding the name just after the `map` keyword). So far, GTS amalgamation is only supported where one of the maps is an `interface_of` mapping and the other one is a named mapping. No further checks of the morphisms are undertaken and no guarantees are given wrt semantics preservation of the amalgamation step.
+
+For any amalgamated GTS that is labeled `export`, the automatic builder will generate a corresponding `.ecore` and (possibly) `.henshin` file in the `src-gen/` folder.
 
 ## Bibliography
 
