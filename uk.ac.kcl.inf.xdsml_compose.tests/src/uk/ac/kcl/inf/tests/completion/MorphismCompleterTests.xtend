@@ -100,6 +100,43 @@ class MorphismCompleterTests extends AbstractTest {
 	}
 
 	/**
+	 * Tests that auto-completion with behaviour works where there are multiple possible completions for the create nodes in the behaviour and a GTS reference.
+	 */
+	@Test
+	def void completeMultipleWithCreateAndGTSReference() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts A {
+				metamodel: "A"
+				behaviour: "ARules"
+			}
+
+			auto-complete unique map {
+				from A
+				
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val completer = result.mappings.head.createMorphismCompleter
+		val numUncompleted = completer.findMorphismCompletions(true)
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
+
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+	}
+
+	/**
 	 * Tests that auto-completion with behaviour works where there are multiple possible completions for the preserve nodes in the behaviour.
 	 */
 	@Test

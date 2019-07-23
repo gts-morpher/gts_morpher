@@ -350,7 +350,6 @@ class ConverterTests extends AbstractTest {
 		
 		val module = XDsmlComposeFactory.eINSTANCE.createGTSSpecificationModule
 		resource.contents.add(module)
-		// FIXME: Handle the fact that resources now contain GTSSpecificationModules, not mappings directly
 		module.mappings.add(mapping.extractGTSMapping(result.mappings.head.source, result.mappings.head.target, resource))
 
 		assertEquals(
