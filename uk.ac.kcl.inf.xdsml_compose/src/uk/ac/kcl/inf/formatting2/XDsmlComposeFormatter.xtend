@@ -29,6 +29,7 @@ import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilySpecification
 
 class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
@@ -91,11 +92,7 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 	def dispatch void format(GTSFamilyChoice gts, extension IFormattableDocument document) {
 		gts.regionFor.keyword("family").append[noSpace]
 		gts.regionFor.keyword(":").append[oneSpace]
-		gts.blockIndent(document)
-		gts.root.format
-		gts.regionFor.keyword("transformers").prepend[newLine].append[noSpace]
-		// FIXME: Formatting for families
-//		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS).prepend[oneSpace]
+		gts.family.format
 		
 		gts.regionFor.keyword("using").prepend[newLines = 2].append[oneSpace]
 		
@@ -106,6 +103,20 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 		)
 		
 		gts.transformationSteps.format
+	}
+	
+	def dispatch void format(GTSFamilySpecification gts, extension IFormattableDocument document) {
+		gts.regionFor.keyword("gts_family").append[oneSpace]
+		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_FAMILY_SPECIFICATION__NAME).surround[oneSpace]
+		
+		gts.regionFor.keyword("{").prepend[oneSpace]
+		gts.blockIndent(document)
+		gts.regionFor.keyword("}").append[newLines = 2]
+		
+		gts.root_gts.format
+		
+		gts.regionFor.keyword("transformers").prepend[newLines = 2].append[noSpace]
+		gts.regionFor.keyword(":").append[oneSpace]
 	}
 	
 	def dispatch void format(GTSWeave gts, extension IFormattableDocument document) {
