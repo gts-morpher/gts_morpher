@@ -921,9 +921,57 @@ class ParsingAndValidationTests extends AbstractTest {
 			map {
 				from {
 					family: {
-						metamodel: "server"
+						{
+							metamodel: "server"
+						}
+						
 						transformers: "transformerRules"
 					}
+					
+					using [
+						addSubClass(server.Server, "Server1"),
+						addSubClass(server.Server, "Server2")
+					]
+				}
+				
+				to {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server1 => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertNotNull("Didn't manage to load transformers.", (result.mappings.head.source.gts as GTSFamilyChoice).transformers.name)
+
+		assertNotNull("Didn't find transformer being invoked",
+			(result.mappings.head.source.gts as GTSFamilyChoice).transformationSteps.steps.head.unit.name)
+	}
+
+	/**
+	 * Test basic parsing with a GTS family specification
+	 */
+	@Test
+	def void parsingBasicGTSFamilyWithReference() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts_family ServerFamily {
+				gts {
+					metamodel: "server"
+				}
+				
+				transformers: "transformerRules"
+			}
+			
+			map {
+				from {
+					family: ServerFamily
 					
 					using [
 						addSubClass(server.Server, "Server1"),
@@ -2205,7 +2253,10 @@ class ParsingAndValidationTests extends AbstractTest {
 			map {
 				from {
 					family: {
-						metamodel: "server"
+						{
+							metamodel: "server"
+						}
+						
 						transformers: "serverRules"
 					}
 					
@@ -2242,7 +2293,10 @@ class ParsingAndValidationTests extends AbstractTest {
 			map {
 				from {
 					family: {
-						metamodel: "server"
+						{
+							metamodel: "server"
+						}
+						
 						transformers: "transformerRules"
 					}
 					
@@ -2278,7 +2332,10 @@ class ParsingAndValidationTests extends AbstractTest {
 			map {
 				from {
 					family: {
-						metamodel: "server"
+						{
+							metamodel: "server"
+						}
+						
 						transformers: "transformerRules"
 					}
 					

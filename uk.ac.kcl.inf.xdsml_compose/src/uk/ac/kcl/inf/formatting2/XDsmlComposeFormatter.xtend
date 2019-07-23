@@ -28,6 +28,8 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitParameterList
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposePackage
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+
 class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
 	@Inject extension XDsmlComposeGrammarAccess
@@ -92,7 +94,8 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 		gts.blockIndent(document)
 		gts.root.format
 		gts.regionFor.keyword("transformers").prepend[newLine].append[noSpace]
-		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS).prepend[oneSpace]
+		// FIXME: Formatting for families
+//		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS).prepend[oneSpace]
 		
 		gts.regionFor.keyword("using").prepend[newLines = 2].append[oneSpace]
 		

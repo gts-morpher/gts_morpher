@@ -5,6 +5,8 @@
   <eClassifiers xsi:type="ecore:EClass" name="GTSSpecificationModule">
     <eStructuralFeatures xsi:type="ecore:EReference" name="gtss" upperBound="-1" eType="#//GTSSpecification"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="gts_families" upperBound="-1"
+        eType="#//GTSFamilySpecification" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="mappings" upperBound="-1"
         eType="#//GTSMapping" containment="true"/>
   </eClassifiers>
@@ -24,6 +26,12 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="behaviourMapping" eType="#//BehaviourMapping"
         containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GTSFamilySpecification" eSuperTypes="#//GTSFamilySpecificationOrReference">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root_gts" eType="#//GTSSpecificationOrReference"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="transformers" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Module"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="GTSSpecificationOrReference"/>
   <eClassifiers xsi:type="ecore:EClass" name="GTSReference" eSuperTypes="#//GTSSpecificationOrReference #//GTSSelection">
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//GTSSpecification"/>
@@ -41,11 +49,14 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="behaviour" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Module"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="GTSFamilyChoice" eSuperTypes="#//GTSSelection">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="root" eType="#//GTSLiteral"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="family" eType="#//GTSFamilySpecificationOrReference"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="transformers" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Module"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="transformationSteps" eType="#//UnitCallList"
         containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GTSFamilySpecificationOrReference"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GTSFamilyReference" eSuperTypes="#//GTSFamilySpecificationOrReference">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//GTSFamilySpecification"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="GTSWeave" eSuperTypes="#//GTSSelection">
     <eStructuralFeatures xsi:type="ecore:EReference" name="mapping1" eType="#//GTSMappingRefOrInterfaceSpec"

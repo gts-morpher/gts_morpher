@@ -39,8 +39,30 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitParameter
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilySpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyReference
 
 class GTSSpecificationHelper {
+	
+	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilyChoice gfc) {
+		gfc.family.root
+	}
+	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilySpecification gfs) {
+		gfs.root_gts
+	}
+	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilyReference gfr) {
+		gfr.ref.root
+	}
+
+	static dispatch def Module getTransformers(GTSFamilyChoice gfc) {
+		gfc.family.transformers
+	}
+	static dispatch def Module getTransformers(GTSFamilySpecification gfs) {
+		gfs.transformers
+	}
+	static dispatch def Module getTransformers(GTSFamilyReference gfr) {
+		gfr.ref.transformers
+	}
 
 	static dispatch def GTSSpecificationOrReference getSource(GTSMappingRefOrInterfaceSpec spec) { null }
 	static dispatch def GTSSpecificationOrReference getSource(GTSMappingRef ref) { ref.ref.source }

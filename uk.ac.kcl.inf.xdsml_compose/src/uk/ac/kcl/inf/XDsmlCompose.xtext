@@ -8,6 +8,7 @@ import "http://www.eclipse.org/emf/2011/Henshin" as gts
 GTSSpecificationModule:
 	(
 		gtss += GTSSpecification |
+		gts_families += GTSFamilySpecification |
 		mappings += GTSMapping
 	)*
 ;
@@ -25,6 +26,14 @@ GTSMapping:
 	"}"
 ;
 
+GTSFamilySpecification:
+	("gts_family" name=ID)? "{"
+		root_gts = GTSSpecificationOrReference
+		
+		"transformers" ":" transformers = [gts::Module | STRING]
+	"}"
+;
+
 GTSSpecificationOrReference:
 	GTSSpecification | 
 	GTSReference
@@ -35,7 +44,7 @@ GTSReference:
 ;
 
 GTSSpecification:
-	((export ?= "export")? "gts" name=ID)?
+	((export ?= "export")? "gts" (name=ID)?)?
 	(interface_mapping ?= "interface_of")?
 	"{"
 		gts = GTSSelection	
@@ -54,15 +63,31 @@ GTSLiteral:
 	("behaviour" ":" behaviour = [gts::Module | STRING])?
 ;
 
+//GTSFamilyChoice:
+//	"family" ":" "{"
+//		root = GTSLiteral
+//		"transformers" ":" transformers = [gts::Module | STRING]
+//	"}"
+//	
+//	"using" "["
+//		transformationSteps = UnitCallList
+//	"]"
+//;
 GTSFamilyChoice:
-	"family" ":" "{"
-		root = GTSLiteral
-		"transformers" ":" transformers = [gts::Module | STRING]
-	"}"
+	"family" ":" family = GTSFamilySpecificationOrReference
 	
 	"using" "["
 		transformationSteps = UnitCallList
 	"]"
+;
+
+GTSFamilySpecificationOrReference:
+	GTSFamilySpecification | 
+	GTSFamilyReference
+;
+
+GTSFamilyReference:
+	ref = [GTSFamilySpecification]
 ;
 
 GTSWeave:

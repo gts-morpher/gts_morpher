@@ -446,8 +446,9 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 			if ((!familyChoiceSpec.transformers.imports.contains(EcorePackage.eINSTANCE)) ||
 				(!familyChoiceSpec.transformers.imports.contains(HenshinPackage.eINSTANCE)) ||
 				(familyChoiceSpec.transformers.imports.size > 2)) {
-				error ("Transformer rules must be typed over Henshin rules and Ecore metamodels only.", 
-					familyChoiceSpec, XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS, INVALID_TRANSFORMER_SPECIFICATION)
+					// FIXME: Error reporting for families
+//				error ("Transformer rules must be typed over Henshin rules and Ecore metamodels only.", 
+//					familyChoiceSpec, XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS, INVALID_TRANSFORMER_SPECIFICATION)
 			}
 		}
 	}
