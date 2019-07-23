@@ -279,8 +279,11 @@ class FormatterTests extends AbstractTest {
 			map {
 				from interface_of {
 					family: {
-						metamodel: "a"
-						behaviour: "arules"
+						{
+							metamodel: "a"
+							behaviour: "arules"
+						}
+						
 						transformers: "transformers"
 					}
 			

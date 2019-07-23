@@ -49,8 +49,11 @@ class ConverterTests extends AbstractTest {
 	private def familySource() '''
 		from {
 			family: {
-				metamodel: "A"
-				behaviour: "ARules"
+				{
+					metamodel: "A"
+					behaviour: "ARules"
+				}
+				
 				transformers: "transformerRules"
 			}
 		
