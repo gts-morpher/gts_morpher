@@ -1,6 +1,5 @@
 package uk.ac.kcl.inf.composer
 
-import com.google.inject.Inject
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
@@ -13,30 +12,24 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcoreFactory
-import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Rule
-import org.eclipse.xtext.generator.IFileSystemAccess2
-import org.eclipse.xtext.validation.CheckMode
-import org.eclipse.xtext.validation.IResourceValidator
 import uk.ac.kcl.inf.util.IProgressMonitor
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.util.Triple
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
 import org.eclipse.emf.henshin.model.Attribute
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
-import org.eclipse.xtend.lib.annotations.Data
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -85,61 +78,6 @@ class XDsmlComposer {
 		}
 
 		override getMessage() { message }
-	}
-
-	@Data
-	static class Triple<A, B, C> {
-		val A a;
-		val B b;
-		val C c;
-	}
-
-	@Inject
-	IResourceValidator resourceValidator
-
-	/**
-	 * Perform the composition.
-	 * 
-	 * @param resource a resource with the morphism specification. If source is <code>interface_of</code> performs a 
-	 * full pushout, otherwise assumes that interface and full language are identical for the source. Currently does 
-	 * not support use of <code>interface_of</code> in the target GTS.
-	 * 
-	 * @param fsa used for file-system access
-	 * 
-	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
-	 */
-	def List<XDsmlComposer.Issue> doCompose(Resource resource, IFileSystemAccess2 fsa, IProgressMonitor monitor) {
-		val result = new ArrayList<XDsmlComposer.Issue>
-		val _monitor = monitor.convert(2)
-		try {
-			val issues = resourceValidator.validate(resource, CheckMode.ALL, _monitor.split("Validating resource.", 1))
-
-			if (!issues.empty) {
-				result.addAll(issues.map[i|new IssueIssue(i)])
-			} else {
-				val gtsModule = resource.contents.head as GTSSpecificationModule
-
-				gtsModule.gtss.filter[gts | gts.export].map[it.gts].filter(GTSWeave).map[weave |
-					new Pair((weave.eContainer as GTSSpecification).name, weave.doCompose(_monitor.split("Composing", 1)))
-				].forEach[p |
-					val weaveResult = p.value
-					val name = p.key
-					 
-					result.addAll(weaveResult.a)
-					if (weaveResult.b !== null) {
-						weaveResult.b.saveModel(fsa, resource, name, "tg.ecore")						
-					}
-					if (weaveResult.c !== null) {
-						weaveResult.c.saveModel(fsa, resource, name, "rules.henshin")
-					}
-				]
-			}
-		} catch (Exception e) {
-			e.printStackTrace
-			result.add(new ExceptionIssue(e))
-		}
-
-		result
 	}
 
 	/**
@@ -216,14 +154,6 @@ class XDsmlComposer {
 		}
 
 		new Triple(result, composedTG, composedModule)
-	}
-
-	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String gtsName, String fileName) {
-		val composedTGResource = baseResource.resourceSet.createResource(
-			fsa.getURI(gtsName + "/" + fileName))
-		composedTGResource.contents.clear
-		composedTGResource.contents.add(model)
-		composedTGResource.save(emptyMap)
 	}
 
 	private enum Origin {
