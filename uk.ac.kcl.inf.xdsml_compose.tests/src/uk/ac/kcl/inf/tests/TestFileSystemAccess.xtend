@@ -1,4 +1,4 @@
-package uk.ac.kcl.inf.tests.composer
+package uk.ac.kcl.inf.tests
 
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.util.RuntimeIOException

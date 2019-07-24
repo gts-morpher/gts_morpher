@@ -4,12 +4,22 @@
 package uk.ac.kcl.inf.generator
 
 import com.google.inject.Inject
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import org.eclipse.xtext.validation.CheckMode
+import org.eclipse.xtext.validation.IResourceValidator
 import uk.ac.kcl.inf.composer.XDsmlComposer
 import uk.ac.kcl.inf.util.IProgressMonitor
+import uk.ac.kcl.inf.util.Triple
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
+import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
+
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 /**
  * Generates code from your model files on save.
@@ -21,10 +31,56 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	@Inject
 	extension XDsmlComposer composer
 
+	@Inject
+	extension IResourceValidator resourceValidator
+
 	/**
 	 * Generate all composed GTSs
 	 */
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		doCompose(resource, fsa, IProgressMonitor.wrapCancelIndicator(context.cancelIndicator))
+		val monitor = IProgressMonitor.wrapCancelIndicator(context.cancelIndicator)
+		val _monitor = monitor.convert(2)
+		try {
+			val issues = resource.validate(CheckMode.ALL, _monitor.split("Validating resource.", 1))
+
+			if (issues.empty) {
+				val gtsModule = resource.contents.head as GTSSpecificationModule
+
+				// TODO: Also do family choices, not just weaves
+				gtsModule.gtss.filter[gts|gts.export].map[it.gts].filter [
+					it instanceof GTSWeave || it instanceof GTSFamilyChoice
+				].map [ sel |
+					val name = (sel.eContainer as GTSSpecification).name
+
+					new Pair(name, if (sel instanceof GTSWeave) {
+						sel.doCompose(_monitor.split("Composing", 1))
+					} else if (sel instanceof GTSFamilyChoice) {
+						new Triple(sel.issues, sel.metamodel, sel.behaviour)
+					})
+				].forEach [ p |
+					val weaveResult = p.value
+					val name = p.key
+
+					if (weaveResult.a.empty) {
+						if (weaveResult.b !== null) {
+							weaveResult.b.saveModel(fsa, resource, name, "tg.ecore")
+						}
+						if (weaveResult.c !== null) {
+							weaveResult.c.saveModel(fsa, resource, name, "rules.henshin")
+						}
+					}
+				]
+			}
+		} catch (Exception e) {
+			e.printStackTrace
+		}
+	}
+
+	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String gtsName,
+		String fileName) {
+		val composedTGResource = baseResource.resourceSet.createResource(fsa.getURI(gtsName + "/" + fileName))
+		composedTGResource.contents.clear
+		composedTGResource.contents.add(model)
+		composedTGResource.save(emptyMap)
 	}
 }
