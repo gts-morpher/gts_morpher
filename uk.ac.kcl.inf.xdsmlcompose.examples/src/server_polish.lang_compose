@@ -7,7 +7,7 @@ gts_family ServerFamily {
 	transformers: "transformerRules"
 }
 
-gts AdaptedServer {
+export gts AdaptedServer {
 	family: ServerFamily
 
 	using [
