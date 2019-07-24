@@ -13,9 +13,13 @@ import org.eclipse.xtext.validation.CheckMode
 import org.eclipse.xtext.validation.IResourceValidator
 import uk.ac.kcl.inf.composer.XDsmlComposer
 import uk.ac.kcl.inf.util.IProgressMonitor
+import uk.ac.kcl.inf.util.Triple
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
+
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 /**
  * Generates code from your model files on save.
@@ -26,9 +30,9 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 
 	@Inject
 	extension XDsmlComposer composer
-	
+
 	@Inject
-	extension IResourceValidator resourceValidator	
+	extension IResourceValidator resourceValidator
 
 	/**
 	 * Generate all composed GTSs
@@ -43,19 +47,27 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 				val gtsModule = resource.contents.head as GTSSpecificationModule
 
 				// TODO: Also do family choices, not just weaves
-				gtsModule.gtss.filter[gts | gts.export].map[it.gts].filter(GTSWeave).map[weave |
-					new Pair((weave.eContainer as GTSSpecification).name, weave.doCompose(_monitor.split("Composing", 1)))
-				].forEach[p |
+				gtsModule.gtss.filter[gts|gts.export].map[it.gts].filter [
+					it instanceof GTSWeave || it instanceof GTSFamilyChoice
+				].map [ sel |
+					val name = (sel.eContainer as GTSSpecification).name
+
+					new Pair(name, if (sel instanceof GTSWeave) {
+						sel.doCompose(_monitor.split("Composing", 1))
+					} else if (sel instanceof GTSFamilyChoice) {
+						new Triple(sel.issues, sel.metamodel, sel.behaviour)
+					})
+				].forEach [ p |
 					val weaveResult = p.value
 					val name = p.key
-	
+
 					if (weaveResult.a.empty) {
 						if (weaveResult.b !== null) {
-							weaveResult.b.saveModel(fsa, resource, name, "tg.ecore")						
+							weaveResult.b.saveModel(fsa, resource, name, "tg.ecore")
 						}
 						if (weaveResult.c !== null) {
 							weaveResult.c.saveModel(fsa, resource, name, "rules.henshin")
-						}						
+						}
 					}
 				]
 			}
@@ -63,10 +75,10 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 			e.printStackTrace
 		}
 	}
-	
-	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String gtsName, String fileName) {
-		val composedTGResource = baseResource.resourceSet.createResource(
-			fsa.getURI(gtsName + "/" + fileName))
+
+	private def void saveModel(EObject model, IFileSystemAccess2 fsa, Resource baseResource, String gtsName,
+		String fileName) {
+		val composedTGResource = baseResource.resourceSet.createResource(fsa.getURI(gtsName + "/" + fileName))
 		composedTGResource.contents.clear
 		composedTGResource.contents.add(model)
 		composedTGResource.save(emptyMap)

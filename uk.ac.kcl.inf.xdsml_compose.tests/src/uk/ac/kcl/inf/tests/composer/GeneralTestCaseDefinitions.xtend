@@ -35,14 +35,6 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 	@Inject
 	extension ValidationTestHelper
 
-	override protected createResourceSet(String[] fileNames) {
-		val rs = super.createResourceSet(fileNames)
-
-		rs.URIConverter.URIHandlers.add(0, new TestURIHandlerImpl)
-
-		rs
-	}
-
 	private def createNormalResourceSet() {
 		#[
 			"A.ecore",
