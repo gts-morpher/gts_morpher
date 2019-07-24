@@ -1,4 +1,4 @@
-package uk.ac.kcl.inf.tests.composer
+package uk.ac.kcl.inf.tests
 
 import java.io.IOException
 import java.io.OutputStream

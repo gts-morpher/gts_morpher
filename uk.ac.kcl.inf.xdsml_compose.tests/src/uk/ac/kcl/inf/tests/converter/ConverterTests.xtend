@@ -11,14 +11,14 @@ import org.eclipse.xtext.testing.util.ParseHelper
 import org.junit.Test
 import org.junit.runner.RunWith
 import uk.ac.kcl.inf.tests.AbstractTest
+import uk.ac.kcl.inf.tests.TestURIHandlerImpl
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
-import uk.ac.kcl.inf.tests.composer.TestURIHandlerImpl
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
+import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
-import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
-import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)

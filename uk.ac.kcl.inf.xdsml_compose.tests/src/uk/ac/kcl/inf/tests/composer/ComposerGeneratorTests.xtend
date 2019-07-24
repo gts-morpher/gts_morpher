@@ -10,6 +10,8 @@ import org.eclipse.xtext.testing.XtextRunner
 import org.junit.runner.RunWith
 import uk.ac.kcl.inf.composer.XDsmlComposer.Issue
 import uk.ac.kcl.inf.generator.XDsmlComposeGenerator
+import uk.ac.kcl.inf.tests.TestFileSystemAccess
+import uk.ac.kcl.inf.tests.TestURIHandlerImpl
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.util.IProgressMonitor
 import uk.ac.kcl.inf.util.Triple

@@ -16,6 +16,7 @@ import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.junit.Test
 import uk.ac.kcl.inf.composer.XDsmlComposer.Issue
 import uk.ac.kcl.inf.tests.AbstractTest
+import uk.ac.kcl.inf.tests.TestURIHandlerImpl
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.util.Triple
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
