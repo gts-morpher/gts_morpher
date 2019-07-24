@@ -1,9 +1,14 @@
-gts AdaptedServer {
-	family: {
+gts_family ServerFamily {
+	{
 		metamodel: "server"
 		behaviour: "serverRules"
-		transformers: "transformerRules"
 	}
+
+	transformers: "transformerRules"
+}
+
+gts AdaptedServer {
+	family: ServerFamily
 
 	using [
 		addSubClass (server.Queue, "InputQueue"),

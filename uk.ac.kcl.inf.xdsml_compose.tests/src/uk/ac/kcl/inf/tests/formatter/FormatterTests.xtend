@@ -279,8 +279,11 @@ class FormatterTests extends AbstractTest {
 			map {
 				from interface_of {
 					family: {
-						metamodel: "a"
-						behaviour: "arules"
+						{
+							metamodel: "a"
+							behaviour: "arules"
+						}
+			
 						transformers: "transformers"
 					}
 			
@@ -311,7 +314,55 @@ class FormatterTests extends AbstractTest {
 			}
 			
 			'''
-		val testInput = '''map{from  interface_of{family :{metamodel  :"a"behaviour :"arules"transformers  :"transformers"}using[addSubclass(a.b,"foo"),callOther(c.d,d.f,"s")]}to{metamodel :"b"behaviour :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d}}}'''
+		val testInput = '''map{from  interface_of{family :{{metamodel  :"a"behaviour :"arules"}transformers  :"transformers"}using[addSubclass(a.b,"foo"),callOther(c.d,d.f,"s")]}to{metamodel :"b"behaviour :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d}}}'''
+		
+		doTest(testInput, expectedResult)
+	}
+
+	@Test
+	def testMorphismFromFamilyWithFamilyReference() {
+		val expectedResult = '''
+			gts_family AFamily {
+				{
+					metamodel: "a"
+					behaviour: "arules"
+				}
+
+				transformers: "transformers"
+			}
+
+			map {
+				from interface_of {
+					family: AFamily
+			
+					using [
+						addSubclass (a.b, "foo"),
+						callOther (c.d, d.f, "s")
+					]
+				}
+			
+				to {
+					metamodel: "b"
+					behaviour: "brules"
+				}
+			
+				type_mapping {
+					class a.A => b.B
+					reference a.A.a => b.B.b
+					attribute a.A.b => b.B.c
+				}
+			
+				behaviour_mapping {
+					rule a to b {
+						object a => b
+						link [A->B:C] => [D->E:F]
+						slot a.c => b.d
+					}
+				}
+			}
+			
+			'''
+		val testInput = '''gts_family    AFamily      {{metamodel  :"a"behaviour :"arules"}transformers  :"transformers"}map{from  interface_of{family :AFamily    using[addSubclass(a.b,"foo"),callOther(c.d,d.f,"s")]}to{metamodel :"b"behaviour :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d}}}'''
 		
 		doTest(testInput, expectedResult)
 	}

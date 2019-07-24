@@ -326,8 +326,11 @@ class MorphismCompleterTests extends AbstractTest {
 			map {
 				from interface_of {
 					family: {
-						metamodel: "server"
-						behaviour: "serverRules"
+						{
+							metamodel: "server"
+							behaviour: "serverRules"
+						}
+						
 						transformers: "transformerRules"
 					}
 					
@@ -382,7 +385,10 @@ class MorphismCompleterTests extends AbstractTest {
 			map {
 				from interface_of {
 					family: {
-						metamodel: "server"
+						{
+							metamodel: "server"
+						}
+						
 						transformers: "transformerRules"
 					}
 					

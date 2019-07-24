@@ -39,7 +39,10 @@ class GTSFamiliesTests extends AbstractTest {
 			auto-complete map {
 				from {
 					family: {
-						metamodel: "server1"
+						{
+							metamodel: "server1"
+						}
+						
 						transformers: "transformerRules"
 					}
 					
@@ -77,8 +80,11 @@ class GTSFamiliesTests extends AbstractTest {
 			auto-complete map {
 				from {
 					family: {
-						metamodel: "server1"
-						behaviour: "server1Rules"
+						{
+							metamodel: "server1"
+							behaviour: "server1Rules"
+						}
+						
 						transformers: "transformerRules"
 					}
 					
@@ -124,7 +130,10 @@ class GTSFamiliesTests extends AbstractTest {
 			auto-complete map {
 				from {
 					family: {
-						metamodel: "server1"
+						{
+							metamodel: "server1"
+						}
+						
 						transformers: "transformerRules"
 					}
 					

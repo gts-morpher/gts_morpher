@@ -62,6 +62,7 @@ import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilySpecification
 
 /**
  * This class contains custom validation rules. 
@@ -441,13 +442,13 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 	 * Check transformer specification is a validly typed Henshin module.
 	 */
 	@Check
-	def checkValidTransformers(GTSFamilyChoice familyChoiceSpec) {
-		if (familyChoiceSpec.transformers !== null) {
-			if ((!familyChoiceSpec.transformers.imports.contains(EcorePackage.eINSTANCE)) ||
-				(!familyChoiceSpec.transformers.imports.contains(HenshinPackage.eINSTANCE)) ||
-				(familyChoiceSpec.transformers.imports.size > 2)) {
+	def checkValidTransformers(GTSFamilySpecification familySpec) {
+		if (familySpec.transformers !== null) {
+			if ((!familySpec.transformers.imports.contains(EcorePackage.eINSTANCE)) ||
+				(!familySpec.transformers.imports.contains(HenshinPackage.eINSTANCE)) ||
+				(familySpec.transformers.imports.size > 2)) {
 				error ("Transformer rules must be typed over Henshin rules and Ecore metamodels only.", 
-					familyChoiceSpec, XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE__TRANSFORMERS, INVALID_TRANSFORMER_SPECIFICATION)
+					familySpec, XDsmlComposePackage.Literals.GTS_FAMILY_SPECIFICATION__TRANSFORMERS, INVALID_TRANSFORMER_SPECIFICATION)
 			}
 		}
 	}
