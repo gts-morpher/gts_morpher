@@ -2278,7 +2278,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		result.assertError(XDsmlComposePackage.Literals.GTS_FAMILY_CHOICE,
+		result.assertError(XDsmlComposePackage.Literals.GTS_FAMILY_SPECIFICATION,
 			XDsmlComposeValidator.INVALID_TRANSFORMER_SPECIFICATION)
 	}
 
