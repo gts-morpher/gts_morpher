@@ -336,6 +336,42 @@ class ConverterTests extends AbstractTest {
 			}'''.doTest
 	}
 
+	@Test
+	def testMappingWithDuplicatedGTSReference() {
+		'''
+			gts A {
+				metamodel: "A"
+			}
+			
+			map {
+				from A
+
+				to A
+			
+				type_mapping {
+					class A.A1 => A.A1
+				}
+			}'''.doTest
+	}
+
+	@Test
+	def testMappingWithDuplicatedGTSReferenceAndInterfaceOf() {
+		'''
+			gts A {
+				metamodel: "A"
+			}
+			
+			map {
+				from interface_of { A }
+
+				to A
+			
+				type_mapping {
+					class A.A1 => A.A1
+				}
+			}'''.doTest
+	}
+
 	private def void doTest(CharSequence text) {
 		val result = text.parse(createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
