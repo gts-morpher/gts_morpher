@@ -18,7 +18,7 @@ import org.eclipse.jface.viewers.TreeSelection
 import org.eclipse.swt.widgets.Shell
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2
-import org.eclipse.xtext.resource.XtextResourceSet
+import org.eclipse.xtext.ui.resource.IResourceSetProvider
 import uk.ac.kcl.inf.generator.AutoCompletionGenerator
 import uk.ac.kcl.inf.xdsml_compose.ui.internal.Xdsml_composeActivator
 
@@ -29,7 +29,8 @@ import static extension org.eclipse.ui.handlers.HandlerUtil.*
 class ComposeXDsmlsHandler extends AbstractHandler {
 
 	@Inject
-	Provider<XtextResourceSet> resourceSetProvider
+	IResourceSetProvider resourceSetProvider
+//	Provider<XtextResourceSet> resourceSetProvider
 
 	@Inject
 	Provider<EclipseResourceFileSystemAccess2> fileSystemAccessProvider
@@ -72,7 +73,7 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 
 		subMonitor.taskName = "Preparing..."
 		subMonitor.split(1)
-		val resourceSet = resourceSetProvider.get
+		val resourceSet = resourceSetProvider.get(f.project)
 		val resource = resourceSet.getResource(URI.createPlatformResourceURI(f.fullPath.toString, false), true)
 
 		val EclipseResourceFileSystemAccess2 fileSystemAccess = fileSystemAccessProvider.get()
