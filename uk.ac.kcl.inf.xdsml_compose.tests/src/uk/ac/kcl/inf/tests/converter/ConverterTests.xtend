@@ -291,6 +291,33 @@ class ConverterTests extends AbstractTest {
 	}
 
 	@Test
+	def void testBasicMappingWithToVirtualRuleAndGTSReferences() {
+		'''
+			gts K {
+				metamodel: "K"
+				behaviour: "KRules"
+			}
+			
+			gts L {
+				metamodel: "L"
+			}
+			
+			map {
+				from interface_of { K }
+			
+				to L
+			
+				type_mapping {
+					class K.K1 => L.L1
+				}
+			
+				behaviour_mapping {
+					rule init to virtual
+				}
+			}'''.doTest
+	}
+
+	@Test
 	def void testBasicMappingWithToIdentityRule() {
 		'''
 			map {
@@ -393,10 +420,10 @@ class ConverterTests extends AbstractTest {
 
 		assertEquals(
 			"Extraction failed",
-			result.serialize(
-				SaveOptions.newBuilder.format.options),
+			result.mappings.head.serialize(
+				SaveOptions.newBuilder.format.options).trim,
 			module.serialize(
-				SaveOptions.newBuilder.format.options)
+				SaveOptions.newBuilder.format.options).trim
 		)
 	}
 }
