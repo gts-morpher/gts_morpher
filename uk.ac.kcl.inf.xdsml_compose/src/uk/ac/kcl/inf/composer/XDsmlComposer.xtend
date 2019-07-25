@@ -286,11 +286,12 @@ class XDsmlComposer {
 			]
 		}
 
+		// FIXME: If a supertype isn't in an interface, but we're doing an interface_of mapping, then origKey on the supertype will return null, crashing the below code...
 		private def weaveInheritance() {
 			keySet.filter[p|p.value instanceof EClass].forEach [ p |
 				val composed = get(p) as EClass
-				composed.ESuperTypes.addAll((p.value as EClass).ESuperTypes.map[ec2|get(ec2.origKey(p.key)) as EClass].
-					reject [ ec2 |
+				composed.ESuperTypes.addAll((p.value as EClass).ESuperTypes.map[ec2|get(ec2.origKey(p.key)) as EClass].filterNull // FIXME: This isn't ideal as it will potentially mask any number of other problems.
+					.reject [ ec2 |
 						composed === ec2 || composed.ESuperTypes.contains(ec2)
 					])
 			]
