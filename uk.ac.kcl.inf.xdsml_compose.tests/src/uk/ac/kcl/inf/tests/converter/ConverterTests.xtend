@@ -1,8 +1,11 @@
 package uk.ac.kcl.inf.tests.converter
 
 import com.google.inject.Inject
+import java.util.List
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.xtext.nodemodel.INode
 import org.eclipse.xtext.resource.SaveOptions
 import org.eclipse.xtext.serializer.ISerializer
 import org.eclipse.xtext.testing.InjectWith
@@ -14,7 +17,6 @@ import uk.ac.kcl.inf.tests.AbstractTest
 import uk.ac.kcl.inf.tests.TestURIHandlerImpl
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
-import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 import static org.junit.Assert.*
 

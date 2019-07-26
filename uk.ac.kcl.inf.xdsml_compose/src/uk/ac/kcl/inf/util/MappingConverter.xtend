@@ -21,6 +21,7 @@ import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.nodemodel.INode
 import org.eclipse.xtext.scoping.IScope
 import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
@@ -206,7 +207,10 @@ class MappingConverter {
 		val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
 		module.mappings.add(result)
 		
+		// FIXME: This loses the EMF adapters Xtext uses to deserialise things...
 		result.source = from.resourceLocalCopy
+		// TODO Just copying the node across as below doesn't solve the problem.
+//		result.source.eAdapters.add(from.eAdapters.findFirst[it instanceof INode])
 		result.target = to.resourceLocalCopy
 
 		result.typeMapping = XDsmlComposeFactory.eINSTANCE.createTypeGraphMapping
