@@ -414,15 +414,13 @@ class ConverterTests extends AbstractTest {
 		rs.URIConverter.URIHandlers.add(0, new TestURIHandlerImpl)
 		val resource = rs.createResource(URI.createURI("test:/synthetic.lang_compose"))
 		
-		val module = XDsmlComposeFactory.eINSTANCE.createGTSSpecificationModule
-		resource.contents.add(module)
-		module.mappings.add(mapping.extractGTSMapping(result.mappings.head.source, result.mappings.head.target, resource))
+		val extractedMapping = mapping.extractGTSMapping(result.mappings.head.source, result.mappings.head.target, resource)
 
 		assertEquals(
 			"Extraction failed",
 			result.mappings.head.serialize(
 				SaveOptions.newBuilder.format.options).trim,
-			module.serialize(
+			extractedMapping.serialize(
 				SaveOptions.newBuilder.format.options).trim
 		)
 	}
