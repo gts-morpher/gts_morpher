@@ -39,7 +39,7 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 		mapping.regionFor.keyword("auto-complete").append[oneSpace]
 		mapping.regionFor.keyword("unique").surround[oneSpace]
 		mapping.regionFor.keyword("map").append[oneSpace]
-		mapping.regionFor.feature(XDsmlComposePackage.Literals.GTS_MAPPING__NAME).surround[oneSpace]
+		mapping.regionFor.feature(XDsmlComposePackage.Literals.GTS_SPECIFICATION_MODULE_MEMBER__NAME).surround[oneSpace]
 		
 		mapping.blockIndent(document)
 		
@@ -68,7 +68,7 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 	def dispatch void format(GTSSpecification gts, extension IFormattableDocument document) {
 		gts.regionFor.keyword("export").append[oneSpace]
 		gts.regionFor.keyword("gts").append[oneSpace]
-		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_SPECIFICATION__NAME).surround[oneSpace]
+		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_SPECIFICATION_MODULE_MEMBER__NAME).surround[oneSpace]
 
 		gts.regionFor.keyword("interface_of").append[oneSpace]
 
@@ -107,7 +107,7 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
 	def dispatch void format(GTSFamilySpecification gts, extension IFormattableDocument document) {
 		gts.regionFor.keyword("gts_family").append[oneSpace]
-		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_FAMILY_SPECIFICATION__NAME).surround[oneSpace]
+		gts.regionFor.feature(XDsmlComposePackage.Literals.GTS_SPECIFICATION_MODULE_MEMBER__NAME).surround[oneSpace]
 		
 		gts.regionFor.keyword("{").prepend[oneSpace]
 		gts.blockIndent(document)

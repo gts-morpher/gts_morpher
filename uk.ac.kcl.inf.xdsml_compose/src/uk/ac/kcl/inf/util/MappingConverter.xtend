@@ -205,7 +205,7 @@ class MappingConverter {
 		res.contents.add(module)
 		
 		val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
-		module.mappings.add(result)
+		module.members.add(result)
 		
 		// FIXME: This loses the EMF adapters Xtext uses to deserialise things...
 		result.source = from.resourceLocalCopy

@@ -16,6 +16,8 @@ import uk.ac.kcl.inf.util.Triple
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
+
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
 class ComposerTests extends GeneralTestCaseDefinitions {

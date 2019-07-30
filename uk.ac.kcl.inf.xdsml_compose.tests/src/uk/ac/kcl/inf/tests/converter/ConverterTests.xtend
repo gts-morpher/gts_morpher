@@ -1,11 +1,8 @@
 package uk.ac.kcl.inf.tests.converter
 
 import com.google.inject.Inject
-import java.util.List
 import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.xtext.nodemodel.INode
 import org.eclipse.xtext.resource.SaveOptions
 import org.eclipse.xtext.serializer.ISerializer
 import org.eclipse.xtext.testing.InjectWith
@@ -21,6 +18,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -300,14 +298,14 @@ class ConverterTests extends AbstractTest {
 				behaviour: "KRules"
 			}
 			
-			gts L {
+			gts LGTS {
 				metamodel: "L"
 			}
 			
 			map {
 				from interface_of { K }
 			
-				to L
+				to LGTS
 			
 				type_mapping {
 					class K.K1 => L.L1
@@ -368,14 +366,14 @@ class ConverterTests extends AbstractTest {
 	@Test
 	def testMappingWithDuplicatedGTSReference() {
 		'''
-			gts A {
+			gts AGTS {
 				metamodel: "A"
 			}
 			
 			map {
-				from A
+				from AGTS
 
-				to A
+				to AGTS
 			
 				type_mapping {
 					class A.A1 => A.A1

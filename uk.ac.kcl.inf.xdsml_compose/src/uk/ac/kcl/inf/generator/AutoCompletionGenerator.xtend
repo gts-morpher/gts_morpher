@@ -9,6 +9,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 
 import static extension uk.ac.kcl.inf.util.MappingConverter.extractGTSMapping
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 /**
  * Generator producing auto-completions for marked morphisms.

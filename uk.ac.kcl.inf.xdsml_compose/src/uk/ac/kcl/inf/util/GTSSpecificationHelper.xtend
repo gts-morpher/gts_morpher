@@ -23,13 +23,17 @@ import uk.ac.kcl.inf.composer.XDsmlComposer
 import uk.ac.kcl.inf.util.MultiResourceOnChangeEvictingCache.IClearableItem
 import uk.ac.kcl.inf.xDsmlCompose.EObjectReferenceParameter
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyReference
+import uk.ac.kcl.inf.xDsmlCompose.GTSFamilySpecification
 import uk.ac.kcl.inf.xDsmlCompose.GTSLiteral
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRefOrInterfaceSpec
 import uk.ac.kcl.inf.xDsmlCompose.GTSReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSSelection
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecification
+import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationOrReference
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.NumericParameter
@@ -39,10 +43,20 @@ import uk.ac.kcl.inf.xDsmlCompose.UnitParameter
 import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
-import uk.ac.kcl.inf.xDsmlCompose.GTSFamilySpecification
-import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyReference
 
 class GTSSpecificationHelper {
+	
+	static def getGtss (GTSSpecificationModule module) {
+		module.members.filter(GTSSpecification)
+	}
+	
+	static def getGts_families (GTSSpecificationModule module) {
+		module.members.filter(GTSFamilySpecification)
+	}
+	
+	static def getMappings (GTSSpecificationModule module) {
+		module.members.filter(GTSMapping)
+	}
 	
 	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilyChoice gfc) {
 		gfc.family.root
