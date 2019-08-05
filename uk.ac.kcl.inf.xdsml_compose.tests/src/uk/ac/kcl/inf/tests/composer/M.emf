@@ -1,0 +1,18 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/M", prefix="m")
+package M;
+
+class M0 {
+	attr EBoolean flag;
+}
+
+@Interface
+class M1 extends M0 {
+	@Interface
+	ref M2[*]#m1 m2s;
+}
+
+@Interface
+class M2 extends M0 {
+    @Interface
+	ref M1#m2s m1;
+}

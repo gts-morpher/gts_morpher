@@ -1,10 +1,7 @@
 package uk.ac.kcl.inf.tests.converter
 
 import com.google.inject.Inject
-import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtext.resource.SaveOptions
 import org.eclipse.xtext.serializer.ISerializer
@@ -19,10 +16,10 @@ import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 
 import static org.junit.Assert.*
+import static uk.ac.kcl.inf.tests.EqualityHelper.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
-import org.eclipse.emf.ecore.EStructuralFeature
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -428,79 +425,5 @@ class ConverterTests extends AbstractTest {
 			result.mappings.head.serialize(SaveOptions.newBuilder.format.options).trim,
 			extractedMapping.serialize(SaveOptions.newBuilder.format.options).trim
 		)
-	}
-
-	private def void assertEObjectsEquals(String message, EObject expected, EObject actual) {
-		assertTrue(message, new EqualityHelper(message).equals(expected, actual))
-	}
-
-	private static class EqualityHelper extends EcoreUtil.EqualityHelper {
-		val String message
-
-		new(String message) {
-			this.message = message
-		}
-
-		override boolean equals(EObject expected, EObject actual) {
-			val areEqual = super.equals(expected, actual)
-
-			if (!areEqual) {
-				fail(format(expected, actual))
-			}
-
-			areEqual
-		}
-
-		override protected haveEqualFeature(EObject expected, EObject actual, EStructuralFeature feature) {
-			val areEqual = super.haveEqualFeature(expected, actual, feature)
-
-			if (!areEqual) {
-				fail(feature.format(expected, actual))
-			}
-
-			areEqual
-		}
-
-		private def String format(EStructuralFeature feature, EObject expected, EObject actual) {
-			var String formatted = ""
-			if (message !== null && message != "") {
-				formatted = message + " "
-			}
-
-			formatted +=
-				"Object " + actual.formatClassAndValue + " differed from expected object " +
-					expected.formatClassAndValue + " in feature " + feature.name + ".\n"
-
-			var String expectedString
-			var String actualString
-
-			if (feature.many) {
-				expectedString = (expected.eGet(feature) as EList<? extends EObject>).map[eo|eo.formatClassAndValue].join(
-					", ")
-				actualString = (actual.eGet(feature) as EList<? extends EObject>).map[eo|eo.formatClassAndValue].join(", ")
-			} else {
-				expectedString = (expected.eGet(feature) as EObject).formatClassAndValue
-				actualString = (actual.eGet(feature) as EObject).formatClassAndValue
-			}
-
-			formatted + "Expected " + expectedString + " but was " + actualString
-		}
-
-		private def String format(EObject expected, EObject actual) {
-			var String formatted = ""
-			if (message !== null && message != "") {
-				formatted = message + " "
-			}
-
-			formatted + "expected: " + expected.formatClassAndValue + " but was: " + actual.formatClassAndValue
-		}
-
-		private def String formatClassAndValue(EObject value) {
-			val className = value === null ? "null" : value.eClass.name
-			val valueString = value === null ? "null" : value.eClass.EAllAttributes.map[attr|value.eGet(attr)?.toString].
-					join(", ")
-
-			className + "<" + valueString + ">"
-		}
 	}
 }

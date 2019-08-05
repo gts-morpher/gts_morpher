@@ -91,14 +91,13 @@ class XDsmlComposer {
 	 * 
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
-	def Triple<List<XDsmlComposer.Issue>,EPackage,Module> doCompose(GTSWeave weaving, IProgressMonitor monitor) {
+	def Triple<List<XDsmlComposer.Issue>, EPackage, Module> doCompose(GTSWeave weaving, IProgressMonitor monitor) {
 		val result = new ArrayList<XDsmlComposer.Issue>
-		var Module composedModule = null 
-		var EPackage composedTG = null 
+		var Module composedModule = null
+		var EPackage composedTG = null
 		val _monitor = monitor.convert(4)
-				
+
 		// TODO: Should probably validate weaving before going on...
-		
 		// Assume one mapping is an interface_of mapping, then find the other one and use it to do the weave
 		var GTSMapping mapping
 		if (weaving.mapping1 instanceof GTSMappingInterfaceSpec) {
@@ -125,10 +124,10 @@ class XDsmlComposer {
 				val completer = mapping.createMorphismCompleter
 				if (completer.findMorphismCompletions(false) == 0) {
 					if (completer.completedMappings.size == 1) {
-						tgMapping = new HashMap(completer.completedMappings.head.filter [k, v |
+						tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
 							(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
 						] as Map<EObject, EObject>)
-						behaviourMapping = new HashMap(completer.completedMappings.head.filter [k, v |
+						behaviourMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
 							!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
 						] as Map<EObject, EObject>)
 					} else {
@@ -149,8 +148,8 @@ class XDsmlComposer {
 			composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
 
 			_monitor.split("Composing rules.", 1)
-			composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
-				behaviourMapping, mapping.source.metamodel, tgWeaver)
+			composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour, behaviourMapping,
+				mapping.source.metamodel, tgWeaver)
 		}
 
 		new Triple(result, composedTG, composedModule)
@@ -218,7 +217,7 @@ class XDsmlComposer {
 			List<EObject> unmappedTgtElements, EPackage composedPackage) {
 			// Weave from inverted index for mapped classes 
 			invertedIndex.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
-				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [n |
+				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [ n |
 					composedPackage.createEClass(n)
 				])
 
@@ -236,7 +235,7 @@ class XDsmlComposer {
 			// Weave mapped references
 			// Because the mapping is a morphism, this must work :-)
 			invertedIndex.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
-				val EReference composed = e.value.createWithWovenName(e.key.name.toString, [n |
+				val EReference composed = e.value.createWithWovenName(e.key.name.toString, [ n |
 					createEReference(e.key as EReference, n)
 				])
 
@@ -254,7 +253,7 @@ class XDsmlComposer {
 			// Weave mapped attributes
 			// Because the mapping is a morphism, this must work :-)
 			invertedIndex.entrySet.filter[e|e.key instanceof EAttribute].forEach [ e |
-				val EAttribute composed = e.value.createWithWovenName(e.key.name.toString, [n |
+				val EAttribute composed = e.value.createWithWovenName(e.key.name.toString, [ n |
 					createEAttribute(e.key as EAttribute, n)
 				])
 
@@ -458,7 +457,7 @@ class XDsmlComposer {
 			]
 
 			invertedIndex.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.Node].forEach [ e |
-				val composed = e.value.createWithWovenName(e.key.name.toString, [n |
+				val composed = e.value.createWithWovenName(e.key.name.toString, [ n |
 					createNode(e.key as org.eclipse.emf.henshin.model.Node, n)
 				])
 
@@ -578,7 +577,7 @@ class XDsmlComposer {
 		weaveNames(if(sourceModule !== null) sourceModule.name else null,
 			if(targetModule !== null) targetModule.name else null)
 	}
-	
+
 	private static def String weaveNames(CharSequence sourceName, CharSequence targetName) {
 		if (sourceName === null) {
 			if (targetName !== null) {

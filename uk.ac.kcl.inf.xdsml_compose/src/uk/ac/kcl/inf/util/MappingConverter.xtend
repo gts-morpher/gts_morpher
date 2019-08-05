@@ -673,7 +673,7 @@ class MappingConverter {
 			val newNode = createNode(tgtGraph, n.type.getMapped(tgMapping), n.name)
 			_mapping.put(n, newNode)
 
-			n.attributes.forEach [ a |
+			n.attributes.filter[a | !interfaceOnly || a.type.isInterfaceElement].forEach [ a |
 				val newAttribute = createAttribute(newNode, a.type.getMapped(tgMapping), a.value)
 				_mapping.put(a, newAttribute)
 			]

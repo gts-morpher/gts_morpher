@@ -6,7 +6,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.diagnostics.Diagnostic
@@ -16,7 +15,6 @@ import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.junit.Test
 import uk.ac.kcl.inf.composer.XDsmlComposer.Issue
 import uk.ac.kcl.inf.tests.AbstractTest
-import uk.ac.kcl.inf.tests.TestURIHandlerImpl
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.util.Triple
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
@@ -56,12 +54,19 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"K.ecore",
 			"L.ecore",
 			"K.henshin",
-			"K2.henshin"
+			"K2.henshin",
+			"M.ecore",
+			"M.henshin",
+			"N.ecore"
 		].createResourceSet
 	}
 
-	private def Triple<List<Issue>, EPackage, Module> doTest(GTSSpecificationModule module, ResourceSet rs) { module.doTest("woven", rs) } 
-	protected abstract def Triple<List<Issue>, EPackage, Module> doTest(GTSSpecificationModule module, String nameOfExport, ResourceSet rs) 
+	private def Triple<List<Issue>, EPackage, Module> doTest(GTSSpecificationModule module, ResourceSet rs) {
+		module.doTest("woven", rs)
+	}
+
+	protected abstract def Triple<List<Issue>, EPackage, Module> doTest(GTSSpecificationModule module,
+		String nameOfExport, ResourceSet rs)
 
 	@Test
 	def testSimpleTGMorphism() {
@@ -98,7 +103,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("AB.ecore"), true).contents.head as EPackage
 
-		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(runResult.b, composedOracle))				
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 	}
 
 	@Test
@@ -147,7 +152,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		val composedOracle = resourceSet.getResource(createFileURI("AB.henshin"), true).contents.head as Module
 		EcoreUtil2.resolveAll(composedOracle)
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
 	}
 
 	@Test
@@ -181,7 +186,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		val runResult = result.doTest(resourceSet)
-		
+
 		assertTrue("Expected to see no issues.", runResult.a.empty)
 
 		// Check contents of generated resources and compare against oracle
@@ -189,7 +194,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("CD.ecore"), true).contents.head as EPackage
 
-		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(runResult.b, composedOracle))
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 	}
 
 	@Test
@@ -236,7 +241,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		val runResult = result.doTest(resourceSet)
-		
+
 		assertTrue("Expected to see no issues.", runResult.a.empty)
 
 		// Check contents of generated resources and compare against oracle
@@ -244,7 +249,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("CD.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
 	}
 
 	@Test
@@ -292,7 +297,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("CD2.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
 	}
 
 	@Test
@@ -330,9 +335,9 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			}
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
-		
+
 		val runResult = result.doTest(resourceSet)
-		
+
 		assertTrue("Expected to see no issues.", runResult.a.empty)
 
 		// Check contents of generated resources and compare against oracle
@@ -340,7 +345,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("KL.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
 	}
 
 	@Test
@@ -379,7 +384,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		val runResult = result.doTest(resourceSet)
-		
+
 		assertTrue("Expected to see no issues.", runResult.a.empty)
 
 		// Check contents of generated resources and compare against oracle
@@ -387,7 +392,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("KL2.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
 	}
 
 	@Test
@@ -435,7 +440,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("KL.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
 	}
 
 	@Test
@@ -482,7 +487,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("KL.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
 	}
 
 	@Test
@@ -527,14 +532,14 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
 
-		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(runResult.b, composedOracle))
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 
 		// Check contents of generated resources and compare against oracle
 		assertNotNull("Couldn't find composed henshin rules", runResult.c)
 
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ2.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedHenshinOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
 
 	@Test
@@ -579,14 +584,14 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
 
-		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(runResult.b, composedOracle))
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 
 		// Check contents of generated resources and compare against oracle
 		assertNotNull("Couldn't find composed henshin rules", runResult.c)
 
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ2.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedHenshinOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
 
 	@Test
@@ -664,7 +669,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("GH.ecore"), true).contents.head as EPackage
 
-		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(runResult.b, composedOracle))
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 	}
 
 	@Test
@@ -714,14 +719,14 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
 
-		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(runResult.b, composedOracle))
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 
 		// Check contents of generated resources and compare against oracle
 		assertNotNull("Couldn't find composed henshin rules", runResult.c)
 
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedHenshinOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
 
 	@Test
@@ -765,14 +770,14 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
 
-		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(runResult.b, composedOracle))
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 
 		// Check contents of generated resources and compare against oracle
 		assertNotNull("Couldn't find composed henshin rules", runResult.c)
 
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedHenshinOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
 
 	@Test
@@ -821,14 +826,14 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val composedOracle = resourceSet.getResource(createFileURI("IJ.ecore"), true).contents.head as EPackage
 
-		assertTrue("Woven TG was not as expected", new EqualityHelper().equals(runResult.b, composedOracle))
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 
 		// Check contents of generated resources and compare against oracle
 		assertNotNull("Couldn't find composed henshin rules", runResult.c)
 
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("IJ.henshin"), true).contents.head as Module
 
-		assertTrue("Woven GTS was not as expected", new EqualityHelper().equals(runResult.c, composedHenshinOracle))
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
 
 	@Test
@@ -889,27 +894,147 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		result.assertNoError(Diagnostic.LINKING_DIAGNOSTIC)
 	}
 
-	private static class EqualityHelper extends EcoreUtil.EqualityHelper {
+	@Test
+	def testWeavingWithInterfaceAndNonInterfaceSuperClass() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts M {
+				metamodel: "M"
+				behaviour: "MRules"
+			}
+			
+			gts N {
+				metamodel: "N"
+			}
+			
+			auto-complete unique map M2N {
+				from interface_of { M }
+				
+				to N
+				
+				type_mapping {
+					class M.M1 => N.N1
+					class M.M2 => N.N2
+					reference M.M1.m2s => N.N1.n2s
+					reference M.M2.m1 => N.N2.n1
+				}
+			}
+			
+			export gts woven {
+				weave: {
+					map1: interface_of(M)
+					map2: M2N
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+		result.assertNoIssues
 
-		override protected haveEqualReference(EObject eObject1, EObject eObject2, EReference reference) {
+		val runResult = result.doTest(resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+
+		// Check contents of generated resources and compare against oracle
+		assertNotNull("Couldn't find composed ecore", runResult.b)
+
+		val composedOracle = resourceSet.getResource(createFileURI("MN.ecore"), true).contents.head as EPackage
+
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+
+		// Check contents of generated resources and compare against oracle
+		assertNotNull("Couldn't find composed henshin rules", runResult.c)
+
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("MN.henshin"), true).contents.head as Module
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
+	}
+
+	static def void assertEObjectsEquals(String message, EObject expected, EObject actual) {
+		new EqualityHelper(message).equals(expected, actual)
+	}
+
+	private static class EqualityHelper extends uk.ac.kcl.inf.tests.EqualityHelper {
+
+		new(String message) {
+			super(message)
+		}
+
+		override protected haveEqualReference(EObject expected, EObject actual, EReference reference) {
 //			if (reference.ordered) {
 //				super.haveEqualReference(eObject1, eObject2, reference)
 //			} else {
-			val Object value1 = eObject1.eGet(reference);
-			val Object value2 = eObject2.eGet(reference);
+			val Object value1 = expected.eGet(reference);
+			val Object value2 = actual.eGet(reference);
 
 			if (reference.many) {
-				equalsUnordered(value1 as List<EObject>, value2 as List<EObject>)
+				val expectedList = value1 as List<EObject>
+				val actualList = value2 as List<EObject>
+				val result = equalsUnordered(expectedList, actualList)
+
+				if (!result && throwExceptionOnError) {
+					// Try to get us a better error message
+					val unmatchedElements = runProtected[
+						new Pair<List<EObject>, List<EObject>>(expectedList.reject [ eo |
+							actualList.exists[eo2|equals(eo, eo2)]
+						].toList, actualList.reject[eo|expectedList.exists[eo2|equals(eo, eo2)]].toList)
+					]
+
+					if (unmatchedElements.key.size == unmatchedElements.value.size) {
+						// Attempt to find matches where all attributes match, but there may be a difference further down the graph
+						val deeplyUnmatchedElements = runProtected[
+							new Pair<List<Pair<EObject, EObject>>, List<Pair<EObject, EObject>>>(
+								unmatchedElements.key.map [ eo |
+									new Pair<EObject, EObject>(eo, unmatchedElements.value.filter [ eo2 |
+										(eo.eClass === eo2.eClass) && (eo.eClass.EAllAttributes.forall [ attr |
+											haveEqualAttribute(eo, eo2, attr)
+										])
+									].head)
+								].toList,
+								unmatchedElements.value.map [ eo |
+									new Pair<EObject, EObject>(eo, unmatchedElements.key.filter [ eo2 |
+										(eo.eClass === eo2.eClass) && (eo.eClass.EAllAttributes.forall [ attr |
+											haveEqualAttribute(eo2, eo, attr)
+										])
+									].head)
+								].toList
+							)
+						]
+
+						// Now execute the comparisons again in unprotected mode, throwing exceptions at the deepest level that's meaningful
+						deeplyUnmatchedElements.key.filter[value !== null].forEach[p|equals(p.key, p.value)]
+						deeplyUnmatchedElements.value.filter[value !== null].forEach[p|equals(p.key, p.value)]
+					}
+
+					// If all unmatching elements are shallowly unmatched, report that
+					fail(format(expected, unmatchedElements.key, actual, unmatchedElements.value, reference))
+				}
+
+				result
 			} else {
 				equals(value1 as EObject, value2 as EObject)
 			}
 //			}
 		}
 
-		protected def equalsUnordered(List<EObject> l1, List<EObject> l2) {
-			(l1.size == l2.size) && l1.forall[eo|l2.exists[eo2|equals(eo, eo2)]] && l2.forall [ eo |
-				l1.exists[eo2|equals(eo, eo2)]
+		protected def equalsUnordered(List<EObject> expected, List<EObject> actual) {
+			runProtected[
+				(expected.size == actual.size) && expected.forall[eo|actual.exists[eo2|equals(eo, eo2)]] &&
+					actual.forall [ eo |
+						expected.exists[eo2|equals(eo, eo2)]
+					]
 			]
+		}
+
+		private def String format(EObject expected, List<? extends EObject> expectedList, EObject actual,
+			List<? extends EObject> actualList, EReference reference) {
+			val formatted = getMessage
+
+			formatted + "Couldn't match elements referenced by EReference " + reference.name + ".\n" +
+				"Expected object " + expected.formatClassAndValue + " had the following unmatched elements: [" +
+				expectedList.map[formatClassAndValue].join(", ") + "].\n" + "Actual object " +
+				actual.formatClassAndValue + " had the following unmatched elements: [" + actualList.map [
+					formatClassAndValue
+				].join(", ") + "]."
 		}
 	}
 }
