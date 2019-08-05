@@ -6,11 +6,13 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 import "http://www.eclipse.org/emf/2011/Henshin" as gts
 
 GTSSpecificationModule:
-	(
-		gtss += GTSSpecification |
-		gts_families += GTSFamilySpecification |
-		mappings += GTSMapping
-	)*
+	members += GTSSpecificationModuleMember*
+;
+
+GTSSpecificationModuleMember:
+	GTSSpecification |
+	GTSFamilySpecification |
+	GTSMapping
 ;
 
 GTSMapping:

@@ -3,20 +3,18 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="xDsmlCompose" nsURI="http://www.ac.uk/kcl/inf/XDsmlCompose"
     nsPrefix="xDsmlCompose">
   <eClassifiers xsi:type="ecore:EClass" name="GTSSpecificationModule">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="gtss" upperBound="-1" eType="#//GTSSpecification"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="gts_families" upperBound="-1"
-        eType="#//GTSFamilySpecification" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="mappings" upperBound="-1"
-        eType="#//GTSMapping" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="members" upperBound="-1"
+        eType="#//GTSSpecificationModuleMember" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="GTSMapping">
+  <eClassifiers xsi:type="ecore:EClass" name="GTSSpecificationModuleMember">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GTSMapping" eSuperTypes="#//GTSSpecificationModuleMember">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="autoComplete" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uniqueCompletion" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="allowFromEmtpy" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="withoutToVirtual" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="toIdentityOnly" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="#//GTSSpecificationOrReference"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//GTSSpecificationOrReference"
@@ -26,8 +24,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="behaviourMapping" eType="#//BehaviourMapping"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="GTSFamilySpecification" eSuperTypes="#//GTSFamilySpecificationOrReference">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GTSFamilySpecification" eSuperTypes="#//GTSSpecificationModuleMember #//GTSFamilySpecificationOrReference">
     <eStructuralFeatures xsi:type="ecore:EReference" name="root_gts" eType="#//GTSSpecificationOrReference"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="transformers" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Module"/>
@@ -36,9 +33,8 @@
   <eClassifiers xsi:type="ecore:EClass" name="GTSReference" eSuperTypes="#//GTSSpecificationOrReference #//GTSSelection">
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//GTSSpecification"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="GTSSpecification" eSuperTypes="#//GTSSpecificationOrReference">
+  <eClassifiers xsi:type="ecore:EClass" name="GTSSpecification" eSuperTypes="#//GTSSpecificationModuleMember #//GTSSpecificationOrReference">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="export" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="interface_mapping" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="gts" eType="#//GTSSelection"
         containment="true"/>

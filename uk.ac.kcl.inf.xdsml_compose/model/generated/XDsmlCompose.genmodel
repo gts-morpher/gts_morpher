@@ -7,9 +7,10 @@
   <genPackages prefix="XDsmlCompose" basePackage="uk.ac.kcl.inf" disposableProviderFactory="true"
       fileExtensions="lang_compose" ecorePackage="XDsmlCompose.ecore#/">
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSSpecificationModule">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecificationModule/gtss"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecificationModule/gts_families"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecificationModule/mappings"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecificationModule/members"/>
+    </genClasses>
+    <genClasses ecoreClass="XDsmlCompose.ecore#//GTSSpecificationModuleMember">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSSpecificationModuleMember/name"/>
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSMapping">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/autoComplete"/>
@@ -17,14 +18,12 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/allowFromEmtpy"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/withoutToVirtual"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/toIdentityOnly"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSMapping/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/source"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/typeMapping"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSMapping/behaviourMapping"/>
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSFamilySpecification">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSFamilySpecification/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSFamilySpecification/root_gts"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSFamilySpecification/transformers"/>
     </genClasses>
@@ -34,7 +33,6 @@
     </genClasses>
     <genClasses ecoreClass="XDsmlCompose.ecore#//GTSSpecification">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSSpecification/export"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSSpecification/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute XDsmlCompose.ecore#//GTSSpecification/interface_mapping"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference XDsmlCompose.ecore#//GTSSpecification/gts"/>
     </genClasses>
