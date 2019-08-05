@@ -7,6 +7,7 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.util.EcoreUtil
 
 import static org.junit.Assert.*
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /**
  * An equality helper that provides better jUnit diagnostics for when things aren't equal. 
@@ -17,6 +18,7 @@ class EqualityHelper extends EcoreUtil.EqualityHelper {
 	}
 
 	val String message
+	@Accessors(PROTECTED_GETTER)
 	var boolean throwExceptionOnError = true
 
 	new(String message) {
@@ -62,10 +64,7 @@ class EqualityHelper extends EcoreUtil.EqualityHelper {
 	}
 
 	private def String format(EStructuralFeature feature, EObject expected, EObject actual) {
-		var String formatted = ""
-		if (message !== null && message != "") {
-			formatted = message + " "
-		}
+		var String formatted = getMessage
 
 		formatted +=
 			"Object " + actual.formatClassAndValue + " differed from expected object " + expected.formatClassAndValue +
@@ -86,22 +85,27 @@ class EqualityHelper extends EcoreUtil.EqualityHelper {
 	}
 
 	private def String format(EObject expected, EObject actual) {
-		var String formatted = ""
-		if (message !== null && message != "") {
-			formatted = message + " "
-		}
+		var String formatted = getMessage
 
 		formatted + "expected: " + expected.formatClassAndValue + " but was: " + actual.formatClassAndValue
 	}
 
-	private dispatch def String formatClassAndValue(Object value) {
+	protected def getMessage() {
+		if (message !== null && message != "") {
+			message + " "
+		} else {
+			""
+		}
+	}
+
+	protected dispatch def String formatClassAndValue(Object value) {
 		val className = value === null ? "null" : value.class.name
 		val valueString = value === null ? "null" : String.valueOf(value)
 
 		className + "<" + valueString + ">"
 	}
 
-	private dispatch def String formatClassAndValue(EObject value) {
+	protected dispatch def String formatClassAndValue(EObject value) {
 		val className = value === null ? "null" : value.eClass.name
 		val valueString = value === null ? "null" : value.eClass.EAllAttributes.map[attr|value.eGet(attr)?.toString].
 				join(", ")

@@ -5,12 +5,10 @@ class source__M0 {
 	attr EBoolean source__flag;
 }
 
-@Interface
 class M1_N1 extends source__M0 {
 	ref M2_N2[*]#m1_n1 m2s_n2s;
 }
 
-@Interface
 class M2_N2 extends source__M0 {
 	ref M1_N1#m2s_n2s m1_n1;
 }
