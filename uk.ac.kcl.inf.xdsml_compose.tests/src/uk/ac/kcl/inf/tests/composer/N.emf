@@ -1,0 +1,10 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/N", prefix="n")
+package N;
+
+class N1 {
+	ref N2[*]#n1 n2s;
+}
+
+class N2 {
+	ref N1#n2s n1;
+}
