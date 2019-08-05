@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_4ErUcLeDEemz8oNpH_2dFQ" name="MRules">
+  <imports href="M.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_5BYNQLeDEemz8oNpH_2dFQ" name="process">
+    <lhs xmi:id="_5CUocLeDEemz8oNpH_2dFQ" name="Lhs">
+      <nodes xmi:id="__ozNMLeDEemz8oNpH_2dFQ" name="m1" outgoing="_CAZ9wLeEEemz8oNpH_2dFQ">
+        <type href="M.ecore#//M1"/>
+        <attributes xmi:id="_DzN_MLeEEemz8oNpH_2dFQ" value="true">
+          <type href="M.ecore#//M0/flag"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_Avsj0LeEEemz8oNpH_2dFQ" name="m2" incoming="_CAZ9wLeEEemz8oNpH_2dFQ">
+        <type href="M.ecore#//M2"/>
+        <attributes xmi:id="_FF6WILeEEemz8oNpH_2dFQ" value="false">
+          <type href="M.ecore#//M0/flag"/>
+        </attributes>
+      </nodes>
+      <edges xmi:id="_CAZ9wLeEEemz8oNpH_2dFQ" source="__ozNMLeDEemz8oNpH_2dFQ" target="_Avsj0LeEEemz8oNpH_2dFQ">
+        <type href="M.ecore#//M1/m2s"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_5CUocbeDEemz8oNpH_2dFQ" name="Rhs">
+      <nodes xmi:id="__ozNMbeDEemz8oNpH_2dFQ" name="m1" outgoing="_CAak0LeEEemz8oNpH_2dFQ">
+        <type href="M.ecore#//M1"/>
+        <attributes xmi:id="_DzN_MbeEEemz8oNpH_2dFQ" value="true">
+          <type href="M.ecore#//M0/flag"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_Avsj0beEEemz8oNpH_2dFQ" name="m2" incoming="_CAak0LeEEemz8oNpH_2dFQ">
+        <type href="M.ecore#//M2"/>
+        <attributes xmi:id="_FF69MLeEEemz8oNpH_2dFQ" value="true">
+          <type href="M.ecore#//M0/flag"/>
+        </attributes>
+      </nodes>
+      <edges xmi:id="_CAak0LeEEemz8oNpH_2dFQ" source="__ozNMbeDEemz8oNpH_2dFQ" target="_Avsj0beEEemz8oNpH_2dFQ">
+        <type href="M.ecore#//M1/m2s"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="__o0bULeDEemz8oNpH_2dFQ" origin="__ozNMLeDEemz8oNpH_2dFQ" image="__ozNMbeDEemz8oNpH_2dFQ"/>
+    <mappings xmi:id="_Avsj0reEEemz8oNpH_2dFQ" origin="_Avsj0LeEEemz8oNpH_2dFQ" image="_Avsj0beEEemz8oNpH_2dFQ"/>
+  </units>
+</henshin:Module>

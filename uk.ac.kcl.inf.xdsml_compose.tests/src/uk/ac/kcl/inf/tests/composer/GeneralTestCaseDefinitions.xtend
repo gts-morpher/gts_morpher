@@ -56,6 +56,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"K.henshin",
 			"K2.henshin",
 			"M.ecore",
+			"M.henshin",
 			"N.ecore"
 		].createResourceSet
 	}
@@ -899,13 +900,14 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		val result = parseHelper.parse('''
 			gts M {
 				metamodel: "M"
+				behaviour: "MRules"
 			}
 			
 			gts N {
 				metamodel: "N"
 			}
 			
-			map M2N {
+			auto-complete unique map M2N {
 				from interface_of { M }
 				
 				to N
@@ -938,6 +940,13 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		val composedOracle = resourceSet.getResource(createFileURI("MN.ecore"), true).contents.head as EPackage
 
 		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+
+		// Check contents of generated resources and compare against oracle
+		assertNotNull("Couldn't find composed henshin rules", runResult.c)
+
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("MN.henshin"), true).contents.head as Module
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
 
 	static def void assertEObjectsEquals(String message, EObject expected, EObject actual) {
