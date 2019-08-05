@@ -30,7 +30,6 @@ class ComposeXDsmlsHandler extends AbstractHandler {
 
 	@Inject
 	IResourceSetProvider resourceSetProvider
-//	Provider<XtextResourceSet> resourceSetProvider
 
 	@Inject
 	Provider<EclipseResourceFileSystemAccess2> fileSystemAccessProvider
