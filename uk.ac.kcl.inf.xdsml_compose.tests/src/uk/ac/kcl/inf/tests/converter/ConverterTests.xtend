@@ -1,11 +1,11 @@
 package uk.ac.kcl.inf.tests.converter
 
 import com.google.inject.Inject
+import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.henshin.model.Module
-import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.resource.SaveOptions
 import org.eclipse.xtext.serializer.ISerializer
 import org.eclipse.xtext.testing.InjectWith
@@ -17,12 +17,12 @@ import uk.ac.kcl.inf.tests.AbstractTest
 import uk.ac.kcl.inf.tests.TestURIHandlerImpl
 import uk.ac.kcl.inf.tests.XDsmlComposeInjectorProvider
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
-import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
+import org.eclipse.emf.ecore.EStructuralFeature
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -319,85 +319,6 @@ class ConverterTests extends AbstractTest {
 		}'''.doTest
 	}
 
-	/**
-	 * The same as {@link #testBasicMappingWithToVirtualRuleAndGTSReferences} minus the parsing and extraction steps
-	 */
-	@Test
-	def void testFromFullyManuallyConstructed2() {
-		val rs = createNormalResourceSet
-		val resourceForKEcore = rs.getResource(createFileURI("K.ecore"), true)
-		val metamodelForK = resourceForKEcore.contents.head as EPackage
-		val resourceForKHenshin = rs.getResource(createFileURI("K.henshin"), true)
-		val moduleforK = resourceForKHenshin.contents.head as Module
-		val resourceForLEcore = rs.getResource(createFileURI("L.ecore"), true)
-		val metamodelForL = resourceForLEcore.contents.head as EPackage
-
-		val k1 = metamodelForK.EClassifiers.filter[name == "K1"].head
-		val l1 = metamodelForL.EClassifiers.filter[name == "L1"].head
-		
-		val initRule = moduleforK.units.filter[name == "init"].head as Rule
-
-		extension val factory = XDsmlComposeFactory.eINSTANCE
-
-		val module = createGTSSpecificationModule => [
-			val gtsK = createGTSSpecification => [
-				name = "K"
-
-				gts = createGTSLiteral => [
-					metamodel = metamodelForK
-					behaviour = moduleforK
-				]
-			]
-			members += gtsK
-			
-			val gtsL = createGTSSpecification => [
-				name = "LGTS"
-
-				gts = createGTSLiteral => [
-					metamodel = metamodelForL
-				]
-			]
-			members += gtsL
-		
-			members += createGTSMapping => [
-				source = createGTSSpecification => [
-					interface_mapping = true
-					gts = createGTSReference => [
-						ref = gtsK
-					]
-				]
-				
-				target = createGTSReference => [
-					ref = gtsL
-				]
-
-				typeMapping = createTypeGraphMapping => [
-					mappings += createClassMapping => [
-						source = k1
-						target = l1
-					]
-				]
-				
-				behaviourMapping = createBehaviourMapping => [
-					mappings += createRuleMapping => [
-						source = initRule
-						target_virtual = true
-//						target_identity = true
-					]
-				]
-			]
-		]
-
-		rs.URIConverter.URIHandlers.add(0, new TestURIHandlerImpl)
-		val resource = rs.createResource(URI.createURI("test:/synthetic.lang_compose"))
-
-		resource.contents += module
-
-		assertNotNull("Didn't serialise", module.serialize(SaveOptions.newBuilder.format.options))
-	}
-
-
-
 	@Test
 	def void testBasicMappingWithToIdentityRule() {
 		'''
@@ -462,55 +383,6 @@ class ConverterTests extends AbstractTest {
 		}'''.doTest
 	}
 
-	/**
-	 * The same as {@link #testMappingWithDuplicatedGTSReference} minus the parsing and extraction steps
-	 */
-	@Test
-	def void testFromFullyManuallyConstructed1() {
-		val rs = createNormalResourceSet
-		val resourceForA = rs.getResource(createFileURI("A.ecore"), true)
-		val metamodelForA = resourceForA.contents.head as EPackage
-		val a1 = metamodelForA.EClassifiers.filter[name == "A1"].head
-		val a2 = metamodelForA.EClassifiers.filter[name == "A2"].head
-
-		extension val factory = XDsmlComposeFactory.eINSTANCE
-
-		val module = createGTSSpecificationModule => [
-			val theGTS = createGTSSpecification => [
-				name = "AGTS"
-
-				gts = createGTSLiteral => [
-					metamodel = metamodelForA
-				]
-			]
-			members += theGTS
-
-			members += createGTSMapping => [
-				source = createGTSReference => [
-					ref = theGTS
-				]
-
-				target = createGTSReference => [
-					ref = theGTS
-				]
-
-				typeMapping = createTypeGraphMapping => [
-					mappings += createClassMapping => [
-						source = a1
-						target = a2
-					]
-				]
-			]
-		]
-
-		rs.URIConverter.URIHandlers.add(0, new TestURIHandlerImpl)
-		val resource = rs.createResource(URI.createURI("test:/synthetic.lang_compose"))
-
-		resource.contents += module
-
-		assertNotNull("Didn't serialise", module.serialize(SaveOptions.newBuilder.format.options))
-	}
-
 	@Test
 	def testMappingWithDuplicatedGTSReferenceAndReferencingGTS() {
 		'''
@@ -529,61 +401,9 @@ class ConverterTests extends AbstractTest {
 		}'''.doTest
 	}
 
-	/**
-	 * The same as {@link #testMappingWithDuplicatedGTSReferenceAndReferencingGTS} minus the parsing and extraction steps
-	 */
-	@Test
-	def void testFromFullyManuallyConstructed() {		
-		val rs = createNormalResourceSet
-		val resourceForA = rs.getResource(createFileURI("A.ecore"), true)
-		val metamodelForA = resourceForA.contents.head as EPackage
-		val a1 = metamodelForA.EClassifiers.filter[name == "A1"].head
-		val a2 = metamodelForA.EClassifiers.filter[name == "A2"].head
-
-		extension val factory = XDsmlComposeFactory.eINSTANCE
-
-		val module = createGTSSpecificationModule => [
-			val theGTS = createGTSSpecification => [
-				name = "A"
-
-				gts = createGTSLiteral => [
-					metamodel = metamodelForA
-				]
-			]
-			members += theGTS
-
-			members += createGTSMapping => [
-				source = createGTSSpecification => [
-					interface_mapping = false
-
-					gts = createGTSReference => [
-						ref = theGTS
-					]
-				]
-
-				target = createGTSReference => [
-					ref = theGTS
-				]
-
-				typeMapping = createTypeGraphMapping => [
-					mappings += createClassMapping => [
-						source = a1
-						target = a2
-					]
-				]
-			]
-		]
-
-		rs.URIConverter.URIHandlers.add(0, new TestURIHandlerImpl)
-		val resource = rs.createResource(URI.createURI("test:/synthetic.lang_compose"))
-
-		resource.contents += module
-
-		assertNotNull("Didn't serialise", module.serialize(SaveOptions.newBuilder.format.options))
-	}
-
 	private def void doTest(CharSequence text) {
-		val result = text.parse(createNormalResourceSet)
+		val rs = createNormalResourceSet
+		val result = text.parse(rs)
 		assertNotNull("Did not produce parse result", result)
 		EcoreUtil.resolveAll(result)
 
@@ -592,18 +412,95 @@ class ConverterTests extends AbstractTest {
 			mapping.putAll(result.mappings.head.behaviourMapping.extractMapping(mapping, null))
 		}
 
-		val rs = result.eResource.resourceSet
-
 		rs.URIConverter.URIHandlers.add(0, new TestURIHandlerImpl)
 		val resource = rs.createResource(URI.createURI("test:/synthetic.lang_compose"))
 
 		val extractedMapping = mapping.extractGTSMapping(result.mappings.head.source, result.mappings.head.target,
 			resource)
 
+		assertNotNull("Parsed mapping didn't serialise",
+			result.mappings.head.serialize(SaveOptions.newBuilder.format.options))
+		assertEObjectsEquals("Extracted mapping was different from parsed mapping", result.mappings.head,
+			extractedMapping)
+
 		assertEquals(
 			"Extraction failed",
 			result.mappings.head.serialize(SaveOptions.newBuilder.format.options).trim,
 			extractedMapping.serialize(SaveOptions.newBuilder.format.options).trim
 		)
+	}
+
+	private def void assertEObjectsEquals(String message, EObject expected, EObject actual) {
+		assertTrue(message, new EqualityHelper(message).equals(expected, actual))
+	}
+
+	private static class EqualityHelper extends EcoreUtil.EqualityHelper {
+		val String message
+
+		new(String message) {
+			this.message = message
+		}
+
+		override boolean equals(EObject expected, EObject actual) {
+			val areEqual = super.equals(expected, actual)
+
+			if (!areEqual) {
+				fail(format(expected, actual))
+			}
+
+			areEqual
+		}
+
+		override protected haveEqualFeature(EObject expected, EObject actual, EStructuralFeature feature) {
+			val areEqual = super.haveEqualFeature(expected, actual, feature)
+
+			if (!areEqual) {
+				fail(feature.format(expected, actual))
+			}
+
+			areEqual
+		}
+
+		private def String format(EStructuralFeature feature, EObject expected, EObject actual) {
+			var String formatted = ""
+			if (message !== null && message != "") {
+				formatted = message + " "
+			}
+
+			formatted +=
+				"Object " + actual.formatClassAndValue + " differed from expected object " +
+					expected.formatClassAndValue + " in feature " + feature.name + ".\n"
+
+			var String expectedString
+			var String actualString
+
+			if (feature.many) {
+				expectedString = (expected.eGet(feature) as EList<? extends EObject>).map[eo|eo.formatClassAndValue].join(
+					", ")
+				actualString = (actual.eGet(feature) as EList<? extends EObject>).map[eo|eo.formatClassAndValue].join(", ")
+			} else {
+				expectedString = (expected.eGet(feature) as EObject).formatClassAndValue
+				actualString = (actual.eGet(feature) as EObject).formatClassAndValue
+			}
+
+			formatted + "Expected " + expectedString + " but was " + actualString
+		}
+
+		private def String format(EObject expected, EObject actual) {
+			var String formatted = ""
+			if (message !== null && message != "") {
+				formatted = message + " "
+			}
+
+			formatted + "expected: " + expected.formatClassAndValue + " but was: " + actual.formatClassAndValue
+		}
+
+		private def String formatClassAndValue(EObject value) {
+			val className = value === null ? "null" : value.eClass.name
+			val valueString = value === null ? "null" : value.eClass.EAllAttributes.map[attr|value.eGet(attr)?.toString].
+					join(", ")
+
+			className + "<" + valueString + ">"
+		}
 	}
 }
