@@ -174,29 +174,6 @@ class MappingConverter {
 
 	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecificationOrReference from,
 		GTSSpecificationOrReference to, Resource res) {
-		if (from instanceof GTSSpecification) {
-			if (to instanceof GTSSpecification) {
-				mapping.extractGTSMapping(from, to, res)
-			} else {
-				mapping.extractGTSMapping(from, (to as GTSReference).ref, res)
-			}
-		} else {
-			if (to instanceof GTSSpecification) {
-				mapping.extractGTSMapping((from as GTSReference).ref, to, res)
-			} else {
-				mapping.extractGTSMapping((from as GTSReference).ref, (to as GTSReference).ref, res)
-			}
-		}
-	}
-
-	/**
-	 * Extract a GTSMapping from the given map, using the given from and to as source and target respectively (which 
-	 * should be taken from the original GTSMapping). Place the new mapping in the given resource.
-	 */
-	// TODO Write tests for this to see why the resulting GTSMapping is still internally inconsistent.
-	// FIXME: Handle the fact that resources now contain GTSSpecificationModules, not mappings directly
-	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecification from,
-		GTSSpecification to, Resource res) {
 		if (res === null) {
 			throw new IllegalArgumentException("res must not be null")
 		}
@@ -205,7 +182,7 @@ class MappingConverter {
 		res.contents.add(module)
 		
 		val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
-		module.mappings.add(result)
+		module.members.add(result)
 		
 		result.source = from.resourceLocalCopy
 		result.target = to.resourceLocalCopy
@@ -409,8 +386,10 @@ class MappingConverter {
 		object.correspondingElement(mapping.target) as T
 	}
 
-	private static dispatch def EObject correspondingElement(EObject object, GTSSpecificationOrReference specification) { null }
-	private static dispatch def EObject correspondingElement(EObject object, GTSReference specification) { null }
+	private static dispatch def EObject correspondingElement(EObject object, GTSReference specification) {
+		object.correspondingElement(specification.ref) 
+	}
+	
 	private static dispatch def EObject correspondingElement(EObject object, GTSSpecification specification) { null }
 
 	private static dispatch def EObject correspondingElement(EClass clazz, GTSSpecification specification) {

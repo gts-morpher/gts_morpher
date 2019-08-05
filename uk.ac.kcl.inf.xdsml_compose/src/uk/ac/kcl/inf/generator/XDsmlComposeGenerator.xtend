@@ -38,6 +38,10 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 	 * Generate all composed GTSs
 	 */
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
+		if (resource.contents.empty) {
+			return
+		}
+		
 		val monitor = IProgressMonitor.wrapCancelIndicator(context.cancelIndicator)
 		val _monitor = monitor.convert(2)
 		try {
@@ -46,7 +50,6 @@ class XDsmlComposeGenerator extends AbstractGenerator {
 			if (issues.empty) {
 				val gtsModule = resource.contents.head as GTSSpecificationModule
 
-				// TODO: Also do family choices, not just weaves
 				gtsModule.gtss.filter[gts|gts.export].map[it.gts].filter [
 					it instanceof GTSWeave || it instanceof GTSFamilyChoice
 				].map [ sel |

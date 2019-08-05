@@ -2,12 +2,14 @@ package uk.ac.kcl.inf.generator
 
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
+import org.eclipse.xtext.resource.SaveOptions
 import uk.ac.kcl.inf.util.IProgressMonitor
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 
 import static extension uk.ac.kcl.inf.util.MappingConverter.extractGTSMapping
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 /**
  * Generator producing auto-completions for marked morphisms.
@@ -42,7 +44,7 @@ class AutoCompletionGenerator {
 				
 				mp.extractGTSMapping(mapping.source, mapping.target, saveRes)
 				
-				saveRes.save(emptyMap)
+				saveRes.save(SaveOptions.newBuilder.format.options.toOptionsMap)
 			]
 		]
 	}
