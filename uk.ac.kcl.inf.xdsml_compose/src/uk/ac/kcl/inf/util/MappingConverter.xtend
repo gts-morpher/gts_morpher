@@ -21,7 +21,6 @@ import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
-import org.eclipse.xtext.nodemodel.INode
 import org.eclipse.xtext.scoping.IScope
 import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
@@ -175,28 +174,6 @@ class MappingConverter {
 
 	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecificationOrReference from,
 		GTSSpecificationOrReference to, Resource res) {
-//		if (from instanceof GTSSpecification) {
-//			if (to instanceof GTSSpecification) {
-//				mapping.extractGTSMapping(from, to, res)
-//			} else {
-//				mapping.extractGTSMapping(from, (to as GTSReference).ref, res)
-//			}
-//		} else {
-//			if (to instanceof GTSSpecification) {
-//				mapping.extractGTSMapping((from as GTSReference).ref, to, res)
-//			} else {
-//				mapping.extractGTSMapping((from as GTSReference).ref, (to as GTSReference).ref, res)
-//			}
-//		}
-//	}
-//
-//	/**
-//	 * Extract a GTSMapping from the given map, using the given from and to as source and target respectively (which 
-//	 * should be taken from the original GTSMapping). Place the new mapping in the given resource.
-//	 */
-//	// TODO Write tests for this to see why the resulting GTSMapping is still internally inconsistent.
-//	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecification from,
-//		GTSSpecification to, Resource res) {
 		if (res === null) {
 			throw new IllegalArgumentException("res must not be null")
 		}
@@ -207,10 +184,7 @@ class MappingConverter {
 		val result = XDsmlComposeFactory.eINSTANCE.createGTSMapping
 		module.members.add(result)
 		
-		// FIXME: This loses the EMF adapters Xtext uses to deserialise things...
 		result.source = from.resourceLocalCopy
-		// TODO Just copying the node across as below doesn't solve the problem.
-//		result.source.eAdapters.add(from.eAdapters.findFirst[it instanceof INode])
 		result.target = to.resourceLocalCopy
 
 		result.typeMapping = XDsmlComposeFactory.eINSTANCE.createTypeGraphMapping
@@ -412,8 +386,10 @@ class MappingConverter {
 		object.correspondingElement(mapping.target) as T
 	}
 
-	private static dispatch def EObject correspondingElement(EObject object, GTSSpecificationOrReference specification) { null }
-	private static dispatch def EObject correspondingElement(EObject object, GTSReference specification) { null }
+	private static dispatch def EObject correspondingElement(EObject object, GTSReference specification) {
+		object.correspondingElement(specification.ref) 
+	}
+	
 	private static dispatch def EObject correspondingElement(EObject object, GTSSpecification specification) { null }
 
 	private static dispatch def EObject correspondingElement(EClass clazz, GTSSpecification specification) {
