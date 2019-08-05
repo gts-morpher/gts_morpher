@@ -42,7 +42,6 @@ class AutoCompletionGenerator {
 					saveRes.contents.clear
 				}
 				
-				// FIXME: This currently breaks if the mapping references the same GTS twice -- need to write a dedicated test to replicate and then see what's going on here
 				mp.extractGTSMapping(mapping.source, mapping.target, saveRes)
 				
 				saveRes.save(SaveOptions.newBuilder.format.options.toOptionsMap)
