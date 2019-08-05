@@ -25,7 +25,6 @@ class ComposerTests extends GeneralTestCaseDefinitions {
 	XDsmlComposer composer
 
 	protected override Triple<List<Issue>, EPackage, Module> doTest(GTSSpecificationModule module, String nameOfExport, ResourceSet resourceSet) {
-		// Run composer and test outputs -- need to set up appropriate FSA and mock resource saving
 		composer.doCompose(module.gtss.filter[gts | (gts.name == nameOfExport) && (gts.gts instanceof GTSWeave)].map[gts | gts.gts as GTSWeave].head,
 			IProgressMonitor.NULL_IMPL)
 	} 
