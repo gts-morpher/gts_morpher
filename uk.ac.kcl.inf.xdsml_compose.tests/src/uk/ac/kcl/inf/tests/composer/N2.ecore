@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="N2" nsURI="http://kcl.ac.uk/xdsml/N2" nsPrefix="n2">
+  <eClassifiers xsi:type="ecore:EClass" name="N21">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="n2s" upperBound="-1" eType="#//N22"
+        eOpposite="#//N22/n1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="N22" eSuperTypes="NonExistingN.ecore#//N1">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="n1" eType="#//N21" eOpposite="#//N21/n2s"/>
+  </eClassifiers>
+</ecore:EPackage>
