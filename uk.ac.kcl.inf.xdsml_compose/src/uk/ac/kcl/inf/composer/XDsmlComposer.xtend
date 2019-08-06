@@ -30,6 +30,7 @@ import static extension uk.ac.kcl.inf.util.MappingConverter.*
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
+import org.eclipse.emf.ecore.InternalEObject
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -95,61 +96,67 @@ class XDsmlComposer {
 		val result = new ArrayList<XDsmlComposer.Issue>
 		var Module composedModule = null
 		var EPackage composedTG = null
-		val _monitor = monitor.convert(4)
 
-		// TODO: Should probably validate weaving before going on...
-		// Assume one mapping is an interface_of mapping, then find the other one and use it to do the weave
-		var GTSMapping mapping
-		if (weaving.mapping1 instanceof GTSMappingInterfaceSpec) {
-			mapping = (weaving.mapping2 as GTSMappingRef).ref
-		} else {
-			mapping = (weaving.mapping1 as GTSMappingRef).ref
-		}
+		try {
+			val _monitor = monitor.convert(4)
 
-		if (mapping.target.interface_mapping) {
-			result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
-		} else {
-			var tgMapping = mapping.typeMapping.extractMapping(null)
-			var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
+			// TODO: Should probably validate weaving before going on...
+			// Assume one mapping is an interface_of mapping, then find the other one and use it to do the weave
+			var GTSMapping mapping
+			if (weaving.mapping1 instanceof GTSMappingInterfaceSpec) {
+				mapping = (weaving.mapping2 as GTSMappingRef).ref
+			} else {
+				mapping = (weaving.mapping1 as GTSMappingRef).ref
+			}
 
-			if (mapping.autoComplete) {
-				_monitor.split("Autocompleting.", 1)
+			if (mapping.target.interface_mapping) {
+				result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
+			} else {
+				var tgMapping = mapping.typeMapping.extractMapping(null)
+				var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
 
-				if (!mapping.uniqueCompletion) {
-					result.add(new MessageIssue("Can only weave based on unique auto-completions."))
-					return new Triple(result, null, null)
-				}
+				if (mapping.autoComplete) {
+					_monitor.split("Autocompleting.", 1)
 
-				// Auto-complete
-				val completer = mapping.createMorphismCompleter
-				if (completer.findMorphismCompletions(false) == 0) {
-					if (completer.completedMappings.size == 1) {
-						tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
-							(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
-						] as Map<EObject, EObject>)
-						behaviourMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
-							!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
-						] as Map<EObject, EObject>)
+					if (!mapping.uniqueCompletion) {
+						result.add(new MessageIssue("Can only weave based on unique auto-completions."))
+						return new Triple(result, null, null)
+					}
+
+					// Auto-complete
+					val completer = mapping.createMorphismCompleter
+					if (completer.findMorphismCompletions(false) == 0) {
+						if (completer.completedMappings.size == 1) {
+							tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
+								(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
+							] as Map<EObject, EObject>)
+							behaviourMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
+								!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
+							] as Map<EObject, EObject>)
+						} else {
+							result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
+							return new Triple(result, null, null)
+						}
 					} else {
-						result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
+						result.add(new MessageIssue("Was unable to auto-complete the morphism."))
 						return new Triple(result, null, null)
 					}
 				} else {
-					result.add(new MessageIssue("Was unable to auto-complete the morphism."))
-					return new Triple(result, null, null)
+					_monitor.split("", 1)
 				}
-			} else {
-				_monitor.split("", 1)
+
+				// Weave
+				_monitor.split("Composing type graph.", 1)
+				val tgWeaver = new TGWeaver
+				composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
+
+				_monitor.split("Composing rules.", 1)
+				composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour, behaviourMapping,
+					mapping.source.metamodel, tgWeaver)
 			}
-
-			// Weave
-			_monitor.split("Composing type graph.", 1)
-			val tgWeaver = new TGWeaver
-			composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel)
-
-			_monitor.split("Composing rules.", 1)
-			composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour, behaviourMapping,
-				mapping.source.metamodel, tgWeaver)
+		} catch (Exception e) {
+			result.add(new ExceptionIssue(e))
+			e.printStackTrace
 		}
 
 		new Triple(result, composedTG, composedModule)
@@ -362,10 +369,36 @@ class XDsmlComposer {
 			result
 		}
 
+		/**
+		 * Separate map for keeping mappings established for proxies. Needs to be kept separately to avoid concurrent modifications when get transparently creates copies of proxies on demand.
+		 */
+		var proxyMapper = new HashMap<Pair<EObject, Origin>, InternalEObject>
+
 		override EObject get(Object key) {
 			if (key instanceof Pair) {
 				if ((key.key instanceof Origin) && (key.value instanceof EObject)) {
-					return super.get(key)
+					val result = super.get(key)
+
+					if ((result === null) && (!(key.value instanceof EReference))) {
+						val object = key.value as EObject
+
+						if (object.eIsProxy()) {
+							// Proxies wouldn't have been found when navigating the containment hierarchy, so we add them lazily as we come across them
+							var proxyCopy = proxyMapper.get(key)
+
+							if (proxyCopy === null) {
+								proxyCopy = (EcoreFactory.eINSTANCE.create(object.eClass) as InternalEObject)
+								proxyCopy.eSetProxyURI((object as InternalEObject).eProxyURI)
+								proxyMapper.put(key, proxyCopy)
+							}
+
+							return proxyCopy
+						}
+
+						System.err.println('''Couldn't find «object» in «key.key».''')
+					}
+
+					return result
 				}
 			} else {
 				throw new IllegalArgumentException("Requiring a pair in call to get!")

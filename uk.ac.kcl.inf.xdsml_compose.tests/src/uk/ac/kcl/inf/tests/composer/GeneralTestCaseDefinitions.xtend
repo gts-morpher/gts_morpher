@@ -57,7 +57,8 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"K2.henshin",
 			"M.ecore",
 			"M.henshin",
-			"N.ecore"
+			"N.ecore",
+			"N2.ecore"
 		].createResourceSet
 	}
 
@@ -947,6 +948,61 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("MN.henshin"), true).contents.head as Module
 
 		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
+	}
+
+	@Test
+	def testWeavingWithInvalidProxyInTarget() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts M {
+				metamodel: "M"
+				behaviour: "MRules"
+			}
+			
+			gts N {
+				metamodel: "N2"
+			}
+			
+			auto-complete unique map M2N {
+				from interface_of { M }
+				
+				to N
+				
+				type_mapping {
+					class M.M1 => N2.N21
+					class M.M2 => N2.N22
+					reference M.M1.m2s => N2.N21.n2s
+					reference M.M2.m1 => N2.N22.n1
+				}
+			}
+			
+			export gts woven {
+				weave: {
+					map1: interface_of(M)
+					map2: M2N
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+		result.assertNoIssues
+
+		val runResult = result.doTest(resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+
+//		// Check contents of generated resources and compare against oracle
+//		assertNotNull("Couldn't find composed ecore", runResult.b)
+//
+//		val composedOracle = resourceSet.getResource(createFileURI("MN.ecore"), true).contents.head as EPackage
+//
+//		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+//
+//		// Check contents of generated resources and compare against oracle
+//		assertNotNull("Couldn't find composed henshin rules", runResult.c)
+//
+//		val composedHenshinOracle = resourceSet.getResource(createFileURI("MN.henshin"), true).contents.head as Module
+//
+//		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
 
 	static def void assertEObjectsEquals(String message, EObject expected, EObject actual) {
