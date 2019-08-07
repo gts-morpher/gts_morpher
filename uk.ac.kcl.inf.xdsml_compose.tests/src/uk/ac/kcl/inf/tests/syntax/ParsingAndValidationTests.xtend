@@ -19,6 +19,7 @@ import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
+import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
@@ -29,6 +30,7 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.WeaveOption
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -1106,6 +1108,9 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		result.assertNoError(XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
 		result.assertNoError(XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
+		
+		assertTrue("Didn't record preferMap2TargetNames flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.PREFER_MAP2_TARGET_NAMES))
+		assertTrue("Didn't record dontLabelNonKernelElements flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.DONT_LABEL_NON_KERNEL_ELEMENTS))
 	}
 
 	/**

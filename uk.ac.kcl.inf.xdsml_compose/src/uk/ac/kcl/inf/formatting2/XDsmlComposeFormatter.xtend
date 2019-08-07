@@ -121,15 +121,15 @@ class XDsmlComposeFormatter extends AbstractFormatter2 {
 	
 	def dispatch void format(GTSWeave gts, extension IFormattableDocument document) {
 		gts.regionFor.keyword("weave").surround[noSpace]
-		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_1).append[oneSpace]
+		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_2).append[oneSpace]
 		gts.blockIndent(document)
 		
 		gts.regionFor.keyword("map1").surround[noSpace]
-		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_4).append[oneSpace]
+		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_5).append[oneSpace]
 		gts.mapping1.format
 
 		gts.regionFor.keyword("map2").surround[noSpace].prepend[newLine]
-		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_7).append[oneSpace]
+		gts.regionFor.keyword(GTSWeaveAccess.colonKeyword_8).append[oneSpace]
 		gts.mapping2.format
 	}
 	
