@@ -108,6 +108,44 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 	}
 
 	@Test
+	def testSimpleTGMorphismWithNamingOptions() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts A {
+				metamodel: "A"
+			}
+			
+			map A2B {
+				from interface_of { A }
+				to {
+					metamodel: "B"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+			
+			export gts woven_with_different_name {
+				weave (preferMap2TargetNames, dontLabelNonKernelElements): {
+					map1: interface_of (A)
+					map2: A2B
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val runResult = result.doTest("woven_with_different_name", resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+		assertNotNull("Couldn't find composed ecore", runResult.b)
+
+		val composedOracle = resourceSet.getResource(createFileURI("AB2.ecore"), true).contents.head as EPackage
+
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+	}
+
+	@Test
 	def testSimpleGTSMorphism() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
