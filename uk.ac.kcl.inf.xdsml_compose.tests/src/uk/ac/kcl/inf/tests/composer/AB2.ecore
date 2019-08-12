@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="B" nsURI="https://metamodel.woven/b" nsPrefix="b">
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="B" nsURI="http://kcl.ac.uk/xdsml/B" nsPrefix="b">
   <eClassifiers xsi:type="ecore:EClass" name="B1">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source__bs" upperBound="-1"
         eType="#//A2" containment="true" eOpposite="#//A2/a"/>

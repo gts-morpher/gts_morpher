@@ -12,6 +12,8 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcoreFactory
+import org.eclipse.emf.ecore.InternalEObject
+import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.GraphElement
@@ -19,18 +21,17 @@ import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Rule
 import uk.ac.kcl.inf.util.IProgressMonitor
-import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.util.Triple
+import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
+import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
+import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
-import org.eclipse.emf.henshin.model.Attribute
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
-import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
-import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
-import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
-import org.eclipse.emf.ecore.InternalEObject
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import uk.ac.kcl.inf.xDsmlCompose.WeaveOption
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -145,14 +146,16 @@ class XDsmlComposer {
 					_monitor.split("", 1)
 				}
 
+				val namingStrategy = weaving.options.fold(new DefaultNamingStrategy as NamingStrategy, [acc, opt | opt.generateNamingStrategy(acc)]) 
+				
 				// Weave
 				_monitor.split("Composing type graph.", 1)
 				val tgWeaver = new TGWeaver
-				composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel, new DefaultNamingStrategy)
+				composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel, namingStrategy)
 
 				_monitor.split("Composing rules.", 1)
 				composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour, behaviourMapping,
-					mapping.source.metamodel, tgWeaver, new DefaultNamingStrategy)
+					mapping.source.metamodel, tgWeaver, namingStrategy)
 			}
 		} catch (Exception e) {
 			result.add(new ExceptionIssue(e))
@@ -161,7 +164,7 @@ class XDsmlComposer {
 
 		new Triple(result, composedTG, composedModule)
 	}
-
+	
 	private enum Origin {
 		SOURCE,
 		TARGET
@@ -189,6 +192,7 @@ class XDsmlComposer {
 		 * TODO: This will need to be enriched with some sort of context information to allow checking whether the name-weaving rule would create duplicate names.
 		 */
 		def String weaveNames(CharSequence srcName, CharSequence tgtName)
+		def String weaveURIs(EPackage srcPackage, EPackage tgtPackage)
 	}
 	
 	private static class DefaultNamingStrategy implements NamingStrategy {
@@ -204,6 +208,42 @@ class XDsmlComposer {
 			} else
 				'''«sourceName»_«targetName»'''
 		}
+
+		// TODO We can probably do better here :-)
+		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) '''https://metamodel.woven/«srcPackage.nsPrefix»/«tgtPackage.nsPrefix»'''			
+	}
+
+	private static class PreferTargetNames implements NamingStrategy {
+		val NamingStrategy fallback
+		
+		new (NamingStrategy fallback) {
+			this.fallback = fallback
+		}
+		
+		override String weaveNames(CharSequence sourceName, CharSequence targetName) {
+			// FIXME: May need to fall back on fallback if choosing this name would produce a violation of uniqueness constraints
+			targetName.toString
+		}		
+
+		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) {
+			tgtPackage.nsURI
+		}			
+	}
+	
+	private def NamingStrategy generateNamingStrategy(WeaveOption option, NamingStrategy existingStrategy) {
+		switch (option) {
+			case DONT_LABEL_NON_KERNEL_ELEMENTS:
+				return existingStrategy
+			case PREFER_KERNEL_NAMES:
+				return existingStrategy
+			// FIXME: This isn't correct: need to take into account what map1 and map2 actually are and differentiate the naming accordingly.
+			case PREFER_MAP1_TARGET_NAMES:
+				return new PreferTargetNames(existingStrategy)
+			case PREFER_MAP2_TARGET_NAMES:
+				return new PreferTargetNames(existingStrategy)
+			default:
+				return existingStrategy
+		}
 	}
 
 	/**
@@ -216,11 +256,12 @@ class XDsmlComposer {
 		 */
 		def EPackage weaveTG(Map<EObject, EObject> tgMapping, EPackage srcPackage, EPackage tgtPackage, extension NamingStrategy naming) {
 			// TODO Handle sub-packages?
-			val EPackage result = EcoreFactory.eINSTANCE.createEPackage
-			result.name = weaveNames(srcPackage.name, tgtPackage.name)
-			result.nsPrefix = weaveNames(srcPackage.nsPrefix, tgtPackage.nsPrefix)
-			// TODO We can probably do better here :-)
-			result.nsURI = '''https://metamodel.woven/«srcPackage.nsPrefix»/«tgtPackage.nsPrefix»'''
+			val EPackage result = EcoreFactory.eINSTANCE.createEPackage => [
+				name = weaveNames(srcPackage.name, tgtPackage.name)
+				nsPrefix = weaveNames(srcPackage.nsPrefix, tgtPackage.nsPrefix)
+				nsURI = weaveURIs(srcPackage, tgtPackage)				
+			]
+			
 			put(srcPackage.sourceKey, result)
 			put(tgtPackage.targetKey, result)
 
