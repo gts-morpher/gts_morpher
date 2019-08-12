@@ -193,6 +193,8 @@ class XDsmlComposer {
 		 */
 		def String weaveNames(CharSequence srcName, CharSequence tgtName)
 		def String weaveURIs(EPackage srcPackage, EPackage tgtPackage)
+		
+		def String originName(String name, Origin origin)
 	}
 	
 	private static class DefaultNamingStrategy implements NamingStrategy {
@@ -211,13 +213,27 @@ class XDsmlComposer {
 
 		// TODO We can probably do better here :-)
 		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) '''https://metamodel.woven/«srcPackage.nsPrefix»/«tgtPackage.nsPrefix»'''			
+		
+		override String originName(String name, Origin origin) '''«origin.label»__«name»'''
 	}
 
-	private static class PreferTargetNames implements NamingStrategy {
+	private static abstract class AbstractNamingStrategy implements NamingStrategy {
 		val NamingStrategy fallback
 		
 		new (NamingStrategy fallback) {
 			this.fallback = fallback
+		}
+		
+		override String weaveNames(CharSequence sourceName, CharSequence targetName) { fallback.weaveNames(sourceName, targetName) }		
+
+		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) { fallback.weaveURIs(srcPackage, tgtPackage) }
+
+		override String originName(String name, Origin origin) { fallback.originName(name, origin) }
+	}
+
+	private static class PreferTargetNames extends AbstractNamingStrategy {
+		new (NamingStrategy fallback) {
+			super(fallback)
 		}
 		
 		override String weaveNames(CharSequence sourceName, CharSequence targetName) {
@@ -227,13 +243,21 @@ class XDsmlComposer {
 
 		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) {
 			tgtPackage.nsURI
-		}			
+		}
 	}
 	
+	private static class DontLabelNonKernelNames extends AbstractNamingStrategy {		
+		new (NamingStrategy fallback) {
+			super (fallback)
+		}
+		
+		override String originName(String name, Origin origin) { name }
+	}
+
 	private def NamingStrategy generateNamingStrategy(WeaveOption option, NamingStrategy existingStrategy) {
 		switch (option) {
 			case DONT_LABEL_NON_KERNEL_ELEMENTS:
-				return existingStrategy
+				return new DontLabelNonKernelNames(existingStrategy)
 			case PREFER_KERNEL_NAMES:
 				return existingStrategy
 			// FIXME: This isn't correct: need to take into account what map1 and map2 actually are and differentiate the naming accordingly.
@@ -299,8 +323,8 @@ class XDsmlComposer {
 			]
 
 			// Create copies for all unmapped classes
-			composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE)
-			composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET)
+			composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE, naming)
+			composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET, naming)
 		}
 
 		private def weaveReferences(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
@@ -317,8 +341,8 @@ class XDsmlComposer {
 			]
 
 			// Create copied for unmapped references
-			unmappedSrcElements.createForEachEReference(Origin.SOURCE)
-			unmappedTgtElements.createForEachEReference(Origin.TARGET)
+			unmappedSrcElements.createForEachEReference(Origin.SOURCE, naming)
+			unmappedTgtElements.createForEachEReference(Origin.TARGET, naming)
 		}
 
 		private def weaveAttributes(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
@@ -335,19 +359,19 @@ class XDsmlComposer {
 			]
 
 			// Create copies for unmapped attributes
-			unmappedSrcElements.createForEachEAttribute(Origin.SOURCE)
-			unmappedTgtElements.createForEachEAttribute(Origin.TARGET)
+			unmappedSrcElements.createForEachEAttribute(Origin.SOURCE, naming)
+			unmappedTgtElements.createForEachEAttribute(Origin.TARGET, naming)
 		}
 
-		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin) {
+		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin, extension NamingStrategy naming) {
 			elements.createForEach(EClass, origin, [eo|composedPackage.createEClass(eo.name.originName(origin))])
 		}
 
-		private def createForEachEReference(List<EObject> elements, Origin origin) {
+		private def createForEachEReference(List<EObject> elements, Origin origin, extension NamingStrategy naming) {
 			elements.createForEach(EReference, origin, [er|er.createEReference(er.name.originName(origin), origin)])
 		}
 
-		private def createForEachEAttribute(List<EObject> elements, Origin origin) {
+		private def createForEachEAttribute(List<EObject> elements, Origin origin, extension NamingStrategy naming) {
 			elements.createForEach(EAttribute, origin, [er|er.createEAttribute(er.name.originName(origin), origin)])
 		}
 
@@ -527,7 +551,7 @@ class XDsmlComposer {
 
 		var Graph wovenGraph
 		
-		val NamingStrategy naming 
+		extension val NamingStrategy naming 
 
 		new(Graph srcPattern, Graph tgtPattern, Map<EObject, EObject> behaviourMapping,
 			Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel, NamingStrategy naming) {
@@ -697,6 +721,4 @@ class XDsmlComposer {
 		} else
 			'''Merged from «sourceDescription» and «targetDescription».'''
 	}
-
-	private static def String originName(String name, Origin origin) '''«origin.label»__«name»'''
 }
