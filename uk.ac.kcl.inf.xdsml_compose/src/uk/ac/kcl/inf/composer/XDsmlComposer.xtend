@@ -2,6 +2,7 @@ package uk.ac.kcl.inf.composer
 
 import java.util.ArrayList
 import java.util.HashMap
+import java.util.Iterator
 import java.util.List
 import java.util.Map
 import java.util.function.Function
@@ -26,12 +27,13 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingInterfaceSpec
 import uk.ac.kcl.inf.xDsmlCompose.GTSMappingRef
 import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
+import uk.ac.kcl.inf.xDsmlCompose.WeaveOption
 
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
 import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
-import uk.ac.kcl.inf.xDsmlCompose.WeaveOption
+import org.eclipse.emf.ecore.EStructuralFeature
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -185,20 +187,30 @@ class XDsmlComposer {
 	private static def <T extends EObject> Pair<Origin, T> origKey(T object, Origin origin) { new Pair(origin, object) }
 
 	/**
+	 * A set of already decided names in whose context the name to be produced by a naming strategy should be unique. 
+	 */
+	private static interface UniquenessContext {
+		def Iterable<String> decidedTargetNames()
+	}
+
+	/**
 	 * A strategy to use when deciding on the names of new model elements created by composition.
 	 */
 	private static interface NamingStrategy {
 		/**
 		 * TODO: This will need to be enriched with some sort of context information to allow checking whether the name-weaving rule would create duplicate names.
 		 */
-		def String weaveNames(CharSequence srcName, CharSequence tgtName)
-		def String weaveURIs(EPackage srcPackage, EPackage tgtPackage)
+		def String weaveNames(CharSequence srcName, CharSequence tgtName, UniquenessContext context)
+		def String weaveURIs(EPackage srcPackage, EPackage tgtPackage, UniquenessContext context)
 		
-		def String originName(String name, Origin origin)
+		def String originName(String name, Origin origin, UniquenessContext context)
 	}
 	
+	/**
+	 * This strategy currently doesn't undertake any uniqueness checks for names produced.
+	 */
 	private static class DefaultNamingStrategy implements NamingStrategy {
-		override String weaveNames(CharSequence sourceName, CharSequence targetName) {
+		override String weaveNames(CharSequence sourceName, CharSequence targetName, UniquenessContext context) {
 			if (sourceName === null) {
 				if (targetName !== null) {
 					targetName.toString
@@ -212,23 +224,27 @@ class XDsmlComposer {
 		}
 
 		// TODO We can probably do better here :-)
-		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) '''https://metamodel.woven/«srcPackage.nsPrefix»/«tgtPackage.nsPrefix»'''			
+		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage, UniquenessContext context) '''https://metamodel.woven/«srcPackage.nsPrefix»/«tgtPackage.nsPrefix»'''			
 		
-		override String originName(String name, Origin origin) '''«origin.label»__«name»'''
+		override String originName(String name, Origin origin, UniquenessContext context) '''«origin.label»__«name»'''
 	}
 
 	private static abstract class AbstractNamingStrategy implements NamingStrategy {
-		val NamingStrategy fallback
+		protected val NamingStrategy fallback
 		
 		new (NamingStrategy fallback) {
 			this.fallback = fallback
 		}
 		
-		override String weaveNames(CharSequence sourceName, CharSequence targetName) { fallback.weaveNames(sourceName, targetName) }		
+		protected def boolean isUniqueInContext(String name, UniquenessContext context) {
+			!context.decidedTargetNames.exists[it == name]
+		}
+		
+		override String weaveNames(CharSequence sourceName, CharSequence targetName, UniquenessContext context) { fallback.weaveNames(sourceName, targetName, context) }		
 
-		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) { fallback.weaveURIs(srcPackage, tgtPackage) }
+		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage, UniquenessContext context) { fallback.weaveURIs(srcPackage, tgtPackage, context) }
 
-		override String originName(String name, Origin origin) { fallback.originName(name, origin) }
+		override String originName(String name, Origin origin, UniquenessContext context) { fallback.originName(name, origin, context) }
 	}
 
 	private static class PreferTargetNames extends AbstractNamingStrategy {
@@ -236,22 +252,33 @@ class XDsmlComposer {
 			super(fallback)
 		}
 		
-		override String weaveNames(CharSequence sourceName, CharSequence targetName) {
-			// FIXME: May need to fall back on fallback if choosing this name would produce a violation of uniqueness constraints
-			targetName.toString
+		override String weaveNames(CharSequence sourceName, CharSequence targetName, UniquenessContext context) {
+			val tentativeName = targetName.toString
+			
+			if (tentativeName.isUniqueInContext(context)) {
+				tentativeName
+			} else {
+				fallback.weaveNames(sourceName, targetName, context)
+			}
 		}		
 
-		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) {
+		override String weaveURIs(EPackage srcPackage, EPackage tgtPackage, UniquenessContext context) {
 			tgtPackage.nsURI
 		}
 	}
 	
-	private static class DontLabelNonKernelNames extends AbstractNamingStrategy {		
+	private static class DontLabelNonKernelNames extends AbstractNamingStrategy {
 		new (NamingStrategy fallback) {
 			super (fallback)
 		}
 		
-		override String originName(String name, Origin origin) { name }
+		override String originName(String name, Origin origin, UniquenessContext context) { 
+			if (name.isUniqueInContext(context)) {
+				name			
+			} else {
+				fallback.originName(name, origin, context)
+			}
+		}
 	}
 
 	private def NamingStrategy generateNamingStrategy(WeaveOption option, NamingStrategy existingStrategy) {
@@ -269,6 +296,8 @@ class XDsmlComposer {
 				return existingStrategy
 		}
 	}
+	
+	private static def UniquenessContext emptyContext() { [ emptyList ] }
 
 	/**
 	 * Helper class composing two TGs based on a morphism specification. Similar to EcoreUtil.Copier, the instance of this class used 
@@ -281,9 +310,9 @@ class XDsmlComposer {
 		def EPackage weaveTG(Map<EObject, EObject> tgMapping, EPackage srcPackage, EPackage tgtPackage, extension NamingStrategy naming) {
 			// TODO Handle sub-packages?
 			val EPackage result = EcoreFactory.eINSTANCE.createEPackage => [
-				name = weaveNames(srcPackage.name, tgtPackage.name)
-				nsPrefix = weaveNames(srcPackage.nsPrefix, tgtPackage.nsPrefix)
-				nsURI = weaveURIs(srcPackage, tgtPackage)				
+				name = weaveNames(srcPackage.name, tgtPackage.name, emptyContext)
+				nsPrefix = weaveNames(srcPackage.nsPrefix, tgtPackage.nsPrefix, emptyContext)
+				nsURI = weaveURIs(srcPackage, tgtPackage, emptyContext)
 			]
 			
 			put(srcPackage.sourceKey, result)
@@ -316,7 +345,7 @@ class XDsmlComposer {
 			invertedIndex.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
 				val EClass composed = e.value.createWithWovenName(e.key.name.toString, [ n |
 					composedPackage.createEClass(n)
-				], naming)
+				], naming, allMappedClasses)
 
 				put(e.key.targetKey, composed)
 				e.value.forEach[eo|put(eo.sourceKey, composed)]
@@ -334,7 +363,7 @@ class XDsmlComposer {
 			invertedIndex.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
 				val EReference composed = e.value.createWithWovenName(e.key.name.toString, [ n |
 					createEReference(e.key as EReference, n)
-				], naming)
+				], naming, ((e.value.map[it as EReference]) + (e.key as EReference)).existingWovenFeatureNamesForContainers)
 
 				put(e.key.targetKey, composed)
 				e.value.forEach[eo|put(eo.sourceKey, composed)]
@@ -352,7 +381,7 @@ class XDsmlComposer {
 			invertedIndex.entrySet.filter[e|e.key instanceof EAttribute].forEach [ e |
 				val EAttribute composed = e.value.createWithWovenName(e.key.name.toString, [ n |
 					createEAttribute(e.key as EAttribute, n)
-				], naming)
+				], naming, ((e.value.map[it as EAttribute]) + (e.key as EAttribute)).existingWovenFeatureNamesForContainers)
 
 				put(e.key.targetKey, composed)
 				e.value.forEach[eo|put(eo.sourceKey, composed)]
@@ -364,15 +393,15 @@ class XDsmlComposer {
 		}
 
 		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin, extension NamingStrategy naming) {
-			elements.createForEach(EClass, origin, [eo|composedPackage.createEClass(eo.name.originName(origin))])
+			elements.createForEach(EClass, origin, [eo|composedPackage.createEClass(eo.name.originName(origin, allMappedClasses))])
 		}
 
 		private def createForEachEReference(List<EObject> elements, Origin origin, extension NamingStrategy naming) {
-			elements.createForEach(EReference, origin, [er|er.createEReference(er.name.originName(origin), origin)])
+			elements.createForEach(EReference, origin, [er|er.createEReference(er.name.originName(origin, (get(er.EContainingClass.origKey(origin)) as EClass)?.existingWovenFeatureNames), origin)])
 		}
 
 		private def createForEachEAttribute(List<EObject> elements, Origin origin, extension NamingStrategy naming) {
-			elements.createForEach(EAttribute, origin, [er|er.createEAttribute(er.name.originName(origin), origin)])
+			elements.createForEach(EAttribute, origin, [er|er.createEAttribute(er.name.originName(origin, (get(er.EContainingClass.origKey(origin)) as EClass)?.existingWovenFeatureNames), origin)])
 		}
 
 		private def <T extends ENamedElement> createForEach(List<EObject> elements, Class<T> clazz, Origin origin,
@@ -404,28 +433,29 @@ class XDsmlComposer {
 			createEReference(source, name, Origin.TARGET)
 		}
 
-		private def createEReference(EReference source, String name, Origin origin) {
-			val EReference result = EcoreFactory.eINSTANCE.createEReference;
+		private def createEReference(EReference source, String nameToGive, Origin origin) {
+			val EReference result = EcoreFactory.eINSTANCE.createEReference => [
+				EType = get(source.EType.origKey(origin)) as EClass	
+				name = nameToGive
+				changeable = source.changeable
+				containment = source.containment
+				derived = source.derived
+				lowerBound = source.lowerBound
+				ordered = source.ordered
+				transient = source.transient
+				unique = source.unique
+				unsettable = source.unsettable
+				upperBound = source.upperBound
+				volatile = source.volatile	
+			]
 
-			(get(source.EContainingClass.origKey(origin)) as EClass).EStructuralFeatures.add(result)
-			result.EType = get(source.EType.origKey(origin)) as EClass
-
-			result.name = name
-			result.changeable = source.changeable
-			result.containment = source.containment
-			result.derived = source.derived
 			val opposite = get(source.EOpposite.origKey(origin)) as EReference
 			if (opposite !== null) {
 				result.EOpposite = opposite
 				opposite.EOpposite = result
 			}
-			result.lowerBound = source.lowerBound
-			result.ordered = source.ordered
-			result.transient = source.transient
-			result.unique = source.unique
-			result.unsettable = source.unsettable
-			result.upperBound = source.upperBound
-			result.volatile = source.volatile
+
+			(get(source.EContainingClass.origKey(origin)) as EClass).EStructuralFeatures.add(result)
 
 			result
 		}
@@ -435,28 +465,46 @@ class XDsmlComposer {
 			createEAttribute(source, name, Origin.TARGET)
 		}
 
-		private def createEAttribute(EAttribute source, String name, Origin origin) {
-			val EAttribute result = EcoreFactory.eINSTANCE.createEAttribute;
+		private def createEAttribute(EAttribute source, String nameToGive, Origin origin) {
+			val EAttribute result = EcoreFactory.eINSTANCE.createEAttribute => [
+				/*
+				 * TODO This will work well with datatypes that are centrally shared, but not with datatypes defined in a model. However,
+				 * at the moment such datatypes wouldn't pass the morphism checker code either, so this is probably safe for now.
+				 */
+				EType = source.EType
+	
+				name = nameToGive
+				changeable = source.changeable
+				derived = source.derived
+				lowerBound = source.lowerBound
+				ordered = source.ordered
+				transient = source.transient
+				unique = source.unique
+				unsettable = source.unsettable
+				upperBound = source.upperBound
+				volatile = source.volatile				
+			]
 
 			(get(source.EContainingClass.origKey(origin)) as EClass).EStructuralFeatures.add(result)
-			/*
-			 * TODO This will work well with datatypes that are centrally shared, but not with datatypes defined in a model. However,
-			 * at the moment such datatypes wouldn't pass the morphism checker code either, so this is probably safe for now.
-			 */
-			result.EType = source.EType
-
-			result.name = name
-			result.changeable = source.changeable
-			result.derived = source.derived
-			result.lowerBound = source.lowerBound
-			result.ordered = source.ordered
-			result.transient = source.transient
-			result.unique = source.unique
-			result.unsettable = source.unsettable
-			result.upperBound = source.upperBound
-			result.volatile = source.volatile
 
 			result
+		}
+
+		private def UniquenessContext allMappedClasses() { [values.filter(EClass).map[name]] }
+
+		private def UniquenessContext existingWovenFeatureNames(EClass clazz) {
+			if (clazz !== null) {
+				[
+					val features = clazz.EAllStructuralFeatures
+					entrySet.filter[e | features.contains(e.value)].map[e | e.value.name.toString]
+				]				
+			} else {
+				emptyContext
+			}
+		}
+		
+		private def UniquenessContext existingWovenFeatureNamesForContainers(Iterable<? extends EStructuralFeature> refs) {
+			[refs.flatMap[(eContainer as EClass).existingWovenFeatureNames.decidedTargetNames].toSet]
 		}
 
 		/**
@@ -502,22 +550,23 @@ class XDsmlComposer {
 			return null
 		}
 
-		val result = HenshinFactory.eINSTANCE.createModule
-		result.description = weaveDescriptions(srcBehaviour, tgtBehaviour)
-		result.imports.add(tgMapping.get(srcPackage.sourceKey) as EPackage)
-		result.name = weaveNames(srcBehaviour, tgtBehaviour, naming)
+		val result = HenshinFactory.eINSTANCE.createModule => [
+			description = weaveDescriptions(srcBehaviour, tgtBehaviour)
+			imports += tgMapping.get(srcPackage.sourceKey) as EPackage
+			name = weaveNames(srcBehaviour, tgtBehaviour, naming)
+		]
 
-		result.units.addAll(behaviourMapping.keySet.filter(Rule).map[r|r.createComposed(behaviourMapping, tgMapping, naming)])
+		behaviourMapping.keySet.filter(Rule).forEach[r|result.units += r.createComposed(behaviourMapping, tgMapping, naming, result)]
 
 		result
 	}
 
 	def Rule createComposed(Rule tgtRule, Map<EObject, EObject> behaviourMapping,
-		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming) {
+		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming, Module moduleContext) {
 		val srcRule = behaviourMapping.get(tgtRule) as Rule
 		val result = HenshinFactory.eINSTANCE.createRule
 
-		result.name = weaveNames(tgtRule.name, srcRule.name)
+		result.name = weaveNames(tgtRule.name, srcRule.name, [moduleContext.units.map[name]])
 		result.description = weaveDescriptions(tgtRule.description, srcRule.description)
 		result.injectiveMatching = srcRule.injectiveMatching
 		// TODO Should probably copy parameters, too
@@ -585,7 +634,7 @@ class XDsmlComposer {
 			invertedIndex.entrySet.filter[e|e.key instanceof org.eclipse.emf.henshin.model.Node].forEach [ e |
 				val composed = e.value.createWithWovenName(e.key.name.toString, [ n |
 					createNode(e.key as org.eclipse.emf.henshin.model.Node, n)
-				], naming)
+				], naming, [values.filter(org.eclipse.emf.henshin.model.Node).map[name]])
 
 				put((e.key as org.eclipse.emf.henshin.model.Node).targetKey, composed)
 				e.value.forEach[eo|put((eo as org.eclipse.emf.henshin.model.Node).sourceKey, composed)]
@@ -608,10 +657,10 @@ class XDsmlComposer {
 
 		private def weaveUnmappedElements() {
 			srcPattern.nodes.reject[n|behaviourMapping.containsKey(n)].forEach [ n |
-				put(n.sourceKey, n.createNode(n.name.originName(Origin.SOURCE), Origin.SOURCE))
+				put(n.sourceKey, n.createNode(n.name.originName(Origin.SOURCE, [values.filter(org.eclipse.emf.henshin.model.Node).map[name]]), Origin.SOURCE))
 			]
 			tgtPattern.nodes.reject[n|behaviourMapping.values.contains(n)].forEach [ n |
-				put(n.targetKey, n.createNode(n.name.originName(Origin.TARGET), Origin.TARGET))
+				put(n.targetKey, n.createNode(n.name.originName(Origin.TARGET, [values.filter(org.eclipse.emf.henshin.model.Node).map[name]]), Origin.TARGET))
 			]
 
 			srcPattern.edges.reject[e|behaviourMapping.containsKey(e)].forEach [ e |
@@ -629,14 +678,12 @@ class XDsmlComposer {
 			]
 		}
 
-		private def org.eclipse.emf.henshin.model.Node createNode(org.eclipse.emf.henshin.model.Node nSrc,
-			String name) {
+		private def createNode(org.eclipse.emf.henshin.model.Node nSrc, String name) {
 			// Origin doesn't matter for mapped elements, must be target because we've decided to copy data from target TG
 			createNode(nSrc, name, Origin.TARGET)
 		}
 
-		private def org.eclipse.emf.henshin.model.Node createNode(org.eclipse.emf.henshin.model.Node nSrc, String name,
-			Origin origin) {
+		private def createNode(org.eclipse.emf.henshin.model.Node nSrc, String name, Origin origin) {
 			val result = HenshinFactory.eINSTANCE.createNode
 
 			result.name = name
@@ -695,13 +742,13 @@ class XDsmlComposer {
 	}
 
 	private static def <T extends EObject> T createWithWovenName(List<? extends EObject> objects, String startName,
-		Function<String, T> creator, extension NamingStrategy naming) {
-		creator.apply(objects.map[eo|eo.name.toString].sort.reverseView.fold(startName, [acc, n|weaveNames(n, acc)]))
+		Function<String, T> creator, extension NamingStrategy naming, UniquenessContext context) {
+		creator.apply(objects.map[eo|eo.name.toString].sort.reverseView.fold(startName, [acc, n|weaveNames(n, acc, context)]))
 	}
 
 	private static def String weaveNames(Module sourceModule, Module targetModule, extension NamingStrategy naming) {
 		weaveNames(if(sourceModule !== null) sourceModule.name else null,
-			if(targetModule !== null) targetModule.name else null)
+			if(targetModule !== null) targetModule.name else null, [ emptyList ])
 	}
 
 	private static def String weaveDescriptions(Module sourceModule, Module targetModule) {
@@ -720,5 +767,36 @@ class XDsmlComposer {
 			sourceDescription.toString
 		} else
 			'''Merged from «sourceDescription» and «targetDescription».'''
+	}
+
+	private static def <T> operator_plus (Iterable<? extends T> a, T b) {
+		new Iterable<T>() {
+			
+			override iterator() {
+				val aIterator = a.iterator
+				
+				new Iterator<T>() {
+					
+					var didFinal = false	
+					
+					override hasNext() {
+						aIterator.hasNext() || !didFinal
+					}
+					
+					override next() {
+						if (aIterator.hasNext) {
+							aIterator.next
+						} else if (!didFinal) {
+							didFinal = true
+							b
+						} else {
+							throw new IllegalStateException("Iterator has run out of stuff to iterate...")
+						}
+					}
+					
+				}
+			}
+			
+		}
 	}
 }
