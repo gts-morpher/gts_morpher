@@ -55,10 +55,18 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//GTSFamilySpecification"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="GTSWeave" eSuperTypes="#//GTSSelection">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="options" unique="false"
+        upperBound="-1" eType="#//WeaveOption"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="mapping1" eType="#//GTSMappingRefOrInterfaceSpec"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="mapping2" eType="#//GTSMappingRefOrInterfaceSpec"
         containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="WeaveOption">
+    <eLiterals name="preferMap1TargetNames" literal="preferMap1TargetNames"/>
+    <eLiterals name="preferMap2TargetNames" value="1" literal="preferMap2TargetNames"/>
+    <eLiterals name="preferKernelNames" value="2" literal="preferKernelNames"/>
+    <eLiterals name="dontLabelNonKernelElements" value="3" literal="dontLabelNonKernelElements"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="GTSMappingRefOrInterfaceSpec"/>
   <eClassifiers xsi:type="ecore:EClass" name="GTSMappingRef" eSuperTypes="#//GTSMappingRefOrInterfaceSpec">

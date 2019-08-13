@@ -65,16 +65,6 @@ GTSLiteral:
 	("behaviour" ":" behaviour = [gts::Module | STRING])?
 ;
 
-//GTSFamilyChoice:
-//	"family" ":" "{"
-//		root = GTSLiteral
-//		"transformers" ":" transformers = [gts::Module | STRING]
-//	"}"
-//	
-//	"using" "["
-//		transformationSteps = UnitCallList
-//	"]"
-//;
 GTSFamilyChoice:
 	"family" ":" family = GTSFamilySpecificationOrReference
 	
@@ -93,10 +83,17 @@ GTSFamilyReference:
 ;
 
 GTSWeave:
-	"weave" ":" "{"
+	"weave" ("(" options += WeaveOption ("," options += WeaveOption)* ")")? ":" "{"
 		"map1" ":" mapping1 = GTSMappingRefOrInterfaceSpec
 		"map2" ":" mapping2 = GTSMappingRefOrInterfaceSpec
 	"}"
+;
+
+enum WeaveOption:
+	preferMap1TargetNames | 
+	preferMap2TargetNames | 
+	preferKernelNames | 
+	dontLabelNonKernelElements
 ;
 
 GTSMappingRefOrInterfaceSpec:

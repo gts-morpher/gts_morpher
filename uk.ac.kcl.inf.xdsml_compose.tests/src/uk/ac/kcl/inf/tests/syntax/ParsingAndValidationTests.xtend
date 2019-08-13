@@ -19,6 +19,7 @@ import uk.ac.kcl.inf.xDsmlCompose.AttributeMapping
 import uk.ac.kcl.inf.xDsmlCompose.ClassMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilyChoice
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
+import uk.ac.kcl.inf.xDsmlCompose.GTSWeave
 import uk.ac.kcl.inf.xDsmlCompose.LinkMapping
 import uk.ac.kcl.inf.xDsmlCompose.ObjectMapping
 import uk.ac.kcl.inf.xDsmlCompose.ReferenceMapping
@@ -29,6 +30,7 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import uk.ac.kcl.inf.xDsmlCompose.WeaveOption
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -1051,6 +1053,64 @@ class ParsingAndValidationTests extends AbstractTest {
 
 		result.assertNoError(XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
 		result.assertNoError(XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
+	}
+
+	/**
+	 * Tests basic parsing of algebraic weave descriptions with naming conventions
+	 */
+	@Test
+	def void parsingWeaveWithNameOptions() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem {
+				metamodel: "server"
+				behaviour: "serverRules"
+			}
+			
+			gts ServerInterface interface_of { ServerSystem }
+			
+			gts DEVSMMSystem {
+				metamodel: "devsmm"
+				behaviour: "devsmmRules"
+			}
+
+			map ServerToDEVSMM {
+				from ServerInterface
+				to DEVSMMSystem
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
+					}
+				}
+			}
+			
+			gts DEVSMMWithServer {
+				weave (preferMap2TargetNames, dontLabelNonKernelElements): {
+					map1: interface_of (ServerSystem)
+					map2: ServerToDEVSMM
+				}
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertNotNull("Did not resolve GTS metamodel reference", result.gtss.get(1).metamodel.name)
+		assertNotNull("Did not resolve GTS behaviour reference", result.gtss.get(1).behaviour.name)
+		assertTrue("Not set to interface_of", result.gtss.get(1).interface_mapping)
+
+		result.assertNoError(XDsmlComposeValidator.WEAVE_WITH_DIFFERENT_SOURCES)
+		result.assertNoError(XDsmlComposeValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
+		
+		assertTrue("Didn't record preferMap2TargetNames flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.PREFER_MAP2_TARGET_NAMES))
+		assertTrue("Didn't record dontLabelNonKernelElements flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.DONT_LABEL_NON_KERNEL_ELEMENTS))
 	}
 
 	/**

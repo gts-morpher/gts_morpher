@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_v9j0EEGREeimBIP0gtQ7RQ" name="KRules">
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_v9j0EEGREeimBIP0gtQ7RQ" name="source__KRules">
   <imports href="KL.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_1eKV4EGREeimBIP0gtQ7RQ" name="init">
     <lhs xmi:id="_1eMLEEGREeimBIP0gtQ7RQ" name="Lhs">

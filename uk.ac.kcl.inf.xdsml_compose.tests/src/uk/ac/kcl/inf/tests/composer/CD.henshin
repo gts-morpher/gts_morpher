@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_vq72QAsbEeigIeiDiP83tg" name="CRules_DRules">
   <imports href="CD.ecore#/"/>
-  <units xsi:type="henshin:Rule" xmi:id="_zvG2UAsbEeigIeiDiP83tg" name="resolveSelfReference_change">
+  <units xsi:type="henshin:Rule" xmi:id="_zvG2UAsbEeigIeiDiP83tg" name="change_resolveSelfReference">
     <lhs xmi:id="_zvG2VQsbEeigIeiDiP83tg" name="Lhs">
       <nodes xmi:id="_9hL0YAsbEeigIeiDiP83tg" name="c1_c2_d1" incoming="_HouFEAscEeigIeiDiP83tg _gPdxUAscEeigIeiDiP83tg" outgoing="_HouFEAscEeigIeiDiP83tg _XeBJ0AscEeigIeiDiP83tg">
         <type href="CD.ecore#//C1_C2_D1"/>
