@@ -54,7 +54,8 @@ Here, `MyReferencingGTS` is the same as `MyGTS` except that it only uses element
 
 ### 2.2. Basic morphism syntax
 
-:
+A GTS morphism is specified as a mapping between two GTSs, using a `map` clause:
+
 
 ```
 map {
@@ -208,6 +209,16 @@ gts name {
 ```
 
 Here, `A` is a reference to an existing named GTS. `AB` is a reference to a named mapping (name mappings by adding the name just after the `map` keyword). So far, GTS amalgamation is only supported where one of the maps is an `interface_of` mapping and the other one is a named mapping. No further checks of the morphisms are undertaken and no guarantees are given wrt semantics preservation of the amalgamation step.
+
+The `weave` clause can be extended with parameters specifying the rules to use when generating names for the amalgamated model elements. By default, weaving will preserve the names of all model elements that contributed to a given woven element. If these names are all identical, the new model element will have the same name. Otherwise, all names will be joined together using `_` as the separator. Names of model elements that are not mapped from the kernel GTS will be prefixed with `source__` or `target__`, respectively, to indicate their provenance.
+
+The following parameters can be used to change this behaviour. These parameters are given as a comma-separated list in parentheses after the `weave` keyword and before the `:`.
+
+- `preferMap1TargetNames` / `preferMap2TargetNames` can be used to indicate that only the names from the respective mapping should be preserved.
+- `preferKernelNames` can be used to indicate that the names from the kernel GTS should be preserved.
+- `dontLabelNonKernelElements` can be used to indicate that names of elements not from the kernel GTS should be left unchanged.
+
+If any naming option leads to names that are not unique within their scope, the weaver will fall back to the default naming strategy for these elements.
 
 For any amalgamated GTS that is labeled `export`, the automatic builder will generate a corresponding `.ecore` and (possibly) `.henshin` file in the `src-gen/` folder.
 
