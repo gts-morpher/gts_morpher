@@ -192,7 +192,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 				behaviour: "ARules"
 			}
 			
-			map auto-complete unique A2B {
+			auto-complete unique map A2B {
 				from interface_of { A }
 				to {
 					metamodel: "B"
@@ -240,7 +240,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 				behaviour: "ARules"
 			}
 			
-			map auto-complete unique A2B {
+			auto-complete unique map A2B {
 				from interface_of { A }
 				to {
 					metamodel: "B"
