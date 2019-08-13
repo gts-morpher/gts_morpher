@@ -107,8 +107,6 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 	}
 
-
-	// FIXME: Currently, the chaining of naming strategies breaks this 
 	@Test
 	def testSimpleTGMorphismWithNamingOptions() {
 		val resourceSet = createNormalResourceSet

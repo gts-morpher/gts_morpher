@@ -2,7 +2,6 @@ package uk.ac.kcl.inf.composer
 
 import java.util.ArrayList
 import java.util.HashMap
-import java.util.Iterator
 import java.util.List
 import java.util.Map
 import java.util.function.Function
@@ -578,20 +577,6 @@ class XDsmlComposer {
 			result
 		}
 
-//		private def UniquenessContext allMappedClasses() { [values.filter(EClass).map[name]] }
-//		private def UniquenessContext existingWovenFeatureNames(EClass clazz) {
-//			if (clazz !== null) {
-//				[
-//					val features = clazz.EAllStructuralFeatures
-//					entrySet.filter[e | features.contains(e.value)].map[e | e.value.name.toString]
-//				]				
-//			} else {
-//				emptyContext
-//			}
-//		}
-//		private def UniquenessContext existingWovenFeatureNamesForContainers(Iterable<? extends EStructuralFeature> refs) {
-//			[refs.flatMap[(eContainer as EClass).existingWovenFeatureNames.decidedTargetNames].toSet]
-//		}
 		/**
 		 * Separate map for keeping mappings established for proxies. Needs to be kept separately to avoid concurrent modifications when get transparently creates copies of proxies on demand.
 		 */
@@ -847,13 +832,6 @@ class XDsmlComposer {
 		}
 	}
 
-//	private static def <T extends EObject> T createWithWovenName(List<? extends EObject> objects, String startName,
-//		Function<String, T> creator, extension NamingStrategy naming, UniquenessContext context) {
-//		creator.apply(objects.map[eo|eo.name.toString].sort.reverseView.fold(startName, [acc, n|weaveNames(n, acc, context)]))
-//	}
-//	private static def String weaveNames(Module sourceModule, Module targetModule, extension NamingStrategy naming) {
-//		weaveNames(#[sourceModule?.sourceKey, targetModule?.targetKey].filterNull, emptyContext)
-//	}
 	private static def String weaveDescriptions(Module sourceModule, Module targetModule) {
 		weaveDescriptions(if(sourceModule !== null) sourceModule.description else null,
 			if(targetModule !== null) targetModule.description else null)
@@ -870,36 +848,5 @@ class XDsmlComposer {
 			sourceDescription.toString
 		} else
 			'''Merged from «sourceDescription» and «targetDescription».'''
-	}
-
-	private static def <T> operator_plus(Iterable<? extends T> a, T b) {
-		new Iterable<T>() {
-
-			override iterator() {
-				val aIterator = a.iterator
-
-				new Iterator<T>() {
-
-					var didFinal = false
-
-					override hasNext() {
-						aIterator.hasNext() || !didFinal
-					}
-
-					override next() {
-						if (aIterator.hasNext) {
-							aIterator.next
-						} else if (!didFinal) {
-							didFinal = true
-							b
-						} else {
-							throw new IllegalStateException("Iterator has run out of stuff to iterate...")
-						}
-					}
-
-				}
-			}
-
-		}
 	}
 }
