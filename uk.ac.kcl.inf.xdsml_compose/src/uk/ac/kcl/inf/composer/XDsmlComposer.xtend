@@ -402,10 +402,10 @@ class XDsmlComposer {
 			val invertedIndex = tgMapping.invertedIndex
 			val unmappedSrcElements = srcPackage.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList
 			val unmappedTgtElements = tgtPackage.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList
-			weaveClasses(invertedIndex, unmappedSrcElements, unmappedTgtElements, result, naming)
+			weaveClasses(invertedIndex, unmappedSrcElements, unmappedTgtElements, result)
 			weaveInheritance
-			weaveReferences(invertedIndex, unmappedSrcElements, unmappedTgtElements, naming)
-			weaveAttributes(invertedIndex, unmappedSrcElements, unmappedTgtElements, naming)
+			weaveReferences(invertedIndex, unmappedSrcElements, unmappedTgtElements)
+			weaveAttributes(invertedIndex, unmappedSrcElements, unmappedTgtElements)
 
 			naming.weaveAllNames
 
@@ -421,7 +421,7 @@ class XDsmlComposer {
 
 			// 2. For every key in keyset of inversion, define the name based on names of all the sources that were merged into this
 			invertedMapping.keySet.forEach [ eo |
-				(eo as ENamedElement).name = naming.weaveNames(invertedMapping, eo, eo.uniquenessContext) // TODO: Need to add these as parameters somewhere to enable checking of what we would have done... (invertedMapping, naming))
+				(eo as ENamedElement).name = naming.weaveNames(invertedMapping, eo, eo.uniquenessContext)
 			]
 		}
 
@@ -436,7 +436,7 @@ class XDsmlComposer {
 		}
 
 		private def weaveClasses(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
-			List<EObject> unmappedTgtElements, EPackage composedPackage, NamingStrategy naming) {
+			List<EObject> unmappedTgtElements, EPackage composedPackage) {
 			// Weave from inverted index for mapped classes 
 			invertedIndex.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
 				val EClass composed = composedPackage.createEClass
@@ -446,12 +446,12 @@ class XDsmlComposer {
 			]
 
 			// Create copies for all unmapped classes
-			composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE, naming)
-			composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET, naming)
+			composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE)
+			composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET)
 		}
 
 		private def weaveReferences(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
-			List<EObject> unmappedTgtElements, NamingStrategy naming) {
+			List<EObject> unmappedTgtElements) {
 			// Weave mapped references
 			// Because the mapping is a morphism, this must work :-)
 			invertedIndex.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
@@ -462,12 +462,12 @@ class XDsmlComposer {
 			]
 
 			// Create copied for unmapped references
-			unmappedSrcElements.createForEachEReference(Origin.SOURCE, naming)
-			unmappedTgtElements.createForEachEReference(Origin.TARGET, naming)
+			unmappedSrcElements.createForEachEReference(Origin.SOURCE)
+			unmappedTgtElements.createForEachEReference(Origin.TARGET)
 		}
 
 		private def weaveAttributes(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
-			List<EObject> unmappedTgtElements, NamingStrategy naming) {
+			List<EObject> unmappedTgtElements) {
 			// Weave mapped attributes
 			// Because the mapping is a morphism, this must work :-)
 			invertedIndex.entrySet.filter[e|e.key instanceof EAttribute].forEach [ e |
@@ -478,20 +478,19 @@ class XDsmlComposer {
 			]
 
 			// Create copies for unmapped attributes
-			unmappedSrcElements.createForEachEAttribute(Origin.SOURCE, naming)
-			unmappedTgtElements.createForEachEAttribute(Origin.TARGET, naming)
+			unmappedSrcElements.createForEachEAttribute(Origin.SOURCE)
+			unmappedTgtElements.createForEachEAttribute(Origin.TARGET)
 		}
 
-		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin,
-			extension NamingStrategy naming) {
+		private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin) {
 			elements.createForEach(EClass, origin, [eo|composedPackage.createEClass])
 		}
 
-		private def createForEachEReference(List<EObject> elements, Origin origin, extension NamingStrategy naming) {
+		private def createForEachEReference(List<EObject> elements, Origin origin) {
 			elements.createForEach(EReference, origin, [er|er.createEReference(origin)])
 		}
 
-		private def createForEachEAttribute(List<EObject> elements, Origin origin, extension NamingStrategy naming) {
+		private def createForEachEAttribute(List<EObject> elements, Origin origin) {
 			elements.createForEach(EAttribute, origin, [ea|ea.createEAttribute(origin)])
 		}
 
@@ -721,7 +720,7 @@ class XDsmlComposer {
 			// 2. For every key in keyset of inversion, define the name based on names of all the sources that were merged into this
 			invertedMapping.keySet.forEach [ eo |
 				if (eo instanceof NamedElement) {
-					eo.name = naming.weaveNames(invertedMapping, eo, eo.uniquenessContext) // TODO: Need to add these as parameters somewhere to enable checking of what we would have done... (invertedMapping, naming))
+					eo.name = naming.weaveNames(invertedMapping, eo, eo.uniquenessContext)
 				}
 			]
 		}
