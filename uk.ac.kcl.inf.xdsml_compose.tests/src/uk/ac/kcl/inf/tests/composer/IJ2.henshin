@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_7gm8UCufEei9gqjpeQ_q3A" name="JRules">
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_7gm8UCufEei9gqjpeQ_q3A" name="target__JRules">
   <imports href="IJ.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_8SLjMCufEei9gqjpeQ_q3A" name="do">
     <lhs xmi:id="_8SOmgCufEei9gqjpeQ_q3A" name="Lhs">
