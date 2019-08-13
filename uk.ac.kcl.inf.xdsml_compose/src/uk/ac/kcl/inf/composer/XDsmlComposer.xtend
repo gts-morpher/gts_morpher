@@ -367,6 +367,7 @@ class XDsmlComposer {
 			case DONT_LABEL_NON_KERNEL_ELEMENTS:
 				return new DontLabelNonKernelNames(existingStrategy)
 			case PREFER_KERNEL_NAMES:
+				// FIXME: This isn't correct: need to have a special strategy for this
 				return existingStrategy
 			// FIXME: This isn't correct: need to take into account what map1 and map2 actually are and differentiate the naming accordingly.
 			case PREFER_MAP1_TARGET_NAMES:
