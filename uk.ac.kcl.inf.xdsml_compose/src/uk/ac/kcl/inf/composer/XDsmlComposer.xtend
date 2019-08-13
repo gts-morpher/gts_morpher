@@ -621,34 +621,42 @@ class XDsmlComposer {
 			return null
 		}
 
+		// Temporary index for purposes of weaving rule names
+		val ruleWeavingMap = new HashMap<Rule, List<Pair<Origin, Rule>>>
+
 		val result = HenshinFactory.eINSTANCE.createModule => [
 			description = weaveDescriptions(srcBehaviour, tgtBehaviour)
 			imports += tgMapping.get(srcPackage.sourceKey) as EPackage
+
+			units += behaviourMapping.keySet.filter(Rule).map [ r |
+				val composed = r.createComposed(behaviourMapping, tgMapping, naming)
+
+				ruleWeavingMap.put(composed, #[(behaviourMapping.get(r) as Rule).sourceKey, r.targetKey])
+
+				composed
+			]
 		]
+
 		result.name = weaveNames(#{result -> #[srcBehaviour?.sourceKey, tgtBehaviour?.targetKey].filterNull}, result,
 			emptyContext)
-
-		behaviourMapping.keySet.filter(Rule).forEach [ r |
-			result.units += r.createComposed(behaviourMapping, tgMapping, naming, result)
+		result.units.forEach [ r |
+			r.name = weaveNames(ruleWeavingMap, r, [result.units])
 		]
 
 		result
 	}
 
 	def Rule createComposed(Rule tgtRule, Map<EObject, EObject> behaviourMapping,
-		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming, Module moduleContext) {
+		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming) {
 		val srcRule = behaviourMapping.get(tgtRule) as Rule
-		val result = HenshinFactory.eINSTANCE.createRule
 
-		// FIXME: Need to move naming to later here, too?
-		result.name = weaveNames(#{result -> #[tgtRule.targetKey, srcRule.sourceKey]}, result, [moduleContext.units])
-		result.description = weaveDescriptions(tgtRule.description, srcRule.description)
-		result.injectiveMatching = srcRule.injectiveMatching
-		// TODO Should probably copy parameters, too
-		result.lhs = new PatternWeaver(srcRule.lhs, tgtRule.lhs, behaviourMapping, tgMapping, "Lhs", naming).
-			weavePattern
-		result.rhs = new PatternWeaver(srcRule.rhs, tgtRule.rhs, behaviourMapping, tgMapping, "Rhs", naming).
-			weavePattern
+		val result = HenshinFactory.eINSTANCE.createRule => [
+			description = weaveDescriptions(tgtRule.description, srcRule.description)
+			injectiveMatching = srcRule.injectiveMatching
+			// TODO Should probably copy parameters, too
+			lhs = new PatternWeaver(srcRule.lhs, tgtRule.lhs, behaviourMapping, tgMapping, "Lhs", naming).weavePattern
+			rhs = new PatternWeaver(srcRule.rhs, tgtRule.rhs, behaviourMapping, tgMapping, "Rhs", naming).weavePattern
+		]
 
 		// Weave kernel
 		result.lhs.nodes.map [ n |

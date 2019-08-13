@@ -184,6 +184,102 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 	}
 
 	@Test
+	def testSimpleGTSMorphismWithNamingOptions() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts A {
+				metamodel: "A"
+				behaviour: "ARules"
+			}
+			
+			map auto-complete unique A2B {
+				from interface_of { A }
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+			
+			export gts woven {
+				weave (preferMap2TargetNames, dontLabelNonKernelElements): {
+					map1: interface_of (A)
+					map2: A2B
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val runResult = result.doTest(resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+		assertNotNull("Couldn't find composed ecore", runResult.b)
+
+		val composedOracle = resourceSet.getResource(createFileURI("AB2.ecore"), true).contents.head as EPackage
+
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+		
+		assertNotNull("Couldn't find composed Henshin rules", runResult.c)
+		EcoreUtil2.resolveAll(runResult.c)
+		
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("AB2.henshin"), true).contents.head as Module
+		EcoreUtil2.resolveAll(composedHenshinOracle)
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
+	}
+
+	@Test
+	def testSimpleGTSMorphismWithNamingOptionsReversedOrder() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts A {
+				metamodel: "A"
+				behaviour: "ARules"
+			}
+			
+			map auto-complete unique A2B {
+				from interface_of { A }
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+			}
+			
+			export gts woven {
+				weave (dontLabelNonKernelElements, preferMap2TargetNames): {
+					map1: interface_of (A)
+					map2: A2B
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val runResult = result.doTest(resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+		assertNotNull("Couldn't find composed ecore", runResult.b)
+
+		val composedOracle = resourceSet.getResource(createFileURI("AB2.ecore"), true).contents.head as EPackage
+
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+		
+		assertNotNull("Couldn't find composed Henshin rules", runResult.c)
+		EcoreUtil2.resolveAll(runResult.c)
+		
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("AB2.henshin"), true).contents.head as Module
+		EcoreUtil2.resolveAll(composedHenshinOracle)
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
+	}
+
+	@Test
 	def testSimpleGTSMorphism() {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
