@@ -45,93 +45,66 @@ import uk.ac.kcl.inf.xDsmlCompose.XDsmlComposeFactory
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 
 class GTSSpecificationHelper {
-	
-	static def getGtss (GTSSpecificationModule module) {
-		module.members.filter(GTSSpecification)
-	}
-	
-	static def getGts_families (GTSSpecificationModule module) {
-		module.members.filter(GTSFamilySpecification)
-	}
-	
-	static def getMappings (GTSSpecificationModule module) {
-		module.members.filter(GTSMapping)
-	}
-	
-	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilyChoice gfc) {
-		gfc.family.root
-	}
-	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilySpecification gfs) {
-		gfs.root_gts
-	}
-	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilyReference gfr) {
-		gfr.ref.root
-	}
 
-	static dispatch def Module getTransformers(GTSFamilyChoice gfc) {
-		gfc.family.transformers
-	}
-	static dispatch def Module getTransformers(GTSFamilySpecification gfs) {
-		gfs.transformers
-	}
-	static dispatch def Module getTransformers(GTSFamilyReference gfr) {
-		gfr.ref.transformers
-	}
+	static def getGtss (GTSSpecificationModule module) { module.members.filter(GTSSpecification) }
+	
+	static def getGts_families (GTSSpecificationModule module) { module.members.filter(GTSFamilySpecification) }
+	
+	static def getMappings (GTSSpecificationModule module) { module.members.filter(GTSMapping) }
+	
+	static dispatch def GTSSpecificationOrReference getRoot(Void gts) { null }
+	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilyChoice gfc) { gfc.family.root }
+	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilySpecification gfs) { gfs.root_gts }
+	static dispatch def GTSSpecificationOrReference getRoot(GTSFamilyReference gfr) { gfr.ref.root }
 
+	static dispatch def Module getTransformers(Void gts) { null }
+	static dispatch def Module getTransformers(GTSFamilyChoice gfc) { gfc.family.transformers }
+	static dispatch def Module getTransformers(GTSFamilySpecification gfs) { gfs.transformers }
+	static dispatch def Module getTransformers(GTSFamilyReference gfr) { gfr.ref.transformers }
+
+	static dispatch def GTSSpecificationOrReference getSource(Void spec) { null }
 	static dispatch def GTSSpecificationOrReference getSource(GTSMappingRefOrInterfaceSpec spec) { null }
 	static dispatch def GTSSpecificationOrReference getSource(GTSMappingRef ref) { ref.ref.source }
 	static dispatch def GTSSpecificationOrReference getSource(GTSMappingInterfaceSpec spec) {
 		// TODO: Should probably cache this suitably
+		extension val XDsmlComposeFactory factory = XDsmlComposeFactory.eINSTANCE	
 		
-		val gtsref = XDsmlComposeFactory.eINSTANCE.createGTSReference
-		gtsref.ref = spec.gts_ref
-		val gtsspec = XDsmlComposeFactory.eINSTANCE.createGTSSpecification
-		gtsspec.interface_mapping = true
-		gtsspec.gts = gtsref
-		
-		gtsspec
+		val gtsref = createGTSReference => [
+			ref = spec.gts_ref
+		]
+		createGTSSpecification => [
+			interface_mapping = true
+			gts = gtsref			
+		]
 	}
 
+	static dispatch def GTSSelection getGts(Void spec) { null }
 	static dispatch def GTSSelection getGts(GTSSpecificationOrReference spec) { null }
 	static dispatch def GTSSelection getGts(GTSReference ref) { ref.ref.gts } 
 	static dispatch def GTSSelection getGts(GTSSpecification spec) { spec.gts }
 
+	static dispatch def boolean getInterface_mapping(Void spec) { false }
 	static dispatch def boolean getInterface_mapping(GTSSpecificationOrReference spec) { false }
 	static dispatch def boolean getInterface_mapping(GTSReference ref) { ref.ref.interface_mapping } 
 	static dispatch def boolean getInterface_mapping(GTSSpecification spec) { spec.interface_mapping }
 
+	static dispatch def EPackage getMetamodel(Void spec) { null }
 	static dispatch def EPackage getMetamodel(GTSSpecificationOrReference spec) { null }
-	static dispatch def EPackage getMetamodel(GTSReference ref) {
-		ref.ref.metamodel 
-	}
-	static dispatch def EPackage getMetamodel(GTSSpecification spec) {
-		spec.gts.metamodel
-	}
+	static dispatch def EPackage getMetamodel(GTSReference ref) { ref.ref.metamodel }
+	static dispatch def EPackage getMetamodel(GTSSpecification spec) { spec.gts.metamodel }
 	static dispatch def EPackage getMetamodel(GTSSelection gts) { null }
 	static dispatch def EPackage getMetamodel(GTSLiteral gts) { gts.metamodel }
-	static dispatch def EPackage getMetamodel(GTSFamilyChoice gts) {
-		gts.derivePickedGTS.getTg()
-	}
-	static dispatch def EPackage getMetamodel(GTSWeave weave) {
-		weave.derivedWovenGTS.getTg()
-	}
-	static dispatch def EPackage getMetamodel(Void spec) { null }
+	static dispatch def EPackage getMetamodel(GTSFamilyChoice gts) { gts.derivePickedGTS.getTg() }
+	static dispatch def EPackage getMetamodel(GTSWeave weave) { weave.derivedWovenGTS.getTg() }
 
+	static dispatch def Module getBehaviour(Void spec) { null }
 	static dispatch def Module getBehaviour(GTSSpecificationOrReference spec) { null }
 	static dispatch def Module getBehaviour(GTSReference ref) { ref.ref.behaviour }
-	static dispatch def Module getBehaviour(GTSSpecification spec) {
-		spec.gts.behaviour
-	}
+	static dispatch def Module getBehaviour(GTSSpecification spec) { spec.gts.behaviour }
 	static dispatch def Module getBehaviour(GTSSelection gts) { null }
 	static dispatch def Module getBehaviour(GTSLiteral gts) { gts.behaviour }
-	static dispatch def Module getBehaviour(GTSFamilyChoice gts) {
-		gts.derivePickedGTS.getRules()
-	}
-	static dispatch def Module getBehaviour(GTSWeave weave) {
-		weave.derivedWovenGTS.getRules()
-	}
-	static dispatch def Module getBehaviour(Void spec) { null }
-
+	static dispatch def Module getBehaviour(GTSFamilyChoice gts) { gts.derivePickedGTS.getRules() }
+	static dispatch def Module getBehaviour(GTSWeave weave) { weave.derivedWovenGTS.getRules() }
 
 	static val familyCache = new MultiResourceOnChangeEvictingCache
 	static val weaveCache = new OnChangeEvictingCache
@@ -170,12 +143,12 @@ class GTSSpecificationHelper {
 		def UnitCall unitCall()
 	}
 
+	static dispatch def List<? extends Issue> getIssues(Void spec) { emptyList }
 	static dispatch def List<? extends Issue> getIssues(GTSSpecification spec) { spec.gts.issues }
 	static dispatch def List<? extends Issue> getIssues(GTSSelection gts) { emptyList }
 	static dispatch def List<? extends Issue> getIssues(GTSLiteral gts) { emptyList }
 	static dispatch def List<? extends Issue> getIssues(GTSFamilyChoice gts) { gts.derivePickedGTS.issues }
 	static dispatch def List<? extends Issue> getIssues(GTSWeave weave) { weave.derivedWovenGTS.issues }
-	static dispatch def List<? extends Issue> getIssues(Void spec) { emptyList }
 
 	@Data
 	private static class GTSInfo implements IClearableItem {

@@ -543,8 +543,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		gts.issues.forEach[i | error(i.message, gts.eContainer, XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, GTS_WEAVE_ISSUE)]
 	}
 
+	private dispatch def checkIsValidMapping(Void spec) {}
+
 	private dispatch def checkIsValidMapping(GTSMappingRefOrInterfaceSpec spec) {
-		throw new IllegalStateException("checkIsValidMapping() not implemented for " + spec.eClass.name)
+		throw new IllegalStateException("checkIsValidMapping() not implemented for " + spec?.eClass?.name)
 	}
 	
 	private dispatch def checkIsValidMapping(GTSMappingInterfaceSpec spec) {
