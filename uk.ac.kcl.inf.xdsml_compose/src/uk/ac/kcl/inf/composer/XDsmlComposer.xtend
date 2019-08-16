@@ -33,7 +33,7 @@ import uk.ac.kcl.inf.xDsmlCompose.WeaveOption
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.*
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -127,8 +127,9 @@ class XDsmlComposer {
 					}
 
 					// Auto-complete
-					val completer = mapping.createMorphismCompleter
-					if (completer.findMorphismCompletions(false) == 0) {
+					val completions = mapping.getMorphismCompletions(false)
+					val completer = completions.key
+					if (completions.value == 0) {
 						if (completer.completedMappings.size == 1) {
 							tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
 								(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)

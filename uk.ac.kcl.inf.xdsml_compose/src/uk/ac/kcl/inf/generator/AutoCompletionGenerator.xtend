@@ -8,7 +8,7 @@ import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSSpecificationModule
 
 import static extension uk.ac.kcl.inf.util.MappingConverter.extractGTSMapping
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 
 /**
@@ -50,9 +50,10 @@ class AutoCompletionGenerator {
 	}
 
 	private static def getCompletedMappings(GTSMapping mapping) {
-		val completer = mapping.createMorphismCompleter
+		val completions = mapping.getMorphismCompletions(true)
+		val completer = completions.key
 
-		if (completer.findMorphismCompletions(true) == 0) {
+		if (completions.value == 0) {
 			// Found morphism(s)
 			completer.completedMappings
 		} else {
