@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="uk.ac.kcl.inf.gts_morpher.feature"
+	label="GTSMorpher Feature "
+	version="1.0.0.qualifier">
+	<plugin
+			id="uk.ac.kcl.inf.gts_morpher"
+			download-size="0"
+			install-size="0"
+			version="0.0.0"
+			unpack="false"/>
+	<plugin
+			id="uk.ac.kcl.inf.gts_morpher.ide"
+			download-size="0"
+			install-size="0"
+			version="0.0.0"
+			unpack="false"/>
+	<plugin
+			id="uk.ac.kcl.inf.gts_morpher.ui"
+			download-size="0"
+			install-size="0"
+			version="0.0.0"
+			unpack="false"/>
+</feature>

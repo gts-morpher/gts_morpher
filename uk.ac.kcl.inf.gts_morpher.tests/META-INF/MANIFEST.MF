@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: uk.ac.kcl.inf.gts_morpher.tests
+Bundle-ManifestVersion: 2
+Bundle-Name: uk.ac.kcl.inf.gts_morpher.tests
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: uk.ac.kcl.inf.gts_morpher.tests; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: uk.ac.kcl.inf.gts_morpher,
+ org.junit;bundle-version="4.12.0",
+ org.eclipse.xtext.testing,
+ org.eclipse.xtext.xbase.testing,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.emf.henshin.model;bundle-version="1.4.0",
+ uk.ac.kcl.inf.henshinsupport;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: uk.ac.kcl.inf.gts_morpher.tests;x-internal=true
