@@ -25,6 +25,7 @@ import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.Data
+import org.eclipse.xtext.util.OnChangeEvictingCache
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
@@ -41,7 +42,7 @@ import static extension uk.ac.kcl.inf.util.MappingConverter.*
  */
 class MorphismCompleter {
 
-	static val completionCache = new EObjectOnChangeEvictingCache
+	static val completionCache = new OnChangeEvictingCache
 
 	/**
 	 * Attempts to complete the given mapping  by incrementally adding elements until morphism rules are broken.
@@ -59,7 +60,7 @@ class MorphismCompleter {
 	 * @return the number of unmatched elements in the biggest morphism-like mapping found, 0 if morphism(s) can be found
 	 */	
 	 static def Pair<MorphismCompleter, Integer> getMorphismCompletions(GTSMapping mapping, boolean findAll) {
-	 	completionCache.get((mapping -> findAll), mapping)[
+	 	completionCache.get((mapping -> findAll), mapping.eResource)[
 		 	val completer = mapping.createMorphismCompleter
 		 	
 		 	new Pair(completer, completer.findMorphismCompletions(findAll))	 		
