@@ -11,11 +11,11 @@ We currently do not yet have an update site or fully functional feature. As a re
 3. Clone the repository and import all projects except for the example project into your workspace.
 4. Right-click on the [GenerateXDsmlCompose.mwe2](src/uk/ac/kcl/inf/GenerateXDsmlCompose.mwe2) file and choose `Run As/MWE2 workflow` to ensure all implementation files are correctly generated (this may be helpful to do also when pulling a new version of the repository).
 5. Choose `Run/Launch Runtime Eclipse` to start a fresh Eclipse with the plugins installed.
-6. Create a new project (or import the example projects in the repository) and add a file with extension `.lang_compose`. In this file, you will be able to specify your GTS morphisms.
+6. Create a new project (or import the example projects in the repository) and add a file with extension `.gts`. In this file, you will be able to specify your GTS morphisms.
 
 ## 2. Specifying GTS morphisms
 
-GTSs and GTS morphisms are expressed in `.lang_compose` files. These are text files using the syntax below (syntax completion is available throughout the Eclipse editor).
+GTSs and GTS morphisms are expressed in `.gts` files. These are text files using the syntax below (syntax completion is available throughout the Eclipse editor).
 
 ### 2.1. Basic GTS syntax
 
@@ -118,7 +118,7 @@ auto-complete unique map {
 
 The editor will add a warning marker to the `unique` keyword to show that this claim has not been checked yet. To check unique completability, explicitly request a validation by running the first `Validate` item from the editor's context menu. If auto-completion is not unique, an error marker will be added to the file. This provides quick-fix suggestions for mappings to add to sufficiently constrain the possible auto-completions. Suggestions are provided in order of potential impact; the top suggestion should offer the quickest path to unique auto-completion.
 
-To see the results of auto-completion, right-click on your `.lang_compose` file and select "Generate auto-completions". The auto-completions will be saved in files in the `src-gen/` folder of your project.
+To see the results of auto-completion, right-click on your `.gts` file and select "Generate auto-completions". The auto-completions will be saved in files in the `src-gen/` folder of your project.
 
 ### 2.3 Mapping with virtual rules
 
