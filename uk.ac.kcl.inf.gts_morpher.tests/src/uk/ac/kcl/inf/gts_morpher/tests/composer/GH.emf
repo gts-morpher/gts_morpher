@@ -1,0 +1,6 @@
+@namespace(uri="https://metamodel.woven/g/h", prefix="g_h")
+package G_H;
+
+class G1_G2_H1 {
+}
+

@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: uk.ac.kcl.inf.gts_morpher
+Bundle-ManifestVersion: 2
+Bundle-Name: uk.ac.kcl.inf.gts_morpher
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: uk.ac.kcl.inf.gts_morpher; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.xtext.xbase,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.henshin.model;bundle-version="1.4.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.xtext.util,
+ org.eclipse.emf.common,
+ org.eclipse.xtend.lib;bundle-version="2.14.0",
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
+ uk.ac.kcl.inf.henshinsupport;bundle-version="1.0.0",
+ org.eclipse.emf.henshin.interpreter;bundle-version="1.4.0",
+ org.eclipse.xtext.ecore;bundle-version="2.18.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: uk.ac.kcl.inf.gts_morpher,
+ uk.ac.kcl.inf.gts_morpher.composer,
+ uk.ac.kcl.inf.gts_morpher.formatting2,
+ uk.ac.kcl.inf.gts_morpher.generator,
+ uk.ac.kcl.inf.gts_morpher.gtsMorpher,
+ uk.ac.kcl.inf.gts_morpher.gtsMorpher.impl,
+ uk.ac.kcl.inf.gts_morpher.gtsMorpher.util,
+ uk.ac.kcl.inf.gts_morpher.parser.antlr,
+ uk.ac.kcl.inf.gts_morpher.parser.antlr.internal,
+ uk.ac.kcl.inf.gts_morpher.scoping,
+ uk.ac.kcl.inf.gts_morpher.serializer,
+ uk.ac.kcl.inf.gts_morpher.services,
+ uk.ac.kcl.inf.gts_morpher.util,
+ uk.ac.kcl.inf.gts_morpher.validation
+Import-Package: org.apache.log4j
