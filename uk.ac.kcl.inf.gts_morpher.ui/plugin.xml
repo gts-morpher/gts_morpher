@@ -434,7 +434,7 @@
  <extension
        point="org.eclipse.ui.commands">
     <command
-          defaultHandler="uk.ac.kcl.inf.gts_morpher.ui.GTSMorpherExecutableExtensionFactory:uk.ac.kcl.inf.gts_morpher.ui.handlers.ComposeXDsmlsHandler"
+          defaultHandler="uk.ac.kcl.inf.gts_morpher.ui.GTSMorpherExecutableExtensionFactory:uk.ac.kcl.inf.gts_morpher.ui.handlers.GenerateAutoCompletionsHandler"
           id="uk.ac.kcl.inf.gts_morpher.ui.command.AutoCompleteMappings"
           name="Generate auto-completions">
     </command>
@@ -444,7 +444,7 @@
     <menuContribution
           locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
        <command
-             commandId="uk.ac.kcl.inf.gts_morpher.xdsml_compose.ui.command.AutoCompleteMappings"
+             commandId="uk.ac.kcl.inf.gts_morpher.ui.command.AutoCompleteMappings"
              style="push"
              tooltip="Generate mappings showing the auto-completion of any auto-completable mappings in this specification">
           <visibleWhen>

@@ -3,18 +3,19 @@ package uk.ac.kcl.inf.gts_morpher.generator
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.resource.SaveOptions
-import uk.ac.kcl.inf.gts_morpher.util.IProgressMonitor
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecificationModule
+import uk.ac.kcl.inf.gts_morpher.util.IProgressMonitor
 
+import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.extractGTSMapping
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
-import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 
 /**
  * Generator producing auto-completions for marked morphisms.
  */
 class AutoCompletionGenerator {
+	
 	/**
 	 * Generate all completions for all mappings marked as auto-complete in the given resource.
 	 */
@@ -33,7 +34,7 @@ class AutoCompletionGenerator {
 			completedMappings.forEach[ mp, idx |
 				___monitor.split("Saving completions", 1)
 				
-				val uri = fsa.getURI('''«resource.URI.trimFileExtension.lastSegment»_«mapping.name»_«idx».complete.lang_compose''')
+				val uri = fsa.getURI('''«resource.URI.trimFileExtension.lastSegment»_«mapping.name»_«idx».complete.gts''')
 				
 				var saveRes = resource.resourceSet.getResource(uri, false)
 				if (saveRes === null) {

@@ -26,7 +26,7 @@ import static com.google.common.collect.Maps.uniqueIndex
 import static extension org.eclipse.ui.handlers.HandlerUtil.*
 import uk.ac.kcl.inf.gts_morpher.ui.internal.Gts_morpherActivator
 
-class ComposeXDsmlsHandler extends AbstractHandler {
+class GenerateAutoCompletionsHandler extends AbstractHandler {
 
 	@Inject
 	IResourceSetProvider resourceSetProvider
