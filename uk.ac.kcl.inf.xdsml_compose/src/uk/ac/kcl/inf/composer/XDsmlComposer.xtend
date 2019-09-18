@@ -33,7 +33,7 @@ import uk.ac.kcl.inf.xDsmlCompose.WeaveOption
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.*
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -104,63 +104,68 @@ class XDsmlComposer {
 			val _monitor = monitor.convert(4)
 
 			// TODO: Should probably validate weaving before going on...
-			// Assume one mapping is an interface_of mapping, then find the other one and use it to do the weave
-			var GTSMapping mapping
-			if (weaving.mapping1 instanceof GTSMappingInterfaceSpec) {
-				mapping = (weaving.mapping2 as GTSMappingRef).ref
+			if ((weaving.mapping1 === null) || (weaving.mapping2 === null)) {
+				result.add(new MessageIssue("Both mappings need to be defined"))
 			} else {
-				mapping = (weaving.mapping1 as GTSMappingRef).ref
-			}
+				// Assume one mapping is an interface_of mapping, then find the other one and use it to do the weave
+				var GTSMapping mapping
+				if (weaving.mapping1 instanceof GTSMappingInterfaceSpec) {
+					mapping = (weaving.mapping2 as GTSMappingRef).ref
+				} else {
+					mapping = (weaving.mapping1 as GTSMappingRef).ref
+				}
 
-			if (mapping.target.interface_mapping) {
-				result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
-			} else {
-				var tgMapping = mapping.typeMapping.extractMapping(null)
-				var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
+				if (mapping.target.interface_mapping) {
+					result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
+				} else {
+					var tgMapping = mapping.typeMapping.extractMapping(null)
+					var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
 
-				if (mapping.autoComplete) {
-					_monitor.split("Autocompleting.", 1)
+					if (mapping.autoComplete) {
+						_monitor.split("Autocompleting.", 1)
 
-					if (!mapping.uniqueCompletion) {
-						result.add(new MessageIssue("Can only weave based on unique auto-completions."))
-						return new Triple(result, null, null)
-					}
+						if (!mapping.uniqueCompletion) {
+							result.add(new MessageIssue("Can only weave based on unique auto-completions."))
+							return new Triple(result, null, null)
+						}
 
-					// Auto-complete
-					val completer = mapping.createMorphismCompleter
-					if (completer.findMorphismCompletions(false) == 0) {
-						if (completer.completedMappings.size == 1) {
-							tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
-								(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
-							] as Map<EObject, EObject>)
-							behaviourMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
-								!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
-							] as Map<EObject, EObject>)
+						// Auto-complete
+						val completions = mapping.getMorphismCompletions(false)
+						val completer = completions.key
+						if (completions.value == 0) {
+							if (completer.completedMappings.size == 1) {
+								tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
+									(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
+								] as Map<EObject, EObject>)
+								behaviourMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
+									!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
+								] as Map<EObject, EObject>)
+							} else {
+								result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
+								return new Triple(result, null, null)
+							}
 						} else {
-							result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
+							result.add(new MessageIssue("Was unable to auto-complete the morphism."))
 							return new Triple(result, null, null)
 						}
 					} else {
-						result.add(new MessageIssue("Was unable to auto-complete the morphism."))
-						return new Triple(result, null, null)
+						_monitor.split("", 1)
 					}
-				} else {
-					_monitor.split("", 1)
+
+					val namingStrategy = weaving.options.fold(new DefaultNamingStrategy as NamingStrategy, [ acc, opt |
+						opt.generateNamingStrategy(acc)
+					])
+
+					// Weave
+					_monitor.split("Composing type graph.", 1)
+					val tgWeaver = new TGWeaver
+					composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel,
+						namingStrategy)
+
+					_monitor.split("Composing rules.", 1)
+					composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
+						behaviourMapping, mapping.source.metamodel, tgWeaver, namingStrategy)
 				}
-
-				val namingStrategy = weaving.options.fold(new DefaultNamingStrategy as NamingStrategy, [ acc, opt |
-					opt.generateNamingStrategy(acc)
-				])
-
-				// Weave
-				_monitor.split("Composing type graph.", 1)
-				val tgWeaver = new TGWeaver
-				composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel,
-					namingStrategy)
-
-				_monitor.split("Composing rules.", 1)
-				composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour, behaviourMapping,
-					mapping.source.metamodel, tgWeaver, namingStrategy)
 			}
 		} catch (Exception e) {
 			result.add(new ExceptionIssue(e))

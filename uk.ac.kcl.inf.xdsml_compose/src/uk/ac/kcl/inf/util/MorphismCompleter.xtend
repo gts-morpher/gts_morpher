@@ -25,6 +25,7 @@ import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.Data
+import org.eclipse.xtext.util.OnChangeEvictingCache
 import uk.ac.kcl.inf.xDsmlCompose.BehaviourMapping
 import uk.ac.kcl.inf.xDsmlCompose.GTSMapping
 
@@ -41,10 +42,37 @@ import static extension uk.ac.kcl.inf.util.MappingConverter.*
  */
 class MorphismCompleter {
 
+	static val completionCache = new OnChangeEvictingCache
+
+	/**
+	 * Attempts to complete the given mapping  by incrementally adding elements until morphism rules are broken.
+	 * 
+	 * Returns a morhphism completer instance and the number of unmatched elements for the biggest mapping found.
+	 * 
+	 * If a full morphism has been found, {@link #typeMapping} and {@link behaviourMapping} of the morphism completer show
+	 * this mapping, which can also be found in {@link #completedMappings}. Otherwise, {@link #typeMapping} and 
+	 * {@link behaviourMapping} are the originally extracted mapping.
+	 * 
+	 * If findAll is true, all morphism completions will be found and will be stored in {@link #completedMappings}.
+	 * 
+	 * @param findAll if true, and a completion can be found, all completions will be found
+	 *  
+	 * @return the number of unmatched elements in the biggest morphism-like mapping found, 0 if morphism(s) can be found
+	 */	
+	 static def Pair<MorphismCompleter, Integer> getMorphismCompletions(GTSMapping mapping, boolean findAll) {
+	 	completionCache.get((mapping -> findAll), mapping.eResource)[
+		 	val completer = mapping.createMorphismCompleter
+		 	
+		 	new Pair(completer, completer.findMorphismCompletions(findAll))	 		
+	 	]
+	 }
+
 	/**
 	 * Create and return a morphism completer for the given GTSMapping. Completions will not be run yet.
+	 * 
+	 * @deprecated Use the static {@link getMorphismCompletions} method instead.
 	 */
-	static def createMorphismCompleter(GTSMapping mapping) {
+	private static def createMorphismCompleter(GTSMapping mapping) {
 		val _typeMapping = mapping.typeMapping.extractMapping(null)
 
 		new MorphismCompleter(_typeMapping, mapping.source.metamodel, mapping.target.metamodel,

@@ -19,7 +19,7 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.MappingConverter.*
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.*
 
 @RunWith(XtextRunner)
 @InjectWith(XDsmlComposeInjectorProvider)
@@ -89,9 +89,10 @@ class MorphismCompleterTests extends AbstractTest {
 			}
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
-
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
@@ -127,8 +128,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
@@ -162,8 +164,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
@@ -197,8 +200,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
@@ -235,8 +239,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
@@ -271,8 +276,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
@@ -307,8 +313,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
@@ -365,8 +372,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -420,8 +428,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -461,8 +470,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -497,8 +507,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -531,8 +542,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -565,8 +577,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -607,8 +620,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -649,8 +663,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -691,8 +706,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -727,8 +743,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -764,8 +781,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -798,8 +816,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -832,8 +851,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -866,8 +886,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -900,8 +921,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
@@ -943,8 +965,9 @@ class MorphismCompleterTests extends AbstractTest {
 		''', resourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val completer = result.mappings.head.createMorphismCompleter
-		val numUncompleted = completer.findMorphismCompletions(true)
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)

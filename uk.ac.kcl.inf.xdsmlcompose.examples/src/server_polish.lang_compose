@@ -45,7 +45,7 @@ auto-complete unique map Server2PLS {
 }
 
 export gts ServerPLS {
-	weave: {
+	weave(dontLabelNonKernelElements,preferMap2TargetNames): {
 		map1: interface_of(AdaptedServer)
 		map2: Server2PLS
 	}

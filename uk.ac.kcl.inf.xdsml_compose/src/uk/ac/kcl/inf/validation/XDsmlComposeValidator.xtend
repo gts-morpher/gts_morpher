@@ -61,7 +61,7 @@ import static uk.ac.kcl.inf.util.MorphismChecker.*
 import static extension uk.ac.kcl.inf.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.HenshinChecker.isIdentityRule
-import static extension uk.ac.kcl.inf.util.MorphismCompleter.createMorphismCompleter
+import static extension uk.ac.kcl.inf.util.MorphismCompleter.*
 import uk.ac.kcl.inf.xDsmlCompose.GTSFamilySpecification
 
 /**
@@ -386,9 +386,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 
 			if (typeMapping.isInCompleteMapping || !mapping.doCheckIsCompleteBehaviourMapping(null)) {
 				if (checkValidMaybeIncompleteClanMorphism(_typeMapping, null)) {
-					val morphismCompleter = mapping.createMorphismCompleter
+					val completions = mapping.getMorphismCompletions(checkUniqueness)
+					val morphismCompleter = completions.key
 
-					if (morphismCompleter.findMorphismCompletions(checkUniqueness) != 0) {
+					if (completions.value != 0) {
 						if (!morphismCompleter.completedTypeMapping) {
 							result = false
 							if (issueErrors) {
@@ -542,8 +543,10 @@ class XDsmlComposeValidator extends AbstractXDsmlComposeValidator {
 		gts.issues.forEach[i | error(i.message, gts.eContainer, XDsmlComposePackage.Literals.GTS_SPECIFICATION__GTS, GTS_WEAVE_ISSUE)]
 	}
 
+	private dispatch def checkIsValidMapping(Void spec) {}
+
 	private dispatch def checkIsValidMapping(GTSMappingRefOrInterfaceSpec spec) {
-		throw new IllegalStateException("checkIsValidMapping() not implemented for " + spec.eClass.name)
+		throw new IllegalStateException("checkIsValidMapping() not implemented for " + spec?.eClass?.name)
 	}
 	
 	private dispatch def checkIsValidMapping(GTSMappingInterfaceSpec spec) {
