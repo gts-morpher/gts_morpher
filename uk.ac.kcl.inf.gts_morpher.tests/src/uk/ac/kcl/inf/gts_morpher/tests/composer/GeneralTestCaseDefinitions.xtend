@@ -36,8 +36,10 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 	private def createNormalResourceSet() {
 		#[
 			"A.ecore",
+			"A0.ecore",
 			"B.ecore",
 			"A.henshin",
+			"A0.henshin",
 			"B.henshin",
 			"C.ecore",
 			"D.ecore",
@@ -316,6 +318,65 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 
 		val runResult = result.doTest("woven_with_different_name", resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+
+		assertNotNull("Couldn't find composed Henshin rules", runResult.c)
+
+		EcoreUtil2.resolveAll(runResult.c)
+		val composedOracle = resourceSet.getResource(createFileURI("AB.henshin"), true).contents.head as Module
+		EcoreUtil2.resolveAll(composedOracle)
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
+	}
+
+	@Test
+	def testWeavingWithNoInterfaceOfMapping() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts A0 {
+				metamodel: "A0"
+				behaviour: "A0Rules"
+			}
+			
+			gts A {
+				metamodel: "A"
+				behaviour: "ARules"
+			}
+			
+			gts B {
+				metamodel: "B"
+				behaviour: "BRules"
+			}
+			
+			auto-complete unique map AIntToA {
+				from A0
+			
+				to A
+			
+				type_mapping {
+				}
+			}
+			
+			auto-complete unique map AIntToB {
+				from A0
+			
+				to B
+			
+				type_mapping {
+				}
+			}
+			
+			export gts woven {
+				weave{
+					map1: AIntToA
+					map2: AIntToB
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val runResult = result.doTest(resourceSet)
 
 		assertTrue("Expected to see no issues.", runResult.a.empty)
 

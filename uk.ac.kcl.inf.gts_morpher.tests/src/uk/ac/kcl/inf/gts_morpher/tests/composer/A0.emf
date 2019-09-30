@@ -1,0 +1,6 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/A0", prefix="a0")
+package A0;
+
+@Interface
+class A1 {
+}
