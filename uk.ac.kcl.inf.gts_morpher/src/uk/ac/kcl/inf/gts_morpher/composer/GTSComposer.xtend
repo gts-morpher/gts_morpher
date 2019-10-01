@@ -31,6 +31,8 @@ import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
+import uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -92,9 +94,9 @@ class GTSComposer {
 	 * 
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
-	def Triple<List<uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue>, EPackage, Module> doCompose(GTSWeave weaving,
+	def Triple<List<Issue>, EPackage, Module> doCompose(GTSWeave weaving,
 		IProgressMonitor monitor) {
-		val result = new ArrayList<uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue>
+		val result = new ArrayList<Issue>
 		var Module composedModule = null
 		var EPackage composedTG = null
 
@@ -105,64 +107,28 @@ class GTSComposer {
 			if ((weaving.mapping1 === null) || (weaving.mapping2 === null)) {
 				result.add(new MessageIssue("Both mappings need to be defined"))
 			} else {
-				// Assume one mapping is an interface_of mapping, then find the other one and use it to do the weave
-				var GTSMapping mapping
-				if (weaving.mapping1 instanceof GTSMappingInterfaceSpec) {
-					mapping = (weaving.mapping2 as GTSMappingRef).ref
-				} else {
-					mapping = (weaving.mapping1 as GTSMappingRef).ref
-				}
-
-				if (mapping.target.interface_mapping) {
-					result.add(new MessageIssue("Target GTS for a weave cannot currently be an interface_of mapping."))
-				} else {
-					var tgMapping = mapping.typeMapping.extractMapping(null)
-					var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
-
-					if (mapping.autoComplete) {
-						_monitor.split("Autocompleting.", 1)
-
-						if (!mapping.uniqueCompletion) {
-							result.add(new MessageIssue("Can only weave based on unique auto-completions."))
-							return new Triple(result, null, null)
-						}
-
-						// Auto-complete
-						val completions = mapping.getMorphismCompletions(false)
-						val completer = completions.key
-						if (completions.value == 0) {
-							if (completer.completedMappings.size == 1) {
-								tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
-									(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
-								] as Map<EObject, EObject>)
-								behaviourMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
-									!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
-								] as Map<EObject, EObject>)
-							} else {
-								result.add(new MessageIssue("There is no unique auto-completion for this morphism."))
-								return new Triple(result, null, null)
-							}
-						} else {
-							result.add(new MessageIssue("Was unable to auto-complete the morphism."))
-							return new Triple(result, null, null)
-						}
-					} else {
-						_monitor.split("", 1)
+				val leftMapping = weaving.mapping1.extractMapping(result, _monitor)
+				if (result.empty) {
+					val rightMapping = weaving.mapping2.extractMapping(result, _monitor)
+					
+					if (result.empty) {
+						// Actually do the weaving
+						val namingStrategy = weaving.options.fold(new DefaultNamingStrategy as NamingStrategy, [ acc, opt |
+							opt.generateNamingStrategy(acc)
+						])
+		
+						// Weave
+						// TODO: produce mergesets here or feed the two mappings into the weavers below to create the mergesets in there when needed
+						
+						_monitor.split("Composing type graph.", 1)
+						val tgWeaver = new TGWeaver
+						composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel,
+							namingStrategy)
+	
+						_monitor.split("Composing rules.", 1)
+						composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
+							behaviourMapping, mapping.source.metamodel, tgWeaver, namingStrategy)
 					}
-
-					val namingStrategy = weaving.options.fold(new DefaultNamingStrategy as NamingStrategy, [ acc, opt |
-						opt.generateNamingStrategy(acc)
-					])
-
-					// Weave
-					_monitor.split("Composing type graph.", 1)
-					val tgWeaver = new TGWeaver
-					composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel,
-						namingStrategy)
-
-					_monitor.split("Composing rules.", 1)
-					composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
-						behaviourMapping, mapping.source.metamodel, tgWeaver, namingStrategy)
 				}
 			}
 		} catch (Exception e) {
@@ -172,6 +138,48 @@ class GTSComposer {
 
 		new Triple(result, composedTG, composedModule)
 	}
+	
+	private def dispatch extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<Issue> issues, IProgressMonitor monitor) { throw new IllegalArgumentException }
+	private def dispatch extractMapping(GTSMappingRef spec, ArrayList<Issue> issues, IProgressMonitor monitor) {
+		val mapping = spec.ref
+		
+		var tgMapping = mapping.typeMapping.extractMapping(null)
+		var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
+
+		if (mapping.autoComplete) {
+			monitor.split("Autocompleting.", 1)
+
+			if (!mapping.uniqueCompletion) {
+				issues.add(new MessageIssue("Can only weave based on unique auto-completions."))
+				return null
+			}
+			
+			// Auto-complete
+			val completions = mapping.getMorphismCompletions(false)
+			val completer = completions.key
+			if (completions.value == 0) {
+				if (completer.completedMappings.size == 1) {
+					tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
+							(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
+						] as Map<EObject, EObject>)
+					behaviourMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
+							!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
+						] as Map<EObject, EObject>)
+				} else {
+					issues.add(new MessageIssue("There is no unique auto-completion for this morphism."))
+					return null
+				}
+			} else {
+				issues.add(new MessageIssue("Was unable to auto-complete the morphism."))
+				return null
+			}
+		} else {
+			monitor.split("", 1)
+		}
+		
+		return new Pair(tgMapping, behaviourMapping)
+	}
+	private def dispatch extractMapping(GTSMappingInterfaceSpec spec, ArrayList<Issue> issues, IProgressMonitor monitor) { throw new IllegalArgumentException }
 
 	private def Module composeBehaviour(Module srcBehaviour, Module tgtBehaviour,
 		Map<EObject, EObject> behaviourMapping, EPackage srcPackage, Map<Pair<Origin, EObject>, EObject> tgMapping,
