@@ -33,6 +33,7 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue
+import org.eclipse.xtend.lib.annotations.Data
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -118,16 +119,14 @@ class GTSComposer {
 						])
 		
 						// Weave
-						// TODO: produce mergesets here or feed the two mappings into the weavers below to create the mergesets in there when needed
-						
 						_monitor.split("Composing type graph.", 1)
 						val tgWeaver = new TGWeaver
-						composedTG = tgWeaver.weaveTG(tgMapping, mapping.source.metamodel, mapping.target.metamodel,
+						composedTG = tgWeaver.weaveTG(leftMapping.tgMapping, rightMapping.tgMapping, weaving.mapping1.source.metamodel, weaving.mapping1.target.metamodel, weaving.mapping2.target.metamodel,
 							namingStrategy)
 	
 						_monitor.split("Composing rules.", 1)
-						composedModule = composeBehaviour(mapping.source.behaviour, mapping.target.behaviour,
-							behaviourMapping, mapping.source.metamodel, tgWeaver, namingStrategy)
+						composedModule = composeBehaviour(leftMapping.behaviourMapping, rightMapping.behaviourMapping, weaving.mapping1.source.behaviour, weaving.mapping1.target.behaviour, weaving.mapping2.target.behaviour,
+							weaving.mapping1.source.metamodel, weaving.mapping1.target.metamodel, weaving.mapping2.target.metamodel, tgWeaver, namingStrategy)
 					}
 				}
 			}
@@ -137,6 +136,12 @@ class GTSComposer {
 		}
 
 		new Triple(result, composedTG, composedModule)
+	}
+
+	@Data
+	private static class MappingsPair {
+		val Map<EObject, EObject> tgMapping
+		val Map<EObject, EObject> behaviourMapping
 	}
 	
 	private def dispatch extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<Issue> issues, IProgressMonitor monitor) { throw new IllegalArgumentException }
@@ -177,7 +182,7 @@ class GTSComposer {
 			monitor.split("", 1)
 		}
 		
-		return new Pair(tgMapping, behaviourMapping)
+		return new MappingsPair(tgMapping, behaviourMapping)
 	}
 	private def dispatch extractMapping(GTSMappingInterfaceSpec spec, ArrayList<Issue> issues, IProgressMonitor monitor) { throw new IllegalArgumentException }
 
