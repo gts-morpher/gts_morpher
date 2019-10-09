@@ -4,21 +4,25 @@ import org.eclipse.emf.ecore.EObject
 
 final class OriginMgr {
 	static enum Origin {
-		SOURCE,
-		TARGET		
+		LEFT,
+		RIGHT,
+		KERNEL		
 	}
 
 	static def getLabel(Origin origin) {
 		switch (origin) {
-			case SOURCE: return "source"
-			case TARGET: return "target"
+			case LEFT: return "left"
+			case RIGHT: return "right"
+			case KERNEL: return "kernel"
 			default: return ""
 		}
 	}
 
-	static def <T extends EObject> Pair<Origin, T> sourceKey(T object) { object.origKey(Origin.SOURCE) }
+	static def <T extends EObject> Pair<Origin, T> leftKey(T object) { object.origKey(Origin.LEFT) }
 
-	static def <T extends EObject> Pair<Origin, T> targetKey(T object) { object.origKey(Origin.TARGET) }
+	static def <T extends EObject> Pair<Origin, T> rightKey(T object) { object.origKey(Origin.RIGHT) }
+
+	static def <T extends EObject> Pair<Origin, T> kernelKey(T object) { object.origKey(Origin.KERNEL) }
 
 	static def <T extends EObject> Pair<Origin, T> origKey(T object, Origin origin) { new Pair(origin, object) }
 }

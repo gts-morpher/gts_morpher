@@ -17,7 +17,6 @@ import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.TGWeaver
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRef
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
@@ -95,8 +94,7 @@ class GTSComposer {
 	 * 
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
-	def Triple<List<Issue>, EPackage, Module> doCompose(GTSWeave weaving,
-		IProgressMonitor monitor) {
+	def Triple<List<Issue>, EPackage, Module> doCompose(GTSWeave weaving, IProgressMonitor monitor) {
 		val result = new ArrayList<Issue>
 		var Module composedModule = null
 		var EPackage composedTG = null
@@ -111,22 +109,27 @@ class GTSComposer {
 				val leftMapping = weaving.mapping1.extractMapping(result, _monitor)
 				if (result.empty) {
 					val rightMapping = weaving.mapping2.extractMapping(result, _monitor)
-					
+
 					if (result.empty) {
 						// Actually do the weaving
-						val namingStrategy = weaving.options.fold(new DefaultNamingStrategy as NamingStrategy, [ acc, opt |
-							opt.generateNamingStrategy(acc)
-						])
-		
+						val namingStrategy = weaving.options.fold(
+							new DefaultNamingStrategy as NamingStrategy, [ acc, opt |
+								opt.generateNamingStrategy(acc)
+							])
+
 						// Weave
 						_monitor.split("Composing type graph.", 1)
 						val tgWeaver = new TGWeaver
-						composedTG = tgWeaver.weaveTG(leftMapping.tgMapping, rightMapping.tgMapping, weaving.mapping1.source.metamodel, weaving.mapping1.target.metamodel, weaving.mapping2.target.metamodel,
-							namingStrategy)
-	
+						composedTG = tgWeaver.weaveTG(leftMapping.tgMapping, rightMapping.tgMapping,
+							weaving.mapping1.source.metamodel, weaving.mapping1.target.metamodel,
+							weaving.mapping2.target.metamodel, namingStrategy)
+
 						_monitor.split("Composing rules.", 1)
-						composedModule = composeBehaviour(leftMapping.behaviourMapping, rightMapping.behaviourMapping, weaving.mapping1.source.behaviour, weaving.mapping1.target.behaviour, weaving.mapping2.target.behaviour,
-							weaving.mapping1.source.metamodel, weaving.mapping1.target.metamodel, weaving.mapping2.target.metamodel, tgWeaver, namingStrategy)
+						composedModule = composeBehaviour(leftMapping.behaviourMapping, rightMapping.behaviourMapping,
+							weaving.mapping1.source.behaviour, weaving.mapping1.target.behaviour,
+							weaving.mapping2.target.behaviour, weaving.mapping1.source.metamodel,
+							weaving.mapping1.target.metamodel, weaving.mapping2.target.metamodel, tgWeaver,
+							namingStrategy)
 					}
 				}
 			}
@@ -143,11 +146,13 @@ class GTSComposer {
 		val Map<EObject, EObject> tgMapping
 		val Map<EObject, EObject> behaviourMapping
 	}
-	
-	private def dispatch extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<Issue> issues, IProgressMonitor monitor) { throw new IllegalArgumentException }
+
+	private def dispatch extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<Issue> issues,
+		IProgressMonitor monitor) { throw new IllegalArgumentException }
+
 	private def dispatch extractMapping(GTSMappingRef spec, ArrayList<Issue> issues, IProgressMonitor monitor) {
 		val mapping = spec.ref
-		
+
 		var tgMapping = mapping.typeMapping.extractMapping(null)
 		var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
 
@@ -158,18 +163,18 @@ class GTSComposer {
 				issues.add(new MessageIssue("Can only weave based on unique auto-completions."))
 				return null
 			}
-			
+
 			// Auto-complete
 			val completions = mapping.getMorphismCompletions(false)
 			val completer = completions.key
 			if (completions.value == 0) {
 				if (completer.completedMappings.size == 1) {
 					tgMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
-							(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
-						] as Map<EObject, EObject>)
+						(k instanceof EClass) || (k instanceof EReference) || (k instanceof EAttribute)
+					] as Map<EObject, EObject>)
 					behaviourMapping = new HashMap(completer.completedMappings.head.filter [ k, v |
-							!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
-						] as Map<EObject, EObject>)
+						!((k instanceof EClass) || (k instanceof EReference || (k instanceof EAttribute)))
+					] as Map<EObject, EObject>)
 				} else {
 					issues.add(new MessageIssue("There is no unique auto-completion for this morphism."))
 					return null
@@ -181,15 +186,18 @@ class GTSComposer {
 		} else {
 			monitor.split("", 1)
 		}
-		
+
 		return new MappingsPair(tgMapping, behaviourMapping)
 	}
-	private def dispatch extractMapping(GTSMappingInterfaceSpec spec, ArrayList<Issue> issues, IProgressMonitor monitor) { throw new IllegalArgumentException }
 
-	private def Module composeBehaviour(Module srcBehaviour, Module tgtBehaviour,
-		Map<EObject, EObject> behaviourMapping, EPackage srcPackage, Map<Pair<Origin, EObject>, EObject> tgMapping,
-		extension NamingStrategy naming) {
-		if (behaviourMapping.empty) {
+	private def dispatch extractMapping(GTSMappingInterfaceSpec spec, ArrayList<Issue> issues,
+		IProgressMonitor monitor) { throw new IllegalArgumentException }
+
+	private def Module composeBehaviour(Map<EObject, EObject> leftBehaviourMapping,
+		Map<EObject, EObject> rightBehaviourMapping, Module kernelBehaviour, Module leftBehaviour,
+		Module rightBehaviour, EPackage kernelMetamodel, EPackage leftMetamodel, EPackage rightMetamodel,
+		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming) {
+		if (leftBehaviourMapping.empty && rightBehaviourMapping.empty) {
 			return null
 		}
 
@@ -197,20 +205,19 @@ class GTSComposer {
 		val ruleWeavingMap = new HashMap<Rule, List<Pair<Origin, Rule>>>
 
 		val result = HenshinFactory.eINSTANCE.createModule => [
-			description = weaveDescriptions(srcBehaviour, tgtBehaviour)
-			imports += tgMapping.get(srcPackage.sourceKey) as EPackage
+			description = weaveDescriptions(kernelBehaviour, leftBehaviour, rightBehaviour)
+			imports += tgMapping.get(kernelMetamodel.kernelKey) as EPackage
 
-			units += behaviourMapping.keySet.filter(Rule).map [ r |
-				val composed = r.createComposed(behaviourMapping, tgMapping, naming)
+			units += kernelBehaviour.units.filter(Rule).map [ r |
+				val composed = r.createComposed(leftBehaviourMapping, rightBehaviourMapping, tgMapping, naming)
 
-				ruleWeavingMap.put(composed, #[(behaviourMapping.get(r) as Rule).sourceKey, r.targetKey])
+				ruleWeavingMap.put(composed, #[r.kernelKey, (leftBehaviourMapping.get(r) as Rule).leftKey, (rightBehaviourMapping.get(r) as Rule).rightKey])
 
 				composed
 			]
 		]
 
-		result.name = weaveNames(#{result -> #[srcBehaviour?.sourceKey, tgtBehaviour?.targetKey].filterNull}, result,
-			emptyContext)
+		result.name = weaveNames(#{result -> #[kernelBehaviour?.kernelKey, leftBehaviour?.leftKey, rightBehaviour?.rightKey].filterNull}, result, emptyContext)
 		result.units.forEach [ r |
 			r.name = weaveNames(ruleWeavingMap, r, [result.units])
 		]
@@ -218,16 +225,17 @@ class GTSComposer {
 		result
 	}
 
-	def Rule createComposed(Rule tgtRule, Map<EObject, EObject> behaviourMapping,
+	def Rule createComposed(Rule kernelTgtRule, Map<EObject, EObject> leftBehaviourMapping, Map<EObject, EObject> rightBehaviourMapping,
 		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming) {
-		val srcRule = behaviourMapping.get(tgtRule) as Rule
+		val leftRule = leftBehaviourMapping.get(kernelTgtRule) as Rule
+		val rightRule = rightBehaviourMapping.get(kernelTgtRule) as Rule
 
 		val result = HenshinFactory.eINSTANCE.createRule => [
-			description = weaveDescriptions(tgtRule.description, srcRule.description)
-			injectiveMatching = srcRule.injectiveMatching
+			description = weaveDescriptions(kernelTgtRule.description, leftRule.description, rightRule.description)
+			injectiveMatching = kernelRule.injectiveMatching
 			// TODO Should probably copy parameters, too
-			lhs = new PatternWeaver(srcRule.lhs, tgtRule.lhs, behaviourMapping, tgMapping, "Lhs", naming).weavePattern
-			rhs = new PatternWeaver(srcRule.rhs, tgtRule.rhs, behaviourMapping, tgMapping, "Rhs", naming).weavePattern
+			lhs = new PatternWeaver(kernelTgtRule.lhs, leftRule.lhs, rightRule.lhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Lhs", naming).weavePattern
+			rhs = new PatternWeaver(kernelTgtRule.rhs, leftRule.rhs, rightRule.rhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Rhs", naming).weavePattern
 		]
 
 		// Weave kernel
@@ -245,21 +253,15 @@ class GTSComposer {
 		result
 	}
 
-	private static def String weaveDescriptions(Module sourceModule, Module targetModule) {
-		weaveDescriptions(if(sourceModule !== null) sourceModule.description else null,
-			if(targetModule !== null) targetModule.description else null)
+	private static def String weaveDescriptions(Module kernelModule, Module leftModule, Module rightModule) {
+		weaveDescriptions(kernelModule?.description, leftModule?.description, rightModule?.description)
 	}
 
-	private static def String weaveDescriptions(CharSequence sourceDescription, CharSequence targetDescription) {
-		if (sourceDescription === null) {
-			if (targetDescription !== null) {
-				targetDescription.toString
-			} else {
-				null
-			}
-		} else if ((targetDescription === null) || (sourceDescription.equals(targetDescription))) {
-			sourceDescription.toString
-		} else
-			'''Merged from «sourceDescription» and «targetDescription».'''
+	private static def String weaveDescriptions(CharSequence kernelDescription, CharSequence leftDescription, CharSequence rightDescription) {
+		val kd = (kernelDescription === null)?"":kernelDescription
+		val ld = (leftDescription === null)?"":leftDescription
+		val rd = (rightDescription === null)?"":rightDescription
+		
+		'''«kd» «ld» «rd»'''		
 	}
 }

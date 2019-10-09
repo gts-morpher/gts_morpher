@@ -1,10 +1,9 @@
 package uk.ac.kcl.inf.gts_morpher.composer.weavers
 
-import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
 import java.util.Map
-import java.util.function.Function
+import java.util.Set
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.ENamedElement
@@ -12,7 +11,10 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcoreFactory
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.InternalEObject
+import uk.ac.kcl.inf.gts_morpher.composer.helpers.MergeSet
+import uk.ac.kcl.inf.gts_morpher.composer.helpers.ModelSpan
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
 
@@ -24,32 +26,141 @@ import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessCon
  * will act as a Map from source EObjects to the corresponding woven EObjects. 
  */
 class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
+
+	val extension EcorePackage ecore = EcorePackage.eINSTANCE
+	val extension EcoreFactory ecoreFactory = EcoreFactory.eINSTANCE
+
 	/**
 	 * Compose the two TGs, returning a mapping from old EObjects (EClass/EReference) to newly created corresponding element (if any). 
 	 */
-	def EPackage weaveTG(Map<EObject, EObject> tgMapping, EPackage srcPackage, EPackage tgtPackage,
-		extension NamingStrategy naming) {
-		// TODO Handle sub-packages?
-		val EPackage result = EcoreFactory.eINSTANCE.createEPackage => [
-			nsPrefix = weaveNameSpaces(#[srcPackage.sourceKey, tgtPackage.targetKey])
-			nsURI = weaveURIs(srcPackage, tgtPackage)
-		]
-		result.name = weaveNames(#{(result -> #[srcPackage.sourceKey, tgtPackage.targetKey])}, result, emptyContext)
+	def EPackage weaveTG(Map<EObject, EObject> leftTGMapping, Map<EObject, EObject> rightTGMapping,
+		EPackage kernelMetamodel, EPackage leftMetamodel, EPackage rightMetamodel, NamingStrategy naming) {
+		val mergeSet = new ModelSpan(leftTGMapping, rightTGMapping, kernelMetamodel, leftMetamodel, rightMetamodel).
+			calculateMergeSet
 
-		put(srcPackage.sourceKey, result)
-		put(tgtPackage.targetKey, result)
+		val unmappedLeftElements = leftMetamodel.eAllContents.reject[eo|leftTGMapping.containsValue(eo)].toList
+		val unmappedRightElements = rightMetamodel.eAllContents.reject[eo|rightTGMapping.containsValue(eo)].toList
 
-		val invertedIndex = tgMapping.invertedIndex
-		val unmappedSrcElements = srcPackage.eAllContents.reject[eo|tgMapping.containsKey(eo)].toList
-		val unmappedTgtElements = tgtPackage.eAllContents.reject[eo|tgMapping.values.contains(eo)].toList
-		weaveClasses(invertedIndex, unmappedSrcElements, unmappedTgtElements, result)
+		mergeSet.weavePackages(unmappedLeftElements, unmappedRightElements, naming)
+
+		mergeSet.weaveClasses(unmappedLeftElements, unmappedRightElements)
 		weaveInheritance
-		weaveReferences(invertedIndex, unmappedSrcElements, unmappedTgtElements)
-		weaveAttributes(invertedIndex, unmappedSrcElements, unmappedTgtElements)
+		mergeSet.weaveReferences(unmappedLeftElements, unmappedRightElements)
+		mergeSet.weaveAttributes(unmappedLeftElements, unmappedRightElements)
 
 		naming.weaveAllNames
 
-		return result
+		return get(kernelMetamodel.kernelKey) as EPackage
+	}
+
+	private def weavePackages(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements,
+		List<EObject> unmappedRightElements, extension NamingStrategy naming) {
+		mergeSets.filter[hasType(ecore.EPackage)].forEach [ ms |
+			val keyedMergeList = ms.keyedMergeList
+			// A bit annoying, but the only efficient way of getting around Java typing issues, short of spending ages on getting the generics right for ModelSpans.
+			val keyedMergeEPackageList = keyedMergeList.map[kep | 
+				new Pair(kep.key, kep.value as EPackage)
+			].toList
+			val mergedPackage = createEPackage => [
+				nsPrefix = keyedMergeEPackageList.weaveNameSpaces
+				nsURI = keyedMergeEPackageList.weaveURIs
+			]
+			// FIXME: For nested packages will need to derive better uniqueness context
+			// TODO: This may not actually be needed, as we are weaving names separately anyway
+			mergedPackage.name = weaveNames(#{(mergedPackage -> keyedMergeList)}, mergedPackage, emptyContext)
+
+			keyedMergeList.forEach [ kep |
+				put(kep, mergedPackage)
+			]
+		]
+
+		unmappedLeftElements.filter[eClass === ecore.EPackage].forEach [ eo |
+			val ep = eo as EPackage
+			put(ep.leftKey, createEPackage => [
+				// FIXME: This should really call on the relevant weave methods
+				nsPrefix = ep.nsPrefix
+				nsURI = ep.nsURI
+				name = ep.name
+			])
+		]
+	}
+
+	private def weaveClasses(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
+		// Weave mapped classes
+		mergeSets.filter[hasType(EClass)].forEach[ms | 
+			val keyedMergeList = ms.keyedMergeList
+			val containingMergedPackage = get((ms.kernel.head as EClass).EPackage.kernelKey) as EPackage
+			
+			val mergedClass = containingMergedPackage.createEClass
+			
+			keyedMergeList.forEach [ kep |
+				put(kep, mergedClass)
+			]			
+		] 
+
+		// Create copies for all unmapped classes
+		unmappedLeftElements.filter(EClass.class).forEach [ ec |
+			put(ec.leftKey, (get(ec.EPackage.leftKey) as EPackage).createEClass)
+		]
+		unmappedRightElements.filter(EClass.class).forEach [ ec |
+			put(ec.rightKey, (get(ec.EPackage.rightKey) as EPackage).createEClass)
+		]
+	}
+
+	private def weaveInheritance() {
+		keySet.filter[p|p.value instanceof EClass].forEach [ p |
+			val composed = get(p) as EClass
+			composed.ESuperTypes.addAll((p.value as EClass).ESuperTypes.map[ec2|get(ec2.origKey(p.key)) as EClass].
+				reject [ ec2 |
+					composed === ec2 || composed.ESuperTypes.contains(ec2)
+				])
+		]
+	}
+
+	private def weaveReferences(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
+		// Weave mapped references
+		// Because the mapping is a morphism, this must work :-)
+		mergeSets.filter[hasType(EReference)].forEach[ms |
+			val keyedMergeList = ms.keyedMergeList
+			
+			// FIXME: currently we're basing the reference properties apart from the name only on the first left EReference. Should probably define some proper weaving rules here 
+			val mergedRef = (ms.left.head as EReference).createEReference
+			
+			keyedMergeList.forEach [ kep |
+				put(kep, mergedRef)
+			]			
+		] 
+	
+		// Create copied for unmapped references
+		unmappedLeftElements.filter(EReference.class).forEach [ er |
+			put(er.leftKey, ((er as EReference).createEReference))
+		]
+		unmappedRightElements.filter(EReference.class).forEach [ er |
+			put(er.rightKey, ((er as EReference).createEReference))
+		]
+	}
+
+	private def weaveAttributes(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
+		// Weave mapped attributes
+		// Because the mapping is a morphism, this must work :-) 
+		mergeSets.filter[hasType(EAttribute)].forEach[ms |
+			val keyedMergeList = ms.keyedMergeList
+			
+			// FIXME: currently we're basing the attribute properties apart from the name only on the first left EAttribute. Should probably define some proper weaving rules here 
+			val mergedAttr = (ms.left.head as EAttribute).createEAttribute
+			
+			keyedMergeList.forEach [ kep |
+				put(kep, mergedAttr)
+			]		
+		]
+		
+		// Create copies for unmapped attributes
+		unmappedLeftElements.filter(EAttribute.class).forEach [ ea |
+			put(ea.leftKey, ((ea as EAttribute).createEAttribute))
+		]
+		unmappedRightElements.filter(EAttribute.class).forEach [ ea |
+			put(ea.rightKey, ((ea as EAttribute).createEAttribute))
+		]
 	}
 
 	/**
@@ -65,92 +176,6 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 		]
 	}
 
-	private def invertedIndex(Map<EObject, EObject> tgMapping) {
-		// Build inverted index so that we can merge objects as required
-		val invertedIndex = new HashMap<EObject, List<EObject>>()
-		tgMapping.forEach [ k, v |
-			invertedIndex.putIfAbsent(v, new ArrayList<EObject>)
-			invertedIndex.get(v).add(k)
-		]
-		invertedIndex
-	}
-
-	private def weaveClasses(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
-		List<EObject> unmappedTgtElements, EPackage composedPackage) {
-		// Weave from inverted index for mapped classes 
-		invertedIndex.entrySet.filter[e|e.key instanceof EClass].forEach [ e |
-			val EClass composed = composedPackage.createEClass
-
-			put(e.key.targetKey, composed)
-			e.value.forEach[eo|put(eo.sourceKey, composed)]
-		]
-
-		// Create copies for all unmapped classes
-		composedPackage.createForEachEClass(unmappedSrcElements, Origin.SOURCE)
-		composedPackage.createForEachEClass(unmappedTgtElements, Origin.TARGET)
-	}
-
-	private def weaveReferences(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
-		List<EObject> unmappedTgtElements) {
-		// Weave mapped references
-		// Because the mapping is a morphism, this must work :-)
-		invertedIndex.entrySet.filter[e|e.key instanceof EReference].forEach [ e |
-			val EReference composed = createEReference(e.key as EReference)
-
-			put(e.key.targetKey, composed)
-			e.value.forEach[eo|put(eo.sourceKey, composed)]
-		]
-
-		// Create copied for unmapped references
-		unmappedSrcElements.createForEachEReference(Origin.SOURCE)
-		unmappedTgtElements.createForEachEReference(Origin.TARGET)
-	}
-
-	private def weaveAttributes(Map<EObject, List<EObject>> invertedIndex, List<EObject> unmappedSrcElements,
-		List<EObject> unmappedTgtElements) {
-		// Weave mapped attributes
-		// Because the mapping is a morphism, this must work :-)
-		invertedIndex.entrySet.filter[e|e.key instanceof EAttribute].forEach [ e |
-			val EAttribute composed = createEAttribute(e.key as EAttribute)
-
-			put(e.key.targetKey, composed)
-			e.value.forEach[eo|put(eo.sourceKey, composed)]
-		]
-
-		// Create copies for unmapped attributes
-		unmappedSrcElements.createForEachEAttribute(Origin.SOURCE)
-		unmappedTgtElements.createForEachEAttribute(Origin.TARGET)
-	}
-
-	private def createForEachEClass(EPackage composedPackage, List<EObject> elements, Origin origin) {
-		elements.createForEach(EClass, origin, [eo|composedPackage.createEClass])
-	}
-
-	private def createForEachEReference(List<EObject> elements, Origin origin) {
-		elements.createForEach(EReference, origin, [er|er.createEReference(origin)])
-	}
-
-	private def createForEachEAttribute(List<EObject> elements, Origin origin) {
-		elements.createForEach(EAttribute, origin, [ea|ea.createEAttribute(origin)])
-	}
-
-	private def <T extends ENamedElement> createForEach(List<EObject> elements, Class<T> clazz, Origin origin,
-		Function<T, T> creator) {
-		elements.filter(clazz).forEach [ eo |
-			put(eo.origKey(origin), creator.apply(eo))
-		]
-	}
-
-	private def weaveInheritance() {
-		keySet.filter[p|p.value instanceof EClass].forEach [ p |
-			val composed = get(p) as EClass
-			composed.ESuperTypes.addAll((p.value as EClass).ESuperTypes.map[ec2|get(ec2.origKey(p.key)) as EClass].
-				reject [ ec2 |
-					composed === ec2 || composed.ESuperTypes.contains(ec2)
-				])
-		]
-	}
-
 	private def createEClass(EPackage container) {
 		val EClass result = EcoreFactory.eINSTANCE.createEClass
 		container.EClassifiers.add(result)
@@ -159,7 +184,7 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 
 	private def createEReference(EReference source) {
 		// Origin doesn't matter in this case, but must be TARGET because we've previously decided to copy from target references
-		createEReference(source, Origin.TARGET)
+		createEReference(source, Origin.LEFT)
 	}
 
 	private def createEReference(EReference source, Origin origin) {
@@ -189,8 +214,8 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 	}
 
 	private def createEAttribute(EAttribute source) {
-		// Origin doesn't matter in this case, but must be TARGET because we've previously decided to copy from target references
-		createEAttribute(source, Origin.TARGET)
+		// Origin doesn't matter in this case, but must be LEFT because we've previously decided to copy from target references
+		createEAttribute(source, Origin.LEFT)
 	}
 
 	private def createEAttribute(EAttribute source, Origin origin) {

@@ -16,7 +16,7 @@ interface NamingStrategy {
 
 	def String weaveNameSpaces(Iterable<Pair<Origin, EPackage>> nameSources)
 
-	def String weaveURIs(EPackage srcPackage, EPackage tgtPackage)
+	def String weaveURIs(Iterable<Pair<Origin, EPackage>> nameSources)
 
 	static def NamingStrategy generateNamingStrategy(WeaveOption option, NamingStrategy existingStrategy) {
 		switch (option) {

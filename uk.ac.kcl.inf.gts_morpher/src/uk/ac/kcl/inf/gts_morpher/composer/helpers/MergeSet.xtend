@@ -1,8 +1,11 @@
 package uk.ac.kcl.inf.gts_morpher.composer.helpers
 
 import java.util.Set
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtend.lib.annotations.Data
+
+import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 
 /**
  * TODO: Make a top-level class
@@ -23,6 +26,16 @@ class MergeSet {
 
 	def addRight(EObject r) {
 		right.add(r)
+	}
+
+	def boolean hasType(EClass ec) {
+		ec.isSuperTypeOf(kernel.head.eClass)
+	}
+	
+	def getKeyedMergeList() {
+		(left.map[ep|ep.leftKey] + kernel.map[ep|ep.kernelKey] + right.map [ ep |
+				ep.rightKey
+			]).toList
 	}
 
 	static def fromMerge(MergeSet ms1, MergeSet ms2) {
