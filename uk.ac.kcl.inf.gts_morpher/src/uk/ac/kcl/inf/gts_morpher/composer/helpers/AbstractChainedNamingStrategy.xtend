@@ -52,7 +52,7 @@ abstract class AbstractChainedNamingStrategy extends DefaultNamingStrategy {
 		fallback.weaveNameSpaces(nameSources)
 	}
 
-	override String weaveURIs(EPackage srcPackage, EPackage tgtPackage) {
-		fallback.weaveURIs(srcPackage, tgtPackage)
+	override String weaveURIs(Iterable<Pair<Origin, EPackage>> nameSources) {
+		fallback.weaveURIs(nameSources)
 	}
 }

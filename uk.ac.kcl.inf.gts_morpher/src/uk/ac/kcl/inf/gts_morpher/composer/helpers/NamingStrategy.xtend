@@ -23,13 +23,12 @@ interface NamingStrategy {
 			case DONT_LABEL_NON_KERNEL_ELEMENTS:
 				return new DontLabelNonKernelNames(existingStrategy)
 			case PREFER_KERNEL_NAMES:
-				// FIXME: This isn't correct: need to have a special strategy for this
-				return existingStrategy
+				return new PreferNames(existingStrategy, Origin.KERNEL)
 			// FIXME: This isn't correct: need to take into account what map1 and map2 actually are and differentiate the naming accordingly.
 			case PREFER_MAP1_TARGET_NAMES:
-				return new PreferTargetNames(existingStrategy)
+				return new PreferNames(existingStrategy, Origin.LEFT)
 			case PREFER_MAP2_TARGET_NAMES:
-				return new PreferTargetNames(existingStrategy)
+				return new PreferNames(existingStrategy, Origin.RIGHT)
 			default:
 				return existingStrategy
 		}

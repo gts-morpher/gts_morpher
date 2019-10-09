@@ -24,21 +24,20 @@ class DefaultNamingStrategy implements NamingStrategy {
 			return '''«element.key.label»__«element.value.name»'''
 		}
 
-		nameSources.sortBy[it.value.name.toString].sortBy[key].map[ns|ns.value.name].fold(null, [ acc, n |
+		nameSources.sortBy[value.name.toString].sortBy[key].map[value.name].fold(null, [ acc, n |
 			weaveNameStrings(acc, n)
 		]).toString
 	}
 
 	override String weaveNameSpaces(Iterable<Pair<Origin, EPackage>> nameSources) {
-		val sourceName = nameSources.findFirst[p|p.key === Origin.SOURCE]?.value?.nsPrefix
-		val targetName = nameSources.findFirst[p|p.key === Origin.TARGET]?.value?.nsPrefix
-
-		weaveNameStrings(sourceName, targetName).toString
+		nameSources.sortBy[key].map[value.name].fold(null, [acc, n | 
+			weaveNameStrings(acc, n)
+		]).toString
 	}
 
 	// TODO We can probably do better here :-)
-	override String weaveURIs(EPackage srcPackage,
-		EPackage tgtPackage) '''https://metamodel.woven/«srcPackage.nsPrefix»/«tgtPackage.nsPrefix»'''
+	override String weaveURIs(Iterable<Pair<Origin, EPackage>> nameSources)
+	 '''https://metamodel.woven/«nameSources.sortBy[key].map[value.nsPrefix].join('/')»'''
 
 	private def weaveNameStrings(CharSequence sourceName, CharSequence targetName) {
 		if (sourceName === null) {
