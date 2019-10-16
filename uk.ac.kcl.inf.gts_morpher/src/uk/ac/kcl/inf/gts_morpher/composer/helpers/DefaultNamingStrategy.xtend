@@ -7,6 +7,7 @@ import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
 
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.*
+import java.util.ArrayList
 
 /**
  * This strategy currently doesn't undertake any uniqueness checks for names produced.
@@ -24,20 +25,31 @@ class DefaultNamingStrategy implements NamingStrategy {
 			return '''«element.key.label»__«element.value.name»'''
 		}
 
-		nameSources.sortBy[value.name.toString].sortBy[key].map[value.name].fold(null, [ acc, n |
+		/*
+		 * Need to sortBy[key] twice: the first time to make sure equal names are sorted in the same order 
+		 * when we see them in the fold bit, the second time to actually sort by key again
+		 */
+		nameSources.sortBy[key].sortBy[value.name.toString].fold(
+			new ArrayList<Pair<Origin, ? extends EObject>>, [ acc, elt |
+				// Skip if the same name occurs twice
+				if (elt.value.name != acc.last?.value.name) {
+					acc.add(elt)
+				}
+				acc
+			]).sortBy[key].map[value.name].fold(null, [ acc, n |
 			weaveNameStrings(acc, n)
 		]).toString
 	}
 
 	override String weaveNameSpaces(Iterable<Pair<Origin, EPackage>> nameSources) {
-		nameSources.sortBy[key].map[value.nsPrefix].fold(null, [acc, n | 
+		nameSources.sortBy[key].map[value.nsPrefix].fold(null, [ acc, n |
 			weaveNameStrings(acc, n)
 		]).toString
 	}
 
 	// TODO We can probably do better here :-)
-	override String weaveURIs(Iterable<Pair<Origin, EPackage>> nameSources)
-	 '''https://metamodel.woven/«nameSources.sortBy[key].map[value.nsPrefix].join('/')»'''
+	override String weaveURIs(
+		Iterable<Pair<Origin, EPackage>> nameSources) '''https://metamodel.woven/«nameSources.sortBy[key].map[value.nsPrefix].join('/')»'''
 
 	private def weaveNameStrings(CharSequence sourceName, CharSequence targetName) {
 		if (sourceName === null) {
