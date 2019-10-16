@@ -39,7 +39,7 @@ class ModelSpan {
 	}
 	
 	private static def makeMergeSet(EObjectSpan eos) {
-		new MergeSet(#{eos.kernel}, #{eos.left}, #{eos.right})
+		new MergeSet(new HashSet(#{eos.kernel}), new HashSet(#{eos.left}), new HashSet(#{eos.right}))
 	}
 
 	@Data

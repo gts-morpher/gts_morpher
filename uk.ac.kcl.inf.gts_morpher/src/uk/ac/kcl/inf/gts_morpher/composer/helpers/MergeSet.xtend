@@ -1,5 +1,6 @@
 package uk.ac.kcl.inf.gts_morpher.composer.helpers
 
+import java.util.HashSet
 import java.util.Set
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
@@ -39,6 +40,6 @@ class MergeSet {
 	}
 
 	static def fromMerge(MergeSet ms1, MergeSet ms2) {
-		new MergeSet((ms1.kernel + ms2.kernel).toSet, (ms1.left + ms2.left).toSet, (ms1.right + ms2.right).toSet)
+		new MergeSet(new HashSet((ms1.kernel + ms2.kernel).toSet), new HashSet((ms1.left + ms2.left).toSet), new HashSet((ms1.right + ms2.right).toSet))
 	}
 }
