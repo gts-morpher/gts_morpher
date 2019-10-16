@@ -1,13 +1,13 @@
-@namespace(uri="https://metamodel.woven/c/d", prefix="c_d")
+@namespace(uri="https://metamodel.woven/c/c/d", prefix="c_d")
 package C_D;
 
 class C1_C2_D1 {
 	ref C1_C2_D1 c1_d1;
-	val source__C3[*]#source__a source__bs;
-	ref source__C3#source__c2s source__c3;
+	val left__C3[*]#left__a left__bs;
+	ref left__C3#left__c2s left__c3;
 }
 
-class source__C3 {
-	readonly ref C1_C2_D1#source__bs source__a;
-	val C1_C2_D1[*]#source__c3 source__c2s;
+class left__C3 {
+	readonly ref C1_C2_D1#left__bs left__a;
+	val C1_C2_D1[*]#left__c3 left__c2s;
 }
