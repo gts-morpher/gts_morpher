@@ -263,10 +263,17 @@ class GTSComposer {
 	}
 
 	private static def String weaveDescriptions(CharSequence kernelDescription, CharSequence leftDescription, CharSequence rightDescription) {
-		val kd = (kernelDescription === null)?"":kernelDescription
-		val ld = (leftDescription === null)?"":leftDescription
-		val rd = (rightDescription === null)?"":rightDescription
-		
-		'''«kd» «ld» «rd»'''		
+		if ((kernelDescription !== null) || 
+			(leftDescription !== null) ||
+			(rightDescription !== null)) {
+			val kd = (kernelDescription === null)?"":kernelDescription
+			val ld = (leftDescription === null)?"":leftDescription
+			val rd = (rightDescription === null)?"":rightDescription
+			
+					
+			'''«kd» «ld» «rd»'''		
+		} else {
+			null
+		}
 	}
 }
