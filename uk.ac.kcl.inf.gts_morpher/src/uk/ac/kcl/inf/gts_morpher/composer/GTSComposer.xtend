@@ -35,7 +35,6 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue
 import org.eclipse.xtend.lib.annotations.Data
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
-import java.util.HashSet
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
