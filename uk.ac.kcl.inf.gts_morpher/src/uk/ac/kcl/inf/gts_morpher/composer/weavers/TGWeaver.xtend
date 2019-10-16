@@ -27,7 +27,7 @@ import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessCon
  */
 class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 
-	val extension EcorePackage ecore = EcorePackage.eINSTANCE
+	val EcorePackage ecore = EcorePackage.eINSTANCE
 	val extension EcoreFactory ecoreFactory = EcoreFactory.eINSTANCE
 
 	/**
@@ -87,7 +87,7 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 
 	private def weaveClasses(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
 		// Weave mapped classes
-		mergeSets.filter[hasType(EClass)].forEach[ms | 
+		mergeSets.filter[hasType(ecore.EClass)].forEach[ms | 
 			val keyedMergeList = ms.keyedMergeList
 			val containingMergedPackage = get((ms.kernel.head as EClass).EPackage.kernelKey) as EPackage
 			
@@ -99,10 +99,10 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 		] 
 
 		// Create copies for all unmapped classes
-		unmappedLeftElements.filter(EClass.class).forEach [ ec |
+		unmappedLeftElements.filter(EClass).forEach [ ec |
 			put(ec.leftKey, (get(ec.EPackage.leftKey) as EPackage).createEClass)
 		]
-		unmappedRightElements.filter(EClass.class).forEach [ ec |
+		unmappedRightElements.filter(EClass).forEach [ ec |
 			put(ec.rightKey, (get(ec.EPackage.rightKey) as EPackage).createEClass)
 		]
 	}
@@ -120,7 +120,7 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 	private def weaveReferences(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
 		// Weave mapped references
 		// Because the mapping is a morphism, this must work :-)
-		mergeSets.filter[hasType(EReference)].forEach[ms |
+		mergeSets.filter[hasType(ecore.EReference)].forEach[ms |
 			val keyedMergeList = ms.keyedMergeList
 			
 			// FIXME: currently we're basing the reference properties apart from the name only on the first left EReference. Should probably define some proper weaving rules here 
@@ -132,18 +132,18 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 		] 
 	
 		// Create copied for unmapped references
-		unmappedLeftElements.filter(EReference.class).forEach [ er |
-			put(er.leftKey, ((er as EReference).createEReference))
+		unmappedLeftElements.filter(EReference).forEach [ er |
+			put(er.leftKey, (er.createEReference))
 		]
-		unmappedRightElements.filter(EReference.class).forEach [ er |
-			put(er.rightKey, ((er as EReference).createEReference))
+		unmappedRightElements.filter(EReference).forEach [ er |
+			put(er.rightKey, (er.createEReference))
 		]
 	}
 
 	private def weaveAttributes(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
 		// Weave mapped attributes
 		// Because the mapping is a morphism, this must work :-) 
-		mergeSets.filter[hasType(EAttribute)].forEach[ms |
+		mergeSets.filter[hasType(ecore.EAttribute)].forEach[ms |
 			val keyedMergeList = ms.keyedMergeList
 			
 			// FIXME: currently we're basing the attribute properties apart from the name only on the first left EAttribute. Should probably define some proper weaving rules here 
@@ -155,11 +155,11 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 		]
 		
 		// Create copies for unmapped attributes
-		unmappedLeftElements.filter(EAttribute.class).forEach [ ea |
-			put(ea.leftKey, ((ea as EAttribute).createEAttribute))
+		unmappedLeftElements.filter(EAttribute).forEach [ ea |
+			put(ea.leftKey, (ea.createEAttribute))
 		]
-		unmappedRightElements.filter(EAttribute.class).forEach [ ea |
-			put(ea.rightKey, ((ea as EAttribute).createEAttribute))
+		unmappedRightElements.filter(EAttribute).forEach [ ea |
+			put(ea.rightKey, (ea.createEAttribute))
 		]
 	}
 
