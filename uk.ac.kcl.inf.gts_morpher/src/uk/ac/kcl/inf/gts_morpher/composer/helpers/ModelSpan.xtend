@@ -5,9 +5,6 @@ import java.util.HashSet
 import java.util.Map
 import java.util.Set
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EPackage
-import org.eclipse.emf.henshin.model.Graph
-import org.eclipse.emf.henshin.model.Module
 import org.eclipse.xtend.lib.annotations.Data
 
 /**
@@ -16,22 +13,7 @@ import org.eclipse.xtend.lib.annotations.Data
 class ModelSpan {
 	val Set<EObjectSpan> modelElementSpans = new HashSet
 
-	new(Map<EObject, EObject> leftMapping, Map<EObject, EObject> rightMapping, EPackage kernelPackage,
-		EPackage leftPackage, EPackage rightPackage) {
-		initialise(leftMapping, rightMapping, kernelPackage, leftPackage, rightPackage)
-	}
-
-	new(Map<EObject, EObject> leftMapping, Map<EObject, EObject> rightMapping, Graph kernelGraph, Graph leftGraph,
-		Graph rightGraph) {
-		initialise(leftMapping, rightMapping, kernelGraph, leftGraph, rightGraph)
-	}
-
-	new(Map<EObject, EObject> leftMapping, Map<EObject, EObject> rightMapping, Module kernelModule, Module leftModule,
-		Module rightModule) {
-		initialise(leftMapping, rightMapping, kernelModule, leftModule, rightModule)
-	}
-
-	private final def initialise(Map<EObject, EObject> leftMapping, Map<EObject, EObject> rightMapping, EObject kernel,
+	new(Map<EObject, EObject> leftMapping, Map<EObject, EObject> rightMapping, EObject kernel,
 		EObject left, EObject right) {
 		modelElementSpans.add(new EObjectSpan(kernel, left, right))
 
