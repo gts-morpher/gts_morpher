@@ -52,16 +52,24 @@ class PatternWeaver extends HashMap<Pair<Origin, EObject>, GraphElement> {
 
 			mergeSets = new ModelSpan(leftMapping, rightMapping, kernelPattern, leftPattern, rightPattern).calculateMergeSet
 
-			leftUnmappedElements = leftPattern.eAllContents.filter(GraphElement).reject[ge | 
-				leftBehaviourMapping.containsValue(ge)
-			].toList
-			rightUnmappedElements = rightPattern.eAllContents.filter(GraphElement).reject[ge | 
-				rightBehaviourMapping.containsValue(ge)
-			].toList
+			if (leftPattern !== null) {
+				leftUnmappedElements = leftPattern.eAllContents.filter(GraphElement).reject[ge | 
+					leftBehaviourMapping.containsValue(ge)
+				].toList				
+			} else {
+				leftUnmappedElements = emptyList
+			}
+			
+			if (rightPattern !== null) {
+				rightUnmappedElements = rightPattern.eAllContents.filter(GraphElement).reject[ge | 
+					rightBehaviourMapping.containsValue(ge)
+				].toList				
+			} else {
+				rightUnmappedElements = emptyList
+			}
 
 			wovenGraph = HenshinFactory.eINSTANCE.createGraph
 			wovenGraph.name = patternLabel
-			
 		}
 
 		def Graph weavePattern() {

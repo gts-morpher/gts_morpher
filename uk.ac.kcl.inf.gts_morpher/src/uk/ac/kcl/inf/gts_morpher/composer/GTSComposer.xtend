@@ -35,6 +35,7 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue
 import org.eclipse.xtend.lib.annotations.Data
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
+import java.util.HashSet
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -224,6 +225,8 @@ class GTSComposer {
 			return null
 		}
 
+		val kernelRulesIncludingVirtualRules = (leftBehaviourMapping.allKernelRules + rightBehaviourMapping.allKernelRules).toSet
+
 		// Temporary index for purposes of weaving rule names
 		val ruleWeavingMap = new HashMap<Rule, List<Pair<Origin, Rule>>>
 
@@ -231,7 +234,7 @@ class GTSComposer {
 			description = weaveDescriptions(kernelBehaviour, leftBehaviour, rightBehaviour)
 			imports += tgMapping.get(kernelMetamodel.kernelKey) as EPackage
 
-			units += kernelBehaviour.units.filter(Rule).map [ r |
+			units += kernelRulesIncludingVirtualRules.map [ r |
 				val composed = r.createComposed(leftBehaviourMapping, rightBehaviourMapping, tgMapping, naming)
 
 				ruleWeavingMap.put(composed, #[r.kernelKey, leftBehaviourMapping.getMappedTargetRule(r).leftKey, rightBehaviourMapping.getMappedTargetRule(r).rightKey])
@@ -247,18 +250,23 @@ class GTSComposer {
 
 		result
 	}
+	
+	def getAllKernelRules(Map<EObject, EObject> behaviourMapping) {
+		behaviourMapping.values.filter(Rule)
+	}
 
 	def Rule createComposed(Rule kernelTgtRule, Map<EObject, EObject> leftBehaviourMapping, Map<EObject, EObject> rightBehaviourMapping,
 		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming) {
+		// leftRule or rightRule can be null if we have previously introduced a virtual rule in the kernel for one of the mappings.		
 		val leftRule = leftBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 		val rightRule = rightBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 
 		val result = HenshinFactory.eINSTANCE.createRule => [
-			description = weaveDescriptions(kernelTgtRule.description, leftRule.description, rightRule.description)
+			description = weaveDescriptions(kernelTgtRule.description, leftRule?.description, rightRule?.description)
 			injectiveMatching = kernelTgtRule.injectiveMatching
 			// TODO Should probably copy parameters, too
-			lhs = new PatternWeaver(kernelTgtRule.lhs, leftRule.lhs, rightRule.lhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Lhs", naming).weavePattern
-			rhs = new PatternWeaver(kernelTgtRule.rhs, leftRule.rhs, rightRule.rhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Rhs", naming).weavePattern
+			lhs = new PatternWeaver(kernelTgtRule.lhs, leftRule?.lhs, rightRule?.lhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Lhs", naming).weavePattern
+			rhs = new PatternWeaver(kernelTgtRule.rhs, leftRule?.rhs, rightRule?.rhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Rhs", naming).weavePattern
 		]
 
 		// Weave kernel
@@ -269,7 +277,7 @@ class GTSComposer {
 			} else {
 				null
 			}
-		].reject[n|n === null].forEach [ p |
+		].filterNull.forEach [ p |
 			result.mappings.add(HenshinFactory.eINSTANCE.createMapping(p.key, p.value))
 		]
 

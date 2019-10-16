@@ -18,6 +18,8 @@ import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 
 class EMFHelper {
 
+	static dispatch def getName(Void eo) ''''''
+	
 	static dispatch def getName(EObject eo) ''''''
 
 	static dispatch def getName(EClass ec) { ec.name }
