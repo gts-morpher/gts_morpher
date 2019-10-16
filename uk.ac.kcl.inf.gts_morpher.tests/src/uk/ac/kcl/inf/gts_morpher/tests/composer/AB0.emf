@@ -1,0 +1,15 @@
+@namespace(uri="https://metamodel.woven/a/b/a0", prefix="a_b_a0")
+package A_B_A0;
+
+class A1_B1 {
+  val source__A2[*]#source__a source__bs;
+  val target__B2[*]#target__a target__bs;
+}
+
+class source__A2 {
+  readonly ref A1_B1#source__bs source__a;
+}
+
+class target__B2 {
+  readonly ref A1_B1#target__bs target__a;
+}

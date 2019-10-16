@@ -383,7 +383,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertNotNull("Couldn't find composed Henshin rules", runResult.c)
 
 		EcoreUtil2.resolveAll(runResult.c)
-		val composedOracle = resourceSet.getResource(createFileURI("AB.henshin"), true).contents.head as Module
+		val composedOracle = resourceSet.getResource(createFileURI("AB0.henshin"), true).contents.head as Module
 		EcoreUtil2.resolveAll(composedOracle)
 
 		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
