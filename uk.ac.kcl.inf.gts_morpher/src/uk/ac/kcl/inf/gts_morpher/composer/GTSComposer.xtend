@@ -211,7 +211,7 @@ class GTSComposer {
 			units += kernelBehaviour.units.filter(Rule).map [ r |
 				val composed = r.createComposed(leftBehaviourMapping, rightBehaviourMapping, tgMapping, naming)
 
-				ruleWeavingMap.put(composed, #[r.kernelKey, (leftBehaviourMapping.get(r) as Rule).leftKey, (rightBehaviourMapping.get(r) as Rule).rightKey])
+				ruleWeavingMap.put(composed, #[r.kernelKey, leftBehaviourMapping.getMappedTargetRule(r).leftKey, rightBehaviourMapping.getMappedTargetRule(r).rightKey])
 
 				composed
 			]
@@ -227,12 +227,12 @@ class GTSComposer {
 
 	def Rule createComposed(Rule kernelTgtRule, Map<EObject, EObject> leftBehaviourMapping, Map<EObject, EObject> rightBehaviourMapping,
 		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming) {
-		val leftRule = leftBehaviourMapping.get(kernelTgtRule) as Rule
-		val rightRule = rightBehaviourMapping.get(kernelTgtRule) as Rule
+		val leftRule = leftBehaviourMapping.getMappedTargetRule(kernelTgtRule)
+		val rightRule = rightBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 
 		val result = HenshinFactory.eINSTANCE.createRule => [
 			description = weaveDescriptions(kernelTgtRule.description, leftRule.description, rightRule.description)
-			injectiveMatching = kernelRule.injectiveMatching
+			injectiveMatching = kernelTgtRule.injectiveMatching
 			// TODO Should probably copy parameters, too
 			lhs = new PatternWeaver(kernelTgtRule.lhs, leftRule.lhs, rightRule.lhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Lhs", naming).weavePattern
 			rhs = new PatternWeaver(kernelTgtRule.rhs, leftRule.rhs, rightRule.rhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Rhs", naming).weavePattern
@@ -251,6 +251,11 @@ class GTSComposer {
 		]
 
 		result
+	}
+	
+	def Rule getMappedTargetRule(Map<EObject, EObject> behaviourMapping, Rule kernelRule) {
+		// Remember, rule mappings are the other way around
+		behaviourMapping.keySet.filter(Rule).findFirst[r | behaviourMapping.get(r) === kernelRule]
 	}
 
 	private static def String weaveDescriptions(Module kernelModule, Module leftModule, Module rightModule) {
