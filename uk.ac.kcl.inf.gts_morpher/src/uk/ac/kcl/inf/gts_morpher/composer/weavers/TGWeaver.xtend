@@ -120,6 +120,7 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 		keySet.filter[p|p.value instanceof EClass].forEach [ p |
 			val composed = get(p) as EClass
 			composed.ESuperTypes.addAll((p.value as EClass).ESuperTypes.map[ec2|get(ec2.origKey(p.key)) as EClass].
+				filterNull. // Need to filter because some of those classes might have been unmapped as they weren't annotated with @Interface
 				reject [ ec2 |
 					composed === ec2 || composed.ESuperTypes.contains(ec2)
 				])
