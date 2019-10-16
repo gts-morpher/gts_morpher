@@ -30,7 +30,7 @@ class DefaultNamingStrategy implements NamingStrategy {
 	}
 
 	override String weaveNameSpaces(Iterable<Pair<Origin, EPackage>> nameSources) {
-		nameSources.sortBy[key].map[value.name].fold(null, [acc, n | 
+		nameSources.sortBy[key].map[value.nsPrefix].fold(null, [acc, n | 
 			weaveNameStrings(acc, n)
 		]).toString
 	}
