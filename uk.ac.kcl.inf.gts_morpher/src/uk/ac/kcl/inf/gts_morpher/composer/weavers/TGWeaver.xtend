@@ -83,6 +83,15 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 				name = ep.name
 			])
 		]
+		unmappedRightElements.filter[eClass === ecore.EPackage].forEach [ eo |
+			val ep = eo as EPackage
+			put(ep.rightKey, createEPackage => [
+				// FIXME: This should really call on the relevant weave methods
+				nsPrefix = ep.nsPrefix
+				nsURI = ep.nsURI
+				name = ep.name
+			])
+		]
 	}
 
 	private def weaveClasses(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
@@ -133,10 +142,10 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 	
 		// Create copied for unmapped references
 		unmappedLeftElements.filter(EReference).forEach [ er |
-			put(er.leftKey, (er.createEReference))
+			put(er.leftKey, (er.createEReference(Origin.LEFT)))
 		]
 		unmappedRightElements.filter(EReference).forEach [ er |
-			put(er.rightKey, (er.createEReference))
+			put(er.rightKey, (er.createEReference(Origin.RIGHT)))
 		]
 	}
 
@@ -156,10 +165,10 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 		
 		// Create copies for unmapped attributes
 		unmappedLeftElements.filter(EAttribute).forEach [ ea |
-			put(ea.leftKey, (ea.createEAttribute))
+			put(ea.leftKey, (ea.createEAttribute(Origin.LEFT)))
 		]
 		unmappedRightElements.filter(EAttribute).forEach [ ea |
-			put(ea.rightKey, (ea.createEAttribute))
+			put(ea.rightKey, (ea.createEAttribute(Origin.RIGHT)))
 		]
 	}
 
