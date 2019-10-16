@@ -19,6 +19,7 @@ import uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.TGWeaver
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRef
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
 import uk.ac.kcl.inf.gts_morpher.util.IProgressMonitor
 import uk.ac.kcl.inf.gts_morpher.util.Triple
@@ -33,6 +34,7 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue
 import org.eclipse.xtend.lib.annotations.Data
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -147,12 +149,14 @@ class GTSComposer {
 		val Map<EObject, EObject> behaviourMapping
 	}
 
-	private def dispatch extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<Issue> issues,
+	private def dispatch MappingsPair extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<Issue> issues,
 		IProgressMonitor monitor) { throw new IllegalArgumentException }
 
-	private def dispatch extractMapping(GTSMappingRef spec, ArrayList<Issue> issues, IProgressMonitor monitor) {
-		val mapping = spec.ref
+	private def dispatch MappingsPair extractMapping(GTSMappingRef spec, ArrayList<Issue> issues, IProgressMonitor monitor) {
+		spec.ref?.extractMapping(issues, monitor)
+	}
 
+	private def dispatch MappingsPair extractMapping(GTSMapping mapping, ArrayList<Issue> issues, IProgressMonitor monitor) {
 		var tgMapping = mapping.typeMapping.extractMapping(null)
 		var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
 
@@ -190,8 +194,27 @@ class GTSComposer {
 		return new MappingsPair(tgMapping, behaviourMapping)
 	}
 
-	private def dispatch extractMapping(GTSMappingInterfaceSpec spec, ArrayList<Issue> issues,
-		IProgressMonitor monitor) { throw new IllegalArgumentException }
+	private def dispatch MappingsPair extractMapping(GTSMappingInterfaceSpec spec, ArrayList<Issue> issues,
+		IProgressMonitor monitor) {
+		extension val factory = GtsMorpherFactory.eINSTANCE 
+		val mockedMapping = createGTSMapping => [
+			autoComplete = true
+			uniqueCompletion = true
+			source = createGTSSpecification => [
+				interface_mapping = true
+				gts = createGTSReference => [
+					ref = spec.gts_ref					
+				]
+			]
+			target = createGTSReference => [
+				ref = spec.gts_ref
+			]
+			typeMapping = createTypeGraphMapping // because this is mandatory even when it's empty
+		]
+		
+		// TODO: This assumes that the above can actually be uniquely auto-completed with no seed, which isn't guaranteed. May need to introduce a notion of inclusion mappings that use object identity to auto-complete
+		mockedMapping.extractMapping(issues, monitor)
+	}
 
 	private def Module composeBehaviour(Map<EObject, EObject> leftBehaviourMapping,
 		Map<EObject, EObject> rightBehaviourMapping, Module kernelBehaviour, Module leftBehaviour,
