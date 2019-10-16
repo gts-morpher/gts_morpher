@@ -54,8 +54,91 @@ class MergeSetTests {
 		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right).calculateMergeSet
 		
 		assertEquals("Expected only two merge sets to be produced", 2, mergeSets.size)
+	}
+
+	@Test
+	def void testNonOverlappingSpan() {
+		val k0 = createEClass => [
+			name = "K0"
+		]
+		val k1 = createEClass => [
+			name = "K1"
+		]
+		val kernel = createEPackage => [
+			name = "KernelPackage"
+			EClassifiers += #[k0, k1]
+		]
+
+		val l0 = createEClass => [
+			name = "L0"
+		]
+		val l1 = createEClass => [
+			name = "L1"
+		]
+		val left = createEPackage => [
+			name = "LeftPackage"
+			EClassifiers += #[l0, l1]
+		]
+
+		val r0 = createEClass => [
+			name = "R0"
+		]
+		val r1 = createEClass => [
+			name = "R1"
+		]
+		val right = createEPackage => [
+			name = "RightPackage"
+			EClassifiers += #[r0, r1]
+		]
 		
+		val Map<EObject, EObject> leftMapping = #{k0 -> l0, k1 -> l1}
+		val Map<EObject, EObject> rightMapping = #{k0 -> r0, k1 -> r1}
 		
+		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right).calculateMergeSet
 		
+		assertEquals("Expected only three merge sets to be produced", 3, mergeSets.size)
+	}
+
+	@Test
+	def void testOverlappingSpan() {
+		val k0 = createEClass => [
+			name = "K0"
+		]
+		val k1 = createEClass => [
+			name = "K1"
+		]
+		val kernel = createEPackage => [
+			name = "KernelPackage"
+			EClassifiers += #[k0, k1]
+		]
+
+		val l0 = createEClass => [
+			name = "L0"
+		]
+		val l1 = createEClass => [
+			name = "L1"
+		]
+		val left = createEPackage => [
+			name = "LeftPackage"
+			EClassifiers += #[l0, l1]
+		]
+
+		val r0 = createEClass => [
+			name = "R0"
+		]
+		val r1 = createEClass => [
+			name = "R1"
+		]
+		val right = createEPackage => [
+			name = "RightPackage"
+			EClassifiers += #[r0, r1]
+		]
+		
+		val Map<EObject, EObject> leftMapping = #{k0 -> l0, k1 -> l1}
+		val Map<EObject, EObject> rightMapping = #{k0 -> r0, k1 -> r0}
+		
+		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right).calculateMergeSet
+		
+		assertEquals("Expected only two merge sets to be produced", 2, mergeSets.size)
 	}
 }
