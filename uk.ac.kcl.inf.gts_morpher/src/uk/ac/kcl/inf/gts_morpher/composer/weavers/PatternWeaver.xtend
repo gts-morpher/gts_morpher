@@ -43,12 +43,12 @@ class PatternWeaver extends HashMap<Pair<Origin, EObject>, GraphElement> {
 			this.naming = naming
 			this.tgMapping = tgMapping
 
-			val leftMapping = leftBehaviourMapping.filter [ key, value |
-				(key.eContainer === leftPattern) || (key.eContainer.eContainer === leftPattern) // to include slots 
-			]
-			val rightMapping = rightBehaviourMapping.filter [ key, value |
-				(key.eContainer === rightPattern) || (key.eContainer.eContainer === rightPattern) // to include slots 
-			]
+			val leftMapping = new HashMap(leftBehaviourMapping.filter [ key, value |
+				(value.eContainer === leftPattern) || (value.eContainer.eContainer === leftPattern) // to include slots 
+			])
+			val rightMapping = new HashMap(rightBehaviourMapping.filter [ key, value |
+				(value.eContainer === rightPattern) || (value.eContainer.eContainer === rightPattern) // to include slots 
+			])
 
 			mergeSets = new ModelSpan(leftMapping, rightMapping, kernelPattern, leftPattern, rightPattern).calculateMergeSet
 
