@@ -1,5 +1,5 @@
-@namespace(uri="https://metamodel.woven/a/b/a0", prefix="a_b_a0")
-package A_B_A0;
+@namespace(uri="https://metamodel.woven/a0/a/b", prefix="a0_a_b")
+package A0_A_B;
 
 class A1_B1 {
   val source__A2[*]#source__a source__bs;
