@@ -9,10 +9,10 @@
           <type href="IJ.ecore#//I1_J1/a1"/>
         </attributes>
         <attributes xmi:id="_G49UoCugEei9gqjpeQ_q3A" value="&quot;hello&quot;">
-          <type href="IJ.ecore#//I1_J1/source__a2"/>
+          <type href="IJ.ecore#//I1_J1/left__a2"/>
         </attributes>
         <attributes xmi:id="_HJH3kCugEei9gqjpeQ_q3A" value="&quot;hello&quot;">
-          <type href="IJ.ecore#//I1_J1/target__a2"/>
+          <type href="IJ.ecore#//I1_J1/right__a2"/>
         </attributes>
       </nodes>
     </lhs>
@@ -23,10 +23,10 @@
           <type href="IJ.ecore#//I1_J1/a1"/>
         </attributes>
         <attributes xmi:id="_G49UoSugEei9gqjpeQ_q3A" value="&quot;hello&quot;">
-          <type href="IJ.ecore#//I1_J1/source__a2"/>
+          <type href="IJ.ecore#//I1_J1/left__a2"/>
         </attributes>
         <attributes xmi:id="_HJH3kSugEei9gqjpeQ_q3A" value="&quot;hello&quot;">
-          <type href="IJ.ecore#//I1_J1/target__a2"/>
+          <type href="IJ.ecore#//I1_J1/right__a2"/>
         </attributes>
       </nodes>
     </rhs>
