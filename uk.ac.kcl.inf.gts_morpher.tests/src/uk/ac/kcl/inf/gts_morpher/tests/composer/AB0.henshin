@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_zAJpkAgxEein1eZjhen2QA" name="A0Rules_ARules_BRules">
   <imports href="AB0.ecore#/"/>
-  <units xsi:type="henshin:Rule" xmi:id="_inx3gAgyEein1eZjhen2QA" name="do_process_process">
+  <units xsi:type="henshin:Rule" xmi:id="_inx3gAgyEein1eZjhen2QA" name="do_process">
     <lhs xmi:id="_inx3hQgyEein1eZjhen2QA" name="Lhs">
       <nodes xmi:id="_jsmKgAgyEein1eZjhen2QA" name="a1_b1" outgoing="_mLX6EAgyEein1eZjhen2QA">
         <type href="AB0.ecore#//A1_B1"/>
