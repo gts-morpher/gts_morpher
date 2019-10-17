@@ -36,7 +36,7 @@ class DefaultNamingStrategy implements NamingStrategy {
 					acc.add(elt)
 				}
 				acc
-			]).sortBy[key].map[value.name].fold(null, [ acc, n |
+			]).sortBy[key].map[value?.name].filterNull.fold(null, [ acc, n |
 			weaveNameStrings(acc, n)
 		]).toString
 	}
