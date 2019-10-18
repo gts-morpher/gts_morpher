@@ -637,6 +637,36 @@ class ParsingAndValidationTests extends AbstractTest {
 	 * Tests basic parsing and linking with behaviour mapping for an interface-mapping
 	 */
 	@Test
+	def void parsingBasicInclusionAutoComplete() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete inclusion map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping { }
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
+		assertTrue("Set to inclusion", !result.mappings.head.inclusion)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+	}
+
+	/**
+	 * Tests basic parsing and linking with behaviour mapping for an interface-mapping
+	 */
+	@Test
 	def void parsingBasicWithBehaviourAndInterfaceAndGTSReferences() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
