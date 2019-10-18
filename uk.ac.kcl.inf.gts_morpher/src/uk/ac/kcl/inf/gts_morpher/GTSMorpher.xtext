@@ -16,7 +16,7 @@ GTSSpecificationModuleMember:
 ;
 
 GTSMapping:
-	(autoComplete ?= "auto-complete" (uniqueCompletion ?= "unique")?
+	(autoComplete ?= "auto-complete" (uniqueCompletion ?= "unique" (inclusion ?= "inclusion")?)?
 		                             (allowFromEmtpy?="allow-from-empty")? 
 		                             ((withoutToVirtual ?= "without-to-virtual")|(toIdentityOnly?="to-identity-only"))?)? 
 	"map" (name = ID)? "{"

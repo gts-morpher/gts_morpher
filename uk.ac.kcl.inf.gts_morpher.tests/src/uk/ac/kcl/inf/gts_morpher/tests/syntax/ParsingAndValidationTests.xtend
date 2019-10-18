@@ -641,7 +641,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
 		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
-			auto-complete inclusion map {
+			auto-complete unique inclusion map {
 				from interface_of {
 					metamodel: "server"
 					behaviour: "serverRules"
@@ -657,8 +657,9 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
-		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
-		assertTrue("Set to inclusion", !result.mappings.head.inclusion)
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertTrue("Not set to unique", result.mappings.head.uniqueCompletion)
+		assertTrue("Not set to inclusion", result.mappings.head.inclusion)
 
 		assertNotNull("No type mapping", result.mappings.head.typeMapping)
 	}
