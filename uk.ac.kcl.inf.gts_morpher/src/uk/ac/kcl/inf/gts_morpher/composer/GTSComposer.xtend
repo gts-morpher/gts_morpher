@@ -200,6 +200,7 @@ class GTSComposer {
 		val mockedMapping = createGTSMapping => [
 			autoComplete = true
 			uniqueCompletion = true
+			inclusion = true // To ensure completion can actually be done uniquely
 			source = createGTSSpecification => [
 				interface_mapping = true
 				gts = createGTSReference => [
@@ -212,7 +213,6 @@ class GTSComposer {
 			typeMapping = createTypeGraphMapping // because this is mandatory even when it's empty
 		]
 		
-		// TODO: This assumes that the above can actually be uniquely auto-completed with no seed, which isn't guaranteed. May need to introduce a notion of inclusion mappings that use object identity to auto-complete
 		mockedMapping.extractMapping(issues, monitor)
 	}
 
