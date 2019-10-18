@@ -105,7 +105,8 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	public static val INCLUSION_CANNOT_BE_TO_IDENTITY_ONLY = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_TO_IDENTITY_ONLY'
 	public static val INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL'
 	public static val INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY'
-
+	public static val INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET'
+	
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
 	 */
@@ -542,6 +543,14 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 			if (mapping.allowFromEmtpy) {
 				error("An inclusion mapping completion cannot be allow-from-empty", mapping,
 					GtsMorpherPackage.Literals.GTS_MAPPING__ALLOW_FROM_EMTPY, INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY)
+			}
+			
+			if (mapping.source?.metamodel !== mapping.target?.metamodel) {
+				error("An inclusion mapping completion must have the same source and target metamodel up to interface-of filtering", mapping,
+					GtsMorpherPackage.Literals.GTS_MAPPING__INCLUSION, INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
+			} else if (mapping.source?.behaviour !== mapping.target?.behaviour) {
+				error("An inclusion mapping completion must have the same source and target rules up to interface-of filtering", mapping,
+					GtsMorpherPackage.Literals.GTS_MAPPING__INCLUSION, INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
 			}
 		}
 	}

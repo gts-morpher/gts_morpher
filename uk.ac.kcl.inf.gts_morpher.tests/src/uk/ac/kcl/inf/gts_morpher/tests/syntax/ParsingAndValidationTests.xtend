@@ -469,6 +469,43 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	/**
+	 * Tests validation for unique inclusion completion checking consistency of source and target
+	 */
+	@Test
+	def void validatingAutoCompleteUniqueInclusionMismatchingFromAndTo() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete unique inclusion map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping { }
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertTrue("Not set to unique", result.mappings.head.uniqueCompletion)
+		assertTrue("Not set to inclusion", result.mappings.head.inclusion)
+
+		assertFalse("Set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.mappings.head.toIdentityOnly)
+		assertFalse("Set to allow-from-empty", result.mappings.head.allowFromEmtpy)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+		
+		result.assertError(GtsMorpherPackage.Literals.GTS_MAPPING, GTSMorpherValidator.INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
+	}
+
+	/**
 	 * Tests basic parsing and linking with behaviour mapping
 	 */
 	@Test
