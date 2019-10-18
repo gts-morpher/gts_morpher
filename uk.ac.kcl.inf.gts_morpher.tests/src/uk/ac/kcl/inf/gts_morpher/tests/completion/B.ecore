@@ -2,14 +2,20 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="B" nsURI="http://kcl.ac.uk/xdsml/B" nsPrefix="b">
   <eClassifiers xsi:type="ecore:EClass" name="B1">
+    <eAnnotations source="Interface"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="_2s" upperBound="-1" eType="#//B2"
-        containment="true" eOpposite="#//B2/a"/>
+        containment="true" eOpposite="#//B2/a">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="_3s" upperBound="-1" eType="#//B3"
         containment="true" eOpposite="#//B3/a"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="B2">
+    <eAnnotations source="Interface"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="a" eType="#//B1" changeable="false"
-        eOpposite="#//B1/_2s"/>
+        eOpposite="#//B1/_2s">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="B3">
     <eStructuralFeatures xsi:type="ecore:EReference" name="a" eType="#//B1" changeable="false"
