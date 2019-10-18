@@ -31,6 +31,7 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
 
 @RunWith(XtextRunner)
 @InjectWith(GTSMorpherInjectorProvider)
@@ -319,6 +320,189 @@ class ParsingAndValidationTests extends AbstractTest {
 		
 		assertFalse("Set to without-to-virtual", result.mappings.head.withoutToVirtual)
 		assertTrue("Not set to toIdentityOnly", result.mappings.head.toIdentityOnly)
+	}
+
+	/**
+	 * Tests basic parsing and linking for unique inclusion completion
+	 */
+	@Test
+	def void parsingAutoCompleteUniqueInclusion() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete unique inclusion map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping { }
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		result.assertNoIssues
+
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertTrue("Not set to unique", result.mappings.head.uniqueCompletion)
+		assertTrue("Not set to inclusion", result.mappings.head.inclusion)
+
+		assertFalse("Set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.mappings.head.toIdentityOnly)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+	}
+
+	/**
+	 * Tests validation for unique inclusion completion against to-identity-only hint
+	 */
+	@Test
+	def void validatingAutoCompleteUniqueInclusionHintConflict1() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete unique inclusion to-identity-only map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping { }
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertTrue("Not set to unique", result.mappings.head.uniqueCompletion)
+		assertTrue("Not set to inclusion", result.mappings.head.inclusion)
+
+		assertFalse("Set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertTrue("Not set to toIdentityOnly", result.mappings.head.toIdentityOnly)
+		assertFalse("Set to allow-from-empty", result.mappings.head.allowFromEmtpy)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+		
+		result.assertError(GtsMorpherPackage.Literals.GTS_MAPPING, GTSMorpherValidator.INCLUSION_CANNOT_BE_TO_IDENTITY_ONLY)
+	}
+
+	/**
+	 * Tests validation for unique inclusion completion against without-to-virtual hint
+	 */
+	@Test
+	def void validatingAutoCompleteUniqueInclusionHintConflict2() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete unique inclusion without-to-virtual map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping { }
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertTrue("Not set to unique", result.mappings.head.uniqueCompletion)
+		assertTrue("Not set to inclusion", result.mappings.head.inclusion)
+
+		assertTrue("Not set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.mappings.head.toIdentityOnly)
+		assertFalse("Set to allow-from-empty", result.mappings.head.allowFromEmtpy)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+		
+		result.assertError(GtsMorpherPackage.Literals.GTS_MAPPING, GTSMorpherValidator.INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL)
+	}
+
+	/**
+	 * Tests validation for unique inclusion completion against allow-from-empty hint
+	 */
+	@Test
+	def void validatingAutoCompleteUniqueInclusionHintConflict3() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete unique inclusion allow-from-empty map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				
+				type_mapping { }
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertTrue("Not set to unique", result.mappings.head.uniqueCompletion)
+		assertTrue("Not set to inclusion", result.mappings.head.inclusion)
+
+		assertFalse("Set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.mappings.head.toIdentityOnly)
+		assertTrue("Not set to allow-from-empty", result.mappings.head.allowFromEmtpy)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+		
+		result.assertError(GtsMorpherPackage.Literals.GTS_MAPPING, GTSMorpherValidator.INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY)
+	}
+
+	/**
+	 * Tests validation for unique inclusion completion checking consistency of source and target
+	 */
+	@Test
+	def void validatingAutoCompleteUniqueInclusionMismatchingFromAndTo() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			auto-complete unique inclusion map {
+				from interface_of {
+					metamodel: "server"
+					behaviour: "serverRules"
+				}
+				to {
+					metamodel: "devsmm"
+					behaviour: "devsmmRules"
+				}
+				
+				type_mapping { }
+			}
+		''', createInterfaceResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Not set to auto-complete", result.mappings.head.autoComplete)
+		assertTrue("Not set to unique", result.mappings.head.uniqueCompletion)
+		assertTrue("Not set to inclusion", result.mappings.head.inclusion)
+
+		assertFalse("Set to without-to-virtual", result.mappings.head.withoutToVirtual)
+		assertFalse("Set to toIdentityOnly", result.mappings.head.toIdentityOnly)
+		assertFalse("Set to allow-from-empty", result.mappings.head.allowFromEmtpy)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+		
+		result.assertError(GtsMorpherPackage.Literals.GTS_MAPPING, GTSMorpherValidator.INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
 	}
 
 	/**

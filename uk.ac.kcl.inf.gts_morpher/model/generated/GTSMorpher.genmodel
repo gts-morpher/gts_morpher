@@ -21,6 +21,7 @@
     <genClasses ecoreClass="GTSMorpher.ecore#//GTSMapping">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GTSMorpher.ecore#//GTSMapping/autoComplete"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GTSMorpher.ecore#//GTSMapping/uniqueCompletion"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GTSMorpher.ecore#//GTSMapping/inclusion"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GTSMorpher.ecore#//GTSMapping/allowFromEmtpy"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GTSMorpher.ecore#//GTSMapping/withoutToVirtual"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GTSMorpher.ecore#//GTSMapping/toIdentityOnly"/>
