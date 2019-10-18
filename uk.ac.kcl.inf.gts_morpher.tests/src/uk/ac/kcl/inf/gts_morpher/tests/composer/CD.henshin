@@ -9,17 +9,17 @@
       <nodes xmi:id="_9pSngAsbEeigIeiDiP83tg" name="c1b_d1b">
         <type href="CD.ecore#//C1_C2_D1"/>
       </nodes>
-      <nodes xmi:id="_-SgjoAsbEeigIeiDiP83tg" name="source__c3" incoming="_XeBJ0AscEeigIeiDiP83tg" outgoing="_gPdxUAscEeigIeiDiP83tg">
-        <type href="CD.ecore#//source__C3"/>
+      <nodes xmi:id="_-SgjoAsbEeigIeiDiP83tg" name="left__c3" incoming="_XeBJ0AscEeigIeiDiP83tg" outgoing="_gPdxUAscEeigIeiDiP83tg">
+        <type href="CD.ecore#//left__C3"/>
       </nodes>
       <edges xmi:id="_HouFEAscEeigIeiDiP83tg" source="_9hL0YAsbEeigIeiDiP83tg" target="_9hL0YAsbEeigIeiDiP83tg">
         <type href="CD.ecore#//C1_C2_D1/c1_d1"/>
       </edges>
       <edges xmi:id="_XeBJ0AscEeigIeiDiP83tg" source="_9hL0YAsbEeigIeiDiP83tg" target="_-SgjoAsbEeigIeiDiP83tg">
-        <type href="CD.ecore#//C1_C2_D1/source__bs"/>
+        <type href="CD.ecore#//C1_C2_D1/left__bs"/>
       </edges>
       <edges xmi:id="_gPdxUAscEeigIeiDiP83tg" source="_-SgjoAsbEeigIeiDiP83tg" target="_9hL0YAsbEeigIeiDiP83tg">
-        <type href="CD.ecore#//source__C3/source__c2s"/>
+        <type href="CD.ecore#//left__C3/left__c2s"/>
       </edges>
     </lhs>
     <rhs xmi:id="_zvG2VgsbEeigIeiDiP83tg" name="Rhs">
@@ -29,17 +29,17 @@
       <nodes xmi:id="_9pSngQsbEeigIeiDiP83tg" name="c1b_d1b" incoming="_IMdrUAscEeigIeiDiP83tg" outgoing="_YAaFMAscEeigIeiDiP83tg">
         <type href="CD.ecore#//C1_C2_D1"/>
       </nodes>
-      <nodes xmi:id="_-SgjoQsbEeigIeiDiP83tg" name="source__c3" incoming="_YAaFMAscEeigIeiDiP83tg" outgoing="_gPdxUQscEeigIeiDiP83tg">
-        <type href="CD.ecore#//source__C3"/>
+      <nodes xmi:id="_-SgjoQsbEeigIeiDiP83tg" name="left__c3" incoming="_YAaFMAscEeigIeiDiP83tg" outgoing="_gPdxUQscEeigIeiDiP83tg">
+        <type href="CD.ecore#//left__C3"/>
       </nodes>
       <edges xmi:id="_IMdrUAscEeigIeiDiP83tg" source="_9hL0YQsbEeigIeiDiP83tg" target="_9pSngQsbEeigIeiDiP83tg">
         <type href="CD.ecore#//C1_C2_D1/c1_d1"/>
       </edges>
       <edges xmi:id="_YAaFMAscEeigIeiDiP83tg" source="_9pSngQsbEeigIeiDiP83tg" target="_-SgjoQsbEeigIeiDiP83tg">
-        <type href="CD.ecore#//C1_C2_D1/source__bs"/>
+        <type href="CD.ecore#//C1_C2_D1/left__bs"/>
       </edges>
       <edges xmi:id="_gPdxUQscEeigIeiDiP83tg" source="_-SgjoQsbEeigIeiDiP83tg" target="_9hL0YQsbEeigIeiDiP83tg">
-        <type href="CD.ecore#//source__C3/source__c2s"/>
+        <type href="CD.ecore#//left__C3/left__c2s"/>
       </edges>
     </rhs>
     <mappings xmi:id="_9hL0YgsbEeigIeiDiP83tg" origin="_9hL0YAsbEeigIeiDiP83tg" image="_9hL0YQsbEeigIeiDiP83tg"/>
