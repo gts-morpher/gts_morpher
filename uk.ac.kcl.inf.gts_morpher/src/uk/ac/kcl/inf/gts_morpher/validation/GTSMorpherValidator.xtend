@@ -66,7 +66,7 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
 
 /**
  * This class contains custom validation rules. 
- *
+ * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 class GTSMorpherValidator extends AbstractGTSMorpherValidator {
@@ -102,6 +102,10 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	public static val WEAVE_NEEDS_INTERFACE_OF_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.WEAVE_NEEDS_INTERFACE_OF_MAPPING'
 	public static val WEAVE_WITH_INVALID_MORPHISM = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.WEAVE_WITH_INVALID_MORPHISM'
 	public static val GTS_WEAVE_ISSUE = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.GTS_WEAVE_ISSUE'
+	public static val INCLUSION_CANNOT_BE_TO_IDENTITY_ONLY = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_TO_IDENTITY_ONLY'
+	public static val INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL'
+	public static val INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY'
+	public static val INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET'
 	
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -139,22 +143,22 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	def checkIsMorphismMaybeIncomplete(GTSMapping mapping) {
 		checkIsMorphismMaybeIncomplete(mapping, true)
 	}
-		
+
 	private def boolean checkIsMorphismMaybeIncomplete(GTSMapping mapping, boolean issueErrors) {
 		val result = new ValueHolder(true)
-			
+
 		var typeMapping = extractMapping(mapping.typeMapping)
 		val isValidTypeMorphism = checkValidMaybeIncompleteClanMorphism(typeMapping, [ object, message |
 			if (object instanceof EClassifier) {
 				result.value = false
-				
+
 				if (issueErrors) {
 					error(message, mapping.typeMapping.mappings.filter(ClassMapping).findFirst[m|m.source == object],
 						GtsMorpherPackage.Literals.CLASS_MAPPING__TARGET, NOT_A_CLAN_MORPHISM)
 				}
 			} else if (object instanceof EReference) {
 				result.value = false
-				
+
 				if (issueErrors) {
 					error(message, mapping.typeMapping.mappings.filter(ReferenceMapping).findFirst [ m |
 						m.source == object
@@ -174,18 +178,19 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 							if (issueErrors) {
 								error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
 									rm.source == object as Rule
-								], GtsMorpherPackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)								
+								], GtsMorpherPackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
 							}
 						}
 					} else if (object instanceof Edge) {
 						if (!srcIsInterface || isInterfaceElement(object.type)) {
 							result.value = true
 							if (issueErrors) {
-								error(message, mapping.behaviourMapping.mappings.
-									map[rm|rm.element_mappings.filter(LinkMapping)].flatten.findFirst [ lm |
-										lm.source == object as Edge
-									], GtsMorpherPackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
-							}							
+								error(message, mapping.behaviourMapping.mappings.map [ rm |
+									rm.element_mappings.filter(LinkMapping)
+								].flatten.findFirst [ lm |
+									lm.source == object as Edge
+								], GtsMorpherPackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
+							}
 						}
 					} else if (object instanceof Node) {
 						if (!srcIsInterface || isInterfaceElement(object.type)) {
@@ -201,7 +206,7 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 					}
 				])
 		}
-		
+
 		result.value
 	}
 
@@ -228,57 +233,68 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 
 	private def doCheckIsCompleteBehaviourMapping(GTSMapping mapping, GTSMorpherValidator validator) {
 		val result = new ValueHolder(true)
-		
+
 		if (mapping.target.behaviour !== null) {
-			result.value = checkIsCompletelyCovered(mapping.target, mapping.behaviourMapping, [rm|rm.target], validator) && result.value
+			result.value = checkIsCompletelyCovered(mapping.target, mapping.behaviourMapping, [rm|rm.target],
+				validator) && result.value
 		}
 		if (mapping.source.behaviour !== null) {
-			result.value = checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source], validator) && result.value
+			result.value = checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source],
+				validator) && result.value
 		}
-		
+
 		if (mapping.behaviourMapping !== null) {
-			mapping.behaviourMapping.mappings.forEach[rm | result.value = rm.checkIsCompleteRuleMapping (validator) && result.value] 			
+			mapping.behaviourMapping.mappings.forEach [ rm |
+				result.value = rm.checkIsCompleteRuleMapping(validator) && result.value
+			]
 		}
-		
+
 		result.value
 	}
-	
+
 	private def boolean checkIsCompletelyCovered(GTSSpecificationOrReference gts, BehaviourMapping behaviourMapping,
 		Function<RuleMapping, Rule> ruleGetter, GTSMorpherValidator validator) {
 		val Iterable<Rule> rules = gts.behaviour.units.filter(Rule)
 		if (rules.empty) {
 			return true
 		}
-		
+
 		var result = true
-		
+
 		if (behaviourMapping === null) {
 			// Really should have some behaviour mappings if there are any rules at all...
-			gts.incompleteBehaviourMappingWarning(validator, "Incomplete mapping. Ensure all rules in this behaviour are mapped.")
+			gts.incompleteBehaviourMappingWarning(validator,
+				"Incomplete mapping. Ensure all rules in this behaviour are mapped.")
 			result = false
 		} else {
-			val mappedRules = behaviourMapping.mappings.map[rm | ruleGetter.apply(rm)].toList
-			if (rules.exists[r | !mappedRules.contains(r)]) {
-				gts.incompleteBehaviourMappingWarning(validator, "Incomplete mapping. Ensure all rules in this behaviour are mapped.")
+			val mappedRules = behaviourMapping.mappings.map[rm|ruleGetter.apply(rm)].toList
+			if (rules.exists[r|!mappedRules.contains(r)]) {
+				gts.incompleteBehaviourMappingWarning(validator,
+					"Incomplete mapping. Ensure all rules in this behaviour are mapped.")
 				result = false
-			}			
+			}
 		}
-		
+
 		result
 	}
-	
-	private def dispatch incompleteBehaviourMappingWarning(GTSSpecificationOrReference gts, GTSMorpherValidator validator, String message) { }
-	private def dispatch incompleteBehaviourMappingWarning(GTSSpecification gts, GTSMorpherValidator validator, String message) {
+
+	private def dispatch incompleteBehaviourMappingWarning(GTSSpecificationOrReference gts,
+		GTSMorpherValidator validator, String message) {}
+
+	private def dispatch incompleteBehaviourMappingWarning(GTSSpecification gts, GTSMorpherValidator validator,
+		String message) {
 		if (validator !== null) {
-			validator.warning(message, gts, GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS, INCOMPLETE_BEHAVIOUR_MAPPING)
+			validator.warning(message, gts, GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS,
+				INCOMPLETE_BEHAVIOUR_MAPPING)
 		}
 	}
-	private def dispatch incompleteBehaviourMappingWarning(GTSReference gts, GTSMorpherValidator validator, String message) {
+
+	private def dispatch incompleteBehaviourMappingWarning(GTSReference gts, GTSMorpherValidator validator,
+		String message) {
 		if (validator !== null) {
 			validator.warning(message, gts, GtsMorpherPackage.Literals.GTS_REFERENCE__REF, INCOMPLETE_BEHAVIOUR_MAPPING)
 		}
 	}
-	
 
 	/**
 	 * Check that the given rule mapping is complete
@@ -289,39 +305,38 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 			val elementIndex = new HashMap<String, List<GraphElement>>()
 			mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
 			mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
-			
-			val inComplete = elementIndex.entrySet.exists[e |
-				!mapping.element_mappings.exists[em |
+
+			val inComplete = elementIndex.entrySet.exists [ e |
+				!mapping.element_mappings.exists [ em |
 					((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
-					((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source))) ||
-					((em instanceof SlotMapping) && (e.value.contains((em as SlotMapping).source)))
+						((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source))) ||
+						((em instanceof SlotMapping) && (e.value.contains((em as SlotMapping).source)))
 				]
 			]
-	
+
 			if (inComplete) {
 				if (validator !== null) {
 					validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
 						GtsMorpherPackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
 				}
-				
+
 				return false
 			}
-		}	
+		}
 		true
 	}
-	
+
 	// FIXME: Also need to add slots, which will require a retyping of the index.
 	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map, boolean srcIsInterface) {
-		graph.eContents.filter[ge | 
-			!srcIsInterface ||
-			(if (ge instanceof Node) {
+		graph.eContents.filter [ ge |
+			!srcIsInterface || (if (ge instanceof Node) {
 				isInterfaceElement(ge.type)
 			} else if (ge instanceof Edge) {
 				isInterfaceElement(ge.type)
 			} else {
 				false
 			})
-		].forEach[eo | 
+		].forEach [ eo |
 			val ge = eo as GraphElement
 			var list = map.get(ge.name.toString)
 			if (list === null) {
@@ -331,7 +346,7 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 			list.add(ge)
 		]
 	}
-	
+
 	/**
 	 * Check source of a to-identity rule map is an identity rule.
 	 */
@@ -339,14 +354,15 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	def checkToIdentityRuleMapSourceIsIdentity(RuleMapping rm) {
 		if ((rm.target_identity) && (!rm.source.isIdentityRule(rm.sourceIsInterface))) {
 			error("Source of to-identity rule mapping must be an identity rule.", rm,
-				GtsMorpherPackage.Literals.RULE_MAPPING__SOURCE, GTSMorpherValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
+				GtsMorpherPackage.Literals.RULE_MAPPING__SOURCE,
+				GTSMorpherValidator.TO_IDENTITY_RULE_MAPPING_WITH_NON_IDENTITY_SOURCE)
 		}
 	}
-	
+
 	private def sourceIsInterface(RuleMapping rm) {
 		(rm.eContainer.eContainer as GTSMapping).source.interface_mapping
 	}
-	
+
 	/**
 	 * Check that we can auto-complete, if requested to do so
 	 */
@@ -394,13 +410,15 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 							result = false
 							if (issueErrors) {
 								error("Cannot complete type mapping to a valid morphism", mapping,
-									GtsMorpherPackage.Literals.GTS_MAPPING__TYPE_MAPPING, UNCOMPLETABLE_TYPE_GRAPH_MAPPING)								
+									GtsMorpherPackage.Literals.GTS_MAPPING__TYPE_MAPPING,
+									UNCOMPLETABLE_TYPE_GRAPH_MAPPING)
 							}
 						} else {
 							result = false
 							if (issueErrors) {
 								error("Cannot complete behaviour mapping to a valid morphism", mapping,
-									GtsMorpherPackage.Literals.GTS_MAPPING__BEHAVIOUR_MAPPING, UNCOMPLETABLE_BEHAVIOUR_MAPPING)								
+									GtsMorpherPackage.Literals.GTS_MAPPING__BEHAVIOUR_MAPPING,
+									UNCOMPLETABLE_BEHAVIOUR_MAPPING)
 							}
 						}
 					} else if (mapping.uniqueCompletion) {
@@ -408,16 +426,16 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 							if (morphismCompleter.completedMappings.size > 1) {
 								// Found more than one mapping (this can only happen if we were looking for all mappings), so need to report this as an error
 								result = false
-								
+
 								if (issueErrors) {
 									val sortedImprovements = morphismCompleter.findImprovementOptions
-				
+
 									// TODO Propose fixes for behaviour mapping completions, too
 									error('''Found «morphismCompleter.completedMappings.size» potential completions. Consider mapping «sortedImprovements.head.mapMessage» to improve uniqueness.''',
-										mapping, GtsMorpherPackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION, NO_UNIQUE_COMPLETION,
-										sortedImprovements.map [ e |
+										mapping, GtsMorpherPackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION,
+										NO_UNIQUE_COMPLETION, sortedImprovements.map [ e |
 											e.value.map[eo|e.key.issueData(eo).toString]
-										].flatten)									
+										].flatten)
 								}
 							} else {
 								println("Validation ran and confirmed that morphism can be uniquely completed.")
@@ -426,17 +444,16 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 							warning(
 								"Uniqueness of mapping has not been checked. Please run explicit validation from editor context menu to check this.",
 								mapping, GtsMorpherPackage.Literals.GTS_MAPPING__UNIQUE_COMPLETION,
-								UNIQUE_COMPLETION_NOT_CHECKED)							
+								UNIQUE_COMPLETION_NOT_CHECKED)
 						}
 					}
 				}
 			} else {
-				warning("Morphism is already complete", mapping,
-					GtsMorpherPackage.Literals.GTS_MAPPING__AUTO_COMPLETE)
+				warning("Morphism is already complete", mapping, GtsMorpherPackage.Literals.GTS_MAPPING__AUTO_COMPLETE)
 			}
 		}
-		
-	 	result
+
+		result
 	}
 
 	/**
@@ -448,8 +465,9 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 			if ((!familySpec.transformers.imports.contains(EcorePackage.eINSTANCE)) ||
 				(!familySpec.transformers.imports.contains(HenshinPackage.eINSTANCE)) ||
 				(familySpec.transformers.imports.size > 2)) {
-				error ("Transformer rules must be typed over Henshin rules and Ecore metamodels only.", 
-					familySpec, GtsMorpherPackage.Literals.GTS_FAMILY_SPECIFICATION__TRANSFORMERS, INVALID_TRANSFORMER_SPECIFICATION)
+				error("Transformer rules must be typed over Henshin rules and Ecore metamodels only.", familySpec,
+					GtsMorpherPackage.Literals.GTS_FAMILY_SPECIFICATION__TRANSFORMERS,
+					INVALID_TRANSFORMER_SPECIFICATION)
 			}
 		}
 	}
@@ -459,44 +477,82 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	 */
 	@Check
 	def checkValidUnitCallParameters(UnitCall call) {
-		val unitParams = call.unit.parameters.filter[p | p.kind != ParameterKind.VAR]
+		val unitParams = call.unit.parameters.filter[p|p.kind != ParameterKind.VAR]
 		if (unitParams.size != call.params.parameters.size) {
 			error('''Wrong number of parameters in transformer call. Was given «call.params.parameters.size» parameters, but expected «unitParams.size».''',
 				call, GtsMorpherPackage.Literals.UNIT_CALL__PARAMS, WRONG_PARAMETER_NUMBER_IN_UNIT_CALL)
 		} else {
-			call.params.parameters.forEach[p1, idx|
+			call.params.parameters.forEach [ p1, idx |
 				val p2 = unitParams.get(idx)
 				if (p1 instanceof EObjectReferenceParameter) {
 					if ((!(p2.type instanceof EClass)) ||
 						((!EcorePackage.Literals.ESTRUCTURAL_FEATURE.isSuperTypeOf(p2.type as EClass)) &&
-						 (!EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(p2.type as EClass)) &&
-						 (!HenshinPackage.Literals.MODEL_ELEMENT.isSuperTypeOf(p2.type as EClass)))) {
-							error("Transformer requires to be called with a non-Ecore parameter in this positon.",
-								p1, GtsMorpherPackage.Literals.EOBJECT_REFERENCE_PARAMETER__QUALIFIED_NAME, INVALID_UNIT_CALL_PARAMETER_TYPE)
-						}
+							(!EcorePackage.Literals.ECLASSIFIER.isSuperTypeOf(p2.type as EClass)) &&
+							(!HenshinPackage.Literals.MODEL_ELEMENT.isSuperTypeOf(p2.type as EClass)))) {
+						error("Transformer requires to be called with a non-Ecore parameter in this positon.", p1,
+							GtsMorpherPackage.Literals.EOBJECT_REFERENCE_PARAMETER__QUALIFIED_NAME,
+							INVALID_UNIT_CALL_PARAMETER_TYPE)
+					}
 				} else if (p1 instanceof StringParameter) {
 					if (p2.type != EcorePackage.Literals.ESTRING) {
-						error ("Transformer requires to be called with a class or reference identifier in this position.", 
-							p1, GtsMorpherPackage.Literals.STRING_PARAMETER__VALUE, INVALID_UNIT_CALL_PARAMETER_TYPE
+						error(
+							"Transformer requires to be called with a class or reference identifier in this position.",
+							p1,
+							GtsMorpherPackage.Literals.STRING_PARAMETER__VALUE,
+							INVALID_UNIT_CALL_PARAMETER_TYPE
 						)
 					}
 				} else if (p1 instanceof NumericParameter) {
 					if (p2.type != EcorePackage.Literals.EINT) {
-						error ("Transformer requires to be called with a class or reference identifier in this position.", 
-							p1, GtsMorpherPackage.Literals.NUMERIC_PARAMETER__VALUE, INVALID_UNIT_CALL_PARAMETER_TYPE
+						error(
+							"Transformer requires to be called with a class or reference identifier in this position.",
+							p1,
+							GtsMorpherPackage.Literals.NUMERIC_PARAMETER__VALUE,
+							INVALID_UNIT_CALL_PARAMETER_TYPE
 						)
-					}					
+					}
 				}
 			]
 		}
 	}
-	
+
 	/**
 	 * Report any issues from processing GTS family transformations.
 	 */
 	@Check
 	def checkGTSFamilyChoiceIssues(GTSFamilyChoice gts) {
-		gts.issues.forEach[i | error(i.message, (i as UnitCallIssue).unitCall, GtsMorpherPackage.Literals.UNIT_CALL__UNIT, GTS_FAMILY_ISSUE)]
+		gts.issues.forEach [ i |
+			error(i.message, (i as UnitCallIssue).unitCall, GtsMorpherPackage.Literals.UNIT_CALL__UNIT,
+				GTS_FAMILY_ISSUE)
+		]
+	}
+
+	@Check
+	def checkInclusionValidity(GTSMapping mapping) {
+		if (mapping.autoComplete && mapping.uniqueCompletion && mapping.inclusion) {
+			if (mapping.toIdentityOnly) {
+				error("An inclusion mapping completion cannot be to-identity-only", mapping,
+					GtsMorpherPackage.Literals.GTS_MAPPING__TO_IDENTITY_ONLY, INCLUSION_CANNOT_BE_TO_IDENTITY_ONLY)
+			}
+			
+			if (mapping.withoutToVirtual) {
+				error("An inclusion mapping completion cannot be without-to-virtual", mapping,
+					GtsMorpherPackage.Literals.GTS_MAPPING__WITHOUT_TO_VIRTUAL, INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL)
+			}
+
+			if (mapping.allowFromEmtpy) {
+				error("An inclusion mapping completion cannot be allow-from-empty", mapping,
+					GtsMorpherPackage.Literals.GTS_MAPPING__ALLOW_FROM_EMTPY, INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY)
+			}
+			
+			if (mapping.source?.metamodel !== mapping.target?.metamodel) {
+				error("An inclusion mapping completion must have the same source and target metamodel up to interface-of filtering", mapping,
+					GtsMorpherPackage.Literals.GTS_MAPPING__INCLUSION, INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
+			} else if (mapping.source?.behaviour !== mapping.target?.behaviour) {
+				error("An inclusion mapping completion must have the same source and target rules up to interface-of filtering", mapping,
+					GtsMorpherPackage.Literals.GTS_MAPPING__INCLUSION, INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
+			}
+		}
 	}
 
 	/**
@@ -504,15 +560,15 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	 */
 	@Check
 	def checkWeaveHasCommonSource(GTSWeave weave) {
-		val map1Source = weave.mapping1.source 
+		val map1Source = weave.mapping1.source
 		val map2Source = weave.mapping2.source
-		if ((map1Source.metamodel !== map2Source.metamodel) ||
-			(map1Source.behaviour !== map2Source.behaviour) ||
+		if ((map1Source.metamodel !== map2Source.metamodel) || (map1Source.behaviour !== map2Source.behaviour) ||
 			(map1Source.interface_mapping !== map2Source.interface_mapping)) {
-			error("Weaving requires both mappings to have the same source GTS.", weave.eContainer, GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS, WEAVE_WITH_DIFFERENT_SOURCES)
+			error("Weaving requires both mappings to have the same source GTS.", weave.eContainer,
+				GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS, WEAVE_WITH_DIFFERENT_SOURCES)
 		}
 	}
-	
+
 	/**
 	 * Check weavings to ensure there is at least one interface_of mapping.
 	 * 
@@ -522,7 +578,8 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	@Check
 	def checkWeaveHasInterfaceOf(GTSWeave weave) {
 		if (!(weave.mapping1 instanceof GTSMappingInterfaceSpec || weave.mapping2 instanceof GTSMappingInterfaceSpec)) {
-			error("Weaving requires at least one mapping to be an interface_of mapping.", weave.eContainer, GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS, WEAVE_NEEDS_INTERFACE_OF_MAPPING)
+			error("Weaving requires at least one mapping to be an interface_of mapping.", weave.eContainer,
+				GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS, WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 		}
 	}
 
@@ -534,13 +591,15 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 		weave.mapping1.checkIsValidMapping
 		weave.mapping2.checkIsValidMapping
 	}
-	
+
 	/**
 	 * Report any issues from processing GTS weave transformations.
 	 */
 	@Check
 	def checkGTSWeaveIssues(GTSWeave gts) {
-		gts.issues.forEach[i | error(i.message, gts.eContainer, GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS, GTS_WEAVE_ISSUE)]
+		gts.issues.forEach [ i |
+			error(i.message, gts.eContainer, GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS, GTS_WEAVE_ISSUE)
+		]
 	}
 
 	private dispatch def checkIsValidMapping(Void spec) {}
@@ -548,24 +607,24 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	private dispatch def checkIsValidMapping(GTSMappingRefOrInterfaceSpec spec) {
 		throw new IllegalStateException("checkIsValidMapping() not implemented for " + spec?.eClass?.name)
 	}
-	
+
 	private dispatch def checkIsValidMapping(GTSMappingInterfaceSpec spec) {
 		// Nothing to be done: these are fine by definition
 	}
-	
+
 	private dispatch def checkIsValidMapping(GTSMappingRef ref) {
 		val mapping = ref.ref
-		
+
 		if (!(
 			(mapping.autoComplete && mapping.checkCompletability(true, false)) ||
-			(!mapping.autoComplete && 
-				!mapping.typeMapping.isInCompleteMapping && 
-				mapping.doCheckIsCompleteBehaviourMapping(null) && 
-				mapping.checkIsMorphismMaybeIncomplete(false)))) {
+			(!mapping.autoComplete && !mapping.typeMapping.isInCompleteMapping &&
+				mapping.doCheckIsCompleteBehaviourMapping(null) && mapping.checkIsMorphismMaybeIncomplete(false)))) {
 			val weave = ref.eContainer as GTSWeave
-			error("Can only weave from complete and valid morphisms", weave,
-				 if (ref === weave.mapping1) { GtsMorpherPackage.Literals.GTS_WEAVE__MAPPING1 } else { GtsMorpherPackage.Literals.GTS_WEAVE__MAPPING2 },
-				 WEAVE_WITH_INVALID_MORPHISM)
+			error("Can only weave from complete and valid morphisms", weave, if (ref === weave.mapping1) {
+				GtsMorpherPackage.Literals.GTS_WEAVE__MAPPING1
+			} else {
+				GtsMorpherPackage.Literals.GTS_WEAVE__MAPPING2
+			}, WEAVE_WITH_INVALID_MORPHISM)
 		}
 	}
 
@@ -578,76 +637,75 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 					acc.put(e.key, new HashSet<EObject>)
 				}
 				acc.get(e.key).add(e.value)
-				
+
 				acc
 			])
 		]).entrySet.filter[e|e.value.size > 1].sortWith[e1, e2|-(e1.value.size <=> e2.value.size)]
 	}
 
-		private def mapMessage(
-			Entry<EObject, Set<EObject>> mappingChoices) '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''
+	private def mapMessage(
+		Entry<EObject, Set<EObject>> mappingChoices) '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''
 
-		private def issueData(EObject source,
-			EObject target) '''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
+	private def issueData(EObject source,
+		EObject target) '''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
 
-		static val TYPE_MAPPINGS = GTSMorpherValidator.canonicalName + ".typeMappings"
-		static val RULE_MAPPINGS = GTSMorpherValidator.canonicalName + ".ruleMappings"
+	static val TYPE_MAPPINGS = GTSMorpherValidator.canonicalName + ".typeMappings"
+	static val RULE_MAPPINGS = GTSMorpherValidator.canonicalName + ".ruleMappings"
 
-		/**
-		 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 
-		 * otherwise. Expects to be called in a validation context.
-		 */
-		private def extractMapping(TypeGraphMapping mapping) {
-			if (context.containsKey(TYPE_MAPPINGS)) {
-				return context.get(TYPE_MAPPINGS) as Map<EObject, EObject>
+	/**
+	 * Extract the type mapping information as a Map. Also ensure no element is mapped more than once; report errors 
+	 * otherwise. Expects to be called in a validation context.
+	 */
+	private def extractMapping(TypeGraphMapping mapping) {
+		if (context.containsKey(TYPE_MAPPINGS)) {
+			return context.get(TYPE_MAPPINGS) as Map<EObject, EObject>
+		}
+
+		val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
+			override error(String message, EObject source, EStructuralFeature feature, String code,
+				String... issueData) {
+				GTSMorpherValidator.this.error(message, source, feature, code, issueData)
 			}
+		})
 
-			val Map<EObject, EObject> _mapping = extractMapping(mapping, new IssueAcceptor() {
-				override error(String message, EObject source, EStructuralFeature feature, String code,
-					String... issueData) {
-					GTSMorpherValidator.this.error(message, source, feature, code, issueData)
-				}
-			})
+		context.put(TYPE_MAPPINGS, _mapping)
 
-			context.put(TYPE_MAPPINGS, _mapping)
-
-			_mapping
-		}
-
-		/**
-		 * Extract the behaviour mapping information as a Map. Also ensure no element is mapped more than once; report errors 
-		 * otherwise. Expects to be called in a validation context.
-		 */
-		private def extractMapping(BehaviourMapping mapping) {
-			if (context.containsKey(RULE_MAPPINGS)) {
-				return context.get(RULE_MAPPINGS) as Map<EObject, EObject>
-			}
-
-			val tgMapping = extractMapping((mapping.eContainer as GTSMapping).typeMapping, null)
-			val Map<EObject, EObject> _mapping = extractMapping(mapping, tgMapping, new IssueAcceptor() {
-				override error(String message, EObject source, EStructuralFeature feature, String code,
-					String... issueData) {
-					GTSMorpherValidator.this.error(message, source, feature, code, issueData)
-				}
-			})
-
-			context.put(RULE_MAPPINGS, _mapping)
-
-			_mapping
-		}
-
-		/**
-		 * Return true if the given mapping is incomplete
-		 */
-		private def isInCompleteMapping(TypeGraphMapping mapping) {
-			val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
-			val _mapping = mapping.extractMapping;
-			(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter [ me |
-				(me instanceof EClassifier || me instanceof EReference) &&
-				(!srcIsInterface || isInterfaceElement(me as EModelElement))
-			].exists [ me |
-				!_mapping.containsKey(me)
-			]
-		}
+		_mapping
 	}
-	
+
+	/**
+	 * Extract the behaviour mapping information as a Map. Also ensure no element is mapped more than once; report errors 
+	 * otherwise. Expects to be called in a validation context.
+	 */
+	private def extractMapping(BehaviourMapping mapping) {
+		if (context.containsKey(RULE_MAPPINGS)) {
+			return context.get(RULE_MAPPINGS) as Map<EObject, EObject>
+		}
+
+		val tgMapping = extractMapping((mapping.eContainer as GTSMapping).typeMapping, null)
+		val Map<EObject, EObject> _mapping = extractMapping(mapping, tgMapping, new IssueAcceptor() {
+			override error(String message, EObject source, EStructuralFeature feature, String code,
+				String... issueData) {
+				GTSMorpherValidator.this.error(message, source, feature, code, issueData)
+			}
+		})
+
+		context.put(RULE_MAPPINGS, _mapping)
+
+		_mapping
+	}
+
+	/**
+	 * Return true if the given mapping is incomplete
+	 */
+	private def isInCompleteMapping(TypeGraphMapping mapping) {
+		val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
+		val _mapping = mapping.extractMapping;
+		(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter [ me |
+			(me instanceof EClassifier || me instanceof EReference) &&
+				(!srcIsInterface || isInterfaceElement(me as EModelElement))
+		].exists [ me |
+			!_mapping.containsKey(me)
+		]
+	}
+}

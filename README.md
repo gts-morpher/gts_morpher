@@ -121,7 +121,22 @@ The editor will add a warning marker to the `unique` keyword to show that this c
 
 To see the results of auto-completion, right-click on your `.gts` file and select "Generate auto-completions". The auto-completions will be saved in files in the `src-gen/` folder of your project.
 
-### 2.3 Mapping with virtual rules
+### 2.3 Inclusion mapping completion
+
+A unique auto-completion can be requested to produce an inclusion mapping by adding the keyword `inclusion`:
+
+```
+auto-complete unique inclusion map { 
+  ... 
+}
+```
+
+This will require that the `to` and `from` GTS have the same metamodel and rules (module filtering by `interface_of`). `inclusion` cannot be used with the various virtual-rule commands (see below). 
+
+An inclusion-autocompletion will create an inclusion morphism by mapping elements by EMF identity.
+
+
+### 2.4 Mapping with virtual rules
 
 When a rule in the source GTS cannot be mapped to any rule in the target GTS, it can be mapped to a virtual rule. To indicate that a rule should be mapped to a virtual rule, write a rule mapping of the following form:
 

@@ -1,12 +1,16 @@
 @namespace(uri="http://kcl.ac.uk/xdsml/B", prefix="b")
 package B;
 
+@Interface
 class B1 {
+    @Interface
 	val B2[*]#a _2s;
 	val B3[*]#a _3s;
 }
 
+@Interface
 class B2 {
+    @Interface
 	readonly ref B1#_2s a;
 }
 
