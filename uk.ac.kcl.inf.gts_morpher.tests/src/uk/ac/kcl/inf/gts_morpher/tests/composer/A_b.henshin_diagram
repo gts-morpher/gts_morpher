@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmi:id="_1Bw9YPMpEemhIaDxFD7dtA" type="Henshin" measurementUnit="Pixel">
+  <children xmi:type="notation:Shape" xmi:id="_1DnXgPMpEemhIaDxFD7dtA" type="2001" fontName="Segoe UI" italic="true" lineColor="0">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_19Y4IPMpEemhIaDxFD7dtA" source="defaultAction">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_19Y4IfMpEemhIaDxFD7dtA" key="value" value="create"/>
+    </eAnnotations>
+    <children xmi:type="notation:DecorationNode" xmi:id="_1DnXgvMpEemhIaDxFD7dtA" type="5001"/>
+    <children xmi:type="notation:DecorationNode" xmi:id="_1DnXg_MpEemhIaDxFD7dtA" type="7001"/>
+    <element xmi:type="henshin:Rule" href="A_b.henshin#_B0GmEAgyEein1eZjhen2QA"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_1DnXgfMpEemhIaDxFD7dtA"/>
+  </children>
+  <styles xmi:type="notation:DiagramStyle" xmi:id="_1Bw9YfMpEemhIaDxFD7dtA"/>
+  <element xmi:type="henshin:Module" href="A_b.henshin#_trLI8AgxEein1eZjhen2QA"/>
+</notation:Diagram>

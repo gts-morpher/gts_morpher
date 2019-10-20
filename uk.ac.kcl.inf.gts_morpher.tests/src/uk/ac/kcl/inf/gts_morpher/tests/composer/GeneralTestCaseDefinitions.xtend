@@ -39,6 +39,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"A0.ecore",
 			"B.ecore",
 			"A.henshin",
+			"A_b.henshin",
 			"A0.henshin",
 			"B.henshin",
 			"C.ecore",
@@ -341,7 +342,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			
 			gts A {
 				metamodel: "A"
-				behaviour: "ARules"
+				behaviour: "A_bRules"
 			}
 			
 			gts B {
@@ -368,7 +369,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			}
 			
 			export gts woven {
-				weave{
+				weave : {
 					map1: AIntToA
 					map2: AIntToB
 				}
