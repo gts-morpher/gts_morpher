@@ -224,9 +224,9 @@ gts name {
 }
 ```
 
-Here, `A` is a reference to an existing named GTS. `AB` is a reference to a named mapping (name mappings by adding the name just after the `map` keyword). So far, GTS amalgamation is only supported where one of the maps is an `interface_of` mapping and the other one is a named mapping. No further checks of the morphisms are undertaken and no guarantees are given wrt semantics preservation of the amalgamation step.
+Here, `A` is a reference to an existing named GTS. `AB` is a reference to a named mapping (name mappings by adding the name just after the `map` keyword). No further checks of the morphisms are undertaken and no guarantees are given wrt semantics preservation of the amalgamation step. Both `map1` and `map2` can be defined either by referencing an existing named mapping or by using the `interface_of` keyword.
 
-The `weave` clause can be extended with parameters specifying the rules to use when generating names for the amalgamated model elements. By default, weaving will preserve the names of all model elements that contributed to a given woven element. If these names are all identical, the new model element will have the same name. Otherwise, all names will be joined together using `_` as the separator. Names of model elements that are not mapped from the kernel GTS will be prefixed with `source__` or `target__`, respectively, to indicate their provenance.
+The `weave` clause can be extended with parameters specifying the rules to use when generating names for the amalgamated model elements. By default, weaving will preserve the names of all model elements that contributed to a given woven element. If these names are all identical, the new model element will have the same name. Otherwise, all names will be joined together using `_` as the separator. Names of model elements that are not mapped from the kernel GTS will be prefixed with `left__` (for `map1`) or `right__` (for `map2`), respectively, to indicate their provenance.
 
 The following parameters can be used to change this behaviour. These parameters are given as a comma-separated list in parentheses after the `weave` keyword and before the `:`.
 

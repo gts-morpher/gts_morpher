@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_KKPLoLeEEemz8oNpH_2dFQ" name="source__MRules">
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_KKPLoLeEEemz8oNpH_2dFQ" name="MRules">
   <imports href="MN.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_OQdaILeEEemz8oNpH_2dFQ" name="process">
     <lhs xmi:id="_OQhEgLeEEemz8oNpH_2dFQ" name="Lhs">
       <nodes xmi:id="_PPnKALeEEemz8oNpH_2dFQ" name="m1" outgoing="_UetsILeEEemz8oNpH_2dFQ">
         <type href="MN.ecore#//M1_N1"/>
         <attributes xmi:id="_VHI-ELeEEemz8oNpH_2dFQ" value="true">
-          <type href="MN.ecore#//source__M0/source__flag"/>
+          <type href="MN.ecore#//left__M0/left__flag"/>
         </attributes>
       </nodes>
       <nodes xmi:id="_RDFSwLeEEemz8oNpH_2dFQ" name="m2" incoming="_UetsILeEEemz8oNpH_2dFQ">
         <type href="MN.ecore#//M2_N2"/>
         <attributes xmi:id="_VW5RULeEEemz8oNpH_2dFQ" value="false">
-          <type href="MN.ecore#//source__M0/source__flag"/>
+          <type href="MN.ecore#//left__M0/left__flag"/>
         </attributes>
       </nodes>
       <edges xmi:id="_UetsILeEEemz8oNpH_2dFQ" source="_PPnKALeEEemz8oNpH_2dFQ" target="_RDFSwLeEEemz8oNpH_2dFQ">
@@ -23,13 +23,13 @@
       <nodes xmi:id="_PPnxELeEEemz8oNpH_2dFQ" name="m1" outgoing="_UetsIbeEEemz8oNpH_2dFQ">
         <type href="MN.ecore#//M1_N1"/>
         <attributes xmi:id="_VHI-EbeEEemz8oNpH_2dFQ" value="true">
-          <type href="MN.ecore#//source__M0/source__flag"/>
+          <type href="MN.ecore#//left__M0/left__flag"/>
         </attributes>
       </nodes>
       <nodes xmi:id="_RDFSwbeEEemz8oNpH_2dFQ" name="m2" incoming="_UetsIbeEEemz8oNpH_2dFQ">
         <type href="MN.ecore#//M2_N2"/>
         <attributes xmi:id="_VW54YLeEEemz8oNpH_2dFQ" value="true">
-          <type href="MN.ecore#//source__M0/source__flag"/>
+          <type href="MN.ecore#//left__M0/left__flag"/>
         </attributes>
       </nodes>
       <edges xmi:id="_UetsIbeEEemz8oNpH_2dFQ" source="_PPnxELeEEemz8oNpH_2dFQ" target="_RDFSwbeEEemz8oNpH_2dFQ">

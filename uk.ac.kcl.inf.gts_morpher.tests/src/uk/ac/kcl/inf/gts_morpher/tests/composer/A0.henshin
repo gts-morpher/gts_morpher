@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_PHLIQOONEemxaZ5AvWjwTQ" name="A0Rules">
+  <imports href="A0.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_TSmm4OONEemxaZ5AvWjwTQ" name="do">
+    <lhs xmi:id="_TSvw0OONEemxaZ5AvWjwTQ" name="Lhs">
+      <nodes xmi:id="_Ur7KQOONEemxaZ5AvWjwTQ" name="a1">
+        <type href="A0.ecore#//A1"/>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_TSvw0eONEemxaZ5AvWjwTQ" name="Rhs">
+      <nodes xmi:id="_Ur7KQeONEemxaZ5AvWjwTQ" name="a1">
+        <type href="A0.ecore#//A1"/>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_Ur7KQuONEemxaZ5AvWjwTQ" origin="_Ur7KQOONEemxaZ5AvWjwTQ" image="_Ur7KQeONEemxaZ5AvWjwTQ"/>
+  </units>
+</henshin:Module>

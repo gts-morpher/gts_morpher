@@ -10,7 +10,7 @@
         <type href="AB2.ecore#//A2"/>
       </nodes>
       <edges xmi:id="_5KoiUL2WEemPdbvIDysEXQ" source="_2R6owL2WEemPdbvIDysEXQ" target="_3NGeoL2WEemPdbvIDysEXQ">
-        <type href="AB2.ecore#//B1/source__bs"/>
+        <type href="AB2.ecore#//B1/left__bs"/>
       </edges>
     </lhs>
     <rhs xmi:id="_x26dEb2WEemPdbvIDysEXQ" name="Rhs">
@@ -24,7 +24,7 @@
         <type href="AB2.ecore#//B2"/>
       </nodes>
       <edges xmi:id="_5KoiUb2WEemPdbvIDysEXQ" source="_2R7P0L2WEemPdbvIDysEXQ" target="_3NGeob2WEemPdbvIDysEXQ">
-        <type href="AB2.ecore#//B1/source__bs"/>
+        <type href="AB2.ecore#//B1/left__bs"/>
       </edges>
       <edges xmi:id="_5g1b0L2WEemPdbvIDysEXQ" source="_35fDgL2WEemPdbvIDysEXQ" target="_2R7P0L2WEemPdbvIDysEXQ">
         <type href="AB2.ecore#//B2/a"/>

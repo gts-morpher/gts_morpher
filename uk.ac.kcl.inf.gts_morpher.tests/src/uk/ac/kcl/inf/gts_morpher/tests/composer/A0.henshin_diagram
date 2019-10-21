@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmi:id="_PHQn0OONEemxaZ5AvWjwTQ" type="Henshin" name="A0.henshin_diagram" measurementUnit="Pixel">
+  <children xmi:type="notation:Shape" xmi:id="_TSmm4eONEemxaZ5AvWjwTQ" type="2001" fontName="Segoe UI" italic="true" lineColor="0">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_Ur7KQ-ONEemxaZ5AvWjwTQ" source="defaultAction">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_Ur7KROONEemxaZ5AvWjwTQ" key="value" value="preserve"/>
+    </eAnnotations>
+    <children xmi:type="notation:DecorationNode" xmi:id="_TSmm4-ONEemxaZ5AvWjwTQ" type="5001"/>
+    <children xmi:type="notation:DecorationNode" xmi:id="_TSmm5OONEemxaZ5AvWjwTQ" type="7001">
+      <children xmi:type="notation:Shape" xmi:id="_Ur7KReONEemxaZ5AvWjwTQ" type="3001" fontName="Segoe UI">
+        <children xmi:type="notation:DecorationNode" xmi:id="_Ur7KR-ONEemxaZ5AvWjwTQ" type="5002"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_Ur7KSOONEemxaZ5AvWjwTQ" type="5003"/>
+        <children xmi:type="notation:DecorationNode" xmi:id="_Ur7KSeONEemxaZ5AvWjwTQ" type="7002">
+          <styles xmi:type="notation:SortingStyle" xmi:id="_Ur7KSuONEemxaZ5AvWjwTQ"/>
+          <styles xmi:type="notation:FilteringStyle" xmi:id="_Ur7KS-ONEemxaZ5AvWjwTQ"/>
+        </children>
+        <element xmi:type="henshin:Node" href="A0.henshin#_Ur7KQOONEemxaZ5AvWjwTQ"/>
+        <layoutConstraint xmi:type="notation:Bounds" xmi:id="_Ur7KRuONEemxaZ5AvWjwTQ" x="20" y="7"/>
+      </children>
+    </children>
+    <element xmi:type="henshin:Rule" href="A0.henshin#_TSmm4OONEemxaZ5AvWjwTQ"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_TSmm4uONEemxaZ5AvWjwTQ" x="174" y="76" width="141" height="107"/>
+  </children>
+  <styles xmi:type="notation:DiagramStyle" xmi:id="_PHQn0eONEemxaZ5AvWjwTQ"/>
+  <element xmi:type="henshin:Module" href="A0.henshin#_PHLIQOONEemxaZ5AvWjwTQ"/>
+</notation:Diagram>

@@ -1,14 +1,14 @@
-@namespace(uri="https://metamodel.woven/m/n", prefix="m_n")
+@namespace(uri="https://metamodel.woven/m/m/n", prefix="m_n")
 package M_N;
 
-class source__M0 {
-	attr EBoolean source__flag;
+class left__M0 {
+	attr EBoolean left__flag;
 }
 
-class M1_N1 extends source__M0 {
+class M1_N1 extends left__M0 {
 	ref M2_N2[*]#m1_n1 m2s_n2s;
 }
 
-class M2_N2 extends source__M0 {
+class M2_N2 extends left__M0 {
 	ref M1_N1#m2s_n2s m1_n1;
 }

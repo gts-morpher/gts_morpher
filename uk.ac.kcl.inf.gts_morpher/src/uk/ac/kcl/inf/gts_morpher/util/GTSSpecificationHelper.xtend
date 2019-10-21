@@ -78,6 +78,22 @@ class GTSSpecificationHelper {
 		]
 	}
 
+	static dispatch def GTSSpecificationOrReference getTarget(Void spec) { null }
+	static dispatch def GTSSpecificationOrReference getTarget(GTSMappingRefOrInterfaceSpec spec) { null }
+	static dispatch def GTSSpecificationOrReference getTarget(GTSMappingRef ref) { ref.ref.target }
+	static dispatch def GTSSpecificationOrReference getTarget(GTSMappingInterfaceSpec spec) {
+		// TODO: Should probably cache this suitably
+		extension val GtsMorpherFactory factory = GtsMorpherFactory.eINSTANCE
+		
+		val gtsref = createGTSReference => [
+			ref = spec.gts_ref
+		]
+		createGTSSpecification => [
+			interface_mapping = false // interface_of means the source if interface, the target isn't
+			gts = gtsref
+		]
+	}
+
 	static dispatch def GTSSelection getGts(Void spec) { null }
 	static dispatch def GTSSelection getGts(GTSSpecificationOrReference spec) { null }
 	static dispatch def GTSSelection getGts(GTSReference ref) { ref.ref.gts } 

@@ -31,7 +31,6 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
 
 @RunWith(XtextRunner)
 @InjectWith(GTSMorpherInjectorProvider)
@@ -1236,7 +1235,6 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Not set to interface_of", result.gtss.get(1).interface_mapping)
 
 		result.assertNoError(GTSMorpherValidator.WEAVE_WITH_DIFFERENT_SOURCES)
-		result.assertNoError(GTSMorpherValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 	}
 
 	/**
@@ -1291,7 +1289,6 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Not set to interface_of", result.gtss.get(1).interface_mapping)
 
 		result.assertNoError(GTSMorpherValidator.WEAVE_WITH_DIFFERENT_SOURCES)
-		result.assertNoError(GTSMorpherValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 		
 		assertTrue("Didn't record preferMap2TargetNames flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.PREFER_MAP2_TARGET_NAMES))
 		assertTrue("Didn't record dontLabelNonKernelElements flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.DONT_LABEL_NON_KERNEL_ELEMENTS))
@@ -1341,9 +1338,8 @@ class ParsingAndValidationTests extends AbstractTest {
 		''', createInterfaceResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-
+		
 		result.assertError(GtsMorpherPackage.Literals.GTS_SPECIFICATION, GTSMorpherValidator.WEAVE_WITH_DIFFERENT_SOURCES)
-		result.assertNoError(GTSMorpherValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 	}
 
 	/**
@@ -1392,7 +1388,6 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
 		result.assertNoError(GTSMorpherValidator.WEAVE_WITH_DIFFERENT_SOURCES)
-		result.assertError(GtsMorpherPackage.Literals.GTS_SPECIFICATION, GTSMorpherValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 	}
 
 	/**
@@ -1443,7 +1438,6 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 
 		result.assertNoError(GTSMorpherValidator.WEAVE_WITH_DIFFERENT_SOURCES)
-		result.assertNoError(GTSMorpherValidator.WEAVE_NEEDS_INTERFACE_OF_MAPPING)
 		
 		result.assertError(GtsMorpherPackage.Literals.GTS_WEAVE, GTSMorpherValidator.WEAVE_WITH_INVALID_MORPHISM)
 	}

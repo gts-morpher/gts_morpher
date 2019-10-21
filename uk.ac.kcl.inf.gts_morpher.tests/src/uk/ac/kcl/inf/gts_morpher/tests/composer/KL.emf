@@ -1,10 +1,10 @@
-@namespace(uri="https://metamodel.woven/k/l", prefix="k_l")
+@namespace(uri="https://metamodel.woven/k/k/l", prefix="k_l")
 package K_L;
 
 class K1_L1 {
 	attr String k1_l1;
 }
 
-class source__K2 {
-	ref K1_L1 source__observed;
+class left__K2 {
+	ref K1_L1 left__observed;
 }

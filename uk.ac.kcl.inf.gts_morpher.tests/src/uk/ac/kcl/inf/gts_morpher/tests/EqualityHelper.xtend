@@ -98,6 +98,8 @@ class EqualityHelper extends EcoreUtil.EqualityHelper {
 		}
 	}
 
+	protected dispatch def String formatClassAndValue(Void value) { "NULL" }
+	
 	protected dispatch def String formatClassAndValue(Object value) {
 		val className = value === null ? "null" : value.class.name
 		val valueString = value === null ? "null" : String.valueOf(value)

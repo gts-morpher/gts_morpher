@@ -2,14 +2,14 @@
 package B;
 
 class B1 {
-  val A2[*]#a source__bs;
-  val B2[*]#a target__bs;
+  val A2[*]#a left__bs;
+  val B2[*]#a right__bs;
 }
 
 class A2 {
-  readonly ref B1#source__bs a;
+  readonly ref B1#left__bs a;
 }
 
 class B2 {
-  readonly ref B1#target__bs a;
+  readonly ref B1#right__bs a;
 }
