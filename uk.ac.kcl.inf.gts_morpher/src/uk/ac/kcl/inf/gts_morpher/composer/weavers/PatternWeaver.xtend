@@ -15,8 +15,6 @@ import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.NamedElement
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
-import uk.ac.kcl.inf.gts_morpher.composer.helpers.MergeSet
-import java.util.Set
 
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
@@ -26,12 +24,9 @@ import org.eclipse.emf.henshin.model.HenshinPackage
 /**
  * Helper class for weaving a rule pattern. Acts as a map remembering the mappings established. 
  */
-class PatternWeaver extends HashMap<Pair<Origin, EObject>, GraphElement> {
+class PatternWeaver extends AbstractWeaver {
 
 	val Map<Pair<Origin, EObject>, EObject> tgMapping
-	val Set<MergeSet> mergeSets
-	val List<GraphElement> leftUnmappedElements
-	val List<GraphElement> rightUnmappedElements
 
 	var Graph wovenGraph
 
@@ -42,38 +37,36 @@ class PatternWeaver extends HashMap<Pair<Origin, EObject>, GraphElement> {
 	new(Graph kernelPattern, Graph leftPattern, Graph rightPattern, Map<EObject, EObject> leftBehaviourMapping,
 		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel,
 		NamingStrategy naming) {
+		super(
+			new ModelSpan(leftBehaviourMapping.filteredMapping(leftPattern),
+				rightBehaviourMapping.filteredMapping(rightPattern), kernelPattern, leftPattern, rightPattern).
+				calculateMergeSet,
+			leftBehaviourMapping.unmappedElements(leftPattern),
+			rightBehaviourMapping.unmappedElements(rightPattern)
+		)
+
 		this.naming = naming
 		this.tgMapping = tgMapping
 
-		val leftMapping = new HashMap(leftBehaviourMapping.filter [ key, value |
-			(value instanceof GraphElement) &&
-				((value.eContainer === leftPattern) || (value.eContainer.eContainer === leftPattern)) // to include slots
-		])
-		val rightMapping = new HashMap(rightBehaviourMapping.filter [ key, value |
-			(value instanceof GraphElement) &&
-				((value.eContainer === rightPattern) || (value.eContainer.eContainer === rightPattern)) // to include slots 
-		])
-
-		mergeSets = new ModelSpan(leftMapping, rightMapping, kernelPattern, leftPattern, rightPattern).calculateMergeSet
-
-		if (leftPattern !== null) {
-			leftUnmappedElements = leftPattern.eAllContents.filter(GraphElement).reject [ ge |
-				leftBehaviourMapping.containsValue(ge)
-			].toList
-		} else {
-			leftUnmappedElements = emptyList
-		}
-
-		if (rightPattern !== null) {
-			rightUnmappedElements = rightPattern.eAllContents.filter(GraphElement).reject [ ge |
-				rightBehaviourMapping.containsValue(ge)
-			].toList
-		} else {
-			rightUnmappedElements = emptyList
-		}
-
 		wovenGraph = HenshinFactory.eINSTANCE.createGraph
 		wovenGraph.name = patternLabel
+	}
+
+	private static def filteredMapping(Map<EObject, EObject> originalMapping, Graph pattern) {
+		new HashMap(originalMapping.filter [ key, value |
+			(value instanceof GraphElement) &&
+				((value.eContainer === pattern) || (value.eContainer.eContainer === pattern)) // to include slots
+		])
+	}
+
+	private static def List<EObject> unmappedElements(Map<EObject, EObject> originalMapping, Graph pattern) {
+		if (pattern !== null) {
+			pattern.eAllContents.filter(GraphElement).reject [ ge |
+				originalMapping.containsValue(ge)
+			].toList
+		} else {
+			emptyList
+		}
 	}
 
 	def Graph weavePattern() {
@@ -87,60 +80,27 @@ class PatternWeaver extends HashMap<Pair<Origin, EObject>, GraphElement> {
 	}
 
 	private def weaveNodes() {
-		mergeSets.filter[hasType(node)].forEach [ ms |
-			val keyedMergeList = ms.keyedMergeList
-
-			val mergedNode = (ms.kernel.head as org.eclipse.emf.henshin.model.Node).createNode
-
-			keyedMergeList.forEach [ kep |
-				put(kep, mergedNode)
-			]
-		]
-
-		leftUnmappedElements.filter(org.eclipse.emf.henshin.model.Node).forEach [ n |
-			put(n.leftKey, n.createNode(Origin.LEFT))
-		]
-		rightUnmappedElements.filter(org.eclipse.emf.henshin.model.Node).forEach [ n |
-			put(n.rightKey, n.createNode(Origin.RIGHT))
-		]
+		doWeave(org.eclipse.emf.henshin.model.Node, node, [ n, ms |
+			n.createNode
+		], [ n, o |
+			n.createNode(o)
+		])
 	}
 
 	private def weaveEdges() {
-		mergeSets.filter[hasType(edge)].forEach [ ms |
-			val keyedMergeList = ms.keyedMergeList
-
-			val mergedNode = (ms.kernel.head as Edge).createEdge
-
-			keyedMergeList.forEach [ kep |
-				put(kep, mergedNode)
-			]
-		]
-
-		leftUnmappedElements.filter(Edge).forEach [ e |
-			put(e.leftKey, e.createEdge(Origin.LEFT))
-		]
-		rightUnmappedElements.filter(Edge).forEach [ e |
-			put(e.rightKey, e.createEdge(Origin.RIGHT))
-		]
+		doWeave(Edge, edge, [ e, ms |
+			e.createEdge
+		], [ e, o |
+			e.createEdge(o)
+		])
 	}
 
 	private def weaveSlots() {
-		mergeSets.filter[hasType(attribute)].forEach [ ms |
-			val keyedMergeList = ms.keyedMergeList
-
-			val mergedNode = (ms.kernel.head as Attribute).createSlot
-
-			keyedMergeList.forEach [ kep |
-				put(kep, mergedNode)
-			]
-		]
-
-		leftUnmappedElements.filter(Attribute).forEach [ a |
-			put(a.leftKey, a.createSlot(Origin.LEFT))
-		]
-		rightUnmappedElements.filter(Attribute).forEach [ a |
-			put(a.rightKey, a.createSlot(Origin.RIGHT))
-		]
+		doWeave(Attribute, attribute, [ a, ms |
+			a.createSlot
+		], [ a, o |
+			a.createSlot(o)
+		])
 	}
 
 	/**
@@ -207,15 +167,5 @@ class PatternWeaver extends HashMap<Pair<Origin, EObject>, GraphElement> {
 		result.value = aSrc.value
 
 		result
-	}
-
-	override GraphElement get(Object key) {
-		if (key instanceof Pair) {
-			if ((key.key instanceof Origin) && (key.value instanceof GraphElement)) {
-				return super.get(key)
-			}
-		} else {
-			throw new IllegalArgumentException("Requiring a pair in call to get!")
-		}
 	}
 }

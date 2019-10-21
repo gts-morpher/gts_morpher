@@ -1,9 +1,7 @@
 package uk.ac.kcl.inf.gts_morpher.composer.weavers
 
 import java.util.HashMap
-import java.util.List
 import java.util.Map
-import java.util.Set
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.ENamedElement
@@ -13,7 +11,6 @@ import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcoreFactory
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.InternalEObject
-import uk.ac.kcl.inf.gts_morpher.composer.helpers.MergeSet
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.ModelSpan
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
@@ -25,43 +22,46 @@ import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessCon
  * Helper class composing two TGs based on a morphism specification. Similar to EcoreUtil.Copier, the instance of this class used 
  * will act as a Map from source EObjects to the corresponding woven EObjects. 
  */
-class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
+class TGWeaver extends AbstractWeaver {
 
 	val EcorePackage ecore = EcorePackage.eINSTANCE
-	val extension EcoreFactory ecoreFactory = EcoreFactory.eINSTANCE
+
+	val NamingStrategy naming
+	val EPackage kernelMetamodel
+
+	new(Map<EObject, EObject> leftTGMapping, Map<EObject, EObject> rightTGMapping, EPackage kernelMetamodel,
+		EPackage leftMetamodel, EPackage rightMetamodel, NamingStrategy naming) {
+		super(new ModelSpan(leftTGMapping, rightTGMapping, kernelMetamodel, leftMetamodel, rightMetamodel).
+			calculateMergeSet, leftMetamodel.eAllContents.reject[eo|leftTGMapping.containsValue(eo)].toList,
+			rightMetamodel.eAllContents.reject[eo|rightTGMapping.containsValue(eo)].toList)
+		this.naming = naming
+		this.kernelMetamodel = kernelMetamodel
+	}
 
 	/**
 	 * Compose the two TGs, returning a mapping from old EObjects (EClass/EReference) to newly created corresponding element (if any). 
 	 */
-	def EPackage weaveTG(Map<EObject, EObject> leftTGMapping, Map<EObject, EObject> rightTGMapping,
-		EPackage kernelMetamodel, EPackage leftMetamodel, EPackage rightMetamodel, NamingStrategy naming) {
-		val mergeSet = new ModelSpan(leftTGMapping, rightTGMapping, kernelMetamodel, leftMetamodel, rightMetamodel).
-			calculateMergeSet
+	def EPackage weaveTG() {
+		naming.weavePackages
 
-		val unmappedLeftElements = leftMetamodel.eAllContents.reject[eo|leftTGMapping.containsValue(eo)].toList
-		val unmappedRightElements = rightMetamodel.eAllContents.reject[eo|rightTGMapping.containsValue(eo)].toList
-
-		mergeSet.weavePackages(unmappedLeftElements, unmappedRightElements, naming)
-
-		mergeSet.weaveClasses(unmappedLeftElements, unmappedRightElements)
+		weaveClasses
 		weaveInheritance
-		mergeSet.weaveReferences(unmappedLeftElements, unmappedRightElements)
-		mergeSet.weaveAttributes(unmappedLeftElements, unmappedRightElements)
+		weaveReferences
+		weaveAttributes
 
 		naming.weaveAllNames
 
 		return get(kernelMetamodel.kernelKey) as EPackage
 	}
 
-	private def weavePackages(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements,
-		List<EObject> unmappedRightElements, extension NamingStrategy naming) {
-		mergeSets.filter[hasType(ecore.EPackage)].forEach [ ms |
-			val keyedMergeList = ms.keyedMergeList
+	private def weavePackages(extension NamingStrategy naming) {
+
+		doWeave(EPackage, ecore.EPackage, [ ep, keyedMergeList |
 			// A bit annoying, but the only efficient way of getting around Java typing issues, short of spending ages on getting the generics right for ModelSpans.
-			val keyedMergeEPackageList = keyedMergeList.map[kep | 
+			val keyedMergeEPackageList = keyedMergeList.map [ kep |
 				new Pair(kep.key, kep.value as EPackage)
 			].toList
-			val mergedPackage = createEPackage => [
+			val mergedPackage = EcoreFactory.eINSTANCE.createEPackage => [
 				nsPrefix = keyedMergeEPackageList.weaveNameSpaces
 				nsURI = keyedMergeEPackageList.weaveURIs
 			]
@@ -69,51 +69,23 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 			// TODO: This may not actually be needed, as we are weaving names separately anyway
 			mergedPackage.name = weaveNames(#{(mergedPackage -> keyedMergeList)}, mergedPackage, emptyContext)
 
-			keyedMergeList.forEach [ kep |
-				put(kep, mergedPackage)
+			mergedPackage
+		], [ ep, o |
+			EcoreFactory.eINSTANCE.createEPackage => [
+				// FIXME: This should really call on the relevant weave methods
+				nsPrefix = ep.nsPrefix
+				nsURI = ep.nsURI
+				name = ep.name
 			]
-		]
-
-		unmappedLeftElements.filter[eClass === ecore.EPackage].forEach [ eo |
-			val ep = eo as EPackage
-			put(ep.leftKey, createEPackage => [
-				// FIXME: This should really call on the relevant weave methods
-				nsPrefix = ep.nsPrefix
-				nsURI = ep.nsURI
-				name = ep.name
-			])
-		]
-		unmappedRightElements.filter[eClass === ecore.EPackage].forEach [ eo |
-			val ep = eo as EPackage
-			put(ep.rightKey, createEPackage => [
-				// FIXME: This should really call on the relevant weave methods
-				nsPrefix = ep.nsPrefix
-				nsURI = ep.nsURI
-				name = ep.name
-			])
-		]
+		])
 	}
 
-	private def weaveClasses(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
-		// Weave mapped classes
-		mergeSets.filter[hasType(ecore.EClass)].forEach[ms | 
-			val keyedMergeList = ms.keyedMergeList
-			val containingMergedPackage = get((ms.kernel.head as EClass).EPackage.kernelKey) as EPackage
-			
-			val mergedClass = containingMergedPackage.createEClass
-			
-			keyedMergeList.forEach [ kep |
-				put(kep, mergedClass)
-			]			
-		] 
-
-		// Create copies for all unmapped classes
-		unmappedLeftElements.filter(EClass).forEach [ ec |
-			put(ec.leftKey, (get(ec.EPackage.leftKey) as EPackage).createEClass)
-		]
-		unmappedRightElements.filter(EClass).forEach [ ec |
-			put(ec.rightKey, (get(ec.EPackage.rightKey) as EPackage).createEClass)
-		]
+	private def weaveClasses() {
+		doWeave(EClass, ecore.EClass, [ ec, keyedMergeList |
+			(get(ec.EPackage.kernelKey) as EPackage).createEClass
+		], [ ec, o |
+			(get(ec.EPackage.origKey(o)) as EPackage).createEClass
+		])
 	}
 
 	private def weaveInheritance() {
@@ -127,50 +99,24 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 		]
 	}
 
-	private def weaveReferences(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
-		// Weave mapped references
+	private def weaveReferences() {
 		// Because the mapping is a morphism, this must work :-)
-		mergeSets.filter[hasType(ecore.EReference)].forEach[ms |
-			val keyedMergeList = ms.keyedMergeList
-			
+		doWeave(EReference, ecore.EReference, [ er, keyedMergeList |
 			// FIXME: currently we're basing the reference properties apart from the name only on the first left EReference. Should probably define some proper weaving rules here 
-			val mergedRef = (ms.left.head as EReference).createEReference
-			
-			keyedMergeList.forEach [ kep |
-				put(kep, mergedRef)
-			]			
-		] 
-	
-		// Create copied for unmapped references
-		unmappedLeftElements.filter(EReference).forEach [ er |
-			put(er.leftKey, (er.createEReference(Origin.LEFT)))
-		]
-		unmappedRightElements.filter(EReference).forEach [ er |
-			put(er.rightKey, (er.createEReference(Origin.RIGHT)))
-		]
+			er.createEReference
+		], [ er, o |
+			er.createEReference(o)
+		])
 	}
 
-	private def weaveAttributes(Set<MergeSet> mergeSets, List<EObject> unmappedLeftElements, List<EObject> unmappedRightElements) {
-		// Weave mapped attributes
-		// Because the mapping is a morphism, this must work :-) 
-		mergeSets.filter[hasType(ecore.EAttribute)].forEach[ms |
-			val keyedMergeList = ms.keyedMergeList
-			
-			// FIXME: currently we're basing the attribute properties apart from the name only on the first left EAttribute. Should probably define some proper weaving rules here 
-			val mergedAttr = (ms.left.head as EAttribute).createEAttribute
-			
-			keyedMergeList.forEach [ kep |
-				put(kep, mergedAttr)
-			]		
-		]
-		
-		// Create copies for unmapped attributes
-		unmappedLeftElements.filter(EAttribute).forEach [ ea |
-			put(ea.leftKey, (ea.createEAttribute(Origin.LEFT)))
-		]
-		unmappedRightElements.filter(EAttribute).forEach [ ea |
-			put(ea.rightKey, (ea.createEAttribute(Origin.RIGHT)))
-		]
+	private def weaveAttributes() {
+		// Because the mapping is a morphism, this must work :-)
+		doWeave(EAttribute, ecore.EAttribute, [ ea, keyedMergeList |
+			// FIXME: currently we're basing the reference properties apart from the name only on the first left EReference. Should probably define some proper weaving rules here 
+			ea.createEAttribute
+		], [ ea, o |
+			ea.createEAttribute(o)
+		])
 	}
 
 	/**
@@ -255,36 +201,30 @@ class TGWeaver extends HashMap<Pair<Origin, EObject>, EObject> {
 	/**
 	 * Separate map for keeping mappings established for proxies. Needs to be kept separately to avoid concurrent modifications when get transparently creates copies of proxies on demand.
 	 */
-	var proxyMapper = new HashMap<Pair<EObject, Origin>, InternalEObject>
+	var proxyMapper = new HashMap<Pair<Origin, EObject>, InternalEObject>
 
 	override EObject get(Object key) {
-		if (key instanceof Pair) {
-			if ((key.key instanceof Origin) && (key.value instanceof EObject)) {
-				val result = super.get(key)
+		val result = super.get(key)
+		val kkey = key as Pair<Origin, EObject> // guaranteed by super.get
+		if ((result === null) && (!((kkey.value === null) || (kkey.value instanceof EReference)))) {
+			val object = kkey.value as EObject
 
-				if ((result === null) && (!(key.value instanceof EReference))) {
-					val object = key.value as EObject
+			if (object.eIsProxy()) {
+				// Proxies wouldn't have been found when navigating the containment hierarchy, so we add them lazily as we come across them
+				var proxyCopy = proxyMapper.get(key)
 
-					if (object.eIsProxy()) {
-						// Proxies wouldn't have been found when navigating the containment hierarchy, so we add them lazily as we come across them
-						var proxyCopy = proxyMapper.get(key)
-
-						if (proxyCopy === null) {
-							proxyCopy = (EcoreFactory.eINSTANCE.create(object.eClass) as InternalEObject)
-							proxyCopy.eSetProxyURI((object as InternalEObject).eProxyURI)
-							proxyMapper.put(key, proxyCopy)
-						}
-
-						return proxyCopy
-					}
-
-					System.err.println('''Couldn't find «object» in «key.key».''')
+				if (proxyCopy === null) {
+					proxyCopy = (EcoreFactory.eINSTANCE.create(object.eClass) as InternalEObject)
+					proxyCopy.eSetProxyURI((object as InternalEObject).eProxyURI)
+					proxyMapper.put(kkey, proxyCopy)
 				}
 
-				return result
+				return proxyCopy
 			}
-		} else {
-			throw new IllegalArgumentException("Requiring a pair in call to get!")
+
+			System.err.println('''Couldn't find «object» in «kkey.key».''')
 		}
+
+		return result
 	}
 }

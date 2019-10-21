@@ -124,10 +124,10 @@ class GTSComposer {
 
 						// Weave
 						_monitor.split("Composing type graph.", 1)
-						val tgWeaver = new TGWeaver
-						composedTG = tgWeaver.weaveTG(leftMapping.tgMapping, rightMapping.tgMapping,
+						val tgWeaver = new TGWeaver(leftMapping.tgMapping, rightMapping.tgMapping,
 							weaving.mapping1.source.metamodel, weaving.mapping1.target.metamodel,
 							weaving.mapping2.target.metamodel, namingStrategy)
+						composedTG = tgWeaver.weaveTG
 
 						_monitor.split("Composing rules.", 1)
 						composedModule = composeBehaviour(leftMapping.behaviourMapping, rightMapping.behaviourMapping,
