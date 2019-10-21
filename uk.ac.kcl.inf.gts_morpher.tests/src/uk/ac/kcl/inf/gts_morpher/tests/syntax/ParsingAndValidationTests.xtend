@@ -1338,7 +1338,7 @@ class ParsingAndValidationTests extends AbstractTest {
 		''', createInterfaceResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
-
+		
 		result.assertError(GtsMorpherPackage.Literals.GTS_SPECIFICATION, GTSMorpherValidator.WEAVE_WITH_DIFFERENT_SOURCES)
 	}
 

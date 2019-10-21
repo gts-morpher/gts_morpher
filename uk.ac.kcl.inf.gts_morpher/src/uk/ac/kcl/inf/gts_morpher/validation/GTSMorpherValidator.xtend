@@ -3,58 +3,49 @@
  */
 package uk.ac.kcl.inf.gts_morpher.validation
 
-import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
-import java.util.List
 import java.util.Map
 import java.util.Map.Entry
 import java.util.Set
-import java.util.function.Function
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
-import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.henshin.model.Edge
-import org.eclipse.emf.henshin.model.Graph
-import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.HenshinPackage
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.ParameterKind
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.CheckType
-import uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.UnitCallIssue
-import uk.ac.kcl.inf.gts_morpher.util.MappingConverter
-import uk.ac.kcl.inf.gts_morpher.util.MappingConverter.IssueAcceptor
-import uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter
-import uk.ac.kcl.inf.gts_morpher.util.ValueHolder
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.BehaviourMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ClassMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.EObjectReferenceParameter
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilyChoice
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilySpecification
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRef
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSReference
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecification
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecificationOrReference
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherPackage
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.LinkMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.NumericParameter
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ObjectMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ReferenceMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleMapping
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.SlotMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.StringParameter
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeGraphMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.UnitCall
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilySpecification
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherPackage
+import uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.UnitCallIssue
+import uk.ac.kcl.inf.gts_morpher.util.MappingConverter
+import uk.ac.kcl.inf.gts_morpher.util.MappingConverter.IssueAcceptor
+import uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter
+import uk.ac.kcl.inf.gts_morpher.util.ValueHolder
 
 import static uk.ac.kcl.inf.gts_morpher.util.MappingConverter.*
 import static uk.ac.kcl.inf.gts_morpher.util.MorphismChecker.*
@@ -63,13 +54,14 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
+import static extension uk.ac.kcl.inf.gts_morpher.validation.GTSMorpherValidatorHelper.*
 
 /**
  * This class contains custom validation rules. 
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
-class GTSMorpherValidator extends AbstractGTSMorpherValidator {
+class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorpherValidatorHelper.IssueAcceptor{
 	public static val DUPLICATE_CLASS_MAPPING = MappingConverter.DUPLICATE_CLASS_MAPPING
 	public static val DUPLICATE_REFERENCE_MAPPING = MappingConverter.DUPLICATE_REFERENCE_MAPPING
 	public static val DUPLICATE_ATTRIBUTE_MAPPING = MappingConverter.DUPLICATE_ATTRIBUTE_MAPPING
@@ -105,7 +97,7 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	public static val INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL'
 	public static val INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY'
 	public static val INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET'
-	
+
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
 	 */
@@ -228,122 +220,6 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 		if (!mapping.autoComplete) {
 			doCheckIsCompleteBehaviourMapping(mapping, this)
 		}
-	}
-
-	private def doCheckIsCompleteBehaviourMapping(GTSMapping mapping, GTSMorpherValidator validator) {
-		val result = new ValueHolder(true)
-
-		if (mapping.target.behaviour !== null) {
-			result.value = checkIsCompletelyCovered(mapping.target, mapping.behaviourMapping, [rm|rm.target],
-				validator) && result.value
-		}
-		if (mapping.source.behaviour !== null) {
-			result.value = checkIsCompletelyCovered(mapping.source, mapping.behaviourMapping, [rm|rm.source],
-				validator) && result.value
-		}
-
-		if (mapping.behaviourMapping !== null) {
-			mapping.behaviourMapping.mappings.forEach [ rm |
-				result.value = rm.checkIsCompleteRuleMapping(validator) && result.value
-			]
-		}
-
-		result.value
-	}
-
-	private def boolean checkIsCompletelyCovered(GTSSpecificationOrReference gts, BehaviourMapping behaviourMapping,
-		Function<RuleMapping, Rule> ruleGetter, GTSMorpherValidator validator) {
-		val Iterable<Rule> rules = gts.behaviour.units.filter(Rule)
-		if (rules.empty) {
-			return true
-		}
-
-		var result = true
-
-		if (behaviourMapping === null) {
-			// Really should have some behaviour mappings if there are any rules at all...
-			gts.incompleteBehaviourMappingWarning(validator,
-				"Incomplete mapping. Ensure all rules in this behaviour are mapped.")
-			result = false
-		} else {
-			val mappedRules = behaviourMapping.mappings.map[rm|ruleGetter.apply(rm)].toList
-			if (rules.exists[r|!mappedRules.contains(r)]) {
-				gts.incompleteBehaviourMappingWarning(validator,
-					"Incomplete mapping. Ensure all rules in this behaviour are mapped.")
-				result = false
-			}
-		}
-
-		result
-	}
-
-	private def dispatch incompleteBehaviourMappingWarning(GTSSpecificationOrReference gts,
-		GTSMorpherValidator validator, String message) {}
-
-	private def dispatch incompleteBehaviourMappingWarning(GTSSpecification gts, GTSMorpherValidator validator,
-		String message) {
-		if (validator !== null) {
-			validator.warning(message, gts, GtsMorpherPackage.Literals.GTS_SPECIFICATION__GTS,
-				INCOMPLETE_BEHAVIOUR_MAPPING)
-		}
-	}
-
-	private def dispatch incompleteBehaviourMappingWarning(GTSReference gts, GTSMorpherValidator validator,
-		String message) {
-		if (validator !== null) {
-			validator.warning(message, gts, GtsMorpherPackage.Literals.GTS_REFERENCE__REF, INCOMPLETE_BEHAVIOUR_MAPPING)
-		}
-	}
-
-	/**
-	 * Check that the given rule mapping is complete
-	 */
-	private def checkIsCompleteRuleMapping(RuleMapping mapping, GTSMorpherValidator validator) {
-		if (!mapping.target_virtual) { // Mappings to the virtual rules are implicitly complete by definition.
-			val srcIsInterface = (mapping.eContainer.eContainer as GTSMapping).source.interface_mapping
-			val elementIndex = new HashMap<String, List<GraphElement>>()
-			mapping.source.lhs.addAllUnique(elementIndex, srcIsInterface)
-			mapping.source.rhs.addAllUnique(elementIndex, srcIsInterface)
-
-			val inComplete = elementIndex.entrySet.exists [ e |
-				!mapping.element_mappings.exists [ em |
-					((em instanceof ObjectMapping) && (e.value.contains((em as ObjectMapping).source))) ||
-						((em instanceof LinkMapping) && (e.value.contains((em as LinkMapping).source))) ||
-						((em instanceof SlotMapping) && (e.value.contains((em as SlotMapping).source)))
-				]
-			]
-
-			if (inComplete) {
-				if (validator !== null) {
-					validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.", mapping,
-						GtsMorpherPackage.Literals.RULE_MAPPING__SOURCE, INCOMPLETE_RULE_MAPPING)
-				}
-
-				return false
-			}
-		}
-		true
-	}
-
-	// FIXME: Also need to add slots, which will require a retyping of the index.
-	private def void addAllUnique(Graph graph, HashMap<String, List<GraphElement>> map, boolean srcIsInterface) {
-		graph.eContents.filter [ ge |
-			!srcIsInterface || (if (ge instanceof Node) {
-				isInterfaceElement(ge.type)
-			} else if (ge instanceof Edge) {
-				isInterfaceElement(ge.type)
-			} else {
-				false
-			})
-		].forEach [ eo |
-			val ge = eo as GraphElement
-			var list = map.get(ge.name.toString)
-			if (list === null) {
-				list = new ArrayList<GraphElement>()
-				map.put(ge.name.toString, list)
-			}
-			list.add(ge)
-		]
 	}
 
 	/**
@@ -533,7 +409,7 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 				error("An inclusion mapping completion cannot be to-identity-only", mapping,
 					GtsMorpherPackage.Literals.GTS_MAPPING__TO_IDENTITY_ONLY, INCLUSION_CANNOT_BE_TO_IDENTITY_ONLY)
 			}
-			
+
 			if (mapping.withoutToVirtual) {
 				error("An inclusion mapping completion cannot be without-to-virtual", mapping,
 					GtsMorpherPackage.Literals.GTS_MAPPING__WITHOUT_TO_VIRTUAL, INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL)
@@ -543,13 +419,17 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 				error("An inclusion mapping completion cannot be allow-from-empty", mapping,
 					GtsMorpherPackage.Literals.GTS_MAPPING__ALLOW_FROM_EMTPY, INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY)
 			}
-			
+
 			if (mapping.source?.metamodel !== mapping.target?.metamodel) {
-				error("An inclusion mapping completion must have the same source and target metamodel up to interface-of filtering", mapping,
-					GtsMorpherPackage.Literals.GTS_MAPPING__INCLUSION, INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
+				error(
+					"An inclusion mapping completion must have the same source and target metamodel up to interface-of filtering",
+					mapping, GtsMorpherPackage.Literals.GTS_MAPPING__INCLUSION,
+					INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
 			} else if (mapping.source?.behaviour !== mapping.target?.behaviour) {
-				error("An inclusion mapping completion must have the same source and target rules up to interface-of filtering", mapping,
-					GtsMorpherPackage.Literals.GTS_MAPPING__INCLUSION, INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
+				error(
+					"An inclusion mapping completion must have the same source and target rules up to interface-of filtering",
+					mapping, GtsMorpherPackage.Literals.GTS_MAPPING__INCLUSION,
+					INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET)
 			}
 		}
 	}
@@ -684,13 +564,11 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator {
 	 * Return true if the given mapping is incomplete
 	 */
 	private def isInCompleteMapping(TypeGraphMapping mapping) {
-		val srcIsInterface = (mapping.eContainer as GTSMapping).source.interface_mapping
-		val _mapping = mapping.extractMapping;
-		(mapping.eContainer as GTSMapping).source.metamodel.eAllContents.filter [ me |
-			(me instanceof EClassifier || me instanceof EReference) &&
-				(!srcIsInterface || isInterfaceElement(me as EModelElement))
-		].exists [ me |
-			!_mapping.containsKey(me)
-		]
+		val _mapping = mapping.extractMapping
+		mapping.isInCompleteMapping(_mapping)
+	}
+	
+	override warning(String message, EObject source, EStructuralFeature feature, String code) {
+		super.warning(message, source, feature, code)
 	}
 }

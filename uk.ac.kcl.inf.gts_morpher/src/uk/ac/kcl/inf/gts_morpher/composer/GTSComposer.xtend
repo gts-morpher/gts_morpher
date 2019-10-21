@@ -36,6 +36,9 @@ import uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue
 import org.eclipse.xtend.lib.annotations.Data
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
 
+import static extension uk.ac.kcl.inf.gts_morpher.validation.GTSMorpherValidatorHelper.*
+import static uk.ac.kcl.inf.gts_morpher.util.MorphismChecker.*
+
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
  */
@@ -152,11 +155,13 @@ class GTSComposer {
 	private def dispatch MappingsPair extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<Issue> issues,
 		IProgressMonitor monitor) { throw new IllegalArgumentException }
 
-	private def dispatch MappingsPair extractMapping(GTSMappingRef spec, ArrayList<Issue> issues, IProgressMonitor monitor) {
+	private def dispatch MappingsPair extractMapping(GTSMappingRef spec, ArrayList<Issue> issues,
+		IProgressMonitor monitor) {
 		spec.ref?.extractMapping(issues, monitor)
 	}
 
-	private def dispatch MappingsPair extractMapping(GTSMapping mapping, ArrayList<Issue> issues, IProgressMonitor monitor) {
+	private def dispatch MappingsPair extractMapping(GTSMapping mapping, ArrayList<Issue> issues,
+		IProgressMonitor monitor) {
 		var tgMapping = mapping.typeMapping.extractMapping(null)
 		var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
 
@@ -188,7 +193,14 @@ class GTSComposer {
 				return null
 			}
 		} else {
-			monitor.split("", 1)
+			// FIXME: Need to validate morphism completeness here, as this is assumed by the weavers and will otherwise potentially crash them
+			monitor.split("Validating mapping", 1)
+
+			if (!(!mapping.typeMapping.isInCompleteMapping(tgMapping) && mapping.doCheckIsCompleteBehaviourMapping(null) &&
+				mapping.checkIsMorphismMaybeIncomplete(tgMapping, behaviourMapping))) {
+				issues.add(new MessageIssue("Not a complete mapping -- cannot weave"))
+				return null
+			}
 		}
 
 		return new MappingsPair(tgMapping, behaviourMapping)
@@ -196,7 +208,7 @@ class GTSComposer {
 
 	private def dispatch MappingsPair extractMapping(GTSMappingInterfaceSpec spec, ArrayList<Issue> issues,
 		IProgressMonitor monitor) {
-		extension val factory = GtsMorpherFactory.eINSTANCE 
+		extension val factory = GtsMorpherFactory.eINSTANCE
 		val mockedMapping = createGTSMapping => [
 			autoComplete = true
 			uniqueCompletion = true
@@ -204,7 +216,7 @@ class GTSComposer {
 			source = createGTSSpecification => [
 				interface_mapping = true
 				gts = createGTSReference => [
-					ref = spec.gts_ref					
+					ref = spec.gts_ref
 				]
 			]
 			target = createGTSReference => [
@@ -212,8 +224,18 @@ class GTSComposer {
 			]
 			typeMapping = createTypeGraphMapping // because this is mandatory even when it's empty
 		]
-		
+
 		mockedMapping.extractMapping(issues, monitor)
+	}
+
+	private def boolean checkIsMorphismMaybeIncomplete(GTSMapping mapping, Map<EObject, EObject> tgMapping, Map<EObject, EObject> behaviourMapping) {
+		val isValidTypeMorphism = checkValidMaybeIncompleteClanMorphism(tgMapping, null)
+
+		if (isValidTypeMorphism) {
+			checkValidMaybeIncompleteBehaviourMorphism(tgMapping, behaviourMapping, null)
+		} else {
+			false
+		}
 	}
 
 	private def Module composeBehaviour(Map<EObject, EObject> leftBehaviourMapping,
@@ -224,7 +246,8 @@ class GTSComposer {
 			return null
 		}
 
-		val kernelRulesIncludingVirtualRules = (leftBehaviourMapping.allKernelRules + rightBehaviourMapping.allKernelRules).toSet
+		val kernelRulesIncludingVirtualRules = (leftBehaviourMapping.allKernelRules +
+			rightBehaviourMapping.allKernelRules).toSet
 
 		// Temporary index for purposes of weaving rule names
 		val ruleWeavingMap = new HashMap<Rule, List<Pair<Origin, Rule>>>
@@ -236,26 +259,31 @@ class GTSComposer {
 			units += kernelRulesIncludingVirtualRules.map [ r |
 				val composed = r.createComposed(leftBehaviourMapping, rightBehaviourMapping, tgMapping, naming)
 
-				ruleWeavingMap.put(composed, #[r.kernelKey, leftBehaviourMapping.getMappedTargetRule(r).leftKey, rightBehaviourMapping.getMappedTargetRule(r).rightKey])
+				ruleWeavingMap.put(composed,
+					#[r.kernelKey, leftBehaviourMapping.getMappedTargetRule(r).leftKey,
+						rightBehaviourMapping.getMappedTargetRule(r).rightKey])
 
 				composed
 			]
 		]
 
-		result.name = weaveNames(#{result -> #[kernelBehaviour?.kernelKey, leftBehaviour?.leftKey, rightBehaviour?.rightKey].filterNull}, result, emptyContext)
+		result.name = weaveNames(
+			#{result -> #[kernelBehaviour?.kernelKey, leftBehaviour?.leftKey, rightBehaviour?.rightKey].filterNull},
+			result, emptyContext)
 		result.units.forEach [ r |
 			r.name = weaveNames(ruleWeavingMap, r, [result.units])
 		]
 
 		result
 	}
-	
+
 	def getAllKernelRules(Map<EObject, EObject> behaviourMapping) {
 		behaviourMapping.values.filter(Rule)
 	}
 
-	def Rule createComposed(Rule kernelTgtRule, Map<EObject, EObject> leftBehaviourMapping, Map<EObject, EObject> rightBehaviourMapping,
-		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming) {
+	def Rule createComposed(Rule kernelTgtRule, Map<EObject, EObject> leftBehaviourMapping,
+		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping,
+		extension NamingStrategy naming) {
 		// leftRule or rightRule can be null if we have previously introduced a virtual rule in the kernel for one of the mappings.		
 		val leftRule = leftBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 		val rightRule = rightBehaviourMapping.getMappedTargetRule(kernelTgtRule)
@@ -264,8 +292,10 @@ class GTSComposer {
 			description = weaveDescriptions(kernelTgtRule.description, leftRule?.description, rightRule?.description)
 			injectiveMatching = kernelTgtRule.injectiveMatching
 			// TODO Should probably copy parameters, too
-			lhs = new PatternWeaver(kernelTgtRule.lhs, leftRule?.lhs, rightRule?.lhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Lhs", naming).weavePattern
-			rhs = new PatternWeaver(kernelTgtRule.rhs, leftRule?.rhs, rightRule?.rhs, leftBehaviourMapping, rightBehaviourMapping, tgMapping, "Rhs", naming).weavePattern
+			lhs = new PatternWeaver(kernelTgtRule.lhs, leftRule?.lhs, rightRule?.lhs, leftBehaviourMapping,
+				rightBehaviourMapping, tgMapping, "Lhs", naming).weavePattern
+			rhs = new PatternWeaver(kernelTgtRule.rhs, leftRule?.rhs, rightRule?.rhs, leftBehaviourMapping,
+				rightBehaviourMapping, tgMapping, "Rhs", naming).weavePattern
 		]
 
 		// Weave kernel
@@ -282,26 +312,24 @@ class GTSComposer {
 
 		result
 	}
-	
+
 	def Rule getMappedTargetRule(Map<EObject, EObject> behaviourMapping, Rule kernelRule) {
 		// Remember, rule mappings are the other way around
-		behaviourMapping.keySet.filter(Rule).findFirst[r | behaviourMapping.get(r) === kernelRule]
+		behaviourMapping.keySet.filter(Rule).findFirst[r|behaviourMapping.get(r) === kernelRule]
 	}
 
 	private static def String weaveDescriptions(Module kernelModule, Module leftModule, Module rightModule) {
 		weaveDescriptions(kernelModule?.description, leftModule?.description, rightModule?.description)
 	}
 
-	private static def String weaveDescriptions(CharSequence kernelDescription, CharSequence leftDescription, CharSequence rightDescription) {
-		if ((kernelDescription !== null) || 
-			(leftDescription !== null) ||
-			(rightDescription !== null)) {
-			val kd = (kernelDescription === null)?"":kernelDescription
-			val ld = (leftDescription === null)?"":leftDescription
-			val rd = (rightDescription === null)?"":rightDescription
-			
-					
-			'''«kd» «ld» «rd»'''		
+	private static def String weaveDescriptions(CharSequence kernelDescription, CharSequence leftDescription,
+		CharSequence rightDescription) {
+		if ((kernelDescription !== null) || (leftDescription !== null) || (rightDescription !== null)) {
+			val kd = (kernelDescription === null) ? "" : kernelDescription
+			val ld = (leftDescription === null) ? "" : leftDescription
+			val rd = (rightDescription === null) ? "" : rightDescription
+
+			'''«kd» «ld» «rd»'''
 		} else {
 			null
 		}
