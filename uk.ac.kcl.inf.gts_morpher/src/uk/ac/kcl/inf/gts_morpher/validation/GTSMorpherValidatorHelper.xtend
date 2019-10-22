@@ -51,7 +51,7 @@ class GTSMorpherValidatorHelper {
 		]
 	}
 
-	static def doCheckIsCompleteBehaviourMapping(GTSMapping mapping, IssueAcceptor validator) {
+	static def boolean doCheckIsCompleteBehaviourMapping(GTSMapping mapping, IssueAcceptor validator) {
 		val result = new ValueHolder(true)
 
 		if (mapping.target.behaviour !== null) {
