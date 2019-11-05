@@ -32,15 +32,8 @@ auto-complete unique map Server2PLS {
 
 	type_mapping {
 		class server.Server => pls.Polisher
-		class server.Queue => pls.Container
 		class server.InputQueue => pls.Tray
 		class server.OutputQueue => pls.Conveyor
-		reference server.Server.in => pls.Machine.in
-		reference server.Server.out => pls.Machine.out
-		reference server.Queue.elts => pls.Container.parts
-		class server.Input => pls.Part
-		class server.Output => pls.Part
-		class server.Element => pls.Part
 	}
 }
 
