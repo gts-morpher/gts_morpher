@@ -22,7 +22,13 @@ class DefaultNamingStrategy implements NamingStrategy {
 		if (nonNullSources.size == 1) {
 			// This element is a non-kernel element
 			val element = nonNullSources.head
-			return '''«element.key.label»__«element.value.name»'''
+			val name = element.value.name
+			if (name !== null) {
+				return '''«element.key.label»__«name»'''			
+			} else {
+				// Unnamed elements remain unnamed
+				return null
+			}
 		}
 
 		/*
