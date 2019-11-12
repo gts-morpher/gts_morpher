@@ -391,61 +391,58 @@ class MorphismChecker {
 		val srcKernel = srcRule.kernel
 		val tgtKernel = tgtRule.kernel
 
-		val _result = new ValueHolder(true)
+		val _result = new ValueHolder(true)		
 		srcKernel.entrySet.forEach [ e |
-			val srcO1 = e.value.key
-			val srcO2 = e.value.value
+			val srcO1 = e.key
+			val srcO2 = e.value
 
-			val srcO1Mapped = typeMapping.get(srcO1)
-			val srcO2Mapped = typeMapping.get(srcO2)
+			val srcO1Mapped = behaviourMapping.get(srcO1)
+			val srcO2Mapped = behaviourMapping.get(srcO2)
 
+			/*
+			 * If only one of them is null, we've constructed the mapping wrong -- or this is a partially constructed completion
+			 */
 			if ((srcO1Mapped !== null) && (srcO2Mapped !== null)) {
-				/*
-				 * If only one of them is null, we've constructed the mapping wrong -- or this is a partially constructed completion
-				 */
-				if (!srcO1Mapped.name.equals(srcO2Mapped.name)) {
+				// If they have been mapped, then they need to be in the target kernel, too
+				if ((!tgtKernel.containsKey(srcO1Mapped)) ||
+					(tgtKernel.get(srcO1Mapped) !== srcO2Mapped)) {
 					if (issues !== null) {
-						issues.issue(srcO1, "Element of kernel rule mapped to different elements in target rule")
-						issues.issue(srcO2, "Element of kernel rule mapped to different elements in target rule")
+						issues.issue(srcO1, "Element of kernel rule mapped to non-kernel element in target rule")
+						issues.issue(srcO2, "Element of kernel rule mapped to non-kernel element in target rule")
 					}
-					_result.value = false
-				} else {
-					val tgtKernelElements = tgtKernel.get(srcO1Mapped.name)
-					if (!((tgtKernelElements !== null) &&
-						((tgtKernelElements.key == srcO1Mapped) && (tgtKernelElements.value == srcO2Mapped) ||
-							(tgtKernelElements.key == srcO2Mapped) && (tgtKernelElements.value == srcO1Mapped)))) {
-						if (issues !== null) {
-							issues.issue(srcO1, "Element of kernel rule mapped to non-kernel element in target rule")
-							issues.issue(srcO2, "Element of kernel rule mapped to non-kernel element in target rule")
-						}
-						_result.value = false
-					}
-				}
+					_result.value = false						
+				}				
+			} else {
+				print('''Not checking kernel pattern for «srcO1»/«srcO2». srcO1Mapped is «srcO1Mapped». srcO2Mapped is «srcO2Mapped».''')
 			}
 		]
 
 		_result.value
 	}
 
-	/*
-	 * FIXME: Rewrite to use Henshin mappings rather than name equality
-	 */
-	static private def Map<String, Pair<ModelElement, ModelElement>> getKernel(Rule rule) {
-		val _kernel = new ValueHolder(new HashMap<String, Pair<ModelElement, ModelElement>>)
+	static private def Map<ModelElement, ModelElement> getKernel(Rule rule) {
+		val _kernel = new ValueHolder(new HashMap<ModelElement, ModelElement>)
 
-		rule.lhs.nodes.forEach [ lo |
-			val ro = rule.rhs.nodes.findFirst[ro|ro.name.equals(lo.name)]
-			if (ro !== null) {
-				_kernel.value.put(lo.name, new Pair(lo, ro))
+		rule.mappings.forEach[mp |
+			_kernel.value.put(mp.origin, mp.image)
+		]
+		rule.lhs.edges.forEach[e |
+			val kernelMap = _kernel.value
+			
+			if (kernelMap.containsKey(e.source) && kernelMap.containsKey(e.target)) {
+				// This edge might be in the kernel as its source and target are, try and find its corresponding RHS edge
+				val tgtEdge = rule.rhs.edges.findFirst[e2 |
+					e2.type === e.type && 
+					e2.source === kernelMap.get(e.source) &&
+					e2.target === kernelMap.get(e.target)
+				]
+				
+				if (tgtEdge !== null) {
+					kernelMap.put(e, tgtEdge)
+				}
 			}
 		]
-		rule.lhs.edges.forEach [ ll |
-			val rl = rule.rhs.edges.findFirst[rl|rl.name.equals(ll.name)]
-			if (rl !== null) {
-				_kernel.value.put(ll.name, new Pair(ll, rl))
-			}
-		]
-
+		
 		_kernel.value
 	}
 }
