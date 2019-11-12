@@ -13,7 +13,6 @@ import org.eclipse.emf.henshin.model.ModelElement
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 
-import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.isVirtualRule
 
 /**
