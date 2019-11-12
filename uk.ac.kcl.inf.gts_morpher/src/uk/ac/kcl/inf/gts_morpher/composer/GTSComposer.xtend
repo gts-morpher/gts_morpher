@@ -2,6 +2,7 @@ package uk.ac.kcl.inf.gts_morpher.composer
 
 import java.util.ArrayList
 import java.util.HashMap
+import java.util.HashSet
 import java.util.List
 import java.util.Map
 import org.eclipse.emf.ecore.EAttribute
@@ -11,33 +12,33 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.Module
+import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
+import org.eclipse.xtend.lib.annotations.Data
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.DefaultNamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.TGWeaver
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRef
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
 import uk.ac.kcl.inf.gts_morpher.util.IProgressMonitor
 import uk.ac.kcl.inf.gts_morpher.util.Triple
+import uk.ac.kcl.inf.gts_morpher.util.ValueHolder
 
 import static uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
+import static uk.ac.kcl.inf.gts_morpher.util.MorphismChecker.*
 
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
-import uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue
-import org.eclipse.xtend.lib.annotations.Data
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
-
 import static extension uk.ac.kcl.inf.gts_morpher.validation.GTSMorpherValidatorHelper.*
-import static uk.ac.kcl.inf.gts_morpher.util.MorphismChecker.*
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -48,7 +49,7 @@ class GTSComposer {
 		def String getMessage()
 	}
 
-	private static class ExceptionIssue implements uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue {
+	private static class ExceptionIssue implements GTSComposer.Issue {
 		val Exception exception
 
 		new(Exception e) {
@@ -58,7 +59,7 @@ class GTSComposer {
 		override getMessage() '''Exception occurred during language composition: «exception.message».'''
 	}
 
-	private static class IssueIssue implements uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue {
+	private static class IssueIssue implements GTSComposer.Issue {
 		val org.eclipse.xtext.validation.Issue issue
 
 		new(org.eclipse.xtext.validation.Issue issue) {
@@ -78,7 +79,7 @@ class GTSComposer {
 		}
 	}
 
-	private static class MessageIssue implements uk.ac.kcl.inf.gts_morpher.composer.GTSComposer.Issue {
+	private static class MessageIssue implements GTSComposer.Issue {
 		val String message
 
 		new(String message) {
@@ -99,8 +100,8 @@ class GTSComposer {
 	 * 
 	 * @return a list of issues that occurred when trying to do the composition. Empty rather than null if no issues have occurred.
 	 */
-	def Triple<List<Issue>, EPackage, Module> doCompose(GTSWeave weaving, IProgressMonitor monitor) {
-		val result = new ArrayList<Issue>
+	def Triple<List<GTSComposer.Issue>, EPackage, Module> doCompose(GTSWeave weaving, IProgressMonitor monitor) {
+		val result = new ArrayList<GTSComposer.Issue>
 		var Module composedModule = null
 		var EPackage composedTG = null
 
@@ -152,15 +153,15 @@ class GTSComposer {
 		val Map<EObject, EObject> behaviourMapping
 	}
 
-	private def dispatch MappingsPair extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<Issue> issues,
+	private def dispatch MappingsPair extractMapping(GTSMappingRefOrInterfaceSpec spec, ArrayList<GTSComposer.Issue> issues,
 		IProgressMonitor monitor) { throw new IllegalArgumentException }
 
-	private def dispatch MappingsPair extractMapping(GTSMappingRef spec, ArrayList<Issue> issues,
+	private def dispatch MappingsPair extractMapping(GTSMappingRef spec, ArrayList<GTSComposer.Issue> issues,
 		IProgressMonitor monitor) {
 		spec.ref?.extractMapping(issues, monitor)
 	}
 
-	private def dispatch MappingsPair extractMapping(GTSMapping mapping, ArrayList<Issue> issues,
+	private def dispatch MappingsPair extractMapping(GTSMapping mapping, ArrayList<GTSComposer.Issue> issues,
 		IProgressMonitor monitor) {
 		var tgMapping = mapping.typeMapping.extractMapping(null)
 		var behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
@@ -206,7 +207,7 @@ class GTSComposer {
 		return new MappingsPair(tgMapping, behaviourMapping)
 	}
 
-	private def dispatch MappingsPair extractMapping(GTSMappingInterfaceSpec spec, ArrayList<Issue> issues,
+	private def dispatch MappingsPair extractMapping(GTSMappingInterfaceSpec spec, ArrayList<GTSComposer.Issue> issues,
 		IProgressMonitor monitor) {
 		extension val factory = GtsMorpherFactory.eINSTANCE
 		val mockedMapping = createGTSMapping => [
@@ -288,29 +289,44 @@ class GTSComposer {
 		val leftRule = leftBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 		val rightRule = rightBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 
+		val lhsWeaver = new PatternWeaver(kernelTgtRule.lhs, leftRule?.lhs, rightRule?.lhs, leftBehaviourMapping,
+				rightBehaviourMapping, tgMapping, "Lhs", naming)
+		val rhsWeaver = new PatternWeaver(kernelTgtRule.rhs, leftRule?.rhs, rightRule?.rhs, leftBehaviourMapping,
+				rightBehaviourMapping, tgMapping, "Rhs", naming)
+
 		val result = HenshinFactory.eINSTANCE.createRule => [
 			description = weaveDescriptions(kernelTgtRule.description, leftRule?.description, rightRule?.description)
 			injectiveMatching = kernelTgtRule.injectiveMatching
 			// TODO Should probably copy parameters, too
-			lhs = new PatternWeaver(kernelTgtRule.lhs, leftRule?.lhs, rightRule?.lhs, leftBehaviourMapping,
-				rightBehaviourMapping, tgMapping, "Lhs", naming).weavePattern
-			rhs = new PatternWeaver(kernelTgtRule.rhs, leftRule?.rhs, rightRule?.rhs, leftBehaviourMapping,
-				rightBehaviourMapping, tgMapping, "Rhs", naming).weavePattern
+			lhs = lhsWeaver.weavePattern
+			rhs = rhsWeaver.weavePattern
 		]
 
 		// Weave kernel
-		result.lhs.nodes.map [ n |
-			val n2 = result.rhs.nodes.findFirst[n2|n.name.equals(n2.name)]
-			if (n2 !== null) {
-				new Pair(n, n2)
-			} else {
-				null
-			}
-		].filterNull.forEach [ p |
-			result.mappings.add(HenshinFactory.eINSTANCE.createMapping(p.key, p.value))
-		]
-
+		val mappingsCreatedFor = new ValueHolder(new HashSet<Node>)		
+		result.createMappings(kernelTgtRule, Origin.KERNEL, lhsWeaver, rhsWeaver, mappingsCreatedFor)
+		result.createMappings(leftRule, Origin.LEFT, lhsWeaver, rhsWeaver, mappingsCreatedFor)
+		result.createMappings(rightRule, Origin.RIGHT, lhsWeaver, rhsWeaver, mappingsCreatedFor)
+		
 		result
+	}
+
+	private def createMappings(Rule result, Rule rule, Origin o, PatternWeaver lhsWeaver, PatternWeaver rhsWeaver, ValueHolder<HashSet<Node>> mappingsCreatedFor) {
+		extension val henshinFactory = HenshinFactory.eINSTANCE
+		rule?.mappings?.forEach[mp |
+			val mappedOrigin = lhsWeaver.get(mp.origin.origKey(o)) as Node
+			val mappedImage = rhsWeaver.get(mp.image.origKey(o)) as Node
+			
+			if ((mappedOrigin !== null) && (mappedImage !== null)) {
+				// Avoid creating duplicate mappings
+				if ((!mappingsCreatedFor.value.contains(mappedOrigin)) && (!mappingsCreatedFor.value.contains(mappedImage))) {
+					result.mappings.add(createMapping(mappedOrigin, mappedImage))
+					
+					mappingsCreatedFor.value.add(mappedOrigin)
+					mappingsCreatedFor.value.add(mappedImage)
+				}
+			}
+		]
 	}
 
 	def Rule getMappedTargetRule(Map<EObject, EObject> behaviourMapping, Rule kernelRule) {
