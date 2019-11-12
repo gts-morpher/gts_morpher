@@ -8,6 +8,9 @@
       </nodes>
       <nodes xmi:id="_ENZ_wAgyEein1eZjhen2QA" incoming="_H1uxUAgyEein1eZjhen2QA">
         <type href="A.ecore#//A2"/>
+        <attributes xmi:id="_BsiSQAVyEeqaE_CaZXOWPA" value="0">
+          <type href="A.ecore#//A2/a2"/>
+        </attributes>
       </nodes>
       <nodes xmi:id="_ImOGsAVNEeqaE_CaZXOWPA" incoming="_KrvowAVNEeqaE_CaZXOWPA">
         <type href="A.ecore#//A2"/>

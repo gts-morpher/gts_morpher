@@ -10,6 +10,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="A2">
     <eStructuralFeatures xsi:type="ecore:EReference" name="a" eType="#//B1" changeable="false"
         eOpposite="#//B1/left__bs"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="a2" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="B2">
     <eStructuralFeatures xsi:type="ecore:EReference" name="a" eType="#//B1" changeable="false"

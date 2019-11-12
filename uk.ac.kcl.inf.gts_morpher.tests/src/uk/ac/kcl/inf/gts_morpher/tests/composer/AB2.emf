@@ -8,6 +8,7 @@ class B1 {
 
 class A2 {
   readonly ref B1#left__bs a;
+  attr int a2;
 }
 
 class B2 {

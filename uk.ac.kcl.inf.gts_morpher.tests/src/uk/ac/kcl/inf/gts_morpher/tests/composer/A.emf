@@ -8,4 +8,5 @@ class A1 {
 
 class A2 {
 	readonly ref A1#bs a;
+	attr int a2;
 }
