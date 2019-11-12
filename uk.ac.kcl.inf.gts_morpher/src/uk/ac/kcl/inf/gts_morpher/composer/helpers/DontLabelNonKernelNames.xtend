@@ -17,7 +17,7 @@ class DontLabelNonKernelNames extends AbstractChainedNamingStrategy {
 
 		if (nonNullSources.size == 1) {
 			// This element is a non-kernel element
-			return nonNullSources.head.value.name.toString
+			return nonNullSources.head.value.name?.toString
 		}
 
 		null

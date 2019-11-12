@@ -39,9 +39,11 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"A0.ecore",
 			"B.ecore",
 			"A.henshin",
+			"A_unnamed.henshin",
 			"A_b.henshin",
 			"A0.henshin",
 			"B.henshin",
+			"B_unnamed.henshin",
 			"C.ecore",
 			"D.ecore",
 			"C.henshin",
@@ -188,18 +190,27 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 	@Test
 	def testSimpleGTSMorphismWithNamingOptions() {
+		basicTestSimpleGTSMorphismWithNamingOptions(false)
+	}
+	
+	@Test
+	def testSimpleGTSMorphismWithNamingOptionsAndNoNodeNames() {
+		basicTestSimpleGTSMorphismWithNamingOptions(true)
+	}
+	
+	private def basicTestSimpleGTSMorphismWithNamingOptions(boolean useUnnamedNodesInRules) {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
 			gts A {
 				metamodel: "A"
-				behaviour: "ARules"
+				behaviour: "ARules«if (useUnnamedNodesInRules) "_UN" else ""»"
 			}
 			
 			auto-complete unique map A2B {
 				from interface_of { A }
 				to {
 					metamodel: "B"
-					behaviour: "BRules"
+					behaviour: "BRules«if (useUnnamedNodesInRules) "_UN" else ""»"
 				}
 				
 				type_mapping {
@@ -228,7 +239,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertNotNull("Couldn't find composed Henshin rules", runResult.c)
 		EcoreUtil2.resolveAll(runResult.c)
 		
-		val composedHenshinOracle = resourceSet.getResource(createFileURI("AB2.henshin"), true).contents.head as Module
+		val composedHenshinOracle = resourceSet.getResource(createFileURI(if (useUnnamedNodesInRules) "AB2_unnamed.henshin" else "AB2.henshin"), true).contents.head as Module
 		EcoreUtil2.resolveAll(composedHenshinOracle)
 
 		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
@@ -283,19 +294,28 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 	}
 
 	@Test
+	def testSimpleGTSMorphismWithoutNames() {
+		basicTestSimpleGTSMorphism(true)
+	}
+
+	@Test
 	def testSimpleGTSMorphism() {
+		basicTestSimpleGTSMorphism(false)
+	}
+	
+	private def basicTestSimpleGTSMorphism(boolean useUnnamedNodesInRules) {
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
 			gts A {
 				metamodel: "A"
-				behaviour: "ARules"
+				behaviour: "ARules«if (useUnnamedNodesInRules) "_UN" else ""»"
 			}
 			
 			map A2B{
 				from interface_of { A }
 				to {
 					metamodel: "B"
-					behaviour: "BRules"
+					behaviour: "BRules«if (useUnnamedNodesInRules) "_UN" else ""»"
 				}
 				
 				type_mapping {
@@ -320,12 +340,12 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		val runResult = result.doTest("woven_with_different_name", resourceSet)
 
-		assertTrue("Expected to see no issues.", runResult.a.empty)
+		assertEquals("Expected to see no issues.", emptyList, runResult.a)
 
 		assertNotNull("Couldn't find composed Henshin rules", runResult.c)
 
 		EcoreUtil2.resolveAll(runResult.c)
-		val composedOracle = resourceSet.getResource(createFileURI("AB.henshin"), true).contents.head as Module
+		val composedOracle = resourceSet.getResource(createFileURI(if (useUnnamedNodesInRules) "AB_unnamed.henshin" else "AB.henshin"), true).contents.head as Module
 		EcoreUtil2.resolveAll(composedOracle)
 
 		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)

@@ -8,6 +8,7 @@ class A1_B1 {
 
 class left__A2 {
   readonly ref A1_B1#left__bs left__a;
+  attr int left__a2;
 }
 
 class right__B2 {
