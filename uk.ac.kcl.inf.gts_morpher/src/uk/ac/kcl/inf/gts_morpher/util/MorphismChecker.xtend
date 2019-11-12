@@ -427,6 +427,9 @@ class MorphismChecker {
 		_result.value
 	}
 
+	/*
+	 * FIXME: Rewrite to use Henshin mappings rather than name equality
+	 */
 	static private def Map<String, Pair<ModelElement, ModelElement>> getKernel(Rule rule) {
 		val _kernel = new ValueHolder(new HashMap<String, Pair<ModelElement, ModelElement>>)
 
