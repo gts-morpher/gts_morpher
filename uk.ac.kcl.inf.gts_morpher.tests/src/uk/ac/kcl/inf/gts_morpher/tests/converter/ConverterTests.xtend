@@ -35,8 +35,10 @@ class ConverterTests extends AbstractTest {
 			"K.ecore",
 			"L.ecore",
 			"A.henshin",
+			"A_unnamed.henshin",
 			"K.henshin",
 			"B.henshin",
+			"B_unnamed.henshin",
 			"transformers.henshin"
 		].createResourceSet
 	}
@@ -156,6 +158,58 @@ class ConverterTests extends AbstractTest {
 			to {
 				metamodel: "B"
 				behaviour: "BRules"
+			}
+		
+			type_mapping {
+				class A.A1 => B.B1
+			}
+		
+			behaviour_mapping {
+				rule do to do {
+					object a1 => b1
+				}
+			}
+		}'''.doTest
+	}
+
+	@Test
+	def void testBasicMappingWithoutNodeNames() {
+		testMappingWithoutNodeNames('''
+			from {
+				metamodel: "A"
+				behaviour: "ARules_UN"
+			}'''
+		)
+	}
+
+	@Test
+	def void testFamilyMappingWithoutNodeNames() {
+		testMappingWithoutNodeNames('''
+			from {
+				family: {
+					{
+						metamodel: "A"
+						behaviour: "ARules_UN"
+					}
+					
+					transformers: "transformerRules"
+				}
+			
+				using [
+					addSubClass (A.A1, "TT")
+				]
+			}'''
+		)
+	}
+
+	private def testMappingWithoutNodeNames(CharSequence srcText) {
+		'''
+		map {
+			«srcText»
+		
+			to {
+				metamodel: "B"
+				behaviour: "BRules_UN"
 			}
 		
 			type_mapping {
