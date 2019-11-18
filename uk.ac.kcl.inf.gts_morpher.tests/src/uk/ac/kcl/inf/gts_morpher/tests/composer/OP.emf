@@ -1,0 +1,14 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/P", prefix="p")
+package P;
+
+class O1 {
+}
+
+class left__O1_1 {
+}
+
+class left__O1_2 {
+}
+
+class right__O1 {
+}

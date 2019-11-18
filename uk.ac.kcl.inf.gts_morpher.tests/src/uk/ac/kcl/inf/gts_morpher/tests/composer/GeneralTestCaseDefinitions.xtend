@@ -64,7 +64,9 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"M.ecore",
 			"M.henshin",
 			"N.ecore",
-			"N2.ecore"
+			"N2.ecore",
+			"O.ecore",
+			"P.ecore"
 		].createResourceSet
 	}
 
@@ -147,6 +149,43 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertNotNull("Couldn't find composed ecore", runResult.b)
 
 		val composedOracle = resourceSet.getResource(createFileURI("AB2.ecore"), true).contents.head as EPackage
+
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+	}
+
+	@Test
+	def testTGMorphismWithNamingOptionsAndNeedForGlobalUniquification() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts O {
+				metamodel: "O"
+			}
+			
+			map O2P {
+				from interface_of { O }
+				to {
+					metamodel: "P"
+				}
+				
+				type_mapping {
+				}
+			}
+			
+			export gts woven {
+				weave (preferMap2TargetNames, dontLabelNonKernelElements): {
+					map1: interface_of (O)
+					map2: O2P
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val runResult = result.doTest(resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+		assertNotNull("Couldn't find composed ecore", runResult.b)
+
+		val composedOracle = resourceSet.getResource(createFileURI("OP.ecore"), true).contents.head as EPackage
 
 		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
 	}
