@@ -51,7 +51,7 @@ abstract class AbstractChainedNamingStrategy extends DefaultNamingStrategy {
 	protected def boolean isUniqueInContext(String proposedName, EObject objectToName, UniquenessContext context,
 		Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup) {
 		!context.contextElements.exists [ eo |
-			(eo !== objectToName) && (proposedName == preferredNameFor(eo, nameSourcesLookup))
+			(!context.considerIdentical(eo, objectToName)) && (proposedName == preferredNameFor(eo, nameSourcesLookup))
 		]
 	}
 

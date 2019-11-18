@@ -33,6 +33,7 @@ import uk.ac.kcl.inf.gts_morpher.util.ValueHolder
 import static uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
 import static uk.ac.kcl.inf.gts_morpher.util.MorphismChecker.*
 
+import static extension uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver.weaveAllNames
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
@@ -290,9 +291,9 @@ class GTSComposer {
 		val rightRule = rightBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 
 		val lhsWeaver = new PatternWeaver(kernelTgtRule.lhs, leftRule?.lhs, rightRule?.lhs, leftBehaviourMapping,
-				rightBehaviourMapping, tgMapping, "Lhs", naming)
+				rightBehaviourMapping, tgMapping, "Lhs")
 		val rhsWeaver = new PatternWeaver(kernelTgtRule.rhs, leftRule?.rhs, rightRule?.rhs, leftBehaviourMapping,
-				rightBehaviourMapping, tgMapping, "Rhs", naming)
+				rightBehaviourMapping, tgMapping, "Rhs")
 
 		val result = HenshinFactory.eINSTANCE.createRule => [
 			description = weaveDescriptions(kernelTgtRule.description, leftRule?.description, rightRule?.description)
@@ -307,6 +308,9 @@ class GTSComposer {
 		result.createMappings(kernelTgtRule, Origin.KERNEL, lhsWeaver, rhsWeaver, mappingsCreatedFor)
 		result.createMappings(leftRule, Origin.LEFT, lhsWeaver, rhsWeaver, mappingsCreatedFor)
 		result.createMappings(rightRule, Origin.RIGHT, lhsWeaver, rhsWeaver, mappingsCreatedFor)
+
+		// Finally, weave names
+		naming.weaveAllNames(#[lhsWeaver, rhsWeaver])		
 		
 		result
 	}
