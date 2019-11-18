@@ -6,7 +6,6 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
-import org.eclipse.emf.henshin.model.Attribute
 
 /**
  * A set of already decided names in whose context the name to be produced by a naming strategy should be unique. 
