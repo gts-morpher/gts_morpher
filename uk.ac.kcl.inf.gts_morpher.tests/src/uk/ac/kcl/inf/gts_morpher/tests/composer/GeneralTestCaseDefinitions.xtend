@@ -39,6 +39,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"A0.ecore",
 			"B.ecore",
 			"A.henshin",
+			"A3.henshin",
 			"A_unnamed.henshin",
 			"A_b.henshin",
 			"A0.henshin",
@@ -346,6 +347,55 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 
 		EcoreUtil2.resolveAll(runResult.c)
 		val composedOracle = resourceSet.getResource(createFileURI(if (useUnnamedNodesInRules) "AB_unnamed.henshin" else "AB.henshin"), true).contents.head as Module
+		EcoreUtil2.resolveAll(composedOracle)
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)
+	}
+
+	@Test
+	def testSimpleGTSMorphismWithDuplicateNodeNames() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts A {
+				metamodel: "A"
+				behaviour: "ARules_b2"
+			}
+			
+			map A2B{
+				from interface_of { A }
+				to {
+					metamodel: "B"
+					behaviour: "BRules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object a1 => b1
+					}
+				}
+			}
+			
+			export gts woven {
+				weave (dontLabelNonKernelElements, preferMap2TargetNames): {
+					map1: interface_of (A)
+					map2: A2B
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val runResult = result.doTest("woven", resourceSet)
+
+		assertEquals("Expected to see no issues.", emptyList, runResult.a)
+
+		assertNotNull("Couldn't find composed Henshin rules", runResult.c)
+
+		EcoreUtil2.resolveAll(runResult.c)
+		val composedOracle = resourceSet.getResource(createFileURI("AB3.henshin"), true).contents.head as Module
 		EcoreUtil2.resolveAll(composedOracle)
 
 		assertEObjectsEquals("Woven GTS was not as expected", composedOracle, runResult.c)

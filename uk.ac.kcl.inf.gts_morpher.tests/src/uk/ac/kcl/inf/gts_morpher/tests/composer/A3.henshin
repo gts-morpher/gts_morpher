@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_trLI8AgxEein1eZjhen2QA" name="ARules_b2">
+  <imports href="A.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_B0GmEAgyEein1eZjhen2QA" name="process">
+    <lhs xmi:id="_B1K9EAgyEein1eZjhen2QA" name="Lhs">
+      <nodes xmi:id="_DA034AgyEein1eZjhen2QA" name="a1" outgoing="_H1uxUAgyEein1eZjhen2QA">
+        <type href="A.ecore#//A1"/>
+      </nodes>
+      <nodes xmi:id="_ENZ_wAgyEein1eZjhen2QA" name="b2" incoming="_H1uxUAgyEein1eZjhen2QA">
+        <type href="A.ecore#//A2"/>
+      </nodes>
+      <edges xmi:id="_H1uxUAgyEein1eZjhen2QA" source="_DA034AgyEein1eZjhen2QA" target="_ENZ_wAgyEein1eZjhen2QA">
+        <type href="A.ecore#//A1/bs"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_B1K9EQgyEein1eZjhen2QA" name="Rhs">
+      <nodes xmi:id="_DA034QgyEein1eZjhen2QA" name="a1" outgoing="_H1uxUQgyEein1eZjhen2QA">
+        <type href="A.ecore#//A1"/>
+      </nodes>
+      <nodes xmi:id="_ENZ_wQgyEein1eZjhen2QA" name="b2" incoming="_H1uxUQgyEein1eZjhen2QA">
+        <type href="A.ecore#//A2"/>
+      </nodes>
+      <edges xmi:id="_H1uxUQgyEein1eZjhen2QA" source="_DA034QgyEein1eZjhen2QA" target="_ENZ_wQgyEein1eZjhen2QA">
+        <type href="A.ecore#//A1/bs"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_DA1e8AgyEein1eZjhen2QA" origin="_DA034AgyEein1eZjhen2QA" image="_DA034QgyEein1eZjhen2QA"/>
+    <mappings xmi:id="_ENZ_wggyEein1eZjhen2QA" origin="_ENZ_wAgyEein1eZjhen2QA" image="_ENZ_wQgyEein1eZjhen2QA"/>
+  </units>
+</henshin:Module>
