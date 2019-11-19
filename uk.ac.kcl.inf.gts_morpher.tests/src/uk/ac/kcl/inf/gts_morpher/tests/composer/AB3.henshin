@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_r1-1YL2WEemPdbvIDysEXQ" name="BRules">
+  <imports href="AB2.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_x2zIUL2WEemPdbvIDysEXQ" name="process">
+    <lhs xmi:id="_x26dEL2WEemPdbvIDysEXQ" name="Lhs">
+      <nodes xmi:id="_2R6owL2WEemPdbvIDysEXQ" name="b1" outgoing="_5KoiUL2WEemPdbvIDysEXQ">
+        <type href="AB2.ecore#//B1"/>
+      </nodes>
+      <nodes xmi:id="_3NGeoL2WEemPdbvIDysEXQ" name="left__b2" incoming="_5KoiUL2WEemPdbvIDysEXQ">
+        <type href="AB2.ecore#//A2"/>
+      </nodes>
+      <edges xmi:id="_5KoiUL2WEemPdbvIDysEXQ" source="_2R6owL2WEemPdbvIDysEXQ" target="_3NGeoL2WEemPdbvIDysEXQ">
+        <type href="AB2.ecore#//B1/left__bs"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_x26dEb2WEemPdbvIDysEXQ" name="Rhs">
+      <nodes xmi:id="_2R7P0L2WEemPdbvIDysEXQ" name="b1" incoming="_5g1b0L2WEemPdbvIDysEXQ" outgoing="_5KoiUb2WEemPdbvIDysEXQ">
+        <type href="AB2.ecore#//B1"/>
+      </nodes>
+      <nodes xmi:id="_3NGeob2WEemPdbvIDysEXQ" name="left__b2" incoming="_5KoiUb2WEemPdbvIDysEXQ">
+        <type href="AB2.ecore#//A2"/>
+      </nodes>
+      <nodes xmi:id="_35fDgL2WEemPdbvIDysEXQ" name="right__b2" outgoing="_5g1b0L2WEemPdbvIDysEXQ">
+        <type href="AB2.ecore#//B2"/>
+      </nodes>
+      <edges xmi:id="_5KoiUb2WEemPdbvIDysEXQ" source="_2R7P0L2WEemPdbvIDysEXQ" target="_3NGeob2WEemPdbvIDysEXQ">
+        <type href="AB2.ecore#//B1/left__bs"/>
+      </edges>
+      <edges xmi:id="_5g1b0L2WEemPdbvIDysEXQ" source="_35fDgL2WEemPdbvIDysEXQ" target="_2R7P0L2WEemPdbvIDysEXQ">
+        <type href="AB2.ecore#//B2/a"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_2R7P0b2WEemPdbvIDysEXQ" origin="_2R6owL2WEemPdbvIDysEXQ" image="_2R7P0L2WEemPdbvIDysEXQ"/>
+    <mappings xmi:id="_3NGeor2WEemPdbvIDysEXQ" origin="_3NGeoL2WEemPdbvIDysEXQ" image="_3NGeob2WEemPdbvIDysEXQ"/>
+  </units>
+</henshin:Module>

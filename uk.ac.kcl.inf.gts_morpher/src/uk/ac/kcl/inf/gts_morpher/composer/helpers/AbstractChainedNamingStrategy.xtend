@@ -1,9 +1,11 @@
 package uk.ac.kcl.inf.gts_morpher.composer.helpers
 
+import java.util.HashMap
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
+import java.util.function.Supplier
 
 /**
  * A chained naming strategy. 
@@ -13,8 +15,35 @@ import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
  * a non-unique name, they pass on the naming decision to the default naming strategy. 
  */
 abstract class AbstractChainedNamingStrategy extends DefaultNamingStrategy {
+	private static class NameCache {
+		val NULL = new String
+		val names = new HashMap<EObject, String>
+		
+		def getName(EObject eo, Supplier<String> namingService) {
+			val cachedName = names.get(eo)
+			
+			if (cachedName !== null) {
+				if (cachedName === NULL) {
+					null
+				} else {
+					cachedName
+				}
+			} else {
+				val computedName = namingService.get
+				
+				if (computedName === null) {
+					names.put(eo, NULL)
+				} else {
+					names.put(eo, computedName)
+				}
+				
+				computedName
+			}
+		}
+	}
+	
 	protected val NamingStrategy fallback
-
+	
 	new(NamingStrategy fallback) {
 		this.fallback = fallback
 	}
@@ -22,11 +51,20 @@ abstract class AbstractChainedNamingStrategy extends DefaultNamingStrategy {
 	protected def boolean isUniqueInContext(String proposedName, EObject objectToName, UniquenessContext context,
 		Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup) {
 		!context.contextElements.exists [ eo |
-			(eo !== objectToName) && (proposedName == preferredNameFor(eo, nameSourcesLookup))
+			(!context.considerIdentical(eo, objectToName)) && (proposedName == preferredNameFor(eo, nameSourcesLookup))
 		]
 	}
 
-	protected def String preferredNameFor(EObject eo,
+	val nameCache = new NameCache
+
+	private def String preferredNameFor(EObject eo,
+		Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup) {
+		nameCache.getName(eo) [
+			_preferredNameFor(eo, nameSourcesLookup)
+		]
+	}
+
+	protected def String _preferredNameFor(EObject eo,
 		Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup)
 
 	override String weaveNames(

@@ -1,5 +1,6 @@
 package uk.ac.kcl.inf.gts_morpher.composer.helpers
 
+import java.util.List
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
@@ -17,6 +18,12 @@ interface NamingStrategy {
 	def String weaveNameSpaces(Iterable<Pair<Origin, EPackage>> nameSources)
 
 	def String weaveURIs(Iterable<Pair<Origin, EPackage>> nameSources)
+
+	static def generateNamingStrategy(List<WeaveOption> options) {
+		new GloballyUniquifyNames(options.fold(new DefaultNamingStrategy as NamingStrategy, [ acc, opt |
+			opt.generateNamingStrategy(acc)
+		]))
+	}
 
 	static def NamingStrategy generateNamingStrategy(WeaveOption option, NamingStrategy existingStrategy) {
 		switch (option) {

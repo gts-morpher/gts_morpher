@@ -30,13 +30,10 @@ class PatternWeaver extends AbstractWeaver {
 
 	var Graph wovenGraph
 
-	extension val NamingStrategy naming
-
 	extension val HenshinPackage henshin = HenshinPackage.eINSTANCE
 
 	new(Graph kernelPattern, Graph leftPattern, Graph rightPattern, Map<EObject, EObject> leftBehaviourMapping,
-		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel,
-		NamingStrategy naming) {
+		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel) {
 		super(
 			new ModelSpan(leftBehaviourMapping.filteredMapping(leftPattern),
 				rightBehaviourMapping.filteredMapping(rightPattern), kernelPattern, leftPattern, rightPattern).
@@ -45,7 +42,6 @@ class PatternWeaver extends AbstractWeaver {
 			rightBehaviourMapping.unmappedElements(rightPattern)
 		)
 
-		this.naming = naming
 		this.tgMapping = tgMapping
 
 		wovenGraph = HenshinFactory.eINSTANCE.createGraph
@@ -74,9 +70,29 @@ class PatternWeaver extends AbstractWeaver {
 		weaveEdges
 		weaveSlots
 
-		weaveAllNames
-
 		wovenGraph
+	}
+
+	/**
+	 * Fix names of all elements produced. Must be called only when the woven graphs have been hooked into the completed woven rule, 
+	 * including setting up all relevant mappings, so that naming can take into account names in other patterns in the rule.
+	 * 
+	 * @param weavers the list of all weavers that have produced elements of the woven rule
+	 */
+	static def weaveAllNames(NamingStrategy naming, List<PatternWeaver> weavers) {
+		val allMappings = weavers.fold(new HashMap<Pair<Origin, EObject>, EObject> )[acc, pw |
+			acc.putAll(pw)
+			acc
+		]
+		
+		val invertedMapping = allMappings.keySet.groupBy[p | allMappings.get(p)]
+
+		// For every key in keyset of inversion, define the name based on names of all the sources that were merged into this
+		invertedMapping.keySet.forEach [ eo |
+			if (eo instanceof NamedElement) {
+				eo.name = naming.weaveNames(invertedMapping, eo, eo.uniquenessContext)
+			}
+		]
 	}
 
 	private def weaveNodes() {
@@ -101,21 +117,6 @@ class PatternWeaver extends AbstractWeaver {
 		], [ a, o |
 			a.createSlot(o)
 		])
-	}
-
-	/**
-	 * Fix names of all elements produced...
-	 */
-	private def weaveAllNames() {
-		// 1. Invert the weaving
-		val invertedMapping = keySet.groupBy[p|get(p)]
-
-		// 2. For every key in keyset of inversion, define the name based on names of all the sources that were merged into this
-		invertedMapping.keySet.forEach [ eo |
-			if (eo instanceof NamedElement) {
-				eo.name = naming.weaveNames(invertedMapping, eo, eo.uniquenessContext)
-			}
-		]
 	}
 
 	private def createNode(org.eclipse.emf.henshin.model.Node nSrc) {

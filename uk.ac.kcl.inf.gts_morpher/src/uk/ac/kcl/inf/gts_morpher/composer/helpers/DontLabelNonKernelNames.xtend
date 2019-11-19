@@ -11,7 +11,7 @@ class DontLabelNonKernelNames extends AbstractChainedNamingStrategy {
 		super(fallback)
 	}
 
-	protected override String preferredNameFor(EObject objectToName,
+	protected override String _preferredNameFor(EObject objectToName,
 		Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup) {
 		val nonNullSources = nameSourcesLookup.get(objectToName)?.filterNull
 
