@@ -20,6 +20,7 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import uk.ac.kcl.inf.gts_morpher.composer.GTSComposer
+import org.eclipse.xtext.diagnostics.Severity
 
 /**
  * Generates code from your model files on save.
@@ -47,7 +48,8 @@ class GTSMorpherGenerator extends AbstractGenerator {
 		try {
 			val issues = resource.validate(CheckMode.ALL, _monitor.split("Validating resource.", 1))
 
-			if (issues.empty) {
+			// Ignore warnings etc to ensure we still save generation results in those cases
+			if (issues.filter [severity === Severity.ERROR].empty) {
 				val gtsModule = resource.contents.head as GTSSpecificationModule
 
 				gtsModule.gtss.filter[gts|gts.export].map[it.gts].filter [
