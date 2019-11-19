@@ -29,6 +29,8 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSReference
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecification
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecificationOrReference
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherPackage
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.LinkMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ObjectMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ReferenceMapping
@@ -37,8 +39,6 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.SlotMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeGraphMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeMapping
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherFactory
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherPackage
 import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 
 import static org.eclipse.xtext.scoping.Scopes.*
@@ -47,6 +47,7 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.isInterfaceElem
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+
 /**
  * Basic util methods for extracting mappings from GTSMappings and vice versa.
  */
@@ -462,22 +463,14 @@ class MappingConverter {
 					GtsMorpherPackage.Literals.OBJECT_MAPPING__TARGET, NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
 			} else {
 				_mapping.put(em.source, em.target)
-				val srcPattern = em.source.eContainer as Graph
-				val srcRule = srcPattern.eContainer as Rule
+				
+				val srcRule = em.source.eContainer.eContainer as Rule
 				val tgtRule = em.target.eContainer.eContainer as Rule
-				if (srcPattern == srcRule.lhs) {
-					// Also add corresponding RHS object, if any
-					_mapping.putIfNotNull(
-						srcRule.rhs.nodes.findFirst[o|o.name.equals(em.source.name)],
-						tgtRule.rhs.nodes.findFirst[o|o.name.equals(em.target.name)]
-					)
-				} else if (srcPattern == srcRule.rhs) {
-					// Also add corresponding LHS object, if any							
-					_mapping.putIfNotNull(
-						srcRule.lhs.nodes.findFirst[o|o.name.equals(em.source.name)],
-						tgtRule.lhs.nodes.findFirst[o|o.name.equals(em.target.name)]
-					)
-				}
+
+				val srcNodeAlias = srcRule.getKernelAliasFor(em.source)
+				val tgtNodeAlias = tgtRule.getKernelAliasFor(em.target)
+									
+				_mapping.putIfNotNull(srcNodeAlias, tgtNodeAlias)
 			}
 		]
 		rm.element_mappings.filter(LinkMapping).forEach [ em |
@@ -492,20 +485,27 @@ class MappingConverter {
 					GtsMorpherPackage.Literals.LINK_MAPPING__TARGET, NON_INTERFACE_LINK_MAPPING_ATTEMPT)
 			} else {
 				_mapping.put(em.source, em.target)
+
 				val srcPattern = em.source.eContainer as Graph
-				val srcRule = srcPattern.eContainer as Rule
+				val srcRule = em.source.eContainer .eContainer as Rule
 				val tgtRule = em.target.eContainer.eContainer as Rule
+				
+				val srcSrcNodeAlias = srcRule.getKernelAliasFor(em.source.source)
+				val srcTgtNodeAlias = srcRule.getKernelAliasFor(em.source.target)
+				val tgtSrcNodeAlias = tgtRule.getKernelAliasFor(em.target.source)
+				val tgtTgtNodeAlias = tgtRule.getKernelAliasFor(em.target.target)
+
 				if (srcPattern == srcRule.lhs) {
 					// Also add corresponding RHS link, if any
 					_mapping.putIfNotNull(
-						srcRule.rhs.edges.findFirst[o|o.name.equals(em.source.name)],
-						tgtRule.rhs.edges.findFirst[o|o.name.equals(em.target.name)]
+						srcRule.rhs.edges.findFirst[(source === srcSrcNodeAlias) && (target === srcTgtNodeAlias)],
+						tgtRule.rhs.edges.findFirst[(source === tgtSrcNodeAlias) && (target === tgtTgtNodeAlias)]
 					)
 				} else if (srcPattern == srcRule.rhs) {
 					// Also add corresponding LHS link, if any							
 					_mapping.putIfNotNull(
-						srcRule.lhs.edges.findFirst[o|o.name.equals(em.source.name)],
-						tgtRule.lhs.edges.findFirst[o|o.name.equals(em.target.name)]
+						srcRule.lhs.edges.findFirst[(source === srcSrcNodeAlias) && (target === srcTgtNodeAlias)],
+						tgtRule.lhs.edges.findFirst[(source === tgtSrcNodeAlias) && (target === tgtTgtNodeAlias)]
 					)
 				}
 			}
@@ -531,27 +531,12 @@ class MappingConverter {
 
 				val tgtRule = tgtNode.eContainer.eContainer as Rule
 
-				if (srcPattern == srcRule.lhs) {
-					// Also add corresponding RHS attribute, if any
-					_mapping.putIfNotNull(
-						srcRule.rhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst [ a |
-							a.type === em.source.type
-						],
-						tgtRule.rhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst [ a |
-							a.type === em.target.type
-						]
-					)
-				} else if (srcPattern == srcRule.rhs) {
-					// Also add corresponding LHS attribute, if any							
-					_mapping.putIfNotNull(
-						srcRule.lhs.nodes.findFirst[o|o.name.equals(srcNode.name)].attributes.findFirst [ a |
-							a.type === em.source.type
-						],
-						tgtRule.lhs.nodes.findFirst[o|o.name.equals(tgtNode.name)].attributes.findFirst [ a |
-							a.type === em.target.type
-						]
-					)
-				}
+				val srcNodeAlias = srcRule.getKernelAliasFor(srcNode)
+				val tgtNodeAlias = tgtRule.getKernelAliasFor(tgtNode)
+				
+				_mapping.putIfNotNull(
+					srcNodeAlias?.attributes?.findFirst [ a | a.type === em.source.type ],
+					tgtNodeAlias?.attributes?.findFirst [ a | a.type === em.target.type ])
 			}
 		]
 	}
@@ -701,5 +686,16 @@ class MappingConverter {
 
 	private static def <T extends EObject> T getMapped(T src, Map<EObject, EObject> tgMapping) {
 		tgMapping.get(src) as T
+	}
+	
+	private static def getKernelAliasFor(Rule r, Node n) {
+		r.mappings.map[
+			if (origin === n) {
+				image
+			} else if (image === n) {
+				origin
+			} else {
+				null
+			}].filterNull.head
 	}
 }
