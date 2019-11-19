@@ -30,6 +30,7 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.LinkMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ObjectMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ReferenceMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleMapping
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.SlotMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeGraphMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.UnitCall
@@ -131,6 +132,14 @@ class GTSMorpherScopeProvider extends AbstractDeclarativeScopeProvider {
 
 	def IScope scope_RuleMapping_target(RuleMapping context, EReference ref) {
 		rm_scope((context.eContainer.eContainer as GTSMapping).target)
+	}
+
+	def IScope scope_RuleParameterMapping_source(RuleParameterMapping context, EReference ref) {
+		scopeFor((context.eContainer as RuleMapping)?.source?.parameters)
+	}
+
+	def IScope scope_RuleParameterMapping_target(RuleParameterMapping context, EReference ref) {
+		scopeFor((context.eContainer as RuleMapping)?.target?.parameters)		
 	}
 
 	def IScope scope_ObjectMapping_source(ObjectMapping context, EReference ref) {
