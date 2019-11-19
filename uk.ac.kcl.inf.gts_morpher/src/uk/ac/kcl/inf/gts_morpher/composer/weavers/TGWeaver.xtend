@@ -67,7 +67,7 @@ class TGWeaver extends AbstractWeaver {
 			]
 			// FIXME: For nested packages will need to derive better uniqueness context
 			// TODO: This may not actually be needed, as we are weaving names separately anyway
-			mergedPackage.name = weaveNames(#{(mergedPackage -> keyedMergeList)}, mergedPackage, emptyContext)
+			mergedPackage.name = weaveNames(#{(mergedPackage -> keyedMergeList)}, mergedPackage, mergedPackage.uniquenessContext)
 
 			mergedPackage
 		], [ ep, o |

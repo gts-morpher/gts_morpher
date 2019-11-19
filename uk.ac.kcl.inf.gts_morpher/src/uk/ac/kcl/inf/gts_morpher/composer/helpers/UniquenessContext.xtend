@@ -4,11 +4,13 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 
 /**
- * A set of already decided names in whose context the name to be produced by a naming strategy should be unique. 
+ * A set of objects in whose context the name to be produced by a naming strategy should be unique. 
+ * Must contain the element to be named itself. 
  */
 abstract class UniquenessContext {
 	def Iterable<? extends EObject> contextElements()
@@ -17,9 +19,19 @@ abstract class UniquenessContext {
 		eo1 === eo2
 	}
 
-	static def UniquenessContext emptyContext() { [emptyList] }
+	private static def UniquenessContext singletonContext(EObject eo) { [#[eo]] }
 
-	static dispatch def UniquenessContext uniquenessContext(EObject eo) { emptyContext }
+	static dispatch def UniquenessContext uniquenessContext(EObject eo) { eo.singletonContext }
+
+	static dispatch def UniquenessContext uniquenessContext(EPackage ep) {
+		val container = ep.eContainer as EPackage
+
+		if (container === null) {
+			ep.singletonContext
+		} else {
+			[container.ESubpackages]
+		}
+	}
 
 	static dispatch def UniquenessContext uniquenessContext(EClass ec) {
 		[(ec.eContainer as EPackage).EClassifiers.filter(EClass)]
@@ -27,6 +39,16 @@ abstract class UniquenessContext {
 
 	static dispatch def UniquenessContext uniquenessContext(EStructuralFeature ef) {
 		[(ef.eContainer as EClass).EAllStructuralFeatures]
+	}
+
+	static dispatch def UniquenessContext uniquenessContext(Module m) {
+		val container = m.eContainer as Module
+		
+		if (container === null) {
+			m.singletonContext
+		} else {
+			[container.subModules]
+		}		
 	}
 
 	static dispatch def UniquenessContext uniquenessContext(Node n) {
@@ -53,10 +75,8 @@ abstract class UniquenessContext {
 			}
 
 			override considerIdentical(EObject eo1, EObject eo2) {
-				super.considerIdentical(eo1, eo2) ||
-				rule?.mappings.exists[mp | 
-					((mp.origin === eo1) && (mp.image === eo2)) ||
-					((mp.origin === eo2) && (mp.image === eo1))
+				super.considerIdentical(eo1, eo2) || rule?.mappings.exists [ mp |
+					((mp.origin === eo1) && (mp.image === eo2)) || ((mp.origin === eo2) && (mp.image === eo1))
 				]
 			}
 		}

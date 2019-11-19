@@ -15,7 +15,6 @@ import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Data
-import uk.ac.kcl.inf.gts_morpher.composer.helpers.DefaultNamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver
@@ -30,9 +29,9 @@ import uk.ac.kcl.inf.gts_morpher.util.IProgressMonitor
 import uk.ac.kcl.inf.gts_morpher.util.Triple
 import uk.ac.kcl.inf.gts_morpher.util.ValueHolder
 
-import static uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
 import static uk.ac.kcl.inf.gts_morpher.util.MorphismChecker.*
 
+import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver.weaveAllNames
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
@@ -119,10 +118,7 @@ class GTSComposer {
 
 					if (result.empty) {
 						// Actually do the weaving
-						val namingStrategy = weaving.options.fold(
-							new DefaultNamingStrategy as NamingStrategy, [ acc, opt |
-								opt.generateNamingStrategy(acc)
-							])
+						val namingStrategy = weaving.options.generateNamingStrategy
 
 						// Weave
 						_monitor.split("Composing type graph.", 1)
@@ -271,7 +267,7 @@ class GTSComposer {
 
 		result.name = weaveNames(
 			#{result -> #[kernelBehaviour?.kernelKey, leftBehaviour?.leftKey, rightBehaviour?.rightKey].filterNull},
-			result, emptyContext)
+			result, result.uniquenessContext)
 		result.units.forEach [ r |
 			r.name = weaveNames(ruleWeavingMap, r, [result.units])
 		]
