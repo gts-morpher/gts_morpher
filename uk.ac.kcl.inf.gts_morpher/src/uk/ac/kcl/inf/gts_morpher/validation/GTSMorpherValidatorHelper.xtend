@@ -30,6 +30,7 @@ import uk.ac.kcl.inf.gts_morpher.util.ValueHolder
 import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import org.eclipse.emf.ecore.EStructuralFeature
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
 
 class GTSMorpherValidatorHelper {
 
@@ -137,16 +138,27 @@ class GTSMorpherValidatorHelper {
 				]
 
 				if (inComplete) {
-					if (validator !== null) {
-						validator.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.",
-							mapping, GtsMorpherPackage.Literals.RULE_MAPPING__SOURCE,
-							GTSMorpherValidator.INCOMPLETE_RULE_MAPPING)
-					}
+					validator?.warning("Incomplete mapping. Ensure all elements of the source rule are mapped.",
+						mapping, GtsMorpherPackage.Literals.RULE_MAPPING__SOURCE,
+						GTSMorpherValidator.INCOMPLETE_RULE_MAPPING)
+
+					return false
+				}
+
+				val inCompleteParameterMappings = mapping.source.parameters.exists [ p |
+					!mapping.element_mappings.filter(RuleParameterMapping).exists[source === p]
+				]
+
+				if (inCompleteParameterMappings) {
+					validator?.warning("Incomplete mapping. Ensure all parameters of the source rule are mapped.",
+						mapping, GtsMorpherPackage.Literals.RULE_MAPPING__SOURCE,
+						GTSMorpherValidator.INCOMPLETE_RULE_MAPPING)
 
 					return false
 				}
 			}
 		}
+		
 		true
 	}
 
