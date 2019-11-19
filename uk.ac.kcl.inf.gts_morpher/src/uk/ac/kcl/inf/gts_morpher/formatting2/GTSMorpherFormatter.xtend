@@ -177,7 +177,7 @@ class GTSMorpherFormatter extends AbstractFormatter2 {
 	}
 	
 	def dispatch void format(TypeMapping mapping, extension IFormattableDocument document) {
-		mapping.regionFor.keywords("class", "reference", "attribute").forEach[k | k.append[oneSpace]]
+		mapping.regionFor.keywords("class", "reference", "attribute").forEach[append[oneSpace]]
 		mapping.regionFor.keyword("=>").surround[oneSpace]
 	}
 	
@@ -209,7 +209,7 @@ class GTSMorpherFormatter extends AbstractFormatter2 {
 	}
 	
 	def dispatch void format(RuleElementMapping mapping, extension IFormattableDocument document) {
-		mapping.regionFor.keywords("object", "link", "slot").forEach[k | k.append[oneSpace]]
+		mapping.regionFor.keywords("object", "link", "slot", "param").forEach[append[oneSpace]]
 		mapping.regionFor.keyword("=>").surround[oneSpace]
 	}
 	

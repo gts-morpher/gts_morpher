@@ -138,12 +138,13 @@ class FormatterTests extends AbstractTest {
 						object a => b
 						link [A->B:C] => [D->E:F]
 						slot a.c => b.d
+						param a1 => b1
 					}
 				}
 			}
 			
 			'''
-		val testInput = '''map{from{metamodel  :"a"behaviour  :"arules"}to{metamodel  :"b"behaviour  :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d}}}'''
+		val testInput = '''map{from{metamodel  :"a"behaviour  :"arules"}to{metamodel  :"b"behaviour  :"brules"}type_mapping{class  a.A=>b.B reference  a.A.a=>b.B.b attribute   a.A.b=>b.B.c}behaviour_mapping{rule   a    to   b{object  a=>b link[A->B:C]=>[D->E:F]slot   a.c=>b.d    param   a1=>b1   }}}'''
 		
 		doTest(testInput, expectedResult)
 	}
