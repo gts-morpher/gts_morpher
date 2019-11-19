@@ -3,34 +3,40 @@
   <imports href="A.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_Z3eicCOwEeiii-lmtwtH3g" name="do">
     <lhs xmi:id="_Z4WsMCOwEeiii-lmtwtH3g" name="Lhs">
-      <nodes xmi:id="_bsva8COwEeiii-lmtwtH3g" name="a1">
+      <nodes xmi:id="_bsva8COwEeiii-lmtwtH3g" name="a1" outgoing="_7-uj0Aq0EeqLhcHMI0SnZQ">
         <type href="A.ecore#//A1"/>
         <attributes xmi:id="_T1MAoDEpEeizRfWjzzVMHQ" value="0">
           <type href="A.ecore#//A1/att"/>
         </attributes>
       </nodes>
-      <nodes xmi:id="_yOynIAVLEeqaE_CaZXOWPA">
-        <type href="A.ecore#//A1"/>
+      <nodes xmi:id="_6Fo7QAq0EeqLhcHMI0SnZQ" incoming="_7-uj0Aq0EeqLhcHMI0SnZQ">
+        <type href="A.ecore#//A2"/>
       </nodes>
+      <edges xmi:id="_7-uj0Aq0EeqLhcHMI0SnZQ" source="_bsva8COwEeiii-lmtwtH3g" target="_6Fo7QAq0EeqLhcHMI0SnZQ">
+        <type href="A.ecore#//A1/bs"/>
+      </edges>
     </lhs>
     <rhs xmi:id="_Z4WsMSOwEeiii-lmtwtH3g" name="Rhs">
-      <nodes xmi:id="_bsva8SOwEeiii-lmtwtH3g" name="a1" outgoing="_c6H0ECOwEeiii-lmtwtH3g">
+      <nodes xmi:id="_cQtDoCOwEeiii-lmtwtH3g" incoming="_c6H0ECOwEeiii-lmtwtH3g">
+        <type href="A.ecore#//A2"/>
+      </nodes>
+      <nodes xmi:id="_bsva8SOwEeiii-lmtwtH3g" name="a1" outgoing="_c6H0ECOwEeiii-lmtwtH3g _7-uj0Qq0EeqLhcHMI0SnZQ">
         <type href="A.ecore#//A1"/>
         <attributes xmi:id="_T1PrADEpEeizRfWjzzVMHQ" value="0">
           <type href="A.ecore#//A1/att"/>
         </attributes>
       </nodes>
-      <nodes xmi:id="_cQtDoCOwEeiii-lmtwtH3g" incoming="_c6H0ECOwEeiii-lmtwtH3g">
+      <nodes xmi:id="_7QgL4Aq0EeqLhcHMI0SnZQ" incoming="_7-uj0Qq0EeqLhcHMI0SnZQ">
         <type href="A.ecore#//A2"/>
-      </nodes>
-      <nodes xmi:id="_yOynIQVLEeqaE_CaZXOWPA">
-        <type href="A.ecore#//A1"/>
       </nodes>
       <edges xmi:id="_c6H0ECOwEeiii-lmtwtH3g" source="_bsva8SOwEeiii-lmtwtH3g" target="_cQtDoCOwEeiii-lmtwtH3g">
         <type href="A.ecore#//A1/bs"/>
       </edges>
+      <edges xmi:id="_7-uj0Qq0EeqLhcHMI0SnZQ" source="_bsva8SOwEeiii-lmtwtH3g" target="_7QgL4Aq0EeqLhcHMI0SnZQ">
+        <type href="A.ecore#//A1/bs"/>
+      </edges>
     </rhs>
     <mappings xmi:id="_bsva8iOwEeiii-lmtwtH3g" origin="_bsva8COwEeiii-lmtwtH3g" image="_bsva8SOwEeiii-lmtwtH3g"/>
-    <mappings xmi:id="_yO8YIAVLEeqaE_CaZXOWPA" origin="_yOynIAVLEeqaE_CaZXOWPA" image="_yOynIQVLEeqaE_CaZXOWPA"/>
+    <mappings xmi:id="_7QgL4Qq0EeqLhcHMI0SnZQ" origin="_6Fo7QAq0EeqLhcHMI0SnZQ" image="_7QgL4Aq0EeqLhcHMI0SnZQ"/>
   </units>
 </henshin:Module>
