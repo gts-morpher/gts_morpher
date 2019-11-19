@@ -128,5 +128,9 @@
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference GTSMorpher.ecore#//SlotMapping/source"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference GTSMorpher.ecore#//SlotMapping/target"/>
     </genClasses>
+    <genClasses ecoreClass="GTSMorpher.ecore#//RuleParameterMapping">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference GTSMorpher.ecore#//RuleParameterMapping/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference GTSMorpher.ecore#//RuleParameterMapping/target"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

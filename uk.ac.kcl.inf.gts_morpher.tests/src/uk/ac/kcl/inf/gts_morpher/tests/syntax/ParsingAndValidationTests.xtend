@@ -1321,7 +1321,7 @@ class ParsingAndValidationTests extends AbstractTest {
 				
 				behaviour_mapping {
 					rule do to do {
-						param a1 to b1
+						param a1 => b1
 					}
 				}
 			}
