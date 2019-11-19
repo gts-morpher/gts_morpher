@@ -1,11 +1,13 @@
 package uk.ac.kcl.inf.gts_morpher.composer.helpers
 
+import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
+import org.eclipse.xtend.lib.annotations.Accessors
 
 class GloballyUniquifyNames implements NamingStrategy {
 	val NamingStrategy baseNS
@@ -26,13 +28,32 @@ class GloballyUniquifyNames implements NamingStrategy {
 		val Map<EObject, String> names
 		val Map<String, List<EObject>> duplicateNames
 
+		private static class DuplicateObjectCount {
+			@Accessors
+			var int count = 0
+			@Accessors
+			var List<EObject> elementsSeen = new ArrayList<EObject>
+		}
+
 		new(Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup,
 			UniquenessContext context, NamingStrategy naming) {
 			names = context.contextElements.map[eo | 
 				new Pair(eo, naming.weaveNames(nameSourcesLookup, eo, context))
 			].toMap([key], [value])
 			
-			duplicateNames = names.keySet.groupBy[names.get(it)].filter[name, objects | objects.size > 1]
+			duplicateNames = names.keySet.groupBy[names.get(it)]
+				.filter[name, objects | name !== null] // we don't need to keep track of duplicate unnamed objects
+				.filter[name, objects | 
+					objects.fold(new DuplicateObjectCount)[acc, o |
+						if (!acc.elementsSeen.exists[o2 | context.considerIdentical(o, o2)]) {
+							acc.count ++
+						}
+
+						acc.elementsSeen += o
+
+						acc
+					].count > 1
+				]
 		}
 
 		def String uniqueNameFor(EObject object) {
