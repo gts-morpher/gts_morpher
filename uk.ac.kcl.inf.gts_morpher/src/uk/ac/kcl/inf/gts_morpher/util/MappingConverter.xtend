@@ -47,6 +47,8 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.isInterfaceElem
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
+import org.eclipse.emf.henshin.model.Parameter
 
 /**
  * Basic util methods for extracting mappings from GTSMappings and vice versa.
@@ -57,6 +59,7 @@ class MappingConverter {
 	public static val DUPLICATE_ATTRIBUTE_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_ATTRIBUTE_MAPPING'
 	public static val DUPLICATE_RULE_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_RULE_MAPPING'
 	public static val DUPLICATE_OBJECT_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_OBJECT_MAPPING'
+	public static val DUPLICATE_PARAMETER_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_PARAMETER_MAPPING'
 	public static val DUPLICATE_LINK_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_LINK_MAPPING'
 	public static val DUPLICATE_SLOT_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_SLOT_MAPPING'
 	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.NON_INTERFACE_CLASS_MAPPING_ATTEMPT'
@@ -275,6 +278,8 @@ class MappingConverter {
 						} else {
 							true
 						}
+					} else if ((e.key instanceof Parameter) && (e.key.eContainer === srcRule)) {
+						true
 					} else {
 						false
 					}
@@ -335,29 +340,34 @@ class MappingConverter {
 
 	private static dispatch def RuleElementMapping extractRuleElementMapping(Node srcNode, Node tgtNode,
 		GTSMapping mapping) {
-		val result = GtsMorpherFactory.eINSTANCE.createObjectMapping
-		result.source = srcNode.correspondingSourceElement(mapping)
-		result.target = tgtNode.correspondingTargetElement(mapping)
-
-		result
+		GtsMorpherFactory.eINSTANCE.createObjectMapping => [
+			source = srcNode.correspondingSourceElement(mapping)
+			target = tgtNode.correspondingTargetElement(mapping)
+		]
 	}
 
 	private static dispatch def RuleElementMapping extractRuleElementMapping(Edge srcEdge, Edge tgtEdge,
 		GTSMapping mapping) {
-		val result = GtsMorpherFactory.eINSTANCE.createLinkMapping
-		result.source = srcEdge.correspondingSourceElement(mapping)
-		result.target = tgtEdge.correspondingTargetElement(mapping)
-
-		result
+		GtsMorpherFactory.eINSTANCE.createLinkMapping => [
+			source = srcEdge.correspondingSourceElement(mapping)
+			target = tgtEdge.correspondingTargetElement(mapping)			
+		]
 	}
 
 	private static dispatch def RuleElementMapping extractRuleElementMapping(Attribute srcAttribute,
 		Attribute tgtAttribute, GTSMapping mapping) {
-		val result = GtsMorpherFactory.eINSTANCE.createSlotMapping
-		result.source = srcAttribute.correspondingSourceElement(mapping)
-		result.target = tgtAttribute.correspondingTargetElement(mapping)
+		GtsMorpherFactory.eINSTANCE.createSlotMapping => [
+			source = srcAttribute.correspondingSourceElement(mapping)
+			target = tgtAttribute.correspondingTargetElement(mapping)
+		]
+	}
 
-		result
+	private static dispatch def RuleElementMapping extractRuleElementMapping(Parameter srcParameter,
+		Parameter tgtParameter, GTSMapping mapping) {
+		GtsMorpherFactory.eINSTANCE.createRuleParameterMapping => [
+			source = srcParameter.correspondingSourceElement(mapping)
+		    target = tgtParameter.correspondingTargetElement(mapping)
+		]
 	}
 
 	/**
@@ -420,6 +430,10 @@ class MappingConverter {
 		attr.getCorrespondingElement(specification.behaviour)
 	}
 
+	private static dispatch def EObject correspondingElement(Parameter param, GTSSpecification specification) {
+		param.getCorrespondingElement(specification.behaviour)
+	}
+
 	private static def EObject getCorrespondingElement(EObject object, EPackage pck) {
 		val scope = scopeFor([pck.eAllContents], nameProvider, IScope.NULLSCOPE)
 		val name = nameProvider.getFullyQualifiedName(object)
@@ -451,6 +465,14 @@ class MappingConverter {
 		boolean tgtIsInterface, IssueAcceptor issues) {
 		_mapping.put(rm.target, rm.source)
 
+		rm.element_mappings.filter(RuleParameterMapping).forEach [ rpm |
+			if (_mapping.containsKey(rpm.source)) {
+				issues.safeError("Duplicate mapping for Parameter " + rpm.source.name + ".", rpm,
+					GtsMorpherPackage.Literals.OBJECT_MAPPING__SOURCE, DUPLICATE_PARAMETER_MAPPING)
+			} else {
+				_mapping.put(rpm.source, rpm.target)
+			}
+		]
 		rm.element_mappings.filter(ObjectMapping).forEach [ em |
 			if (_mapping.containsKey(em.source)) {
 				issues.safeError("Duplicate mapping for Object " + em.source.name + ".", em,

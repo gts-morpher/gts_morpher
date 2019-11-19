@@ -72,6 +72,7 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 	public static val NO_UNIQUE_COMPLETION = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.NO_UNIQUE_COMPLETION'
 	public static val UNIQUE_COMPLETION_NOT_CHECKED = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.UNIQUE_COMPLETION_NOT_CHECKED'
 	public static val DUPLICATE_RULE_MAPPING = MappingConverter.DUPLICATE_RULE_MAPPING
+	public static val DUPLICATE_PARAMETER_MAPPING = MappingConverter.DUPLICATE_PARAMETER_MAPPING
 	public static val DUPLICATE_OBJECT_MAPPING = MappingConverter.DUPLICATE_OBJECT_MAPPING
 	public static val DUPLICATE_LINK_MAPPING = MappingConverter.DUPLICATE_LINK_MAPPING
 	public static val DUPLICATE_SLOT_MAPPING = MappingConverter.DUPLICATE_SLOT_MAPPING
