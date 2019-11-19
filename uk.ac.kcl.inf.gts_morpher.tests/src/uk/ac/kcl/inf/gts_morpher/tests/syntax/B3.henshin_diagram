@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmi:id="_j-SZ4ArFEeqLhcHMI0SnZQ" type="Henshin" measurementUnit="Pixel">
+  <children xmi:type="notation:Shape" xmi:id="_j_FEEgrFEeqLhcHMI0SnZQ" type="2001" fontName="Segoe UI" italic="true" lineColor="0">
+    <children xmi:type="notation:DecorationNode" xmi:id="_j_FEFArFEeqLhcHMI0SnZQ" type="5001"/>
+    <children xmi:type="notation:DecorationNode" xmi:id="_j_FEFQrFEeqLhcHMI0SnZQ" type="7001"/>
+    <element xmi:type="henshin:Rule" href="B3.henshin#_tqmusCOwEeiii-lmtwtH3g"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_j_FEEwrFEeqLhcHMI0SnZQ" x="50" y="29"/>
+  </children>
+  <styles xmi:type="notation:DiagramStyle" xmi:id="_j-SZ4QrFEeqLhcHMI0SnZQ"/>
+  <element xmi:type="henshin:Module" href="B3.henshin#_qwH6kCOwEeiii-lmtwtH3g"/>
+</notation:Diagram>

@@ -57,9 +57,11 @@ class ParsingAndValidationTests extends AbstractTest {
 			"D.ecore",
 			"A.henshin",
 			"B.henshin",
+			"B2.henshin",
+			"A3.henshin",
+			"B3.henshin",
 			"C.henshin",
-			"D.henshin",
-			"B2.henshin"
+			"D.henshin"
 		].createResourceSet
 	}
 
@@ -1292,6 +1294,41 @@ class ParsingAndValidationTests extends AbstractTest {
 		
 		assertTrue("Didn't record preferMap2TargetNames flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.PREFER_MAP2_TARGET_NAMES))
 		assertTrue("Didn't record dontLabelNonKernelElements flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.DONT_LABEL_NON_KERNEL_ELEMENTS))
+	}
+	
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void parsingBasicParameterMorphism() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 to b1
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertNoErrors
 	}
 
 	/**
