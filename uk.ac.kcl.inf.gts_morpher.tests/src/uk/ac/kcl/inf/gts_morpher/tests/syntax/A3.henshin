@@ -5,6 +5,12 @@
     <parameters xmi:id="_nLCpwArFEeqLhcHMI0SnZQ" name="a1" kind="IN">
       <type xsi:type="ecore:EClass" href="A.ecore#//A1"/>
     </parameters>
+    <parameters xmi:id="_akauMArKEeqLhcHMI0SnZQ" name="n" kind="VAR">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <parameters xmi:id="_akauMQrKEeqLhcHMI0SnZQ" name="m" kind="OUT">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </parameters>
     <lhs xmi:id="_Z4WsMCOwEeiii-lmtwtH3g" name="Lhs">
       <nodes xmi:id="_bsva8COwEeiii-lmtwtH3g" name="a1">
         <type href="A.ecore#//A1"/>

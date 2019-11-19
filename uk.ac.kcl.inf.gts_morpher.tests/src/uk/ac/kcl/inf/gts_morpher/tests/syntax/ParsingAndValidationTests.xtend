@@ -1332,6 +1332,91 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void validateBasicParameterMorphismPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+					reference A.A1.bs => B.B1._2s
+					reference A.A2.a => B.B2.a
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b1
+						param m => s
+						param n => n
+						object a1 => b1
+						object a2 => b2
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertNoIssues
+	}
+
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void validateBasicParameterMorphismNegative_IncompleteParameterMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+					reference A.A1.bs => B.B1._2s
+					reference A.A2.a => B.B2.a
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b1
+						param m => s
+						object a1 => b1
+						object a2 => b2
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertWarning(GtsMorpherPackage.Literals.RULE_MAPPING, GTSMorpherValidator.INCOMPLETE_RULE_MAPPING)
+	}
+
+	/**
 	 * Tests basic validation of algebraic weave descriptions: checking that both mappings come from a common source
 	 */
 	@Test
