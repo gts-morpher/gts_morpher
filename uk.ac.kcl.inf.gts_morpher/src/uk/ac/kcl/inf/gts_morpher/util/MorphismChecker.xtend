@@ -14,6 +14,7 @@ import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.isVirtualRule
+import org.eclipse.emf.henshin.model.Parameter
 
 /**
  * Utility class to check type mappings for morphism properties.
@@ -261,7 +262,8 @@ class MorphismChecker {
 			// TODO: Consider adding checks for the actual patterns. We don't explicitly map them at the moment (and this only really makes sense for NACs/PACs, but Kinga's original code checked this nonetheless
 			checkPatternMorphism(srcLhsPattern, tgtLhsPattern, typeMapping, behaviourMapping, issues) &&
 				checkPatternMorphism(srcRhsPattern, tgtRhsPattern, typeMapping, behaviourMapping, issues) &&
-				checkKPatternMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues)
+				checkKPatternMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues) &&
+				checkParameterMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues)
 				
 		} else {
 			// to-virtual rule mappings are valid by default, so no need to check in detail
@@ -269,6 +271,57 @@ class MorphismChecker {
 		}
 	}
 
+	static private def boolean checkParameterMorphism(Rule srcRule, Rule tgtRule,
+		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+		val result = new ValueHolder(true)	
+		
+		srcRule.parameters.forEach[srcParam |
+			val tgtParam = behaviourMapping.get(srcParam) as Parameter
+			
+			if (tgtParam === null) {
+				result.value = false
+			} else if (!tgtRule.parameters.exists[it === tgtParam]) {
+				// This should be prevented by scoping rules...
+				issues?.issue(srcParam, "Target parameter is in the wrong rule.")
+				result.value = false
+			} else if (srcParam.kind !== tgtParam.kind) {
+				issues?.issue(srcParam, "Mapped parameters must be of the same kind.")
+				result.value = false
+			} else {
+				// Check parameter typing
+				val srcType = srcParam.type
+				val tgtType = tgtParam.type
+				
+				if (srcType instanceof EClass) {
+					if (tgtType instanceof EClass) {
+						// Check compatibility of the classes in the mapping
+						// TODO: Could possibly allow sub-typing, but need to think about the theory first
+						if (typeMapping.get(srcType) !== tgtType) {
+							issues?.issue(srcParam, "Types of mapped parameters must be mapped by type mapping.")
+							result.value = false
+						}
+					} else {
+						issues?.issue(srcParam, "Cannot map a node parameter onto a non-node parameter.")
+						result.value = false
+					}
+				} else {
+					if (tgtType instanceof EClass) {
+						issues?.issue(srcParam, "Cannot map a non-node parameter onto a node parameter.")
+						result.value = false
+					} else {
+						// Check the types are identical
+						if (srcType !== tgtType) {
+							issues?.issue(srcParam, "When mapping non-node parameters, their types must be identical.")
+							result.value = false
+						}
+					}
+				}
+			}
+		]
+		
+		result.value
+	}
+	
 	static private def boolean checkPatternMorphism(Graph srcPattern, Graph tgtPattern,
 		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
 

@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.HenshinPackage
 import org.eclipse.emf.henshin.model.Node
+import org.eclipse.emf.henshin.model.Parameter
 import org.eclipse.emf.henshin.model.ParameterKind
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.validation.Check
@@ -38,6 +39,7 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.NumericParameter
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ObjectMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ReferenceMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleMapping
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.StringParameter
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeGraphMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.UnitCall
@@ -166,34 +168,43 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 					if (object instanceof Rule) {
 						// Interface mapping may create spuriour kernel mismatch errors, which we shouldn't reflect to the user
 						if (!srcIsInterface || (message != GENERAL_KERNEL_MISMATCH)) {
-							result.value = true
+							result.value = false
 							if (issueErrors) {
 								error(message, mapping.behaviourMapping.mappings.findFirst [ rm |
-									rm.source == object as Rule
+									rm.source === object as Rule
 								], GtsMorpherPackage.Literals.RULE_MAPPING__TARGET, NOT_A_RULE_MORPHISM)
 							}
 						}
 					} else if (object instanceof Edge) {
 						if (!srcIsInterface || isInterfaceElement(object.type)) {
-							result.value = true
+							result.value = false
 							if (issueErrors) {
 								error(message, mapping.behaviourMapping.mappings.map [ rm |
 									rm.element_mappings.filter(LinkMapping)
 								].flatten.findFirst [ lm |
-									lm.source == object as Edge
+									lm.source === object as Edge
 								], GtsMorpherPackage.Literals.LINK_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
 							}
 						}
 					} else if (object instanceof Node) {
 						if (!srcIsInterface || isInterfaceElement(object.type)) {
-							result.value = true
+							result.value = false
 							if (issueErrors) {
 								error(message, mapping.behaviourMapping.mappings.map [ rm |
 									rm.element_mappings.filter(ObjectMapping)
 								].flatten.findFirst [ om |
-									om.source == object as Object
+									om.source === object as Object
 								], GtsMorpherPackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
 							}
+						}
+					} else if (object instanceof Parameter) {
+						result.value = false
+						if (issueErrors) {
+							error(message, mapping.behaviourMapping.mappings.map [ rm |
+								rm.element_mappings.filter(RuleParameterMapping)
+							].flatten.findFirst [ rpm |
+								rpm.source === object
+							], GtsMorpherPackage.Literals.RULE_PARAMETER_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
 						}
 					}
 				])
