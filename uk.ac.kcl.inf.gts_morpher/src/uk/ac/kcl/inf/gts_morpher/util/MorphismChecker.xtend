@@ -299,6 +299,18 @@ class MorphismChecker {
 						if (typeMapping.get(srcType) !== tgtType) {
 							issues?.issue(srcParam, "Types of mapped parameters must be mapped by type mapping.")
 							result.value = false
+						} else {
+							// Check mapping is compatible with node mapping, if any
+							val srcNode = behaviourMapping.keySet.filter(Node).findFirst[n | (srcParam.name == n.name) && (srcParam.type === n.type)]
+							
+							if (srcNode !== null) {
+								val tgtNode = behaviourMapping.get(srcNode) as Node
+								
+								if ((tgtParam.name != tgtNode.name) || (tgtParam.type !== tgtNode.type)) {
+									issues?.issue(srcParam, "Nodes corresponding to mapped parameters must be mapped by behaviour mapping")
+									result.value = false
+								}
+							}
 						}
 					} else {
 						issues?.issue(srcParam, "Cannot map a node parameter onto a non-node parameter.")

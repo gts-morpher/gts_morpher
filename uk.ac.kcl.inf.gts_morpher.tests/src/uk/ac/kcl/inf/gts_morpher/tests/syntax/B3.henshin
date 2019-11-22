@@ -14,11 +14,14 @@
     <parameters xmi:id="_m1HDwgrKEeqLhcHMI0SnZQ" name="n2" kind="OUT">
       <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     </parameters>
+    <parameters xmi:id="_Uj2goA1AEeqdauuAxTe0CA" name="b2b" kind="IN">
+      <type xsi:type="ecore:EClass" href="B.ecore#//B2"/>
+    </parameters>
+    <parameters xmi:id="_CHzcEA1AEeqdauuAxTe0CA" name="b2" kind="IN">
+      <type xsi:type="ecore:EClass" href="B.ecore#//B2"/>
+    </parameters>
     <parameters xmi:id="_m1HDwArKEeqLhcHMI0SnZQ" name="n" kind="VAR">
       <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
-    </parameters>
-    <parameters xmi:id="_2fjxIArPEeqAeJWWsv8hpw" name="b3" kind="IN">
-      <type xsi:type="ecore:EClass" href="B.ecore#//B3"/>
     </parameters>
     <lhs xmi:id="_tqqZECOwEeiii-lmtwtH3g" name="Lhs">
       <nodes xmi:id="_u0BN0COwEeiii-lmtwtH3g" name="b1">
@@ -26,7 +29,7 @@
       </nodes>
     </lhs>
     <rhs xmi:id="_tqqZESOwEeiii-lmtwtH3g" name="Rhs">
-      <nodes xmi:id="_u0BN0SOwEeiii-lmtwtH3g" name="b1" outgoing="_zCL3YCOwEeiii-lmtwtH3g _yiwwcCOwEeiii-lmtwtH3g">
+      <nodes xmi:id="_u0BN0SOwEeiii-lmtwtH3g" name="b1" outgoing="_zCL3YCOwEeiii-lmtwtH3g _yiwwcCOwEeiii-lmtwtH3g _RiclIA1AEeqdauuAxTe0CA">
         <type href="B.ecore#//B1"/>
       </nodes>
       <nodes xmi:id="_wPfGQCOwEeiii-lmtwtH3g" name="b2" incoming="_zCL3YCOwEeiii-lmtwtH3g">
@@ -35,11 +38,17 @@
       <nodes xmi:id="_xH9mYCOwEeiii-lmtwtH3g" name="b3" incoming="_yiwwcCOwEeiii-lmtwtH3g">
         <type href="B.ecore#//B3"/>
       </nodes>
+      <nodes xmi:id="_PUA-sA1AEeqdauuAxTe0CA" name="b2b" incoming="_RiclIA1AEeqdauuAxTe0CA">
+        <type href="B.ecore#//B2"/>
+      </nodes>
       <edges xmi:id="_zCL3YCOwEeiii-lmtwtH3g" source="_u0BN0SOwEeiii-lmtwtH3g" target="_wPfGQCOwEeiii-lmtwtH3g">
         <type href="B.ecore#//B1/_2s"/>
       </edges>
       <edges xmi:id="_yiwwcCOwEeiii-lmtwtH3g" source="_u0BN0SOwEeiii-lmtwtH3g" target="_xH9mYCOwEeiii-lmtwtH3g">
         <type href="B.ecore#//B1/_3s"/>
+      </edges>
+      <edges xmi:id="_RiclIA1AEeqdauuAxTe0CA" source="_u0BN0SOwEeiii-lmtwtH3g" target="_PUA-sA1AEeqdauuAxTe0CA">
+        <type href="B.ecore#//B1/_2s"/>
       </edges>
     </rhs>
     <mappings xmi:id="_u0BN0iOwEeiii-lmtwtH3g" origin="_u0BN0COwEeiii-lmtwtH3g" image="_u0BN0SOwEeiii-lmtwtH3g"/>
