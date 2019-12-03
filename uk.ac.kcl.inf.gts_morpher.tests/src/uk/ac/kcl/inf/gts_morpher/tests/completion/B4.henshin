@@ -5,7 +5,7 @@
     <parameters xmi:id="_IAHfUBW8EeqZpdwwlnPUQA" name="numberB" kind="IN">
       <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     </parameters>
-    <parameters xmi:id="_tim-YBW-EeqZpdwwlnPUQA" name="numberA">
+    <parameters xmi:id="_tim-YBW-EeqZpdwwlnPUQA" name="numberA" kind="IN">
       <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     </parameters>
     <lhs xmi:id="_HDdCwBW8EeqZpdwwlnPUQA" name="Lhs">

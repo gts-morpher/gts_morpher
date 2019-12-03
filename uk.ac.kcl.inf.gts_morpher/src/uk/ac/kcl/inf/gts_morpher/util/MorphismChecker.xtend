@@ -278,8 +278,9 @@ class MorphismChecker {
 		srcRule.parameters.forEach[srcParam |
 			val tgtParam = behaviourMapping.get(srcParam) as Parameter
 			
-			if (tgtParam === null) { 
-				result.value = false // This seems a bit strict: we're not checking for completeness, or if we are, we should report an issue...
+			if (tgtParam === null) {
+				// This is acceptable: we're not checking for completeness of the mapping here... 
+				result.value = true
 			} else if (!tgtRule.parameters.exists[it === tgtParam]) {
 				// This should be prevented by scoping rules...
 				issues?.issue(srcParam, "Target parameter is in the wrong rule.")
@@ -413,7 +414,7 @@ class MorphismChecker {
 	/**
 	 * Check that the two expressions can be mapped to each other under the given parameter mappings.
 	 */
-	static private def boolean canBeMappedTo(String sourceExpression, String targetExpression, Map<EObject, EObject> parameterMappings) {
+	static def boolean canBeMappedTo(String sourceExpression, String targetExpression, Map<EObject, EObject> parameterMappings) {
 		// FIXME: Need proper regexps to exclude situations where the name of a parameter is contained in the name of another parameter
 		val transformedSrcExpression = parameterMappings.keySet.fold(sourceExpression)[acc, srcParam |
 			val tgtParam = parameterMappings.get(srcParam) as Parameter
