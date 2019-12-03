@@ -278,8 +278,8 @@ class MorphismChecker {
 		srcRule.parameters.forEach[srcParam |
 			val tgtParam = behaviourMapping.get(srcParam) as Parameter
 			
-			if (tgtParam === null) {
-				result.value = false
+			if (tgtParam === null) { 
+				result.value = false // This seems a bit strict: we're not checking for completeness, or if we are, we should report an issue...
 			} else if (!tgtRule.parameters.exists[it === tgtParam]) {
 				// This should be prevented by scoping rules...
 				issues?.issue(srcParam, "Target parameter is in the wrong rule.")

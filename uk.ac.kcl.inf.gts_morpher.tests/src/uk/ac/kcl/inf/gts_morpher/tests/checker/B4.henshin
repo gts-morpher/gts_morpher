@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_8q7IsBW7EeqZpdwwlnPUQA" name="B4Rules">
+  <imports href="B4.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_HDYxUBW8EeqZpdwwlnPUQA" name="test">
+    <parameters xmi:id="_IAHfUBW8EeqZpdwwlnPUQA" name="numberB" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <parameters xmi:id="_tim-YBW-EeqZpdwwlnPUQA" name="numberA">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <lhs xmi:id="_HDdCwBW8EeqZpdwwlnPUQA" name="Lhs">
+      <nodes xmi:id="_IuC8UBW8EeqZpdwwlnPUQA" name="b1">
+        <type href="B4.ecore#//B1"/>
+        <attributes xmi:id="_J_xC4BW8EeqZpdwwlnPUQA" value="numberB+1*(numberB)">
+          <type href="B4.ecore#//B1/numB"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_3B3ZABW8EeqZpdwwlnPUQA" name="b2">
+        <type href="B4.ecore#//B1"/>
+        <attributes xmi:id="_4WQZEBW8EeqZpdwwlnPUQA" value="numberA+1*(numberA)">
+          <type href="B4.ecore#//B1/numB"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_HDdCwRW8EeqZpdwwlnPUQA" name="Rhs">
+      <nodes xmi:id="_IuC8URW8EeqZpdwwlnPUQA" name="b1">
+        <type href="B4.ecore#//B1"/>
+        <attributes xmi:id="_J_xC4RW8EeqZpdwwlnPUQA" value="numberB+1*(numberB)">
+          <type href="B4.ecore#//B1/numB"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_3B3ZARW8EeqZpdwwlnPUQA" name="b2">
+        <type href="B4.ecore#//B1"/>
+        <attributes xmi:id="_4WRAIBW8EeqZpdwwlnPUQA" value="numberA+1*(numberA)">
+          <type href="B4.ecore#//B1/numB"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_IuC8UhW8EeqZpdwwlnPUQA" origin="_IuC8UBW8EeqZpdwwlnPUQA" image="_IuC8URW8EeqZpdwwlnPUQA"/>
+    <mappings xmi:id="_3B3ZAhW8EeqZpdwwlnPUQA" origin="_3B3ZABW8EeqZpdwwlnPUQA" image="_3B3ZARW8EeqZpdwwlnPUQA"/>
+  </units>
+</henshin:Module>
