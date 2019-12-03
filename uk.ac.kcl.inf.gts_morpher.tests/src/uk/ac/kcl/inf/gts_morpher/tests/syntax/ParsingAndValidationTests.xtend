@@ -1452,7 +1452,6 @@ class ParsingAndValidationTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 		
-		result.assertError(GtsMorpherPackage.Literals.RULE_PARAMETER_MAPPING, GTSMorpherValidator.NOT_A_RULE_MORPHISM)
 		result.assertError(GtsMorpherPackage.Literals.SLOT_MAPPING, GTSMorpherValidator.NOT_A_RULE_MORPHISM)
 	}
 

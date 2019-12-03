@@ -57,6 +57,8 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
 import static extension uk.ac.kcl.inf.gts_morpher.validation.GTSMorpherValidatorHelper.*
+import org.eclipse.emf.henshin.model.Attribute
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.SlotMapping
 
 /**
  * This class contains custom validation rules. 
@@ -196,6 +198,15 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 									om.source === object as Object
 								], GtsMorpherPackage.Literals.OBJECT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
 							}
+						}
+					} else if (object instanceof Attribute) {
+						result.value = false
+						if (issueErrors) {
+							error(message, mapping.behaviourMapping.mappings.map [ rm |
+								rm.element_mappings.filter(SlotMapping)
+							].flatten.findFirst [ slm |
+								slm.source === object
+							], GtsMorpherPackage.Literals.SLOT_MAPPING__SOURCE, NOT_A_RULE_MORPHISM)
 						}
 					} else if (object instanceof Parameter) {
 						result.value = false

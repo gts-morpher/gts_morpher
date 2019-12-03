@@ -394,27 +394,18 @@ class MorphismChecker {
 			val mappedSrcEAttribute = typeMapping.get(srcEAttribute)
 			
 			if ((mappedSrcEAttribute !== null) && (mappedSrcEAttribute !== tgtAttribute.type)) {
-				if (issues !== null) {
-					issues.issue(srcAttribute, "Mapped slots must be for mapped attributes.")
-				}
-
+				issues?.issue(srcAttribute, "Mapped slots must be for mapped attributes.")
 				false
 			} else {
 				if (srcAttribute.value.canBeMappedTo(tgtAttribute.value, parameterMappings)) {
 					true
 				} else {
-					if (issues !== null) {
-						issues.issue(srcAttribute, "Mapped slots must have the (syntactically) same value expressions.")
-					}
-
+					issues?.issue(srcAttribute, "Mapped slots must have the (syntactically) same value expressions.")
 					false
 				}
 			}
 		} else {
-			if (issues !== null) {
-				issues.issue(srcAttribute, "Mapped slots must be for mapped objects.")
-			}
-			
+			issues?.issue(srcAttribute, "Mapped slots must be for mapped objects.")
 			false
 		}
 	}
