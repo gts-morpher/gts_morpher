@@ -31,12 +31,16 @@ class MorphismCompleterTests extends AbstractTest {
 		#[
 			"A.ecore",
 			"B.ecore",
+			"A4.ecore",
+			"B4.ecore",
 			"A.henshin",
 			"B.henshin",
 			"A2.henshin",
 			"B2.henshin",
 			"A3.henshin",
 			"B3.henshin",
+			"A4.henshin",
+			"B4.henshin",
 			"BUniqueComplete.henshin",
 			"B2UniqueComplete.henshin",
 			"B3UniqueComplete.henshin",
@@ -206,6 +210,41 @@ class MorphismCompleterTests extends AbstractTest {
 
 		assertTrue("Couldn't autocomplete", numUncompleted == 0)
 		assertTrue("Expected to find two completions", completer.completedMappings.size == 2)
+
+		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+	}
+
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void completeMultipleParameterMorphism() {
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A4"
+					behaviour: "A4Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B4Rules"
+				}
+				
+				type_mapping {
+					class A4.A1 => B4.B1
+					attribute A4.A1.numA => B4.B1.numB
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected to find exactly two completions", completer.completedMappings.size == 2)
 
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 	}
