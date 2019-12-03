@@ -378,16 +378,17 @@ class MorphismChecker {
 		
 		// Check attribute mappings, if any
 		val result = new ValueHolder(true)
+		val parameterMappings = behaviourMapping.filter[k, v | (k instanceof Parameter) && ((k as Parameter).unit === srcPattern.rule)]
 		srcObject.attributes.forEach[srcAttribute | 
 			if (behaviourMapping.containsKey(srcAttribute)) {
-				result.value = result.value && checkSlotMorphism(srcAttribute, behaviourMapping.get(srcAttribute) as Attribute, srcObject, tgtObject, typeMapping, issues)
+				result.value = result.value && checkSlotMorphism(srcAttribute, behaviourMapping.get(srcAttribute) as Attribute, srcObject, tgtObject, typeMapping, parameterMappings, issues)
 			}
 		]
 
 		result.value
 	}
 	
-	static private def boolean checkSlotMorphism(Attribute srcAttribute, Attribute tgtAttribute, Node srcObject, Node tgtObject, Map<EObject, EObject> typeMapping, IssueAcceptor issues) {
+	static private def boolean checkSlotMorphism(Attribute srcAttribute, Attribute tgtAttribute, Node srcObject, Node tgtObject, Map<EObject, EObject> typeMapping, Map<EObject, EObject> parameterMappings, IssueAcceptor issues) {
 		if ((srcAttribute.eContainer === srcObject) && (tgtAttribute.eContainer === tgtObject)) {
 			val srcEAttribute = srcAttribute.type
 			val mappedSrcEAttribute = typeMapping.get(srcEAttribute)
@@ -399,7 +400,7 @@ class MorphismChecker {
 
 				false
 			} else {
-				if (srcAttribute.value == tgtAttribute.value) {
+				if (srcAttribute.value.canBeMappedTo(tgtAttribute.value, parameterMappings)) {
 					true
 				} else {
 					if (issues !== null) {
@@ -416,6 +417,28 @@ class MorphismChecker {
 			
 			false
 		}
+	}
+	
+	/**
+	 * Check that the two expressions can be mapped to each other under the given parameter mappings.
+	 */
+	static private def boolean canBeMappedTo(String sourceExpression, String targetExpression, Map<EObject, EObject> parameterMappings) {
+		// FIXME: Need proper regexps to exclude situations where the name of a parameter is contained in the name of another parameter
+		val transformedSrcExpression = parameterMappings.keySet.fold(sourceExpression)[acc, srcParam |
+			val tgtParam = parameterMappings.get(srcParam) as Parameter
+			if (tgtParam !== null) {
+				val regexp = '''(^|[^_a-zA-Z])«(srcParam as Parameter).name»([^_a-zA-Z0-9]|$)'''
+				val replacement = '''$1«tgtParam.name»$2'''
+				
+				val result = acc.replaceAll(regexp, replacement)
+				
+				result			
+			} else {
+				acc
+			}
+		]
+		 
+		transformedSrcExpression == targetExpression
 	}
 
 	static private def boolean checkLinkMorphism(Edge srcLink, Edge tgtLink, Graph srcPattern, Graph tgtPattern,
