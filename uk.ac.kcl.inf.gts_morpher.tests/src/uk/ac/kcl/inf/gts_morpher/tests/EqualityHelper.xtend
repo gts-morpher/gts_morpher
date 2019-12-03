@@ -74,8 +74,8 @@ class EqualityHelper extends EcoreUtil.EqualityHelper {
 		var String actualString
 
 		if (feature.many) {
-			expectedString = (expected.eGet(feature) as List).map[formatClassAndValue].join(", ")
-			actualString = (actual.eGet(feature) as List).map[formatClassAndValue].join(", ")
+			expectedString = "[" + (expected.eGet(feature) as List).map[formatClassAndValue].join(", ") + "]"
+			actualString = "[" + (actual.eGet(feature) as List).map[formatClassAndValue].join(", ") + "]"
 		} else {
 			expectedString = expected.eGet(feature).formatClassAndValue
 			actualString = actual.eGet(feature).formatClassAndValue

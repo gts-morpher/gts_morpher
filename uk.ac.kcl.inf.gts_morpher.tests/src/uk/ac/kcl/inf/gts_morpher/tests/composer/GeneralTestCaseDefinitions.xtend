@@ -37,9 +37,13 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		#[
 			"A.ecore",
 			"A0.ecore",
+			"A4.ecore",
+			"B4.ecore",
 			"B.ecore",
 			"A.henshin",
 			"A3.henshin",
+			"A4.henshin",
+			"B4.henshin",
 			"A_unnamed.henshin",
 			"A_b.henshin",
 			"A0.henshin",
@@ -1385,6 +1389,68 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 //		val composedHenshinOracle = resourceSet.getResource(createFileURI("MN.henshin"), true).contents.head as Module
 //
 //		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
+	}
+	
+	/**
+	 * Weave based on attribute mappings
+	 */
+	@Test
+	def void testParameterMorphismWeaving() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts A4 {
+				metamodel: "A4"
+				behaviour: "A4Rules"
+			}
+			
+			auto-complete unique map A4toB4 {
+				from interface_of { A4 }
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B4Rules"
+				}
+				
+				type_mapping {
+					class A4.A1 => B4.B1
+					attribute A4.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param numberA => numberB
+					}
+				}
+			}
+			
+			export gts woven {
+				weave: {
+					map1: interface_of(A4)
+					map2: A4toB4
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoIssues
+
+		val runResult = result.doTest(resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+
+		// Check contents of generated resources and compare against oracle
+		assertNotNull("Couldn't find composed ecore", runResult.b)
+
+		val composedOracle = resourceSet.getResource(createFileURI("AB4.ecore"), true).contents.head as EPackage
+
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+
+		// Check contents of generated resources and compare against oracle
+		assertNotNull("Couldn't find composed henshin rules", runResult.c)
+
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("AB4.henshin"), true).contents.head as Module
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
 
 	static def void assertEObjectsEquals(String message, EObject expected, EObject actual) {

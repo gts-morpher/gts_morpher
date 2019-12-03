@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_eC07ABXcEeqZpdwwlnPUQA" name="A4Rules_B4Rules">
+  <imports href="AB4.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_ehiQQBXcEeqZpdwwlnPUQA" name="test">
+    <parameters xmi:id="_kw7KsBXcEeqZpdwwlnPUQA" name="numberA_numberB" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <parameters xmi:id="_kw7KsRXcEeqZpdwwlnPUQA" name="right__numberA" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <lhs xmi:id="_ehsBQBXcEeqZpdwwlnPUQA" name="Lhs">
+      <nodes xmi:id="_qeBQYBXcEeqZpdwwlnPUQA" name="right__b2">
+        <type href="AB4.ecore#//A1_B1"/>
+        <attributes xmi:id="_vmipYBXcEeqZpdwwlnPUQA" value="right__numberA+1*(right__numberA)">
+          <type href="AB4.ecore#//A1_B1/numA_numB"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_sBhqgBXcEeqZpdwwlnPUQA" name="a1_b1">
+        <type href="AB4.ecore#//A1_B1"/>
+        <attributes xmi:id="_0bFWcBXcEeqZpdwwlnPUQA" value="numberA_numberB+1*(numberA_numberB)">
+          <type href="AB4.ecore#//A1_B1/numA_numB"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_ehsBQRXcEeqZpdwwlnPUQA" name="Rhs">
+      <nodes xmi:id="_qeBQYRXcEeqZpdwwlnPUQA" name="right__b2">
+        <type href="AB4.ecore#//A1_B1"/>
+        <attributes xmi:id="_vmipYRXcEeqZpdwwlnPUQA" value="right__numberA+1*(right__numberA)">
+          <type href="AB4.ecore#//A1_B1/numA_numB"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_sBhqgRXcEeqZpdwwlnPUQA" name="a1_b1">
+        <type href="AB4.ecore#//A1_B1"/>
+        <attributes xmi:id="_0bFWcRXcEeqZpdwwlnPUQA" value="numberA_numberB+1*(numberA_numberB)">
+          <type href="AB4.ecore#//A1_B1/numA_numB"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_qeBQYhXcEeqZpdwwlnPUQA" origin="_qeBQYBXcEeqZpdwwlnPUQA" image="_qeBQYRXcEeqZpdwwlnPUQA"/>
+    <mappings xmi:id="_sBhqghXcEeqZpdwwlnPUQA" origin="_sBhqgBXcEeqZpdwwlnPUQA" image="_sBhqgRXcEeqZpdwwlnPUQA"/>
+  </units>
+</henshin:Module>
