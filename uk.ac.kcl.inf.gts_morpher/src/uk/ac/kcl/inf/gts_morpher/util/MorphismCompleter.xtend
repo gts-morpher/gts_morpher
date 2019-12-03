@@ -1119,6 +1119,9 @@ class MorphismCompleter {
 			var result = module.units.filter(Rule).map [ r |
 				var List<EObject> result = new ArrayList<EObject>()
 				result.add(r)
+				
+				result.addAll(r.parameters)
+				
 				result.add(r.lhs)
 				result.add(r.rhs)
 
