@@ -20,6 +20,7 @@ import static org.junit.Assert.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
+import org.eclipse.emf.henshin.model.Parameter
 
 @RunWith(XtextRunner)
 @InjectWith(GTSMorpherInjectorProvider)
@@ -247,6 +248,8 @@ class MorphismCompleterTests extends AbstractTest {
 		assertTrue("Expected to find exactly two completions", completer.completedMappings.size == 2)
 
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		
+		assertTrue("Expected to see completions include parameter mappings", completer.completedMappings.forall[keySet.exists[it instanceof Parameter]])
 	}
 
 	/**
