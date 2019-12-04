@@ -308,9 +308,13 @@ class GTSComposer {
 		result.createMappings(leftRule, Origin.LEFT, lhsWeaver, rhsWeaver, mappingsCreatedFor)
 		result.createMappings(rightRule, Origin.RIGHT, lhsWeaver, rhsWeaver, mappingsCreatedFor)
 
-		// Finally, weave names
+		// Weave names
+		// FIXME: there's an unaddressed corner case here, where the naming strategy makes different choices for parameter names and related node names
 		paramWeaver.weaveNames(naming)
-		naming.weaveAllNames(#[lhsWeaver, rhsWeaver])		
+		naming.weaveAllNames(#[lhsWeaver, rhsWeaver])
+		
+		// And weave attribute expressions
+		paramWeaver.weaveAttributeExpressions(#[lhsWeaver, rhsWeaver])
 		
 		result
 	}
