@@ -12,9 +12,10 @@ import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.ModelElement
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
+import org.eclipse.emf.henshin.model.Parameter
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.isVirtualRule
-import org.eclipse.emf.henshin.model.Parameter
+import static extension uk.ac.kcl.inf.gts_morpher.util.ExpressionRewriter.*
 
 /**
  * Utility class to check type mappings for morphism properties.
@@ -415,16 +416,10 @@ class MorphismChecker {
 	 * Check that the two expressions can be mapped to each other under the given parameter mappings.
 	 */
 	static def boolean canBeMappedTo(String sourceExpression, String targetExpression, Map<EObject, EObject> parameterMappings) {
-		// FIXME: Need proper regexps to exclude situations where the name of a parameter is contained in the name of another parameter
 		val transformedSrcExpression = parameterMappings.keySet.fold(sourceExpression)[acc, srcParam |
 			val tgtParam = parameterMappings.get(srcParam) as Parameter
 			if (tgtParam !== null) {
-				val regexp = '''(^|[^_a-zA-Z])«(srcParam as Parameter).name»([^_a-zA-Z0-9]|$)'''
-				val replacement = '''$1«tgtParam.name»$2'''
-				
-				val result = acc.replaceAll(regexp, replacement)
-				
-				result			
+				acc.rewrittenExpression(srcParam as Parameter, tgtParam)
 			} else {
 				acc
 			}

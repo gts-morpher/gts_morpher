@@ -13,10 +13,11 @@ import org.eclipse.emf.henshin.model.Rule
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.ModelSpan
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
+import org.eclipse.emf.henshin.model.Attribute
 
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
-import org.eclipse.emf.henshin.model.Attribute
+import static extension uk.ac.kcl.inf.gts_morpher.util.ExpressionRewriter.*
 
 class ParameterWeaver extends AbstractWeaver {
 
@@ -104,7 +105,6 @@ class ParameterWeaver extends AbstractWeaver {
 
 		val invertedParameterMapping = keySet.groupBy[p|get(p)]
 
-		// TODO: Find a way to reuse the regexp construction below
 		invertedSlotMapping.keySet.forEach [ slot |
 			/*
 			 * There are two cases here for every slot: either the slot has already got a representative in the kernel or it doesn't. 
@@ -127,12 +127,10 @@ class ParameterWeaver extends AbstractWeaver {
 			val slotToRework = slotSources.filter[key === parameterOrigin].head.value as Attribute
 
 			invertedParameterMapping.keySet.forEach [ p |
-				val replacementText = '''$1«(p as Parameter).name»$2'''
+				val replacementText = (p as Parameter).replacementExpression
 
 				invertedParameterMapping.get(p).filter[key === parameterOrigin].forEach [ srcP |
-					val regexp = '''(^|[^_a-zA-Z])«(srcP.value as Parameter).name»([^_a-zA-Z0-9]|$)'''
-
-					slotToRework.value = slotToRework.value.replaceAll(regexp, replacementText)
+					slotToRework.value = slotToRework.value.rewrittenExpression(srcP.value as Parameter, replacementText)
 				]
 			]
 		]
