@@ -79,6 +79,7 @@ map {
   
   behaviour_mapping {
     rule XXX to YYY {
+      param yyy => xxx
       object yyy => xxx
       link yyy => xxx
       slot yyy => xxx
@@ -95,9 +96,9 @@ The mandatory `type_mapping` section describes the type-graph morphism part of t
 
 Similarly, the optional `behaviour_mapping` section describes rule mappings. Each rule mapping is started using the keyword `rule` followed by the name of the rule in the source GTS, the keyword `to`, and the name of the rule in the target GTS. Note that in the papers, the order rule names are mapped from target to source, but as this is only a technical formality, we decided that it would be more appropriate to use the more intuitive direction for the specification of GTS morphisms.
 
-Each rule mapping again contains a list of mappings for objects, links, and slots (attribute constraints) in the LHS and RHS of the rule. NACs or PACs are currently not yet supported and neither are other forms of constraints. Each mapping is again in the direction source to target. Only named objects can be mapped; therefore it is recommended that all objects in the GTS's rules be named. Objects and links that occur in the kernel of the rule only need to be mapped once. Link names are synthesised following this pattern: `[<source_object_name>-><target_object_name>:<reference_name>]`.
+Each rule mapping again contains a list of mappings for objects, links, and slots (attribute constraints) in the LHS and RHS of the rule as well as for rule parameters. NACs or PACs are currently not yet supported and neither are other forms of constraints. Each mapping is again in the direction source to target. Only named objects can be mapped; therefore it is recommended that all objects in the GTS's rules be named. Objects and links that occur in the kernel of the rule only need to be mapped once. Link names are synthesised following this pattern: `[<source_object_name>-><target_object_name>:<reference_name>]`.
 
-Extensive validation is performed for any mapping specification, including to check whether it represents a (potential) GTS morphism. Eclipse error and warning markers provide information and hints about the results of these checks.
+Extensive validation is performed for any mapping specification, including to check whether it represents a (potential) GTS morphism. Eclipse error and warning markers provide information and hints about the results of these checks. Slot mappings are considered valid if the associated expressions are syntactically identical, subject to parameter renaming.
 
 ### 2.2. Morphism auto-completion and unique auto-completion
 
