@@ -6,6 +6,7 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Node
+import org.eclipse.emf.henshin.model.Parameter
 import org.eclipse.emf.henshin.model.Rule
 
 /**
@@ -23,6 +24,10 @@ abstract class UniquenessContext {
 
 	static dispatch def UniquenessContext uniquenessContext(EObject eo) { eo.singletonContext }
 
+	static dispatch def UniquenessContext uniquenessContext(Parameter p) {
+		[p.unit.parameters]
+	}
+	
 	static dispatch def UniquenessContext uniquenessContext(EPackage ep) {
 		val container = ep.eContainer as EPackage
 

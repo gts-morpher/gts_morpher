@@ -1,0 +1,8 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/B4", prefix="b4")
+package B4;
+
+@Interface
+class B1 {
+    @Interface
+	attr EInt numB;	
+}

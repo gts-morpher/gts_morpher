@@ -141,4 +141,8 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Attribute"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Attribute"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RuleParameterMapping" eSuperTypes="#//RuleElementMapping">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Parameter"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Parameter"/>
+  </eClassifiers>
 </ecore:EPackage>

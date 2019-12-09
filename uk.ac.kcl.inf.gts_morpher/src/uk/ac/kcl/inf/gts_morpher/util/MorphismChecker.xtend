@@ -12,8 +12,10 @@ import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.ModelElement
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Rule
+import org.eclipse.emf.henshin.model.Parameter
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.isVirtualRule
+import static extension uk.ac.kcl.inf.gts_morpher.util.ExpressionRewriter.*
 
 /**
  * Utility class to check type mappings for morphism properties.
@@ -261,7 +263,8 @@ class MorphismChecker {
 			// TODO: Consider adding checks for the actual patterns. We don't explicitly map them at the moment (and this only really makes sense for NACs/PACs, but Kinga's original code checked this nonetheless
 			checkPatternMorphism(srcLhsPattern, tgtLhsPattern, typeMapping, behaviourMapping, issues) &&
 				checkPatternMorphism(srcRhsPattern, tgtRhsPattern, typeMapping, behaviourMapping, issues) &&
-				checkKPatternMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues)
+				checkKPatternMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues) &&
+				checkParameterMorphism(srcRule, tgtRule, typeMapping, behaviourMapping, issues)
 				
 		} else {
 			// to-virtual rule mappings are valid by default, so no need to check in detail
@@ -269,6 +272,70 @@ class MorphismChecker {
 		}
 	}
 
+	static private def boolean checkParameterMorphism(Rule srcRule, Rule tgtRule,
+		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
+		val result = new ValueHolder(true)	
+		
+		srcRule.parameters.forEach[srcParam |
+			val tgtParam = behaviourMapping.get(srcParam) as Parameter
+			
+			if (tgtParam === null) {
+				// This is acceptable: we're not checking for completeness of the mapping here... 
+				result.value = true
+			} else if (!tgtRule.parameters.exists[it === tgtParam]) {
+				// This should be prevented by scoping rules...
+				issues?.issue(srcParam, "Target parameter is in the wrong rule.")
+				result.value = false
+			} else if (srcParam.kind !== tgtParam.kind) {
+				issues?.issue(srcParam, "Mapped parameters must be of the same kind.")
+				result.value = false
+			} else {
+				// Check parameter typing
+				val srcType = srcParam.type
+				val tgtType = tgtParam.type
+				
+				if (srcType instanceof EClass) {
+					if (tgtType instanceof EClass) {
+						// Check compatibility of the classes in the mapping
+						// TODO: Could possibly allow sub-typing, but need to think about the theory first
+						if (typeMapping.get(srcType) !== tgtType) {
+							issues?.issue(srcParam, "Types of mapped parameters must be mapped by type mapping.")
+							result.value = false
+						} else {
+							// Check mapping is compatible with node mapping, if any
+							val srcNode = behaviourMapping.keySet.filter(Node).findFirst[n | (srcParam.name == n.name) && (srcParam.type === n.type)]
+							
+							if (srcNode !== null) {
+								val tgtNode = behaviourMapping.get(srcNode) as Node
+								
+								if ((tgtParam.name != tgtNode.name) || (tgtParam.type !== tgtNode.type)) {
+									issues?.issue(srcParam, "Nodes corresponding to mapped parameters must be mapped by behaviour mapping")
+									result.value = false
+								}
+							}
+						}
+					} else {
+						issues?.issue(srcParam, "Cannot map a node parameter onto a non-node parameter.")
+						result.value = false
+					}
+				} else {
+					if (tgtType instanceof EClass) {
+						issues?.issue(srcParam, "Cannot map a non-node parameter onto a node parameter.")
+						result.value = false
+					} else {
+						// Check the types are identical
+						if (srcType !== tgtType) {
+							issues?.issue(srcParam, "When mapping non-node parameters, their types must be identical.")
+							result.value = false
+						}
+					}
+				}
+			}
+		]
+		
+		result.value
+	}
+	
 	static private def boolean checkPatternMorphism(Graph srcPattern, Graph tgtPattern,
 		Map<EObject, EObject> typeMapping, Map<EObject, EObject> behaviourMapping, IssueAcceptor issues) {
 
@@ -313,44 +380,52 @@ class MorphismChecker {
 		
 		// Check attribute mappings, if any
 		val result = new ValueHolder(true)
+		val parameterMappings = behaviourMapping.filter[k, v | (k instanceof Parameter) && ((k as Parameter).unit === srcPattern.rule)]
 		srcObject.attributes.forEach[srcAttribute | 
 			if (behaviourMapping.containsKey(srcAttribute)) {
-				result.value = result.value && checkSlotMorphism(srcAttribute, behaviourMapping.get(srcAttribute) as Attribute, srcObject, tgtObject, typeMapping, issues)
+				result.value = result.value && checkSlotMorphism(srcAttribute, behaviourMapping.get(srcAttribute) as Attribute, srcObject, tgtObject, typeMapping, parameterMappings, issues)
 			}
 		]
 
 		result.value
 	}
 	
-	static private def boolean checkSlotMorphism(Attribute srcAttribute, Attribute tgtAttribute, Node srcObject, Node tgtObject, Map<EObject, EObject> typeMapping, IssueAcceptor issues) {
+	static private def boolean checkSlotMorphism(Attribute srcAttribute, Attribute tgtAttribute, Node srcObject, Node tgtObject, Map<EObject, EObject> typeMapping, Map<EObject, EObject> parameterMappings, IssueAcceptor issues) {
 		if ((srcAttribute.eContainer === srcObject) && (tgtAttribute.eContainer === tgtObject)) {
 			val srcEAttribute = srcAttribute.type
 			val mappedSrcEAttribute = typeMapping.get(srcEAttribute)
 			
 			if ((mappedSrcEAttribute !== null) && (mappedSrcEAttribute !== tgtAttribute.type)) {
-				if (issues !== null) {
-					issues.issue(srcAttribute, "Mapped slots must be for mapped attributes.")
-				}
-
+				issues?.issue(srcAttribute, "Mapped slots must be for mapped attributes.")
 				false
 			} else {
-				if (srcAttribute.value == tgtAttribute.value) {
+				if (srcAttribute.value.canBeMappedTo(tgtAttribute.value, parameterMappings)) {
 					true
 				} else {
-					if (issues !== null) {
-						issues.issue(srcAttribute, "Mapped slots must have the (syntactically) same value expressions.")
-					}
-
+					issues?.issue(srcAttribute, "Mapped slots must have the (syntactically) same value expressions.")
 					false
 				}
 			}
 		} else {
-			if (issues !== null) {
-				issues.issue(srcAttribute, "Mapped slots must be for mapped objects.")
-			}
-			
+			issues?.issue(srcAttribute, "Mapped slots must be for mapped objects.")
 			false
 		}
+	}
+	
+	/**
+	 * Check that the two expressions can be mapped to each other under the given parameter mappings.
+	 */
+	static def boolean canBeMappedTo(String sourceExpression, String targetExpression, Map<EObject, EObject> parameterMappings) {
+		val transformedSrcExpression = parameterMappings.keySet.fold(sourceExpression)[acc, srcParam |
+			val tgtParam = parameterMappings.get(srcParam) as Parameter
+			if (tgtParam !== null) {
+				acc.rewrittenExpression(srcParam as Parameter, tgtParam)
+			} else {
+				acc
+			}
+		]
+		 
+		transformedSrcExpression == targetExpression
 	}
 
 	static private def boolean checkLinkMorphism(Edge srcLink, Edge tgtLink, Graph srcPattern, Graph tgtPattern,

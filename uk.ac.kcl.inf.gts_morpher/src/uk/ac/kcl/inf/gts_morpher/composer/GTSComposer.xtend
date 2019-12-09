@@ -39,6 +39,7 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
 import static extension uk.ac.kcl.inf.gts_morpher.validation.GTSMorpherValidatorHelper.*
+import uk.ac.kcl.inf.gts_morpher.composer.weavers.ParameterWeaver
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
@@ -286,6 +287,8 @@ class GTSComposer {
 		val leftRule = leftBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 		val rightRule = rightBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 
+		val paramWeaver = new ParameterWeaver(kernelTgtRule, leftRule, rightRule, leftBehaviourMapping, rightBehaviourMapping, tgMapping)
+
 		val lhsWeaver = new PatternWeaver(kernelTgtRule.lhs, leftRule?.lhs, rightRule?.lhs, leftBehaviourMapping,
 				rightBehaviourMapping, tgMapping, "Lhs")
 		val rhsWeaver = new PatternWeaver(kernelTgtRule.rhs, leftRule?.rhs, rightRule?.rhs, leftBehaviourMapping,
@@ -294,7 +297,7 @@ class GTSComposer {
 		val result = HenshinFactory.eINSTANCE.createRule => [
 			description = weaveDescriptions(kernelTgtRule.description, leftRule?.description, rightRule?.description)
 			injectiveMatching = kernelTgtRule.injectiveMatching
-			// TODO Should probably copy parameters, too
+			parameters += paramWeaver.weaveParameters
 			lhs = lhsWeaver.weavePattern
 			rhs = rhsWeaver.weavePattern
 		]
@@ -305,8 +308,13 @@ class GTSComposer {
 		result.createMappings(leftRule, Origin.LEFT, lhsWeaver, rhsWeaver, mappingsCreatedFor)
 		result.createMappings(rightRule, Origin.RIGHT, lhsWeaver, rhsWeaver, mappingsCreatedFor)
 
-		// Finally, weave names
-		naming.weaveAllNames(#[lhsWeaver, rhsWeaver])		
+		// Weave names
+		// FIXME: there's an unaddressed corner case here, where the naming strategy makes different choices for parameter names and related node names
+		paramWeaver.weaveNames(naming)
+		naming.weaveAllNames(#[lhsWeaver, rhsWeaver])
+		
+		// And weave attribute expressions
+		paramWeaver.weaveAttributeExpressions(#[lhsWeaver, rhsWeaver])
 		
 		result
 	}

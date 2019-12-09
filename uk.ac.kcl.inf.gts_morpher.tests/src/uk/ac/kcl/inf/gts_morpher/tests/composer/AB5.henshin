@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_AJTh0BqjEeqIY87cL8ZoUw" name="A5Rules_B5Rules">
+  <imports href="AB5.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_BG-D8BqjEeqIY87cL8ZoUw" name="test">
+    <parameters xmi:id="_S1KkABqjEeqIY87cL8ZoUw" name="a1_b1" kind="IN">
+      <type xsi:type="ecore:EClass" href="AB5.ecore#//A1_B1"/>
+    </parameters>
+    <parameters xmi:id="_S1KkARqjEeqIY87cL8ZoUw" name="left__a2" kind="IN">
+      <type xsi:type="ecore:EClass" href="AB5.ecore#//left__A2"/>
+    </parameters>
+    <parameters xmi:id="_S1KkAhqjEeqIY87cL8ZoUw" name="numberA_numberB" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <parameters xmi:id="_S1KkAxqjEeqIY87cL8ZoUw" name="left__numberA2" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <lhs xmi:id="_BHCVYBqjEeqIY87cL8ZoUw" name="Lhs">
+      <nodes xmi:id="_ToWUcBqjEeqIY87cL8ZoUw" name="a1_b1">
+        <type href="AB5.ecore#//A1_B1"/>
+        <attributes xmi:id="_XVt-EBqjEeqIY87cL8ZoUw" value="0">
+          <type href="AB5.ecore#//A1_B1/numA_numB"/>
+        </attributes>
+        <attributes xmi:id="_XeqesBqjEeqIY87cL8ZoUw" value="left__numberA2">
+          <type href="AB5.ecore#//A1_B1/left__numA2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_U-GmcBqjEeqIY87cL8ZoUw" name="left__a2">
+        <type href="AB5.ecore#//left__A2"/>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_BHCVYRqjEeqIY87cL8ZoUw" name="Rhs">
+      <nodes xmi:id="_ToW7gBqjEeqIY87cL8ZoUw" name="a1_b1">
+        <type href="AB5.ecore#//A1_B1"/>
+        <attributes xmi:id="_XVt-ERqjEeqIY87cL8ZoUw" value="numberA_numberB">
+          <type href="AB5.ecore#//A1_B1/numA_numB"/>
+        </attributes>
+        <attributes xmi:id="_XeqesRqjEeqIY87cL8ZoUw" value="0">
+          <type href="AB5.ecore#//A1_B1/left__numA2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_U-GmcRqjEeqIY87cL8ZoUw" name="left__a2">
+        <type href="AB5.ecore#//left__A2"/>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_ToW7gRqjEeqIY87cL8ZoUw" origin="_ToWUcBqjEeqIY87cL8ZoUw" image="_ToW7gBqjEeqIY87cL8ZoUw"/>
+    <mappings xmi:id="_U-GmchqjEeqIY87cL8ZoUw" origin="_U-GmcBqjEeqIY87cL8ZoUw" image="_U-GmcRqjEeqIY87cL8ZoUw"/>
+  </units>
+</henshin:Module>

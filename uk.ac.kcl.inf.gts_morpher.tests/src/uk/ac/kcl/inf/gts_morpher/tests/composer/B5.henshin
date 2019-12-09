@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_ejTJcBp_EeqIY87cL8ZoUw" name="B5Rules">
+  <imports href="B4.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_f1yFABp_EeqIY87cL8ZoUw" name="test">
+    <parameters xmi:id="_kRL5UBp_EeqIY87cL8ZoUw" name="b1" kind="IN">
+      <type xsi:type="ecore:EClass" href="B4.ecore#//B1"/>
+    </parameters>
+    <parameters xmi:id="_kRL5URp_EeqIY87cL8ZoUw" name="numberB" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <lhs xmi:id="_f1yFBRp_EeqIY87cL8ZoUw" name="Lhs">
+      <nodes xmi:id="_lPnQcBp_EeqIY87cL8ZoUw" name="b1">
+        <type href="B4.ecore#//B1"/>
+        <attributes xmi:id="_mnr2oBp_EeqIY87cL8ZoUw" value="0">
+          <type href="B4.ecore#//B1/numB"/>
+        </attributes>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_f1yFBhp_EeqIY87cL8ZoUw" name="Rhs">
+      <nodes xmi:id="_lPnQcRp_EeqIY87cL8ZoUw" name="b1">
+        <type href="B4.ecore#//B1"/>
+        <attributes xmi:id="_mnr2oRp_EeqIY87cL8ZoUw" value="numberB">
+          <type href="B4.ecore#//B1/numB"/>
+        </attributes>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="_lPn3gBp_EeqIY87cL8ZoUw" origin="_lPnQcBp_EeqIY87cL8ZoUw" image="_lPnQcRp_EeqIY87cL8ZoUw"/>
+  </units>
+</henshin:Module>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_4orMUBp-EeqIY87cL8ZoUw" name="A5Rules">
+  <imports href="A5.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_9u_l4Bp-EeqIY87cL8ZoUw" name="test">
+    <parameters xmi:id="_HumpoBp_EeqIY87cL8ZoUw" name="a1" kind="IN">
+      <type xsi:type="ecore:EClass" href="A5.ecore#//A1"/>
+    </parameters>
+    <parameters xmi:id="_HumpoRp_EeqIY87cL8ZoUw" name="a2" kind="IN">
+      <type xsi:type="ecore:EClass" href="A5.ecore#//A2"/>
+    </parameters>
+    <parameters xmi:id="_Humpohp_EeqIY87cL8ZoUw" name="numberA" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <parameters xmi:id="_Humpoxp_EeqIY87cL8ZoUw" name="numberA2" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </parameters>
+    <lhs xmi:id="_9vJ98Bp-EeqIY87cL8ZoUw" name="Lhs">
+      <nodes xmi:id="__Aj7cBp-EeqIY87cL8ZoUw" name="a1">
+        <type href="A5.ecore#//A1"/>
+        <attributes xmi:id="_ByOx0Bp_EeqIY87cL8ZoUw" value="0">
+          <type href="A5.ecore#//A1/numA"/>
+        </attributes>
+        <attributes xmi:id="_B_RIQBp_EeqIY87cL8ZoUw" value="numberA2">
+          <type href="A5.ecore#//A1/numA2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="__1AQIBp-EeqIY87cL8ZoUw" name="a2">
+        <type href="A5.ecore#//A2"/>
+      </nodes>
+    </lhs>
+    <rhs xmi:id="_9vJ98Rp-EeqIY87cL8ZoUw" name="Rhs">
+      <nodes xmi:id="__Aj7cRp-EeqIY87cL8ZoUw" name="a1">
+        <type href="A5.ecore#//A1"/>
+        <attributes xmi:id="_ByOx0Rp_EeqIY87cL8ZoUw" value="numberA">
+          <type href="A5.ecore#//A1/numA"/>
+        </attributes>
+        <attributes xmi:id="_B_RIQRp_EeqIY87cL8ZoUw" value="0">
+          <type href="A5.ecore#//A1/numA2"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="__1AQIRp-EeqIY87cL8ZoUw" name="a2">
+        <type href="A5.ecore#//A2"/>
+      </nodes>
+    </rhs>
+    <mappings xmi:id="__Aj7chp-EeqIY87cL8ZoUw" origin="__Aj7cBp-EeqIY87cL8ZoUw" image="__Aj7cRp-EeqIY87cL8ZoUw"/>
+    <mappings xmi:id="__1AQIhp-EeqIY87cL8ZoUw" origin="__1AQIBp-EeqIY87cL8ZoUw" image="__1AQIRp-EeqIY87cL8ZoUw"/>
+  </units>
+</henshin:Module>

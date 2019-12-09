@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_qwH6kCOwEeiii-lmtwtH3g" name="BRules">
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_qwH6kCOwEeiii-lmtwtH3g" name="BRules">
   <imports href="B.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_tqmusCOwEeiii-lmtwtH3g" name="do">
+    <parameters xmi:id="_k4TUoArREeqAeJWWsv8hpw" name="b2" kind="IN">
+      <type xsi:type="ecore:EClass" href="B.ecore#//B2"/>
+    </parameters>
     <lhs xmi:id="_tqqZECOwEeiii-lmtwtH3g" name="Lhs">
       <nodes xmi:id="_u0BN0COwEeiii-lmtwtH3g" name="b1">
         <type href="B.ecore#//B1"/>

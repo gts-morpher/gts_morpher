@@ -53,13 +53,22 @@ class ParsingAndValidationTests extends AbstractTest {
 			"devsmm.henshin",
 			"A.ecore",
 			"B.ecore",
+			"A4.ecore",
+			"A5.ecore",
+			"B4.ecore",
 			"C.ecore",
 			"D.ecore",
 			"A.henshin",
 			"B.henshin",
+			"B2.henshin",
+			"A3.henshin",
+			"B3.henshin",
+			"A4.henshin",
+			"B4.henshin",
+			"A5.henshin",
+			"B5.henshin",
 			"C.henshin",
-			"D.henshin",
-			"B2.henshin"
+			"D.henshin"
 		].createResourceSet
 	}
 
@@ -1292,6 +1301,454 @@ class ParsingAndValidationTests extends AbstractTest {
 		
 		assertTrue("Didn't record preferMap2TargetNames flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.PREFER_MAP2_TARGET_NAMES))
 		assertTrue("Didn't record dontLabelNonKernelElements flag", (result.gtss.last.gts as GTSWeave).options.contains(WeaveOption.DONT_LABEL_NON_KERNEL_ELEMENTS))
+	}
+	
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void parsingBasicParameterMorphism() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b1
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertNoErrors
+	}
+
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void validateBasicParameterMorphismPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+					reference A.A1.bs => B.B1._2s
+					reference A.A2.a => B.B2.a
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b1
+						param m => s
+						param n => n
+						param a2 => b2
+						object a1 => b1
+						object a2 => b2
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertNoIssues
+	}
+
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void validateParameterMorphismAgainstAttributeMappingsPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A4"
+					behaviour: "A4Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B4Rules"
+				}
+				
+				type_mapping {
+					class A4.A1 => B4.B1
+					attribute A4.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param numberA => numberB
+						object a1 => b1
+						slot a1.numA => b1.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertNoIssues
+	}
+
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void validateParameterMorphismAgainstAttributeMappingsWithInterfaceOfPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "A5"
+					behaviour: "A5Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B5Rules"
+				}
+				
+				type_mapping {
+					class A5.A1 => B4.B1
+					attribute A5.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param a1 => b1
+						param numberA => numberB
+						object a1 => b1
+						slot a1.numA => b1.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertNoIssues
+	}
+
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void validateParameterMorphismAgainstAttributeMappingsWithInterfaceOfNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "A5"
+					behaviour: "A5Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B5Rules"
+				}
+				
+				type_mapping {
+					class A5.A1 => B4.B1
+					attribute A5.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param a2 => b1
+						param numberA2 => numberB
+						object a1 => b1
+						slot a1.numA => b1.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertWarning(GtsMorpherPackage.Literals.RULE_MAPPING, GTSMorpherValidator.INCOMPLETE_RULE_MAPPING)
+	}
+
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void validateParameterMorphismAgainstAttributeMappingsNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A4"
+					behaviour: "A4Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B4Rules"
+				}
+				
+				type_mapping {
+					class A4.A1 => B4.B1
+					attribute A4.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param numberA => numberB
+						object a1 => b2
+						slot a1.numA => b2.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertError(GtsMorpherPackage.Literals.SLOT_MAPPING, GTSMorpherValidator.NOT_A_RULE_MORPHISM)
+	}
+
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void validateBasicParameterMorphismNegative_NodeParameterMismatch() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+					reference A.A1.bs => B.B1._2s
+					reference A.A2.a => B.B2.a
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b1
+						param m => s
+						param n => n
+						param a2 => b2b
+						object a1 => b1
+						object a2 => b2
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertError(GtsMorpherPackage.Literals.RULE_PARAMETER_MAPPING, GTSMorpherValidator.NOT_A_RULE_MORPHISM)
+	}
+
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void validateBasicParameterMorphismNegative_IncompleteParameterMapping() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+					reference A.A1.bs => B.B1._2s
+					reference A.A2.a => B.B2.a
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b1
+						param m => s
+						object a1 => b1
+						object a2 => b2
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertWarning(GtsMorpherPackage.Literals.RULE_MAPPING, GTSMorpherValidator.INCOMPLETE_RULE_MAPPING)
+	}
+
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void validateBasicParameterMorphismNegative_TypeMismatch1() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+					reference A.A1.bs => B.B1._2s
+					reference A.A2.a => B.B2.a
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b3
+						param m => s
+						param n => n
+						object a1 => b1
+						object a2 => b2
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertError(GtsMorpherPackage.Literals.RULE_PARAMETER_MAPPING, GTSMorpherValidator.NOT_A_RULE_MORPHISM)
+	}
+
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void validateBasicParameterMorphismNegative_TypeMismatch2() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+					reference A.A1.bs => B.B1._2s
+					reference A.A2.a => B.B2.a
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b1
+						param m => n2
+						param n => n
+						object a1 => b1
+						object a2 => b2
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertError(GtsMorpherPackage.Literals.RULE_PARAMETER_MAPPING, GTSMorpherValidator.NOT_A_RULE_MORPHISM)
+	}
+
+	/**
+	 * Tests parsing of basic parameter morphism
+	 */
+	@Test
+	def void validateBasicParameterMorphismNegative_KindMismatch() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A"
+					behaviour: "A3Rules"
+				}
+				
+				to {
+					metamodel: "B"
+					behaviour: "B3Rules"
+				}
+				
+				type_mapping {
+					class A.A1 => B.B1
+					class A.A2 => B.B2
+					reference A.A1.bs => B.B1._2s
+					reference A.A2.a => B.B2.a
+				}
+				
+				behaviour_mapping {
+					rule do to do {
+						param a1 => b1
+						param m => s2
+						param n => n
+						object a1 => b1
+						object a2 => b2
+						link [a1->a2:bs] => [b1->b2:_2s]
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertError(GtsMorpherPackage.Literals.RULE_PARAMETER_MAPPING, GTSMorpherValidator.NOT_A_RULE_MORPHISM)
 	}
 
 	/**

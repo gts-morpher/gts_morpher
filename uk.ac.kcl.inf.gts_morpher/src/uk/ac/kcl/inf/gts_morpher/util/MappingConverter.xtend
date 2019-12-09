@@ -47,6 +47,8 @@ import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.isInterfaceElem
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
+import org.eclipse.emf.henshin.model.Parameter
 
 /**
  * Basic util methods for extracting mappings from GTSMappings and vice versa.
@@ -57,6 +59,7 @@ class MappingConverter {
 	public static val DUPLICATE_ATTRIBUTE_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_ATTRIBUTE_MAPPING'
 	public static val DUPLICATE_RULE_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_RULE_MAPPING'
 	public static val DUPLICATE_OBJECT_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_OBJECT_MAPPING'
+	public static val DUPLICATE_PARAMETER_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_PARAMETER_MAPPING'
 	public static val DUPLICATE_LINK_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_LINK_MAPPING'
 	public static val DUPLICATE_SLOT_MAPPING = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.DUPLICATE_SLOT_MAPPING'
 	public static val NON_INTERFACE_CLASS_MAPPING_ATTEMPT = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.NON_INTERFACE_CLASS_MAPPING_ATTEMPT'
@@ -139,8 +142,8 @@ class MappingConverter {
 	 * Mapping extraction will create virtual rules for to-identity mappings. To inform the types to be used in these virtual rules, 
 	 * it will use the type mapping provided, which should be derived from the typemapping in the GTSSpecification of the behaviour mapping given.
 	 */
-	static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping,
-		Map<EObject, EObject> typeGraphMapping, IssueAcceptor issues) {
+	static def Map<EObject, EObject> extractMapping(BehaviourMapping mapping, Map<EObject, EObject> typeGraphMapping,
+		IssueAcceptor issues) {
 		val _mapping = new HashMap<EObject, EObject>
 
 		if (mapping === null) {
@@ -172,18 +175,18 @@ class MappingConverter {
 		_mapping
 	}
 
-	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping, GTSSpecificationOrReference from,
-		GTSSpecificationOrReference to, Resource res) {
+	static def GTSMapping extractGTSMapping(Map<? extends EObject, ? extends EObject> mapping,
+		GTSSpecificationOrReference from, GTSSpecificationOrReference to, Resource res) {
 		if (res === null) {
 			throw new IllegalArgumentException("res must not be null")
 		}
 
 		val module = GtsMorpherFactory.eINSTANCE.createGTSSpecificationModule
 		res.contents.add(module)
-		
+
 		val result = GtsMorpherFactory.eINSTANCE.createGTSMapping
 		module.members.add(result)
-		
+
 		result.source = from.resourceLocalCopy
 		result.target = to.resourceLocalCopy
 
@@ -268,13 +271,15 @@ class MappingConverter {
 					} else if ((e.key instanceof Attribute) && (e.key.eContainer.eContainer.eContainer === srcRule)) {
 						if (e.key.eContainer.eContainer == srcRule.rhs) {
 							!(srcRule.lhs.nodes.exists [ n |
-								(n.name == e.key.eContainer.name) && n.attributes.exists [a|
+								(n.name == e.key.eContainer.name) && n.attributes.exists [ a |
 									a.type === (e.key as Attribute).type
 								]
 							])
 						} else {
 							true
 						}
+					} else if ((e.key instanceof Parameter) && (e.key.eContainer === srcRule)) {
+						true
 					} else {
 						false
 					}
@@ -335,29 +340,34 @@ class MappingConverter {
 
 	private static dispatch def RuleElementMapping extractRuleElementMapping(Node srcNode, Node tgtNode,
 		GTSMapping mapping) {
-		val result = GtsMorpherFactory.eINSTANCE.createObjectMapping
-		result.source = srcNode.correspondingSourceElement(mapping)
-		result.target = tgtNode.correspondingTargetElement(mapping)
-
-		result
+		GtsMorpherFactory.eINSTANCE.createObjectMapping => [
+			source = srcNode.correspondingSourceElement(mapping)
+			target = tgtNode.correspondingTargetElement(mapping)
+		]
 	}
 
 	private static dispatch def RuleElementMapping extractRuleElementMapping(Edge srcEdge, Edge tgtEdge,
 		GTSMapping mapping) {
-		val result = GtsMorpherFactory.eINSTANCE.createLinkMapping
-		result.source = srcEdge.correspondingSourceElement(mapping)
-		result.target = tgtEdge.correspondingTargetElement(mapping)
-
-		result
+		GtsMorpherFactory.eINSTANCE.createLinkMapping => [
+			source = srcEdge.correspondingSourceElement(mapping)
+			target = tgtEdge.correspondingTargetElement(mapping)
+		]
 	}
 
 	private static dispatch def RuleElementMapping extractRuleElementMapping(Attribute srcAttribute,
 		Attribute tgtAttribute, GTSMapping mapping) {
-		val result = GtsMorpherFactory.eINSTANCE.createSlotMapping
-		result.source = srcAttribute.correspondingSourceElement(mapping)
-		result.target = tgtAttribute.correspondingTargetElement(mapping)
+		GtsMorpherFactory.eINSTANCE.createSlotMapping => [
+			source = srcAttribute.correspondingSourceElement(mapping)
+			target = tgtAttribute.correspondingTargetElement(mapping)
+		]
+	}
 
-		result
+	private static dispatch def RuleElementMapping extractRuleElementMapping(Parameter srcParameter,
+		Parameter tgtParameter, GTSMapping mapping) {
+		GtsMorpherFactory.eINSTANCE.createRuleParameterMapping => [
+			source = srcParameter.correspondingSourceElement(mapping)
+			target = tgtParameter.correspondingTargetElement(mapping)
+		]
 	}
 
 	/**
@@ -387,9 +397,9 @@ class MappingConverter {
 	}
 
 	private static dispatch def EObject correspondingElement(EObject object, GTSReference specification) {
-		object.correspondingElement(specification.ref) 
+		object.correspondingElement(specification.ref)
 	}
-	
+
 	private static dispatch def EObject correspondingElement(EObject object, GTSSpecification specification) { null }
 
 	private static dispatch def EObject correspondingElement(EClass clazz, GTSSpecification specification) {
@@ -418,6 +428,10 @@ class MappingConverter {
 
 	private static dispatch def EObject correspondingElement(Attribute attr, GTSSpecification specification) {
 		attr.getCorrespondingElement(specification.behaviour)
+	}
+
+	private static dispatch def EObject correspondingElement(Parameter param, GTSSpecification specification) {
+		param.getCorrespondingElement(specification.behaviour)
 	}
 
 	private static def EObject getCorrespondingElement(EObject object, EPackage pck) {
@@ -451,6 +465,14 @@ class MappingConverter {
 		boolean tgtIsInterface, IssueAcceptor issues) {
 		_mapping.put(rm.target, rm.source)
 
+		rm.element_mappings.filter(RuleParameterMapping).forEach [ rpm |
+			if (_mapping.containsKey(rpm.source)) {
+				issues.safeError("Duplicate mapping for Parameter " + rpm.source.name + ".", rpm,
+					GtsMorpherPackage.Literals.OBJECT_MAPPING__SOURCE, DUPLICATE_PARAMETER_MAPPING)
+			} else {
+				_mapping.put(rpm.source, rpm.target)
+			}
+		]
 		rm.element_mappings.filter(ObjectMapping).forEach [ em |
 			if (_mapping.containsKey(em.source)) {
 				issues.safeError("Duplicate mapping for Object " + em.source.name + ".", em,
@@ -463,13 +485,13 @@ class MappingConverter {
 					GtsMorpherPackage.Literals.OBJECT_MAPPING__TARGET, NON_INTERFACE_OBJECT_MAPPING_ATTEMPT)
 			} else {
 				_mapping.put(em.source, em.target)
-				
+
 				val srcRule = em.source.eContainer.eContainer as Rule
 				val tgtRule = em.target.eContainer.eContainer as Rule
 
 				val srcNodeAlias = srcRule.getKernelAliasFor(em.source)
 				val tgtNodeAlias = tgtRule.getKernelAliasFor(em.target)
-									
+
 				_mapping.putIfNotNull(srcNodeAlias, tgtNodeAlias)
 			}
 		]
@@ -487,9 +509,9 @@ class MappingConverter {
 				_mapping.put(em.source, em.target)
 
 				val srcPattern = em.source.eContainer as Graph
-				val srcRule = em.source.eContainer .eContainer as Rule
+				val srcRule = em.source.eContainer.eContainer as Rule
 				val tgtRule = em.target.eContainer.eContainer as Rule
-				
+
 				val srcSrcNodeAlias = srcRule.getKernelAliasFor(em.source.source)
 				val srcTgtNodeAlias = srcRule.getKernelAliasFor(em.source.target)
 				val tgtSrcNodeAlias = tgtRule.getKernelAliasFor(em.target.source)
@@ -533,10 +555,10 @@ class MappingConverter {
 
 				val srcNodeAlias = srcRule.getKernelAliasFor(srcNode)
 				val tgtNodeAlias = tgtRule.getKernelAliasFor(tgtNode)
-				
+
 				_mapping.putIfNotNull(
-					srcNodeAlias?.attributes?.findFirst [ a | a.type === em.source.type ],
-					tgtNodeAlias?.attributes?.findFirst [ a | a.type === em.target.type ])
+					srcNodeAlias?.attributes?.findFirst[a|a.type === em.source.type], tgtNodeAlias?.attributes?.
+					findFirst[a|a.type === em.target.type])
 			}
 		]
 	}
@@ -648,7 +670,27 @@ class MappingConverter {
 		result.createVirtualEdges(r.lhs, lhs, tgMapping, srcIsInterface)
 		result.createVirtualEdges(r.rhs, rhs, tgMapping, srcIsInterface)
 
+		result.createVirtualParameters(r, virtualRule, tgMapping, srcIsInterface)
+
 		result
+	}
+
+	private static def createVirtualParameters(Map<EObject, EObject> _mapping, Rule srcRule, Rule tgtRule,
+		Map<EObject, EObject> tgMapping, boolean interfaceOnly) {
+		// TODO: Account for interfaceOnly parameter
+		srcRule.parameters.forEach [ p |
+			_mapping.put(p, createParameter => [
+				unit = tgtRule
+				if (p.type instanceof EClass) {
+					type = p.type.getMapped(tgMapping)				
+				} else {
+					type = p.type
+				}
+				name = p.name
+				kind = p.kind
+				description = p.description
+			])
+		]
 	}
 
 	private static def createVirtualNodesFor(Map<EObject, EObject> _mapping, Graph srcGraph, Graph tgtGraph,
@@ -657,7 +699,7 @@ class MappingConverter {
 			val newNode = createNode(tgtGraph, n.type.getMapped(tgMapping), n.name)
 			_mapping.put(n, newNode)
 
-			n.attributes.filter[a | !interfaceOnly || a.type.isInterfaceElement].forEach [ a |
+			n.attributes.filter[a|!interfaceOnly || a.type.isInterfaceElement].forEach [ a |
 				val newAttribute = createAttribute(newNode, a.type.getMapped(tgMapping), a.value)
 				_mapping.put(a, newAttribute)
 			]
@@ -687,15 +729,16 @@ class MappingConverter {
 	private static def <T extends EObject> T getMapped(T src, Map<EObject, EObject> tgMapping) {
 		tgMapping.get(src) as T
 	}
-	
+
 	private static def getKernelAliasFor(Rule r, Node n) {
-		r.mappings.map[
+		r.mappings.map [
 			if (origin === n) {
 				image
 			} else if (image === n) {
 				origin
 			} else {
 				null
-			}].filterNull.head
+			}
+		].filterNull.head
 	}
 }

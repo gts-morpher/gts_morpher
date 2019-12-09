@@ -1,0 +1,10 @@
+@namespace(uri="https://metamodel.woven/a5/a5/b4", prefix="a5_b4")
+package A5_B4;
+
+class A1_B1 {
+	attr EInt numA_numB;
+	attr EInt left__numA2;
+}
+
+class left__A2 {
+}

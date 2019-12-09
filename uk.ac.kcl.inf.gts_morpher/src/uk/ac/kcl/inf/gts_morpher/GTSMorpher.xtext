@@ -178,7 +178,7 @@ RuleMapping:
 ;
 
 RuleElementMapping:
-	ObjectMapping | LinkMapping | SlotMapping
+	ObjectMapping | LinkMapping | SlotMapping | RuleParameterMapping
 ;
 
 ObjectMapping:
@@ -191,6 +191,10 @@ LinkMapping:
 
 SlotMapping:
 	"slot" source = [gts::Attribute | QualifiedName] "=>" target = [gts::Attribute | QualifiedName]
+;
+
+RuleParameterMapping:
+	"param" source = [gts::Parameter | ID] "=>" target = [gts::Parameter | ID]
 ;
 
 LinkName :

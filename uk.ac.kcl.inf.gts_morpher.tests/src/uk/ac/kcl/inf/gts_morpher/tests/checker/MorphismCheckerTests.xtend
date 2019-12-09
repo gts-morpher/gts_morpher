@@ -27,12 +27,16 @@ class MorphismCheckerTests extends AbstractTest {
 		#[
 			"A.ecore",
 			"B.ecore",
+			"A4.ecore",
+			"B4.ecore",
 			"C.ecore",
 			"C2.ecore",
 			"D.ecore",
 			"E.ecore",
 			"A2.henshin",
 			"B2.henshin",
+			"A4.henshin",
+			"B4.henshin",
 			"F.ecore",
 			"G.ecore",
 			"G2.ecore",
@@ -524,6 +528,108 @@ class MorphismCheckerTests extends AbstractTest {
 		assertTrue(
 			"Should not be a rule morphism",
 			!checkRuleMorphism(
+				result.mappings.head.target.behaviour.units.head as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.mappings.head.behaviourMapping.extractMapping(typeMapping, null),
+				null
+			)
+		)
+	}
+	
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void checkParameterMorphismAgainstAttributeMappingsPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A4"
+					behaviour: "A4Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B4Rules"
+				}
+				
+				type_mapping {
+					class A4.A1 => B4.B1
+					attribute A4.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param numberA => numberB
+						object a1 => b1
+						slot a1.numA => b1.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val typeMapping = result.mappings.head.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertTrue(
+			"Should be a rule morphism",
+			checkRuleMorphism(
+				result.mappings.head.target.behaviour.units.head as Rule,
+				result.mappings.head.source.behaviour.units.head as Rule,
+				typeMapping,
+				result.mappings.head.behaviourMapping.extractMapping(typeMapping, null),
+				null
+			)
+		)
+	}
+
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void checkParameterMorphismAgainstAttributeMappingsNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from {
+					metamodel: "A4"
+					behaviour: "A4Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B4Rules"
+				}
+				
+				type_mapping {
+					class A4.A1 => B4.B1
+					attribute A4.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param numberA => numberB
+						object a1 => b2
+						slot a1.numA => b2.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val typeMapping = result.mappings.head.typeMapping.extractMapping(null)
+		assertTrue("Should be a clan morphism",
+			typeMapping.checkValidMaybeIncompleteClanMorphism(null))
+
+		assertFalse(
+			"Should not be a rule morphism",
+			checkRuleMorphism(
 				result.mappings.head.target.behaviour.units.head as Rule,
 				result.mappings.head.source.behaviour.units.head as Rule,
 				typeMapping,

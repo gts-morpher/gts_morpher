@@ -1,0 +1,12 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/A5", prefix="a5")
+package A5;
+
+@Interface
+class A1 {
+	@Interface
+	attr EInt numA;
+	attr EInt numA2;
+}
+
+class A2 {
+}

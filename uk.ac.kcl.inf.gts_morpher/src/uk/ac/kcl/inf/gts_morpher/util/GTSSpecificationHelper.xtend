@@ -134,6 +134,7 @@ class GTSSpecificationHelper {
 	static val DERIVED_GTS_RESOURCE_FACTORY = new ResourceFactoryImpl
 
 	static def derivedWovenGTS(GTSWeave weave) {
+		// FIXME: Pair doesn't have a good hash method, so no good as a key
 		weaveCache.get(new Pair(WEAVING_CONTENTS_KEY, weave), weave.eResource) [
 			val result = weave.doCompose(IProgressMonitor.NULL_IMPL)
 			
