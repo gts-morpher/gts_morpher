@@ -158,28 +158,11 @@ class MorphismCompleter {
 		this.tgtModule = tgtModule
 		allSrcBehaviorElements = srcModule.allContents
 		if (srcIsInterface) {
-			allSrcBehaviorElements = allSrcBehaviorElements.filter [ eo |
-				eo.isInterfaceElement
-//				if (eo instanceof Node) {
-//					eo.type.isInterfaceElement
-//				} else if (eo instanceof Edge) {
-//					eo.type.isInterfaceElement
-//				} else {
-//					true
-//				}
-			].toList
+			allSrcBehaviorElements = allSrcBehaviorElements.filter [ eo | eo.isInterfaceElement ].toList
 		}
 		allTgtBehaviorElements = tgtModule.allContents
 		if (tgtIsInterface) {
-			allTgtBehaviorElements = allTgtBehaviorElements.filter [ eo |
-				if (eo instanceof Node) {
-					eo.type.isInterfaceElement
-				} else if (eo instanceof Edge) {
-					eo.type.isInterfaceElement
-				} else {
-					true
-				}
-			].toList
+			allTgtBehaviorElements = allTgtBehaviorElements.filter [ eo | eo.isInterfaceElement ].toList
 		}
 	}
 
