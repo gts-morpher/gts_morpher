@@ -33,6 +33,7 @@ class MorphismCompleterTests extends AbstractTest {
 			"A.ecore",
 			"B.ecore",
 			"A4.ecore",
+			"A5.ecore",
 			"B4.ecore",
 			"A.henshin",
 			"B.henshin",
@@ -42,6 +43,8 @@ class MorphismCompleterTests extends AbstractTest {
 			"B3.henshin",
 			"A4.henshin",
 			"B4.henshin",
+			"A5.henshin",
+			"B5.henshin",
 			"BUniqueComplete.henshin",
 			"B2UniqueComplete.henshin",
 			"B3UniqueComplete.henshin",
@@ -248,6 +251,52 @@ class MorphismCompleterTests extends AbstractTest {
 		assertTrue("Expected to find exactly two completions", completer.completedMappings.size == 2)
 
 		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
+		
+		assertTrue("Expected to see completions include parameter mappings", completer.completedMappings.forall[keySet.exists[it instanceof Parameter]])
+	}
+
+	/**
+	 * Auto-complete parameter mappings where there's an interface_of statement
+	 */
+	@Test
+	def void completeMultipleParameterMorphismWithInterfaceOf() {
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "A5"
+					behaviour: "A5Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B5Rules"
+				}
+				
+				type_mapping {
+					class A5.A1 => B4.B1
+					attribute A5.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+«««						param a2 => b1
+«««						param numberA2 => numberB
+						object a1 => b1
+						slot a1.numA => b1.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val completions = result.mappings.head.getMorphismCompletions(true)
+		val completer = completions.key
+		val numUncompleted = completions.value
+
+		assertTrue("Couldn't autocomplete", numUncompleted == 0)
+		assertTrue("Expected to find exactly one completion", completer.completedMappings.size == 1)
+
+//		assertTrue("Expected mappings to be unique", completer.completedMappings.isUniqueSetOfMappings)
 		
 		assertTrue("Expected to see completions include parameter mappings", completer.completedMappings.forall[keySet.exists[it instanceof Parameter]])
 	}
