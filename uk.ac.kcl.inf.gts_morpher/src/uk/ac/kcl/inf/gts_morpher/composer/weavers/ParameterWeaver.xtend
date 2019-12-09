@@ -124,7 +124,7 @@ class ParameterWeaver extends AbstractWeaver {
 						slotSources.head.key
 					}
 				}
-			val slotToRework = slotSources.filter[key === parameterOrigin].head.value as Attribute
+			val slotToRework = slot as Attribute
 
 			invertedParameterMapping.keySet.forEach [ p |
 				val replacementText = (p as Parameter).replacementExpression
