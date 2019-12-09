@@ -281,8 +281,8 @@ class MorphismCompleterTests extends AbstractTest {
 					rule test to test {
 «««						param a2 => b1
 «««						param numberA2 => numberB
-						object a1 => b1
-						slot a1.numA => b1.numB
+«««						object a1 => b1
+«««						slot a1.numA => b1.numB
 					}
 				}
 			}

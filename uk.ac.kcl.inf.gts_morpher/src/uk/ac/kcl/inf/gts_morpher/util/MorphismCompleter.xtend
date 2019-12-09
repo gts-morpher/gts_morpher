@@ -749,7 +749,10 @@ class MorphismCompleter {
 			new Pair<Node, List<Attribute>>(behaviourMapping.get(n) as Node, n.getUnmappedAttributes(behaviourMapping))
 		].toList
 
-		val parameterMappingsToComplete = srcRule.parameters.reject[p | behaviourMapping.containsKey(p)].toList
+		val parameterMappingsToComplete = srcRule.parameters
+		                                         .reject[p | behaviourMapping.containsKey(p)]
+		                                         .reject[p | srcIsInterface && !p.isInterfaceElement]
+		                                         .toList
 
 		val result = doTryCompleteRuleMorphism(parameterMappingsToComplete, slotMappingsToComplete, srcRule, tgtRule, behaviourMapping, 
 			elementsToMap, findAll)
