@@ -21,4 +21,8 @@ class ExpressionRewriter {
 		
 		srcExpression.replaceAll(regexp, tgtParamReplacementExpression)		
 	}
+
+	static def boolean referencesParameter(String expression, Parameter p) {
+		expression.matches('''(.)*«p.matchParamRegexp»(.)*''')
+	}
 }

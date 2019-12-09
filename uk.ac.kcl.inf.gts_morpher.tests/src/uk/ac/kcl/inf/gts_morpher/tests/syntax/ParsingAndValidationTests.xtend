@@ -54,6 +54,7 @@ class ParsingAndValidationTests extends AbstractTest {
 			"A.ecore",
 			"B.ecore",
 			"A4.ecore",
+			"A5.ecore",
 			"B4.ecore",
 			"C.ecore",
 			"D.ecore",
@@ -64,6 +65,8 @@ class ParsingAndValidationTests extends AbstractTest {
 			"B3.henshin",
 			"A4.henshin",
 			"B4.henshin",
+			"A5.henshin",
+			"B5.henshin",
 			"C.henshin",
 			"D.henshin"
 		].createResourceSet
@@ -1415,6 +1418,84 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertNotNull("Did not produce parse result", result)
 		
 		result.assertNoIssues
+	}
+
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void validateParameterMorphismAgainstAttributeMappingsWithInterfaceOfPositive() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "A5"
+					behaviour: "A5Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B5Rules"
+				}
+				
+				type_mapping {
+					class A5.A1 => B4.B1
+					attribute A5.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param a1 => b1
+						param numberA => numberB
+						object a1 => b1
+						slot a1.numA => b1.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertNoIssues
+	}
+
+	/**
+	 * Ensure parameter mappings are consistent with attribute mappings
+	 */
+	@Test
+	def void validateParameterMorphismAgainstAttributeMappingsWithInterfaceOfNegative() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from interface_of {
+					metamodel: "A5"
+					behaviour: "A5Rules"
+				}
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B5Rules"
+				}
+				
+				type_mapping {
+					class A5.A1 => B4.B1
+					attribute A5.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+						param a2 => b1
+						param numberA2 => numberB
+						object a1 => b1
+						slot a1.numA => b1.numB
+					}
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		
+		result.assertWarning(GtsMorpherPackage.Literals.RULE_MAPPING, GTSMorpherValidator.INCOMPLETE_RULE_MAPPING)
 	}
 
 	/**

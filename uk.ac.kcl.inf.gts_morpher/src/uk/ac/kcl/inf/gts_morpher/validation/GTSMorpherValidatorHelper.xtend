@@ -146,6 +146,7 @@ class GTSMorpherValidatorHelper {
 				}
 
 				val inCompleteParameterMappings = mapping.source.parameters.exists [ p |
+					(!srcIsInterface || p.interfaceElement) &&
 					!mapping.element_mappings.filter(RuleParameterMapping).exists[source === p]
 				]
 
