@@ -63,16 +63,20 @@ class EMFHelper {
 			null
 		}
 	}
-
-	static def isInterfaceElement(EModelElement em) {
+	
+	static dispatch def boolean isInterfaceElement(EObject eo) {
+		true
+	}
+	
+	static dispatch def boolean isInterfaceElement(EModelElement em) {
 		em.EAnnotations.exists[a | a.source.equalsIgnoreCase("Interface")]
 	}
 	
-	static def isInterfaceElement(GraphElement ge) {
+	static dispatch def boolean isInterfaceElement(GraphElement ge) {
 		ge.type.isInterfaceElement
 	}
 	
-	static def isInterfaceElement(Parameter p) {
+	static dispatch def boolean isInterfaceElement(Parameter p) {
 		if (p.type instanceof EClass) {
 			p.type.isInterfaceElement
 		} else {
