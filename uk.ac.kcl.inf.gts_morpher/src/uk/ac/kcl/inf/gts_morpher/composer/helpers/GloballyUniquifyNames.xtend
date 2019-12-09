@@ -76,6 +76,7 @@ class GloballyUniquifyNames implements NamingStrategy {
 	override weaveNames(
 		Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup,
 		EObject objectToName, UniquenessContext context) {
+		//FIXME: Pairs don't have a good equals / hashmap method so don't work properly for map lookup
 		val nameKey = new Pair(nameSourcesLookup, context)
 		var nameResolver = nameResolvers.get(nameKey)
 		if (nameResolver === null) {
