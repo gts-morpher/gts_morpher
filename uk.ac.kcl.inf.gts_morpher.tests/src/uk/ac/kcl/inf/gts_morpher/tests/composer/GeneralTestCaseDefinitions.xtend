@@ -38,12 +38,15 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"A.ecore",
 			"A0.ecore",
 			"A4.ecore",
+			"A5.ecore",
 			"B4.ecore",
 			"B.ecore",
 			"A.henshin",
 			"A3.henshin",
 			"A4.henshin",
 			"B4.henshin",
+			"A5.henshin",
+			"B5.henshin",
 			"A_unnamed.henshin",
 			"A_b.henshin",
 			"A0.henshin",
@@ -1392,7 +1395,7 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 	}
 	
 	/**
-	 * Weave based on attribute mappings
+	 * Weave based on parameter mappings
 	 */
 	@Test
 	def void testParameterMorphismWeaving() {
@@ -1449,6 +1452,71 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		assertNotNull("Couldn't find composed henshin rules", runResult.c)
 
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("AB4.henshin"), true).contents.head as Module
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
+	}
+
+	/**
+	 * Weave based on parameter mappings
+	 */
+	@Test
+	def void testParameterMorphismWeavingWithExplictInterfaceOfMapping() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts A5 {
+				metamodel: "A5"
+				behaviour: "A5Rules"
+			}
+			
+			auto-complete unique map A5toB5 {
+				from interface_of { A5 }
+				
+				to {
+					metamodel: "B4"
+					behaviour: "B5Rules"
+				}
+				
+				type_mapping {
+					class A5.A1 => B4.B1
+					attribute A5.A1.numA => B4.B1.numB
+				}
+				
+				behaviour_mapping {
+					rule test to test {
+«««						param a2 => b1
+«««						param numberA2 => numberB
+«««						object a1 => b1
+«««						slot a1.numA => b1.numB
+					}
+				}
+			}
+			
+			export gts woven {
+				weave: {
+					map1: interface_of(A5)
+					map2: A5toB5
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		result.assertNoIssues
+
+		val runResult = result.doTest(resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+
+		// Check contents of generated resources and compare against oracle
+		assertNotNull("Couldn't find composed ecore", runResult.b)
+
+		val composedOracle = resourceSet.getResource(createFileURI("AB5.ecore"), true).contents.head as EPackage
+
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+
+		// Check contents of generated resources and compare against oracle
+		assertNotNull("Couldn't find composed henshin rules", runResult.c)
+
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("AB5.henshin"), true).contents.head as Module
 
 		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
 	}
