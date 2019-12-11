@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_aH8MwBwREeqPfvHMnKZhvA" name="LeftRules">
+  <imports href="rule_name_test.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_aH8MwRwREeqPfvHMnKZhvA" name="process_2_1">
+    <lhs xmi:id="_aH8MwhwREeqPfvHMnKZhvA" name="Lhs"/>
+    <rhs xmi:id="_aH8MwxwREeqPfvHMnKZhvA" name="Rhs"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="_aH8MxBwREeqPfvHMnKZhvA" name="process_1">
+    <lhs xmi:id="_aH8MxRwREeqPfvHMnKZhvA" name="Lhs"/>
+    <rhs xmi:id="_aH8MxhwREeqPfvHMnKZhvA" name="Rhs"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="_aH8MxxwREeqPfvHMnKZhvA" name="process_2_2">
+    <lhs xmi:id="_aH8MyBwREeqPfvHMnKZhvA" name="Lhs"/>
+    <rhs xmi:id="_aH8MyRwREeqPfvHMnKZhvA" name="Rhs"/>
+  </units>
+</henshin:Module>

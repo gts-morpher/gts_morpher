@@ -1,0 +1,5 @@
+@namespace(uri="https://metamodel.de/rule_name_test", prefix="rule_name_test")
+package rule_name_test;
+
+class A {
+}

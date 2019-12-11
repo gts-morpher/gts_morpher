@@ -19,6 +19,14 @@ abstract class UniquenessContext {
 	def boolean considerIdentical(EObject eo1, EObject eo2) {
 		eo1 === eo2
 	}
+	
+	override equals(Object other) {
+		if (other instanceof UniquenessContext) {
+			contextElements.equals(other.contextElements)
+		} else {
+			false
+		}
+	}
 
 	private static def UniquenessContext singletonContext(EObject eo) { [#[eo]] }
 

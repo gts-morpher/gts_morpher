@@ -17,6 +17,8 @@ import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Data
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
+import uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext
+import uk.ac.kcl.inf.gts_morpher.composer.weavers.ParameterWeaver
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.TGWeaver
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
@@ -31,15 +33,14 @@ import uk.ac.kcl.inf.gts_morpher.util.ValueHolder
 
 import static uk.ac.kcl.inf.gts_morpher.util.MorphismChecker.*
 
-import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
-import static extension uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver.weaveAllNames
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
+import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
+import static extension uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver.weaveAllNames
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MappingConverter.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
 import static extension uk.ac.kcl.inf.gts_morpher.validation.GTSMorpherValidatorHelper.*
-import uk.ac.kcl.inf.gts_morpher.composer.weavers.ParameterWeaver
 
 /**
  * Compose two xDSMLs based on the description in a resource of our language and store the result in suitable output resources.
