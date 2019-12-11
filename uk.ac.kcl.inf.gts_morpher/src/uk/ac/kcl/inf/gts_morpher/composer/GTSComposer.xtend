@@ -270,9 +270,8 @@ class GTSComposer {
 		result.name = weaveNames(
 			#{result -> #[kernelBehaviour?.kernelKey, leftBehaviour?.leftKey, rightBehaviour?.rightKey].filterNull},
 			result, result.uniquenessContext)
-		val UniquenessContext uniquenessContext = [result.units]
 		result.units.forEach [ r |
-			r.name = weaveNames(ruleWeavingMap, r, uniquenessContext)
+			r.name = weaveNames(ruleWeavingMap, r, [result.units])
 		]
 
 		result
