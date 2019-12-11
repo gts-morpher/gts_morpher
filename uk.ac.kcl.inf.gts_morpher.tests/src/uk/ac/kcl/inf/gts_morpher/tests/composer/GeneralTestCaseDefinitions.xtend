@@ -73,7 +73,11 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 			"N.ecore",
 			"N2.ecore",
 			"O.ecore",
-			"P.ecore"
+			"P.ecore",
+			"rule_name_test.ecore",
+			"Kernel.henshin",
+			"Left.henshin",
+			"Right.henshin"
 		].createResourceSet
 	}
 
@@ -326,6 +330,64 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		EcoreUtil2.resolveAll(runResult.c)
 		
 		val composedHenshinOracle = resourceSet.getResource(createFileURI(if (useUnnamedNodesInRules) "AB2_unnamed.henshin" else "AB2.henshin"), true).contents.head as Module
+		EcoreUtil2.resolveAll(composedHenshinOracle)
+
+		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
+	}
+
+	@Test
+	def testGTSMorphismWithNamingOptionsAndRuleNameClash() {
+		val resourceSet = createNormalResourceSet
+		val result = parseHelper.parse('''
+			gts K {
+				metamodel: "rule_name_test"
+				behaviour: "KernelRules"
+			}
+			
+			gts L {
+				metamodel: "rule_name_test"
+				behaviour: "LeftRules"
+			}
+			
+			gts R {
+				metamodel: "rule_name_test"
+				behaviour: "RightRules"
+			}
+			
+			auto-complete unique allow-from-empty map K2L {
+				from K
+				to L
+				type_mapping {}
+			}
+			
+			auto-complete unique allow-from-empty map K2R {
+				from K
+				to R
+				type_mapping {}
+			}
+			
+			export gts woven {
+				weave (dontLabelNonKernelElements,preferMap1TargetNames): {
+					map1: K2L
+					map2: K2R
+				}
+			}
+		''', resourceSet)
+		assertNotNull("Did not produce parse result", result)
+
+		val runResult = result.doTest(resourceSet)
+
+		assertTrue("Expected to see no issues.", runResult.a.empty)
+		assertNotNull("Couldn't find composed ecore", runResult.b)
+
+		val composedOracle = resourceSet.getResource(createFileURI("rule_name_test.ecore"), true).contents.head as EPackage
+
+		assertEObjectsEquals("Woven TG was not as expected", composedOracle, runResult.b)
+		
+		assertNotNull("Couldn't find composed Henshin rules", runResult.c)
+		EcoreUtil2.resolveAll(runResult.c)
+		
+		val composedHenshinOracle = resourceSet.getResource(createFileURI("LeftRight.henshin"), true).contents.head as Module
 		EcoreUtil2.resolveAll(composedHenshinOracle)
 
 		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
