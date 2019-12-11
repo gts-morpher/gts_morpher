@@ -41,18 +41,17 @@ class GloballyUniquifyNames implements NamingStrategy {
 				new Pair(eo, naming.weaveNames(nameSourcesLookup, eo, context))
 			].toMap([key], [value])
 			
-			var duplicateNames = context.calculateDuplicateNames
-			 	
-			// TODO: Does this always terminate? I think it does because we are always appending a locally unique appendix, so names get longer and prefixes remain unique and, as a consequence cannot clash with names in other groups			
-			while (!duplicateNames.empty) {
+			// TODO: Does this always terminate? I think it does because we are always appending a locally unique appendix, so names get longer and prefixes remain unique and, as a consequence cannot clash with names in other groups
+			var Map<String, List<EObject>> duplicateNames
+			do {
+				duplicateNames = context.calculateDuplicateNames
+
 				duplicateNames.forEach[name, objects |
 					objects.forEach[eo, idx |
 						names.put(eo, '''«name»_«idx + 1»''')
 					]
 				]
-	
-				duplicateNames = context.calculateDuplicateNames
-			}
+			} while (!duplicateNames.empty)
 		}
 		
 		private def calculateDuplicateNames(UniquenessContext context) {
