@@ -27,8 +27,7 @@ class GloballyUniquifyNames implements NamingStrategy {
 
 	private static class UniqueNameResolver {
 		val Map<EObject, String> names
-		val Map<String, List<EObject>> duplicateNames
-
+	
 		private static class DuplicateObjectCount {
 			@Accessors
 			var int count = 0
@@ -42,7 +41,22 @@ class GloballyUniquifyNames implements NamingStrategy {
 				new Pair(eo, naming.weaveNames(nameSourcesLookup, eo, context))
 			].toMap([key], [value])
 			
-			duplicateNames = names.keySet.groupBy[names.get(it)]
+			var duplicateNames = context.calculateDuplicateNames
+			 	
+			// TODO: Does this always terminate? I think it does because we are always appending a locally unique appendix, so names get longer and prefixes remain unique and, as a consequence cannot clash with names in other groups			
+			while (!duplicateNames.empty) {
+				duplicateNames.forEach[name, objects |
+					objects.forEach[eo, idx |
+						names.put(eo, '''«name»_«idx + 1»''')
+					]
+				]
+	
+				duplicateNames = context.calculateDuplicateNames
+			}
+		}
+		
+		private def calculateDuplicateNames(UniquenessContext context) {
+			names.keySet.groupBy[names.get(it)]
 				.filter[name, objects | name !== null] // we don't need to keep track of duplicate unnamed objects
 				.filter[name, objects | 
 					objects.fold(new DuplicateObjectCount)[acc, o |
@@ -58,18 +72,7 @@ class GloballyUniquifyNames implements NamingStrategy {
 		}
 
 		def String uniqueNameFor(EObject object) {
-			var tentativeName = names.get(object)
-			
-			if (tentativeName !== null) {
-				val allEquallyNamedObjects = duplicateNames.get(tentativeName)
-				
-				if (allEquallyNamedObjects !== null) {
-					// FIXME: What if this now creates a name clash with an existing object? We should really check here again. It does become a fixpoint problem after all...
-					tentativeName += '''_«allEquallyNamedObjects.indexOf(object) + 1»'''
-				}
-			}
-			
-			tentativeName
+			names.get(object)
 		}
 	}
 

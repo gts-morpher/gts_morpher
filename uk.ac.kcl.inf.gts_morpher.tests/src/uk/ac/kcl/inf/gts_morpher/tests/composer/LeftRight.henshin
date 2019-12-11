@@ -9,7 +9,7 @@
     <lhs xmi:id="_aH8MxRwREeqPfvHMnKZhvA" name="Lhs"/>
     <rhs xmi:id="_aH8MxhwREeqPfvHMnKZhvA" name="Rhs"/>
   </units>
-  <units xsi:type="henshin:Rule" xmi:id="_aH8MxxwREeqPfvHMnKZhvA" name="process_2">
+  <units xsi:type="henshin:Rule" xmi:id="_aH8MxxwREeqPfvHMnKZhvA" name="process_2_2">
     <lhs xmi:id="_aH8MyBwREeqPfvHMnKZhvA" name="Lhs"/>
     <rhs xmi:id="_aH8MyRwREeqPfvHMnKZhvA" name="Rhs"/>
   </units>
