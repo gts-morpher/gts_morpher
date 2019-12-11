@@ -8,6 +8,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.eclipse.xtend.lib.annotations.Data
 
 class GloballyUniquifyNames implements NamingStrategy {
 	val NamingStrategy baseNS
@@ -63,6 +64,7 @@ class GloballyUniquifyNames implements NamingStrategy {
 				val allEquallyNamedObjects = duplicateNames.get(tentativeName)
 				
 				if (allEquallyNamedObjects !== null) {
+					// FIXME: What if this now creates a name clash with an existing object? We should really check here again. It does become a fixpoint problem after all...
 					tentativeName += '''_«allEquallyNamedObjects.indexOf(object) + 1»'''
 				}
 			}
@@ -71,13 +73,19 @@ class GloballyUniquifyNames implements NamingStrategy {
 		}
 	}
 
-	val nameResolvers = new HashMap<Pair<Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>>, UniquenessContext>, UniqueNameResolver>
+	@Data
+	private static class NameResolverCacheKey {
+		val Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup
+		val UniquenessContext contex
+	}
+
+	val nameResolvers = new HashMap<NameResolverCacheKey, UniqueNameResolver>
 
 	override weaveNames(
 		Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup,
 		EObject objectToName, UniquenessContext context) {
-		//FIXME: Pairs don't have a good equals / hashmap method so don't work properly for map lookup
-		val nameKey = new Pair(nameSourcesLookup, context)
+		// FIXME: The context object changes every time, so is no good for caching. As a result, name resolution doesn't work
+		val nameKey = new NameResolverCacheKey (nameSourcesLookup, context)
 		var nameResolver = nameResolvers.get(nameKey)
 		if (nameResolver === null) {
 			nameResolver = new UniqueNameResolver(nameSourcesLookup, context, baseNS)
