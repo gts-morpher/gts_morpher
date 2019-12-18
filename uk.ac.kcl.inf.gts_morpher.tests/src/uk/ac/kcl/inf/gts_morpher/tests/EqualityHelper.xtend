@@ -14,10 +14,6 @@ import static org.junit.Assert.*
  * An equality helper that provides better jUnit diagnostics for when things aren't equal. 
  */
 class EqualityHelper extends EcoreUtil.EqualityHelper {
-	static def void assertEObjectsEquals(String message, EObject expected, EObject actual) {
-		new EqualityHelper(message).equals(expected, actual)
-	}
-
 	val String message
 	@Accessors(PROTECTED_GETTER)
 	var boolean throwExceptionOnError = true
