@@ -80,7 +80,8 @@ class ApplicationConditionShifterTests extends AbstractTest {
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
 
-		val rule = (result.members.head as GTSSpecification).behaviour.units.head as Rule
+		val gtsSpecification = result.members.head as GTSSpecification
+		val rule = gtsSpecification.behaviour.units.head as Rule
 		val lhs = rule.lhs
 		val nac = lhs.formula
 		assertNotNull("Did not find NAC", nac)
@@ -88,9 +89,10 @@ class ApplicationConditionShifterTests extends AbstractTest {
 		val ac = new ApplicationCondition(nac)
 		assertNotNull("Did not extract NAC", ac)
 		assertTrue("Expected AC to be negative", ac.negative)
-		assertTrue("Expected all lhs elements to be contained in application condition", (lhs.nodes + lhs.edges + lhs.nodes.flatMap [
-			attributes
-		]).exists[ac.morphism.containsKey(it)])
+		assertTrue("Expected all lhs elements to be contained in application condition", (lhs.nodes + lhs.edges +
+			lhs.nodes.flatMap [
+				attributes
+			]).exists[ac.morphism.containsKey(it)])
 		assertTrue("Expected NAC to contain two additional elements", ac.unmappedElements.size === 2)
 
 		val mapping = result.members.get(1) as GTSMapping
@@ -99,38 +101,55 @@ class ApplicationConditionShifterTests extends AbstractTest {
 		val behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
 		behaviourMapping.put(lhs, lhs)
 
-		val shiftedNAC = ac.shift(tgMapping, behaviourMapping)
+		val shiftedNAC = ac.shift(tgMapping, behaviourMapping, mapping.source.interface_mapping)
 		assertNotNull("Expected to produce a shifted NAC", shiftedNAC)
 		assertTrue("Expected shifted AC to be negative", shiftedNAC.negative)
-		
+
+		// FIXME: Also want to include the metamodel elements in the comparison
 		val equalityChecker = new EqualityHelper("Expected EObject equality", [
-			ac.morphism.containsKey(it) || ac.morphism.containsValue(it) || ac.unmappedElements.contains(it) 
+			ac.morphism.containsKey(it) || ac.morphism.containsValue(it) || ac.unmappedElements.contains(it)
 		])
-		assertTrue("Expected shifted AC to have same negativity as original AC", (ac.negative === shiftedNAC.negative))	
-		assertTrue("Expected shifted AC to have same size morphism as original AC", (ac.morphism.keySet.size === shiftedNAC.morphism.size))	
-		assertTrue("Expected shifted AC to have same size unmapped elements as original AC", (ac.unmappedElements.size === shiftedNAC.unmappedElements.size))	
-		assertTrue("Expected shifted AC to have equal morphism to original AC", 
-			(ac.morphism.entrySet.forall[e | shiftedNAC.morphism.entrySet.exists[shiftedE | 
-				equalityChecker.equals(e.key, shiftedE.key) && equalityChecker.equals(e.value, shiftedE.value)
-			]]) 
-		)	
-		assertTrue("Expected shifted AC to have equal unmapped elements to original AC", 
-			(ac.unmappedElements.forall[eo | shiftedNAC.unmappedElements.exists[shiftedEO | 
-				equalityChecker.equals(eo, shiftedEO)
-			]])
-		)	
+
+		assertTrue("Expected shifted AC to have same negativity as original AC", (ac.negative === shiftedNAC.negative))
+		assertTrue("Expected shifted AC to have same size morphism as original AC",
+			(ac.morphism.keySet.size === shiftedNAC.morphism.size))
+		assertTrue("Expected shifted AC to have same size unmapped elements as original AC",
+			(ac.unmappedElements.size === shiftedNAC.unmappedElements.size))
+		assertTrue(
+			"Expected shifted AC to have equal morphism to original AC",
+			(ac.morphism.entrySet.forall [ e |
+				val res = shiftedNAC.morphism.entrySet.exists [ shiftedE |
+					equalityChecker.equals(e.key, shiftedE.key) && equalityChecker.equals(e.value, shiftedE.value)
+
+				]
+				if (!res) {
+					throw new AssertionError("Couldn't find correspondence for (" + e.key + ", " + e.value + ")")
+				}
+
+				res
+			])
+		)
+		assertTrue(
+			"Expected shifted AC to have equal unmapped elements to original AC",
+			(ac.unmappedElements.forall [ eo |
+				shiftedNAC.unmappedElements.exists [ shiftedEO |
+					equalityChecker.equals(eo, shiftedEO)
+				]
+			])
+		)
 	}
-	
+
 	private static class EqualityHelper extends uk.ac.kcl.inf.gts_morpher.tests.EqualityHelper {
 		val Predicate<EObject> isContained
-		
-		new (String message, Predicate<EObject> isContained) {
-			super (message)
-			
+
+		new(String message, Predicate<EObject> isContained) {
+			super(message)
+
 			this.isContained = isContained
+			throwExceptionOnError = false
 		}
-		
-		override equals (EObject eo1, EObject eo2) {
+
+		override equals(EObject eo1, EObject eo2) {
 			(!isContained.test(eo1)) || super.equals(eo1, eo2)
 		}
 	}

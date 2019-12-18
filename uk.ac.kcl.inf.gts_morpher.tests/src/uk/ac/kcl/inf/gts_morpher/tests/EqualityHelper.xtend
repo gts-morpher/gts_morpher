@@ -15,7 +15,7 @@ import static org.junit.Assert.*
  */
 class EqualityHelper extends EcoreUtil.EqualityHelper {
 	val String message
-	@Accessors(PROTECTED_GETTER)
+	@Accessors(PROTECTED_SETTER, PROTECTED_GETTER)
 	var boolean throwExceptionOnError = true
 
 	new(String message) {
