@@ -1,6 +1,8 @@
 package uk.ac.kcl.inf.gts_morpher.tests.shifter
 
 import com.google.inject.Inject
+import java.util.function.Predicate
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
@@ -10,7 +12,6 @@ import org.junit.runner.RunWith
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecification
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecificationModule
-import uk.ac.kcl.inf.gts_morpher.shifter.ACShifter
 import uk.ac.kcl.inf.gts_morpher.shifter.ApplicationCondition
 import uk.ac.kcl.inf.gts_morpher.tests.AbstractTest
 import uk.ac.kcl.inf.gts_morpher.tests.GTSMorpherInjectorProvider
@@ -96,10 +97,41 @@ class ApplicationConditionShifterTests extends AbstractTest {
 
 		val tgMapping = mapping.typeMapping.extractMapping(null)
 		val behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
+		behaviourMapping.put(lhs, lhs)
 
-		val shiftedNAC = ACShifter.shift(nac, tgMapping, behaviourMapping)
+		val shiftedNAC = ac.shift(tgMapping, behaviourMapping)
 		assertNotNull("Expected to produce a shifted NAC", shiftedNAC)
-
-		assertEObjectsEquals("Expected the right kind of NAC to be produced", nac, shiftedNAC)
+		assertTrue("Expected shifted AC to be negative", shiftedNAC.negative)
+		
+		val equalityChecker = new EqualityHelper("Expected EObject equality", [
+			ac.morphism.containsKey(it) || ac.morphism.containsValue(it) || ac.unmappedElements.contains(it) 
+		])
+		assertTrue("Expected shifted AC to have same negativity as original AC", (ac.negative === shiftedNAC.negative))	
+		assertTrue("Expected shifted AC to have same size morphism as original AC", (ac.morphism.keySet.size === shiftedNAC.morphism.size))	
+		assertTrue("Expected shifted AC to have same size unmapped elements as original AC", (ac.unmappedElements.size === shiftedNAC.unmappedElements.size))	
+		assertTrue("Expected shifted AC to have equal morphism to original AC", 
+			(ac.morphism.entrySet.forall[e | shiftedNAC.morphism.entrySet.exists[shiftedE | 
+				equalityChecker.equals(e.key, shiftedE.key) && equalityChecker.equals(e.value, shiftedE.value)
+			]]) 
+		)	
+		assertTrue("Expected shifted AC to have equal unmapped elements to original AC", 
+			(ac.unmappedElements.forall[eo | shiftedNAC.unmappedElements.exists[shiftedEO | 
+				equalityChecker.equals(eo, shiftedEO)
+			]])
+		)	
+	}
+	
+	private static class EqualityHelper extends uk.ac.kcl.inf.gts_morpher.tests.EqualityHelper {
+		val Predicate<EObject> isContained
+		
+		new (String message, Predicate<EObject> isContained) {
+			super (message)
+			
+			this.isContained = isContained
+		}
+		
+		override equals (EObject eo1, EObject eo2) {
+			(!isContained.test(eo1)) || super.equals(eo1, eo2)
+		}
 	}
 }
