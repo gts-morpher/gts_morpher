@@ -10,9 +10,10 @@ import org.junit.runner.RunWith
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecification
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecificationModule
+import uk.ac.kcl.inf.gts_morpher.shifter.ACShifter
+import uk.ac.kcl.inf.gts_morpher.shifter.ApplicationCondition
 import uk.ac.kcl.inf.gts_morpher.tests.AbstractTest
 import uk.ac.kcl.inf.gts_morpher.tests.GTSMorpherInjectorProvider
-import uk.ac.kcl.inf.gts_morpher.util.ACShifter
 
 import static org.junit.Assert.*
 
@@ -44,7 +45,7 @@ class ApplicationConditionShifterTests extends AbstractTest {
 				metamodel: "A"
 				behaviour: "ARules"
 			}
-
+			
 			map {
 				from interface_of { A }
 				
@@ -77,18 +78,28 @@ class ApplicationConditionShifterTests extends AbstractTest {
 			}
 		''', createNormalResourceSet)
 		assertNotNull("Did not produce parse result", result)
-		
-		val nac = ((result.members.head as GTSSpecification).behaviour.units.head as Rule).lhs.formula
+
+		val rule = (result.members.head as GTSSpecification).behaviour.units.head as Rule
+		val lhs = rule.lhs
+		val nac = lhs.formula
 		assertNotNull("Did not find NAC", nac)
-		
+
+		val ac = new ApplicationCondition(nac)
+		assertNotNull("Did not extract NAC", ac)
+		assertTrue("Expected AC to be negative", ac.negative)
+		assertTrue("Expected all lhs elements to be contained in application condition", (lhs.nodes + lhs.edges + lhs.nodes.flatMap [
+			attributes
+		]).exists[ac.morphism.containsKey(it)])
+		assertTrue("Expected NAC to contain two additional elements", ac.unmappedElements.size === 2)
+
 		val mapping = result.members.get(1) as GTSMapping
-		
+
 		val tgMapping = mapping.typeMapping.extractMapping(null)
 		val behaviourMapping = mapping.behaviourMapping.extractMapping(tgMapping, null)
-		
+
 		val shiftedNAC = ACShifter.shift(nac, tgMapping, behaviourMapping)
 		assertNotNull("Expected to produce a shifted NAC", shiftedNAC)
-		
+
 		assertEObjectsEquals("Expected the right kind of NAC to be produced", nac, shiftedNAC)
 	}
 }

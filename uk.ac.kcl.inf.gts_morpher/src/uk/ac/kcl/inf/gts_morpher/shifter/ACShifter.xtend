@@ -1,4 +1,4 @@
-package uk.ac.kcl.inf.gts_morpher.util
+package uk.ac.kcl.inf.gts_morpher.shifter
 
 import org.eclipse.emf.henshin.model.Formula
 import java.util.Map
@@ -13,6 +13,9 @@ import org.eclipse.emf.henshin.model.NestedCondition
 class ACShifter {
 	
 	static extension val HenshinFactory factory = HenshinFactory.eINSTANCE
+	
+	// TODO: This signature isn't correct. We really want to extract application conditions into a more analysable form that contains the entire graph as well as the explicit morphism mappings from the original containing graph.
+	// Probably need to first build methods that can extract such a representation from a given PAC/NAC and then write the shift on top of that.
 	
 	/**
 	 * Shift the formula given along the provided mappings
