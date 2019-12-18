@@ -105,10 +105,9 @@ class ApplicationConditionShifterTests extends AbstractTest {
 		assertNotNull("Expected to produce a shifted NAC", shiftedNAC)
 		assertTrue("Expected shifted AC to be negative", shiftedNAC.negative)
 
-		// FIXME: Also want to include the metamodel elements in the comparison
-		val equalityChecker = new EqualityHelper("Expected EObject equality", [
-			ac.morphism.containsKey(it) || ac.morphism.containsValue(it) || ac.unmappedElements.contains(it)
-		])
+		val equalityChecker1 = ac.createEqualityHelper("Expected EObject equality")
+		val equalityChecker2 = ac.createEqualityHelper("Expected EObject equality")
+		val equalityChecker3 = ac.createEqualityHelper("Expected EObject equality")
 
 		assertTrue("Expected shifted AC to have same negativity as original AC", (ac.negative === shiftedNAC.negative))
 		assertTrue("Expected shifted AC to have same size morphism as original AC",
@@ -119,7 +118,7 @@ class ApplicationConditionShifterTests extends AbstractTest {
 			"Expected shifted AC to have equal morphism to original AC",
 			(ac.morphism.entrySet.forall [ e |
 				val res = shiftedNAC.morphism.entrySet.exists [ shiftedE |
-					equalityChecker.equals(e.key, shiftedE.key) && equalityChecker.equals(e.value, shiftedE.value)
+					equalityChecker1.equals(e.key, shiftedE.key) && equalityChecker2.equals(e.value, shiftedE.value)
 
 				]
 				if (!res) {
@@ -133,10 +132,17 @@ class ApplicationConditionShifterTests extends AbstractTest {
 			"Expected shifted AC to have equal unmapped elements to original AC",
 			(ac.unmappedElements.forall [ eo |
 				shiftedNAC.unmappedElements.exists [ shiftedEO |
-					equalityChecker.equals(eo, shiftedEO)
+					equalityChecker3.equals(eo, shiftedEO)
 				]
 			])
 		)
+	}
+	
+	// FIXME: Also want to include the metamodel elements in the comparison
+	private def createEqualityHelper(ApplicationCondition acExpected, String message) {
+		new EqualityHelper(message, [
+			acExpected.morphism.containsKey(it) || acExpected.morphism.containsValue(it) || acExpected.unmappedElements.contains(it)
+		])
 	}
 
 	private static class EqualityHelper extends uk.ac.kcl.inf.gts_morpher.tests.EqualityHelper {
