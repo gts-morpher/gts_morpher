@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="A" nsURI="http://kcl.ac.uk/xdsml/A" nsPrefix="a">
+  <eClassifiers xsi:type="ecore:EClass" name="A1">
+    <eAnnotations source="Interface"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="a2" eType="#//A2" containment="true">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="a3" eType="#//A3" containment="true">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="a4s" upperBound="-1" eType="#//A4"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="A2">
+    <eAnnotations source="Interface"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="a4s" upperBound="-1" eType="#//A4"
+        containment="true">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="A3">
+    <eAnnotations source="Interface"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="a4s" upperBound="-1" eType="#//A4"
+        containment="true">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="A4">
+    <eAnnotations source="Interface"/>
+  </eClassifiers>
+</ecore:EPackage>

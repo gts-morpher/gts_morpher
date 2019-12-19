@@ -15,11 +15,12 @@ import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.NamedElement
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
+import uk.ac.kcl.inf.gts_morpher.composer.helpers.ModelSpan
+import org.eclipse.emf.henshin.model.HenshinPackage
 
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
-import uk.ac.kcl.inf.gts_morpher.composer.helpers.ModelSpan
-import org.eclipse.emf.henshin.model.HenshinPackage
+import static uk.ac.kcl.inf.gts_morpher.composer.helpers.ContentsEnumerators.*
 
 /**
  * Helper class for weaving a rule pattern. Acts as a map remembering the mappings established. 
@@ -33,10 +34,10 @@ class PatternWeaver extends AbstractWeaver {
 	extension val HenshinPackage henshin = HenshinPackage.eINSTANCE
 
 	new(Graph kernelPattern, Graph leftPattern, Graph rightPattern, Map<EObject, EObject> leftBehaviourMapping,
-		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel) {
+		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping, String patternLabel, boolean kernelIsInterface) {
 		super(
 			new ModelSpan(leftBehaviourMapping.filteredMapping(leftPattern),
-				rightBehaviourMapping.filteredMapping(rightPattern), kernelPattern, leftPattern, rightPattern).
+				rightBehaviourMapping.filteredMapping(rightPattern), kernelPattern, leftPattern, rightPattern, graphEnumerator(kernelIsInterface)).
 				calculateMergeSet,
 			leftBehaviourMapping.unmappedElements(leftPattern),
 			rightBehaviourMapping.unmappedElements(rightPattern)
