@@ -35,12 +35,23 @@ import static uk.ac.kcl.inf.gts_morpher.composer.helpers.ContentsEnumerators.*
  */
 class ApplicationCondition {
 
+	/**
+	 * True if this is a NAC
+	 */
 	@Accessors
 	var boolean isNegative = false
 
+	/**
+	 * Mapping from host-graph elements to elements in the AC graph. keySet elements always come from the host graph and will cover the host graph completely.
+	 * value elements may come from the host graph (if no explicit representation and mapping provided in the rule), or from the application condition (if an
+	 * explicit mapping was provided).
+	 */
 	@Accessors(PUBLIC_GETTER)
 	val Map<GraphElement, GraphElement> morphism = new HashMap
 
+	/**
+	 * Elements added by the application-condition graph. Should not be empty. 
+	 */
 	@Accessors(PUBLIC_GETTER)
 	val Set<GraphElement> unmappedElements = new HashSet
 

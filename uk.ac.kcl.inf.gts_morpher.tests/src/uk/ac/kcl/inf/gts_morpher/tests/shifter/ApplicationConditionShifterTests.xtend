@@ -3,6 +3,7 @@ package uk.ac.kcl.inf.gts_morpher.tests.shifter
 import com.google.inject.Inject
 import java.util.function.Predicate
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
@@ -105,15 +106,36 @@ class ApplicationConditionShifterTests extends AbstractTest {
 		assertNotNull("Expected to produce a shifted NAC", shiftedNAC)
 		assertTrue("Expected shifted AC to be negative", shiftedNAC.negative)
 
-		val equalityChecker1 = ac.createEqualityHelper("Expected EObject equality")
-		val equalityChecker2 = ac.createEqualityHelper("Expected EObject equality")
-		val equalityChecker3 = ac.createEqualityHelper("Expected EObject equality")
+		val equalityChecker1 = ac.createEqualityHelper("Expected EObject equality", shiftedNAC, gtsSpecification.metamodel)
+		val equalityChecker2 = ac.createEqualityHelper("Expected EObject equality", shiftedNAC, gtsSpecification.metamodel)
+		val equalityChecker3 = ac.createEqualityHelper("Expected EObject equality", shiftedNAC, gtsSpecification.metamodel)
+		
+		val acHostGraph = ac.morphism.keySet.head.graph
+		val shiftedHostGraph = shiftedNAC.morphism.keySet.head.graph 
+		val graphEqualityChecker = new EqualityHelper("Expected host graph equality", true)[eo |
+			eo === acHostGraph || eo === shiftedHostGraph ||
+			acHostGraph.eAllContents.exists[eo1 | eo === eo1] ||
+			shiftedHostGraph.eAllContents.exists[eo1 | eo === eo1] ||
+			gtsSpecification.metamodel.eAllContents.exists[eo1 | eo === eo1]
+		]
+
+		val acTargetGraph = ac.unmappedElements.head.graph
+		val shiftedTargetGraph = shiftedNAC.unmappedElements.head.graph 
+		val targetGraphEqualityChecker = new EqualityHelper("Expected target graph equality", true)[eo |
+			eo === acTargetGraph || eo === shiftedTargetGraph ||
+			acTargetGraph.eAllContents.exists[eo1 | eo === eo1] ||
+			shiftedTargetGraph.eAllContents.exists[eo1 | eo === eo1] ||
+			gtsSpecification.metamodel.eAllContents.exists[eo1 | eo === eo1]
+		]
 
 		assertTrue("Expected shifted AC to have same negativity as original AC", (ac.negative === shiftedNAC.negative))
 		assertTrue("Expected shifted AC to have same size morphism as original AC",
 			(ac.morphism.keySet.size === shiftedNAC.morphism.size))
 		assertTrue("Expected shifted AC to have same size unmapped elements as original AC",
 			(ac.unmappedElements.size === shiftedNAC.unmappedElements.size))
+		assertTrue("Expected host graphs to be equal", graphEqualityChecker.equals(acHostGraph, shiftedHostGraph))
+		assertTrue("Expected target graphs to be equal", targetGraphEqualityChecker.equals(acTargetGraph, shiftedTargetGraph))
+		
 		assertTrue(
 			"Expected shifted AC to have equal morphism to original AC",
 			(ac.morphism.entrySet.forall [ e |
@@ -122,7 +144,7 @@ class ApplicationConditionShifterTests extends AbstractTest {
 
 				]
 				if (!res) {
-					throw new AssertionError("Couldn't find correspondence for (" + e.key + ", " + e.value + ")")
+					throw new AssertionError("Couldn't find correspondence for (" + e.key + " <" + e.key.hashCode + ">, " + e.value + " <" + e.key.hashCode + ">)")
 				}
 
 				res
@@ -138,21 +160,22 @@ class ApplicationConditionShifterTests extends AbstractTest {
 		)
 	}
 	
-	// FIXME: Also want to include the metamodel elements in the comparison
-	private def createEqualityHelper(ApplicationCondition acExpected, String message) {
-		new EqualityHelper(message, [
-			acExpected.morphism.containsKey(it) || acExpected.morphism.containsValue(it) || acExpected.unmappedElements.contains(it)
+	private def createEqualityHelper(ApplicationCondition acExpected, String message, ApplicationCondition acShifted, EPackage metamodel) {
+		new EqualityHelper(message, false, [eo | 
+			acExpected.morphism.containsKey(eo) || acExpected.morphism.containsValue(eo) || acExpected.unmappedElements.contains(eo) ||
+			acShifted.morphism.containsKey(eo) || acShifted.morphism.containsValue(eo) || acShifted.unmappedElements.contains(eo) ||
+			metamodel.eAllContents.exists[eo1 | eo === eo1]
 		])
 	}
 
 	private static class EqualityHelper extends uk.ac.kcl.inf.gts_morpher.tests.EqualityHelper {
 		val Predicate<EObject> isContained
 
-		new(String message, Predicate<EObject> isContained) {
+		new(String message, boolean throwExceptions, Predicate<EObject> isContained) {
 			super(message)
 
 			this.isContained = isContained
-			throwExceptionOnError = false
+			throwExceptionOnError = throwExceptions
 		}
 
 		override equals(EObject eo1, EObject eo2) {
