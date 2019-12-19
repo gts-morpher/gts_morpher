@@ -18,7 +18,6 @@ import org.eclipse.emf.henshin.model.Attribute
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.ExpressionRewriter.*
-import static uk.ac.kcl.inf.gts_morpher.composer.helpers.ContentsEnumerators.*
 
 class ParameterWeaver extends AbstractWeaver {
 
@@ -28,10 +27,10 @@ class ParameterWeaver extends AbstractWeaver {
 	extension val HenshinPackage henshin = HenshinPackage.eINSTANCE
 
 	new(Rule kernelTgtRule, Rule leftRule, Rule rightRule, Map<EObject, EObject> leftBehaviourMapping,
-		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping, boolean kernelIsInterface) {
+		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping) {
 		super(
 			new ModelSpan(leftBehaviourMapping.filteredMapping(leftRule),
-				rightBehaviourMapping.filteredMapping(rightRule), kernelTgtRule, leftRule, rightRule, ruleEnumerator(kernelIsInterface)).calculateMergeSet,
+				rightBehaviourMapping.filteredMapping(rightRule), kernelTgtRule, leftRule, rightRule).calculateMergeSet,
 			leftBehaviourMapping.unmappedElements(leftRule),
 			rightBehaviourMapping.unmappedElements(rightRule)
 		)

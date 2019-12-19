@@ -17,6 +17,7 @@ import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtend.lib.annotations.Data
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.NamingStrategy
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
+import uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.ParameterWeaver
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.PatternWeaver
 import uk.ac.kcl.inf.gts_morpher.composer.weavers.TGWeaver
@@ -125,7 +126,7 @@ class GTSComposer {
 						_monitor.split("Composing type graph.", 1)
 						val tgWeaver = new TGWeaver(leftMapping.tgMapping, rightMapping.tgMapping,
 							weaving.mapping1.source.metamodel, weaving.mapping1.target.metamodel,
-							weaving.mapping2.target.metamodel, namingStrategy, weaving.mapping1.source.interface_mapping)
+							weaving.mapping2.target.metamodel, namingStrategy)
 						composedTG = tgWeaver.weaveTG
 
 						_monitor.split("Composing rules.", 1)
@@ -133,7 +134,7 @@ class GTSComposer {
 							weaving.mapping1.source.behaviour, weaving.mapping1.target.behaviour,
 							weaving.mapping2.target.behaviour, weaving.mapping1.source.metamodel,
 							weaving.mapping1.target.metamodel, weaving.mapping2.target.metamodel, tgWeaver,
- 							namingStrategy, weaving.mapping1.source.interface_mapping)
+							namingStrategy)
 					}
 				}
 			}
@@ -240,7 +241,7 @@ class GTSComposer {
 	private def Module composeBehaviour(Map<EObject, EObject> leftBehaviourMapping,
 		Map<EObject, EObject> rightBehaviourMapping, Module kernelBehaviour, Module leftBehaviour,
 		Module rightBehaviour, EPackage kernelMetamodel, EPackage leftMetamodel, EPackage rightMetamodel,
-		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming, boolean mapFromInterface) {
+		Map<Pair<Origin, EObject>, EObject> tgMapping, extension NamingStrategy naming) {
 		if (leftBehaviourMapping.empty && rightBehaviourMapping.empty) {
 			return null
 		}
@@ -256,7 +257,7 @@ class GTSComposer {
 			imports += tgMapping.get(kernelMetamodel.kernelKey) as EPackage
 
 			units += kernelRulesIncludingVirtualRules.map [ r |
-				val composed = r.createComposed(leftBehaviourMapping, rightBehaviourMapping, tgMapping, naming, mapFromInterface)
+				val composed = r.createComposed(leftBehaviourMapping, rightBehaviourMapping, tgMapping, naming)
 
 				ruleWeavingMap.put(composed,
 					#[r.kernelKey, leftBehaviourMapping.getMappedTargetRule(r).leftKey,
@@ -282,17 +283,17 @@ class GTSComposer {
 
 	def Rule createComposed(Rule kernelTgtRule, Map<EObject, EObject> leftBehaviourMapping,
 		Map<EObject, EObject> rightBehaviourMapping, Map<Pair<Origin, EObject>, EObject> tgMapping,
-		extension NamingStrategy naming, boolean mapFromInterface) {
+		extension NamingStrategy naming) {
 		// leftRule or rightRule can be null if we have previously introduced a virtual rule in the kernel for one of the mappings.		
 		val leftRule = leftBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 		val rightRule = rightBehaviourMapping.getMappedTargetRule(kernelTgtRule)
 
-		val paramWeaver = new ParameterWeaver(kernelTgtRule, leftRule, rightRule, leftBehaviourMapping, rightBehaviourMapping, tgMapping, mapFromInterface)
+		val paramWeaver = new ParameterWeaver(kernelTgtRule, leftRule, rightRule, leftBehaviourMapping, rightBehaviourMapping, tgMapping)
 
 		val lhsWeaver = new PatternWeaver(kernelTgtRule.lhs, leftRule?.lhs, rightRule?.lhs, leftBehaviourMapping,
-				rightBehaviourMapping, tgMapping, "Lhs", mapFromInterface)
+				rightBehaviourMapping, tgMapping, "Lhs")
 		val rhsWeaver = new PatternWeaver(kernelTgtRule.rhs, leftRule?.rhs, rightRule?.rhs, leftBehaviourMapping,
-				rightBehaviourMapping, tgMapping, "Rhs", mapFromInterface)
+				rightBehaviourMapping, tgMapping, "Rhs")
 
 		val result = HenshinFactory.eINSTANCE.createRule => [
 			description = weaveDescriptions(kernelTgtRule.description, leftRule?.description, rightRule?.description)

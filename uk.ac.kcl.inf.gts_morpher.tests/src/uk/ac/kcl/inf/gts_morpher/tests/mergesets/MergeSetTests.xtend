@@ -9,9 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import uk.ac.kcl.inf.gts_morpher.composer.helpers.ModelSpan
 import uk.ac.kcl.inf.gts_morpher.tests.GTSMorpherInjectorProvider
-
 import static org.junit.Assert.assertEquals
-import static uk.ac.kcl.inf.gts_morpher.composer.helpers.ContentsEnumerators.*
 
 @RunWith(XtextRunner)
 @InjectWith(GTSMorpherInjectorProvider)
@@ -53,7 +51,7 @@ class MergeSetTests {
 		val Map<EObject, EObject> leftMapping = #{k0 -> l0}
 		val Map<EObject, EObject> rightMapping = #{k0 -> r0}
 		
-		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right, packageEnumerator(false)).calculateMergeSet
+		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right).calculateMergeSet
 		
 		assertEquals("Expected only two merge sets to be produced", 2, mergeSets.size)
 	}
@@ -96,7 +94,7 @@ class MergeSetTests {
 		val Map<EObject, EObject> leftMapping = #{k0 -> l0, k1 -> l1}
 		val Map<EObject, EObject> rightMapping = #{k0 -> r0, k1 -> r1}
 		
-		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right, packageEnumerator(false)).calculateMergeSet
+		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right).calculateMergeSet
 		
 		assertEquals("Expected only three merge sets to be produced", 3, mergeSets.size)
 	}
@@ -139,7 +137,7 @@ class MergeSetTests {
 		val Map<EObject, EObject> leftMapping = #{k0 -> l0, k1 -> l1}
 		val Map<EObject, EObject> rightMapping = #{k0 -> r0, k1 -> r0}
 		
-		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right, packageEnumerator(false)).calculateMergeSet
+		val mergeSets = new ModelSpan(leftMapping, rightMapping, kernel, left, right).calculateMergeSet
 		
 		assertEquals("Expected only two merge sets to be produced", 2, mergeSets.size)
 	}
