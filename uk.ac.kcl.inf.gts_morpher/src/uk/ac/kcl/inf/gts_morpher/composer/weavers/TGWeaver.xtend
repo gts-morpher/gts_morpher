@@ -17,7 +17,6 @@ import uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.Origin
 
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.OriginMgr.*
 import static extension uk.ac.kcl.inf.gts_morpher.composer.helpers.UniquenessContext.*
-import static uk.ac.kcl.inf.gts_morpher.composer.helpers.ContentsEnumerators.*
 
 /**
  * Helper class composing two TGs based on a morphism specification. Similar to EcoreUtil.Copier, the instance of this class used 
@@ -31,9 +30,8 @@ class TGWeaver extends AbstractWeaver {
 	val EPackage kernelMetamodel
 
 	new(Map<EObject, EObject> leftTGMapping, Map<EObject, EObject> rightTGMapping, EPackage kernelMetamodel,
-		EPackage leftMetamodel, EPackage rightMetamodel, NamingStrategy naming, boolean kernelIsInterface) {
-		super(new ModelSpan(leftTGMapping, rightTGMapping, kernelMetamodel, leftMetamodel, rightMetamodel,
-							packageEnumerator(kernelIsInterface)).
+		EPackage leftMetamodel, EPackage rightMetamodel, NamingStrategy naming) {
+		super(new ModelSpan(leftTGMapping, rightTGMapping, kernelMetamodel, leftMetamodel, rightMetamodel).
 			calculateMergeSet, leftMetamodel.eAllContents.reject[eo|leftTGMapping.containsValue(eo)].toList,
 			rightMetamodel.eAllContents.reject[eo|rightTGMapping.containsValue(eo)].toList)
 		this.naming = naming

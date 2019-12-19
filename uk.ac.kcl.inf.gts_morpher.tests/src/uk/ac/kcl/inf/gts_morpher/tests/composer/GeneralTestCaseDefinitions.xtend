@@ -2,7 +2,9 @@ package uk.ac.kcl.inf.gts_morpher.tests.composer
 
 import com.google.inject.Inject
 import java.util.List
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.xtext.EcoreUtil2
@@ -1579,5 +1581,94 @@ abstract class GeneralTestCaseDefinitions extends AbstractTest {
 		val composedHenshinOracle = resourceSet.getResource(createFileURI("AB5.henshin"), true).contents.head as Module
 
 		assertEObjectsEquals("Woven GTS was not as expected", composedHenshinOracle, runResult.c)
+	}
+
+	static def void assertEObjectsEquals(String message, EObject expected, EObject actual) {
+		new uk.ac.kcl.inf.gts_morpher.tests.composer.GeneralTestCaseDefinitions.EqualityHelper(message).equals(expected, actual)
+	}
+
+	private static class EqualityHelper extends uk.ac.kcl.inf.gts_morpher.tests.EqualityHelper {
+
+		new(String message) {
+			super(message)
+		}
+
+		override protected haveEqualReference(EObject expected, EObject actual, EReference reference) {
+//			if (reference.ordered) {
+//				super.haveEqualReference(eObject1, eObject2, reference)
+//			} else {
+			val Object value1 = expected.eGet(reference);
+			val Object value2 = actual.eGet(reference);
+
+			if (reference.many) {
+				val expectedList = value1 as List<EObject>
+				val actualList = value2 as List<EObject>
+				val result = equalsUnordered(expectedList, actualList)
+
+				if (!result && throwExceptionOnError) {
+					// Try to get us a better error message
+					val unmatchedElements = runProtected[
+						new Pair<List<EObject>, List<EObject>>(expectedList.reject [ eo |
+							actualList.exists[eo2|equals(eo, eo2)]
+						].toList, actualList.reject[eo|expectedList.exists[eo2|equals(eo, eo2)]].toList)
+					]
+
+					if (unmatchedElements.key.size == unmatchedElements.value.size) {
+						// Attempt to find matches where all attributes match, but there may be a difference further down the graph
+						val deeplyUnmatchedElements = runProtected[
+							new Pair<List<Pair<EObject, EObject>>, List<Pair<EObject, EObject>>>(
+								unmatchedElements.key.map [ eo |
+									new Pair<EObject, EObject>(eo, unmatchedElements.value.filter [ eo2 |
+										(eo.eClass === eo2.eClass) && (eo.eClass.EAllAttributes.forall [ attr |
+											haveEqualAttribute(eo, eo2, attr)
+										])
+									].head)
+								].toList,
+								unmatchedElements.value.map [ eo |
+									new Pair<EObject, EObject>(eo, unmatchedElements.key.filter [ eo2 |
+										(eo.eClass === eo2.eClass) && (eo.eClass.EAllAttributes.forall [ attr |
+											haveEqualAttribute(eo2, eo, attr)
+										])
+									].head)
+								].toList
+							)
+						]
+
+						// Now execute the comparisons again in unprotected mode, throwing exceptions at the deepest level that's meaningful
+						deeplyUnmatchedElements.key.filter[value !== null].forEach[p|equals(p.key, p.value)]
+						deeplyUnmatchedElements.value.filter[value !== null].forEach[p|equals(p.key, p.value)]
+					}
+
+					// If all unmatching elements are shallowly unmatched, report that
+					fail(format(expected, unmatchedElements.key, actual, unmatchedElements.value, reference))
+				}
+
+				result
+			} else {
+				equals(value1 as EObject, value2 as EObject)
+			}
+//			}
+		}
+
+		protected def equalsUnordered(List<EObject> expected, List<EObject> actual) {
+			runProtected[
+				(expected.size == actual.size) && expected.forall[eo|actual.exists[eo2|equals(eo, eo2)]] &&
+					actual.forall [ eo |
+						expected.exists[eo2|equals(eo, eo2)]
+					]
+			]
+		}
+
+		private def String format(EObject expected, List<? extends EObject> expectedList, EObject actual,
+			List<? extends EObject> actualList, EReference reference) {
+			val formatted = getMessage
+
+			formatted + "Couldn't match elements referenced by EReference " + reference.name + ".\n" +
+				"Expected object " + expected.formatClassAndValue + " had the following unmatched elements: [" +
+				expectedList.map[formatClassAndValue].join(", ") + "].\n" + "Actual object " +
+				actual.formatClassAndValue + " had the following unmatched elements: [" + actualList.map [
+					formatClassAndValue
+				].join(", ") + "]."
+		}
 	}
 }

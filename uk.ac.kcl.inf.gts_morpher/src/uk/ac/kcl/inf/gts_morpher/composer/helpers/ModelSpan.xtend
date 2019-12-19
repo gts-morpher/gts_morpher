@@ -4,23 +4,20 @@ import java.util.HashMap
 import java.util.HashSet
 import java.util.Map
 import java.util.Set
-import java.util.function.Function
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtend.lib.annotations.Data
 
 /**
  * A collection of individual EObject spans. 
  */
-class ModelSpan <T extends EObject> {
+class ModelSpan {
 	val Set<EObjectSpan> modelElementSpans = new HashSet
 
-	new(Map<? extends EObject, ? extends EObject> leftMapping, Map<EObject, EObject> rightMapping, T kernel,
-		T left, T right, Function<T, Iterable<EObject>> contentsEnumerator) {
+	new(Map<EObject, EObject> leftMapping, Map<EObject, EObject> rightMapping, EObject kernel,
+		EObject left, EObject right) {
 		modelElementSpans.add(new EObjectSpan(kernel, left, right))
 
-		// FIXME: eAllContents isn't right here: it doesn't consider that the kernel might be from an interface, but also it breaks when the kernel is a graph and there's an application condition attached...
-		// Should add parametrisation of the enumeration facility and provide the different options as pre-defined classes
-		modelElementSpans.addAll(contentsEnumerator.apply(kernel).map [ eo |
+		modelElementSpans.addAll(kernel.eAllContents.map [ eo |
 			val l = leftMapping.get(eo)
 			val r = rightMapping.get(eo)
 			if ((l !== null) && (r !== null)) {

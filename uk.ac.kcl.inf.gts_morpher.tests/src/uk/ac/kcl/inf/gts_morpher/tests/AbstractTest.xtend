@@ -3,7 +3,6 @@ package uk.ac.kcl.inf.gts_morpher.tests
 import com.google.inject.Inject
 import com.google.inject.Provider
 import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.henshin.model.HenshinPackage
 import org.eclipse.emf.henshin.model.resource.HenshinResourceFactory
 import org.eclipse.xtext.resource.XtextResourceSet
@@ -26,9 +25,5 @@ abstract class AbstractTest {
 	
 	protected def createFileURI(String file) {
 		URI.createFileURI(class.getResource(file).path)
-	}
-	
-	static def void assertEObjectsEquals(String message, EObject expected, EObject actual) {
-		new EqualityHelper(message).equals(expected, actual)
 	}
 }
