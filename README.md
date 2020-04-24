@@ -110,7 +110,7 @@ auto-complete map {
 }
 ```
 
-As long as the mappings specified do not break the conditions for a GTS morphism, the system will attempt to complete the morphism automatically. Every time the file is saved, Eclipse's automated build mechanism will trigger a generation of all possible auto-completions into separate files in the `/src-gen` folder at the root of the containing project.
+As long as the mappings specified do not break the conditions for a GTS morphism, the system will attempt to complete the morphism automatically. You can request for the completed morphisms to be exported as `.gts` files for inspection. 
 
 It is possible to claim that only a unique auto-completion to a morphism exists. This is done by adding the `unique` keyword like so:
 
