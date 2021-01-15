@@ -531,8 +531,16 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 		]).entrySet.filter[e|e.value.size > 1].sortWith[e1, e2|-(e1.value.size <=> e2.value.size)]
 	}
 
-	private def mapMessage(
-		Entry<EObject, Set<EObject>> mappingChoices) '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''
+	private def mapMessage(Entry<EObject, Set<EObject>> mappingChoices) {
+		var message = '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''
+		
+		if (message.length > 150) {
+			message = message.substring(1, 147) + '...'
+		}
+		
+		message
+	}
+		
 
 	private def issueData(EObject source,
 		EObject target) '''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
