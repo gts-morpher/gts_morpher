@@ -145,4 +145,9 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Parameter"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Parameter"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ModelCast" eSuperTypes="#//GTSSpecificationModuleMember">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="modelFile" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="srcGTS" eType="#//GTSSpecification"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="tgtGTS" eType="#//GTSSpecification"/>
+  </eClassifiers>
 </ecore:EPackage>

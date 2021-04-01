@@ -43,10 +43,12 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.UnitParameter
 import uk.ac.kcl.inf.gts_morpher.util.MultiResourceOnChangeEvictingCache.IClearableItem
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.*
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ModelCast
 
 class GTSSpecificationHelper {
 
 	static def getGtss (GTSSpecificationModule module) { module.members.filter(GTSSpecification) }
+	static def getModelCasts (GTSSpecificationModule module) { module.members.filter(ModelCast) }
 	
 	static def getGts_families (GTSSpecificationModule module) { module.members.filter(GTSFamilySpecification) }
 	

@@ -37,4 +37,11 @@
   <eClassifiers xsi:type="ecore:EClass" name="Head" eSuperTypes="#//Part"/>
   <eClassifiers xsi:type="ecore:EClass" name="Handle" eSuperTypes="#//Part"/>
   <eClassifiers xsi:type="ecore:EClass" name="Hammer" eSuperTypes="#//Part"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DEVSModel">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="machines" upperBound="-1"
+        eType="#//Machine" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="containers" upperBound="-1"
+        eType="#//Container" containment="true"/>
+  </eClassifiers>
 </ecore:EPackage>

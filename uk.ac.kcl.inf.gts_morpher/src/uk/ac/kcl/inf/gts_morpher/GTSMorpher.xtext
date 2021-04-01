@@ -12,7 +12,8 @@ GTSSpecificationModule:
 GTSSpecificationModuleMember:
 	GTSSpecification |
 	GTSFamilySpecification |
-	GTSMapping
+	GTSMapping |
+	ModelCast
 ;
 
 GTSMapping:
@@ -195,6 +196,10 @@ SlotMapping:
 
 RuleParameterMapping:
 	"param" source = [gts::Parameter | ID] "=>" target = [gts::Parameter | ID]
+;
+
+ModelCast:
+	"model" name=ID "=" modelFile=STRING ("(" "instance" "of" srcGTS = [GTSSpecification] ")")? "as" tgtGTS = [GTSSpecification]	
 ;
 
 LinkName :
