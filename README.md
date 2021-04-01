@@ -31,7 +31,7 @@ gts name {
 
 Here, `name` can be an arbitrary, optional name for the GTS that may later be used to reference the GTS. The `metamodel` clause references an Ecore package (which must be found in a `.ecore` file on the classpath of the containing project) defining the metamodel (or typegraph) of the GTS. The `behaviour` clause references a Henshin module (which must be found in a `.henshin` file on the classpath of the containing project) the rules of which are considered to be the rules of the GTS. We currently only support Henshin (although we have plans to support other graph-transformation engines in the future) and do not support Henshin units. It is acceptable to leave out the `behaviour` clause.
 
-Some alternative forms of specifying GTSs exist; these all differ primarily by what is specified between the curly braces. We will discuss GTS families and GTS amalgamation further down in this documentation.
+Some alternative forms of specifying GTSs exist; these all differ primarily by what is specified between the curly braces. We will discuss GTS families and GTS amalgamation further down in this documentation. Furthermore, wherever the keyword `gts` is used, you can also use the keyword `xdsml` instead.
 
 Any GTS specification may be annotated with two modifiers: 
 
