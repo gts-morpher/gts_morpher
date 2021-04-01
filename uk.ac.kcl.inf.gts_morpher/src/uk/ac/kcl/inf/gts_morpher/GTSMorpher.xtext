@@ -46,7 +46,7 @@ GTSReference:
 ;
 
 GTSSpecification:
-	((export ?= "export")? "gts" (name=ID)?)?
+	((export ?= "export")? ("gts"|"xdsml") (name=ID)?)?
 	(interface_mapping ?= "interface_of")?
 	"{"
 		gts = GTSSelection	
