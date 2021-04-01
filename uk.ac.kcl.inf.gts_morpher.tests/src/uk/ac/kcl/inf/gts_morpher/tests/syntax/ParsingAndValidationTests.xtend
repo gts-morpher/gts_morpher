@@ -118,6 +118,47 @@ class ParsingAndValidationTests extends AbstractTest {
 	}
 
 	/**
+	 * Tests basic parsing and linking for a sunshine case
+	 */
+	@Test
+	def void parsingBasicXDsml() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			map {
+				from xdsml ServerSystem {
+					metamodel: "server"
+				}
+				to xdsml DEVsMMSystem {
+					metamodel: "devsmm"
+				}
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+			}
+		''', createNormalResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+
+		assertTrue("Set to auto-complete", !result.mappings.head.autoComplete)
+
+		assertNotNull("No type mapping", result.mappings.head.typeMapping)
+
+		assertNotNull("Did not load source package", result.mappings.head.source.metamodel.name)
+		assertNotNull("Did not load target package", result.mappings.head.target.metamodel.name)
+
+		assertNotNull("Did not load source class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).source.name)
+		assertNotNull("Did not load target class", (result.mappings.head.typeMapping.mappings.head as ClassMapping).target.name)
+
+		assertNotNull("Did not load source reference",
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).source.name)
+		assertNotNull("Did not load target reference",
+			(result.mappings.head.typeMapping.mappings.get(1) as ReferenceMapping).target.name)
+	}
+
+	/**
 	 * Tests basic parsing and linking for a sunshine case with only a GTS Specification
 	 */
 	@Test
