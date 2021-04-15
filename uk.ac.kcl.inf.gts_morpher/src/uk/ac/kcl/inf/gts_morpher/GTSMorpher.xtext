@@ -111,6 +111,14 @@ GTSMappingInterfaceSpec:
 	"interface_of" "(" gts_ref=[GTSSpecification] ")"
 ;
 
+// Helper not used in grammar, but constructing a meta-model interface so we can access all of these in a GTS trace
+GTSTraceMember:
+	GTSSpecification |
+	GTSMapping |
+	GTSSelection |
+	GTSMappingInterfaceSpec
+;
+
 UnitCallList:
 	steps += UnitCall ("," steps += UnitCall)*
 ;
