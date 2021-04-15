@@ -35,6 +35,8 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingInterfaceSpec
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRef
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSReference
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSelection
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecification
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherPackage
@@ -499,6 +501,7 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 	@Check
 	def checkModelCast(ModelCast modelCast) {
 		modelCast.checkModelSourceType
+		modelCast.checkModelTargetType
 	}
 
 	private def checkModelSourceType(ModelCast modelCast) {
@@ -513,16 +516,56 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 					error("The meta-model of the source model must correspond to the meta-model of the source GTS.",
 						GtsMorpherPackage.Literals.MODEL_CAST__MODEL_FILE, MODEL_CAST_INVALID_SOURCE_TYPE)
 				}
-			}
-			catch (WrappedException we) {
-				error('''Could not load model file «we.exception.message».''', GtsMorpherPackage.Literals.MODEL_CAST__MODEL_FILE,
-					MODEL_CAST_INVALID_SOURCE_TYPE)
-			}
-			catch (Exception e) {
+			} catch (WrappedException we) {
+				error('''Could not load model file «we.exception.message».''',
+					GtsMorpherPackage.Literals.MODEL_CAST__MODEL_FILE, MODEL_CAST_INVALID_SOURCE_TYPE)
+			} catch (Exception e) {
 				error('''Could not load model file «e.message».''', GtsMorpherPackage.Literals.MODEL_CAST__MODEL_FILE,
 					MODEL_CAST_INVALID_SOURCE_TYPE)
 			}
 		}
+	}
+
+	private def checkModelTargetType(ModelCast modelCast) {
+		if (modelCast.tgtGTS !== null) {
+			if (modelCast.srcGTS !== null) {
+				if (!modelCast.tgtGTS.canBeDerivedFrom(modelCast.srcGTS)) {
+					error('''Target GTS cannot be derived from source GTS.''',
+						GtsMorpherPackage.Literals.MODEL_CAST__TGT_GTS, MODEL_CAST_INVALID_TARGET_TYPE)
+				}
+			} else {
+				// TODO: add validation for case where the source GTS must be inferred
+			}
+		}
+	}
+
+	// TODO: This should probably actually implement a proper depth-first search given that, in principle, the derivation structure could be a DAG.
+	private dispatch def boolean canBeDerivedFrom(GTSSpecification target, GTSSpecification source) {
+		(target === source) || target.gts.canBeDerivedFrom(source)
+	}
+
+	private dispatch def boolean canBeDerivedFrom(GTSSelection target, GTSSpecification source) {
+		false
+	}
+
+	private dispatch def boolean canBeDerivedFrom(GTSWeave target, GTSSpecification source) {
+		target.mapping1.canBeDerivedFrom(source) || target.mapping2.canBeDerivedFrom(source)
+	}
+
+	private dispatch def boolean canBeDerivedFrom(GTSMappingRef target, GTSSpecification source) {
+		target.ref.canBeDerivedFrom(source)
+	}
+
+	private dispatch def boolean canBeDerivedFrom(GTSMappingInterfaceSpec target, GTSSpecification source) {
+		target.gts_ref.canBeDerivedFrom(source)
+	}
+
+	private dispatch def boolean canBeDerivedFrom(GTSMapping target, GTSSpecification source) {
+		target.source.canBeDerivedFrom(source) || target.target.canBeDerivedFrom(source)
+	}
+
+	private dispatch def boolean canBeDerivedFrom(GTSReference target, GTSSpecification source) {
+		target.ref.canBeDerivedFrom(source)
 	}
 
 	private dispatch def checkIsValidMapping(Void spec) {}

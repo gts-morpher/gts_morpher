@@ -31,7 +31,6 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ModelCast
 
 @RunWith(XtextRunner)
 @InjectWith(GTSMorpherInjectorProvider)
