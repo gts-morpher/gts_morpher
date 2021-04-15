@@ -107,6 +107,7 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 	public static val INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY'
 	public static val INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET'
 	public static val MODEL_CAST_INVALID_SOURCE_TYPE = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.MODEL_CAST_INVALID_SOURCE_TYPE'
+	public static val MODEL_CAST_INVALID_TARGET_TYPE = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.MODEL_CAST_INVALID_TARGET_TYPE'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
