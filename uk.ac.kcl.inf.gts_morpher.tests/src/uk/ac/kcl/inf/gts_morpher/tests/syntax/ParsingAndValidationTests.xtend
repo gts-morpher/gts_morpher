@@ -31,6 +31,7 @@ import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ModelCast
 
 @RunWith(XtextRunner)
 @InjectWith(GTSMorpherInjectorProvider)
@@ -3215,5 +3216,57 @@ class ParsingAndValidationTests extends AbstractTest {
 		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
 		
 		result.assertNoError(GTSMorpherValidator.MODEL_CAST_INVALID_SOURCE_TYPE)
+	}
+
+	/**
+	 * Tests validation of model casting
+	 */
+	@Test
+	def void validationBasicModelCastingWithSourceError() {
+		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
+		// Then would use «serverURI.toString» etc. below
+		val result = parseHelper.parse('''
+			gts ServerSystem {
+				metamodel: "server"
+				behaviour: "serverRules"
+			}
+			
+			gts ServerInterface interface_of { ServerSystem }
+			
+			gts DEVSMMSystem {
+				metamodel: "devsmm"
+				behaviour: "devsmmRules"
+			}
+
+			map ServerToDEVSMM {
+				from ServerInterface
+				to DEVSMMSystem
+				
+				type_mapping {
+					class server.Server => devsmm.Machine
+					reference server.Server.Out => devsmm.Machine.out
+				}
+				
+				behaviour_mapping {
+					rule process to process {
+						object input => in_part
+						link [in_queue->input:elts] => [tray->in_part:parts]
+					}
+				}
+			}
+			
+			gts DEVSMMWithServer {
+				weave: {
+					map1: interface_of (ServerSystem)
+					map2: ServerToDEVSMM
+				}
+			}
+			
+			model derivedModel = "«class.getResource("DEVSModel.xmi").path»" (instance of ServerSystem) as DEVSMMWithServer
+		''', createModelResourceSet)
+		assertNotNull("Did not produce parse result", result)
+		assertTrue("Found parse errors: " + result.eResource.errors, result.eResource.errors.isEmpty)
+		
+		result.eContents.head.assertError(GtsMorpherPackage.Literals.MODEL_CAST, GTSMorpherValidator.MODEL_CAST_INVALID_SOURCE_TYPE)
 	}
 }
