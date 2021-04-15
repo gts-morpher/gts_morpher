@@ -64,6 +64,10 @@ class EMFHelper {
 		}
 	}
 	
+	static dispatch def boolean isInterfaceElement(Void v) {
+		false
+	}
+
 	static dispatch def boolean isInterfaceElement(EObject eo) {
 		true
 	}
