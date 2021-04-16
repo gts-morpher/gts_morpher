@@ -5,8 +5,20 @@ import java.util.HashMap
 import java.util.HashSet
 import java.util.List
 import java.util.Set
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilyChoice
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilyReference
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilySpecification
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilySpecificationOrReference
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSLiteral
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMapping
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingInterfaceSpec
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRef
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSMappingRefOrInterfaceSpec
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSReference
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecification
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecificationOrReference
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSTraceMember
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
 
 /**
  * A GTS trace is a path that connects a source and a target GTS through a number of transformations in a GTSMorpher specification. 
@@ -15,26 +27,31 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSTraceMember
  * 
  * The source GTS is always the first member of the GTSTrace and the target GTS is always the last member of the GTSTrace. 
  */
-interface GTSTrace extends List<GTSTraceMember> {
-	def getSource() { head }
-
-	def getTarget() { last }
-
-	static class GTSTraceImpl extends ArrayList<GTSTraceMember> implements GTSTrace {
-		new(GTSTraceMember... trace) {
-			super()
-			this += trace
-		}
+class GTSTrace extends ArrayList<GTSTraceMember> {
+	/** 
+	 * Constructs the set of traces through which source can be transformed into target.
+	 */
+	// TODO: Implement caching
+	static def Set<GTSTrace> findTracesTo(GTSSpecification source, GTSSpecification target) {
+		new GTSTraceHelper().findTraces(source, target)
 	}
 
-	static class GTSTraceHelper extends HashMap<GTSTraceMember, Set<GTSTrace>> {
-		def Set<? extends GTSTrace> findTraces(GTSSpecification source, GTSSpecification target) {
+	private new(GTSTraceMember... trace) {
+		super()
+		this += trace
+	}
+
+	def getSource() { head as GTSSpecification }
+
+	def getTarget() { last as GTSSpecification }
+
+	private static class GTSTraceHelper extends HashMap<GTSTraceMember, Set<GTSTrace>> {
+		def Set<GTSTrace> findTraces(GTSSpecification source, GTSSpecification target) {
 			val Set<GTSTraceMember> visited = new HashSet
 
 			collectTraces(source, target, visited)
 		}
 
-		// TODO: Refactor to separate DFS logic and actual selection of followers
 		private def Set<GTSTrace> collectTraces(GTSSpecification source, GTSTraceMember target,
 			Set<GTSTraceMember> visited) {
 			if (visited.contains(target)) {
@@ -48,55 +65,56 @@ interface GTSTrace extends List<GTSTraceMember> {
 			visited += target
 
 			val traces = if (source === target) {
-				#{new GTSTraceImpl(source, target) as GTSTrace}
-			} else {
-				expandAll(target.stepDown.flatMap[source.collectTraces(it, visited)].toSet, target)
-			}
-			
+					#{new GTSTrace(source, target)}
+				} else {
+					expandAll(target.stepDown.flatMap[source.collectTraces(it, visited)].toSet, target)
+				}
+
 			put(target, traces)
-			
+
 			traces
 		}
-		
+
 		private def expandAll(Set<GTSTrace> traces, GTSTraceMember newTarget) {
-			traces.map[new GTSTraceImpl(it + #{newTarget}) as GTSTrace].toSet
+			traces.map[new GTSTrace(it + #{newTarget})].toSet
 		}
-		
-		private dispatch def Iterable<GTSTraceMember> stepDown (GTSTraceMember node) { #[] }
-		private dispatch def Iterable<GTSTraceMember> stepDown (GTSSpecification node) { #[node.gts] }
 
-		/*	
-	private dispatch def boolean canBeDerivedFrom(GTSSpecification target, GTSSpecification source) {
-		(target === source) || target.gts.canBeDerivedFrom(source)
-	}
+		private dispatch def Iterable<GTSTraceMember> stepDown(GTSTraceMember node) { #[] }
 
-	private dispatch def boolean canBeDerivedFrom(GTSSelection target, GTSSpecification source) {
-		false
-	}
+		private dispatch def Iterable<GTSTraceMember> stepDown(GTSSpecification node) { #[node.gts] }
 
-	private dispatch def boolean canBeDerivedFrom(GTSWeave target, GTSSpecification source) {
-		target.mapping1.canBeDerivedFrom(source) || target.mapping2.canBeDerivedFrom(source)
-	}
+		private dispatch def Iterable<GTSTraceMember> stepDown(GTSMapping node) {
+			#[node.source.resolve, node.target.resolve]
+		}
 
-	private dispatch def boolean canBeDerivedFrom(GTSMappingRef target, GTSSpecification source) {
-		target.ref.canBeDerivedFrom(source)
-	}
+		private dispatch def Iterable<GTSTraceMember> stepDown(GTSLiteral node) { #[] }
 
-	private dispatch def boolean canBeDerivedFrom(GTSMappingInterfaceSpec target, GTSSpecification source) {
-		target.gts_ref.canBeDerivedFrom(source)
-	}
+		private dispatch def Iterable<GTSTraceMember> stepDown(GTSFamilyChoice node) { #[node.family.resolve] }
 
-	private dispatch def boolean canBeDerivedFrom(GTSMapping target, GTSSpecification source) {
-		target.source.canBeDerivedFrom(source) || target.target.canBeDerivedFrom(source)
-	}
+		private dispatch def Iterable<GTSTraceMember> stepDown(GTSReference node) { #[node.ref] }
 
-	private dispatch def boolean canBeDerivedFrom(GTSReference target, GTSSpecification source) {
-		target.ref.canBeDerivedFrom(source)
-	}
-		*/
-	}
+		private dispatch def Iterable<GTSTraceMember> stepDown(GTSWeave node) {
+			#[node.mapping1.resolve, node.mapping2.resolve]
+		}
 
-	static def findTracesTo(GTSSpecification source, GTSSpecification target) {
-		new GTSTraceHelper().findTraces(source, target)
+		private dispatch def Iterable<GTSTraceMember> stepDown(GTSMappingInterfaceSpec node) { #[node.gts_ref] }
+
+		private dispatch def GTSTraceMember resolve(GTSSpecificationOrReference ref) { null }
+
+		private dispatch def GTSTraceMember resolve(GTSSpecification ref) { ref }
+
+		private dispatch def GTSTraceMember resolve(GTSReference ref) { ref.ref }
+
+		private dispatch def GTSTraceMember resolve(GTSFamilySpecificationOrReference ref) { null }
+
+		private dispatch def GTSTraceMember resolve(GTSFamilySpecification ref) { ref.root_gts.resolve }
+
+		private dispatch def GTSTraceMember resolve(GTSFamilyReference ref) { ref.ref.resolve }
+
+		private dispatch def GTSTraceMember resolve(GTSMappingRefOrInterfaceSpec ref) { null }
+
+		private dispatch def GTSTraceMember resolve(GTSMappingRef ref) { ref.ref }
+
+		private dispatch def GTSTraceMember resolve(GTSMappingInterfaceSpec ref) { ref.gts_ref }
 	}
 }
