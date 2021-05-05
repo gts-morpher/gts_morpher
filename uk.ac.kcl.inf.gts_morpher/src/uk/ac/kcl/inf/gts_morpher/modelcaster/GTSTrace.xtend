@@ -3,8 +3,8 @@ package uk.ac.kcl.inf.gts_morpher.modelcaster
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
-import java.util.List
 import java.util.Set
+import org.eclipse.xtext.util.OnChangeEvictingCache
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilyChoice
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilyReference
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilySpecification
@@ -28,12 +28,20 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
  * The source GTS is always the first member of the GTSTrace and the target GTS is always the last member of the GTSTrace. 
  */
 class GTSTrace extends ArrayList<GTSTraceMember> {
+	
+	static val traceCache = new OnChangeEvictingCache
+	
 	/** 
 	 * Constructs the set of traces through which source can be transformed into target.
 	 */
-	// TODO: Implement caching
 	static def Set<GTSTrace> findTracesTo(GTSSpecification source, GTSSpecification target) {
-		new GTSTraceHelper().findTraces(source, target)
+		val key = source -> target
+		
+		traceCache.get(key, source.eResource) [
+			traceCache.get(key, target.eResource) [
+				new GTSTraceHelper().findTraces(source, target)			
+			]
+		]		
 	}
 
 	private new(GTSTraceMember... trace) {
