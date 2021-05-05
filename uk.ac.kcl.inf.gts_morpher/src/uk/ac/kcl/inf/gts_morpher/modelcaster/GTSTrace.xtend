@@ -73,7 +73,8 @@ class GTSTrace extends ArrayList<GTSTraceMember> {
 			visited += target
 
 			val traces = if (source === target) {
-					#{new GTSTrace(source, target)}
+					// FIXME: This is wrong, as this way every non-trivial trace will start with a duplicate occurence of the source GTS
+					#{new GTSTrace(source, target)}  
 				} else {
 					expandAll(target.stepDown.flatMap[source.collectTraces(it, visited)].toSet, target)
 				}
