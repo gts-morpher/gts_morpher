@@ -12,13 +12,12 @@ import uk.ac.kcl.inf.gts_morpher.tests.GTSMorpherInjectorProvider
 
 import static org.hamcrest.CoreMatchers.*
 import static org.hamcrest.MatcherAssert.*
-import static uk.ac.kcl.inf.gts_morpher.tests.IsEmpty.*
 import static uk.ac.kcl.inf.gts_morpher.tests.HasSize.*
+import static uk.ac.kcl.inf.gts_morpher.tests.IsEmpty.*
 import static uk.ac.kcl.inf.gts_morpher.tests.IsTraceWith.*
 
 import static extension uk.ac.kcl.inf.gts_morpher.modelcaster.GTSTrace.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
-import org.eclipse.xtext.debug.IStratumBreakpointSupport.DefaultImpl
 
 @RunWith(XtextRunner)
 @InjectWith(GTSMorpherInjectorProvider)
