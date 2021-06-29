@@ -90,6 +90,8 @@ class ModelcasterTest extends AbstractTest {
 			result.gtss.get(3)
 		))
 		
+		val transformedModel = traces.head.transformedModel
+		assertThat("No transformed model", transformedModel, is(notNullValue))
 	}
 
 //	/**

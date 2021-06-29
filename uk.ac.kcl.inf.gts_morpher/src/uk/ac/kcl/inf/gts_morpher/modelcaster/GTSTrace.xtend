@@ -4,6 +4,7 @@ import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
 import java.util.Set
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.util.OnChangeEvictingCache
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilyChoice
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSFamilyReference
@@ -52,6 +53,10 @@ class GTSTrace extends ArrayList<GTSTraceMember> {
 	def getSource() { head as GTSSpecification }
 
 	def getTarget() { last as GTSSpecification }
+	
+	def EObject getTransformedModel() {
+		null
+	}
 
 	private static class GTSTraceHelper extends HashMap<GTSTraceMember, Set<GTSTrace>> {
 		def Set<GTSTrace> findTraces(GTSSpecification source, GTSSpecification target) {
