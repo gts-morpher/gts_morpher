@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_FLp8oNBLEeeTmd7edEr5bw" name="devsmmRules">
+  <imports href="DEVSMM.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_J-gAkNBLEeeTmd7edEr5bw" name="process">
+    <lhs xmi:id="_J-gAldBLEeeTmd7edEr5bw" name="Lhs">
+      <nodes xmi:id="_LvHpoNBLEeeTmd7edEr5bw" name="machine" outgoing="_ZlHJENBLEeeTmd7edEr5bw _aTkKgNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Machine"/>
+      </nodes>
+      <nodes xmi:id="_TG3TQNBLEeeTmd7edEr5bw" name="conveyor" incoming="_aTkKgNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Conveyor"/>
+      </nodes>
+      <nodes xmi:id="_T8yOoNBLEeeTmd7edEr5bw" name="tray" incoming="_ZlHJENBLEeeTmd7edEr5bw" outgoing="_Yx3uQNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Tray"/>
+      </nodes>
+      <nodes xmi:id="_XzJcMNBLEeeTmd7edEr5bw" name="in_part" incoming="_Yx3uQNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Part"/>
+      </nodes>
+      <edges xmi:id="_Yx3uQNBLEeeTmd7edEr5bw" source="_T8yOoNBLEeeTmd7edEr5bw" target="_XzJcMNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Container/parts"/>
+      </edges>
+      <edges xmi:id="_ZlHJENBLEeeTmd7edEr5bw" source="_LvHpoNBLEeeTmd7edEr5bw" target="_T8yOoNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Machine/in"/>
+      </edges>
+      <edges xmi:id="_aTkKgNBLEeeTmd7edEr5bw" source="_LvHpoNBLEeeTmd7edEr5bw" target="_TG3TQNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Machine/out"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_J-gAltBLEeeTmd7edEr5bw" name="Rhs">
+      <nodes xmi:id="_LvHpodBLEeeTmd7edEr5bw" name="machine" outgoing="_ZlHJEdBLEeeTmd7edEr5bw _aTkKgdBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Machine"/>
+      </nodes>
+      <nodes xmi:id="_TG3TQdBLEeeTmd7edEr5bw" name="conveyor" incoming="_aTkKgdBLEeeTmd7edEr5bw" outgoing="_bgcNUNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Conveyor"/>
+      </nodes>
+      <nodes xmi:id="_T8yOodBLEeeTmd7edEr5bw" name="tray" incoming="_ZlHJEdBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Tray"/>
+      </nodes>
+      <nodes xmi:id="_VgmKwNBLEeeTmd7edEr5bw" name="out_part" incoming="_bgcNUNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Part"/>
+      </nodes>
+      <edges xmi:id="_ZlHJEdBLEeeTmd7edEr5bw" source="_LvHpodBLEeeTmd7edEr5bw" target="_T8yOodBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Machine/in"/>
+      </edges>
+      <edges xmi:id="_aTkKgdBLEeeTmd7edEr5bw" source="_LvHpodBLEeeTmd7edEr5bw" target="_TG3TQdBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Machine/out"/>
+      </edges>
+      <edges xmi:id="_bgcNUNBLEeeTmd7edEr5bw" source="_TG3TQdBLEeeTmd7edEr5bw" target="_VgmKwNBLEeeTmd7edEr5bw">
+        <type href="DEVSMM.ecore#//Container/parts"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_LvHpotBLEeeTmd7edEr5bw" origin="_LvHpoNBLEeeTmd7edEr5bw" image="_LvHpodBLEeeTmd7edEr5bw"/>
+    <mappings xmi:id="_TG3TQtBLEeeTmd7edEr5bw" origin="_TG3TQNBLEeeTmd7edEr5bw" image="_TG3TQdBLEeeTmd7edEr5bw"/>
+    <mappings xmi:id="_T8yOotBLEeeTmd7edEr5bw" origin="_T8yOoNBLEeeTmd7edEr5bw" image="_T8yOodBLEeeTmd7edEr5bw"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="_8QQMANXpEeeMk9UuorL5Hg" name="generateHandle">
+    <lhs xmi:id="_8QVEgNXpEeeMk9UuorL5Hg" name="Lhs">
+      <nodes xmi:id="_-dxzgNXpEeeMk9UuorL5Hg" name="g" outgoing="_E72qMNXqEeeMk9UuorL5Hg">
+        <type href="DEVSMM.ecore#//GenHandle"/>
+      </nodes>
+      <nodes xmi:id="_Dxw1oNXqEeeMk9UuorL5Hg" name="c" incoming="_E72qMNXqEeeMk9UuorL5Hg">
+        <type href="DEVSMM.ecore#//Conveyor"/>
+      </nodes>
+      <edges xmi:id="_E72qMNXqEeeMk9UuorL5Hg" source="_-dxzgNXpEeeMk9UuorL5Hg" target="_Dxw1oNXqEeeMk9UuorL5Hg">
+        <type href="DEVSMM.ecore#//Machine/out"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_8QVEgdXpEeeMk9UuorL5Hg" name="Rhs">
+      <nodes xmi:id="_-dyakNXpEeeMk9UuorL5Hg" name="g" outgoing="_E73RQNXqEeeMk9UuorL5Hg">
+        <type href="DEVSMM.ecore#//GenHandle"/>
+      </nodes>
+      <nodes xmi:id="_Ajx2sNXqEeeMk9UuorL5Hg" name="h" incoming="_F8oxwNXqEeeMk9UuorL5Hg">
+        <type href="DEVSMM.ecore#//Handle"/>
+      </nodes>
+      <nodes xmi:id="_Dxw1odXqEeeMk9UuorL5Hg" name="c" incoming="_E73RQNXqEeeMk9UuorL5Hg" outgoing="_F8oxwNXqEeeMk9UuorL5Hg">
+        <type href="DEVSMM.ecore#//Conveyor"/>
+      </nodes>
+      <edges xmi:id="_E73RQNXqEeeMk9UuorL5Hg" source="_-dyakNXpEeeMk9UuorL5Hg" target="_Dxw1odXqEeeMk9UuorL5Hg">
+        <type href="DEVSMM.ecore#//Machine/out"/>
+      </edges>
+      <edges xmi:id="_F8oxwNXqEeeMk9UuorL5Hg" source="_Dxw1odXqEeeMk9UuorL5Hg" target="_Ajx2sNXqEeeMk9UuorL5Hg">
+        <type href="DEVSMM.ecore#//Container/parts"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_-dyakdXpEeeMk9UuorL5Hg" origin="_-dxzgNXpEeeMk9UuorL5Hg" image="_-dyakNXpEeeMk9UuorL5Hg"/>
+    <mappings xmi:id="_Dxw1otXqEeeMk9UuorL5Hg" origin="_Dxw1oNXqEeeMk9UuorL5Hg" image="_Dxw1odXqEeeMk9UuorL5Hg"/>
+  </units>
+</henshin:Module>

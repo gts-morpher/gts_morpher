@@ -8,12 +8,16 @@ import java.util.HashSet
 import java.util.Map
 import java.util.Map.Entry
 import java.util.Set
+import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.common.util.WrappedException
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.HenshinPackage
 import org.eclipse.emf.henshin.model.Node
@@ -35,11 +39,13 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSSpecification
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GTSWeave
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.GtsMorpherPackage
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.LinkMapping
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ModelCast
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.NumericParameter
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ObjectMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ReferenceMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.SlotMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.StringParameter
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeGraphMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.UnitCall
@@ -52,20 +58,19 @@ import uk.ac.kcl.inf.gts_morpher.util.ValueHolder
 import static uk.ac.kcl.inf.gts_morpher.util.MappingConverter.*
 import static uk.ac.kcl.inf.gts_morpher.util.MorphismChecker.*
 
+import static extension uk.ac.kcl.inf.gts_morpher.modelcaster.GTSTrace.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.HenshinChecker.isIdentityRule
 import static extension uk.ac.kcl.inf.gts_morpher.util.MorphismCompleter.*
 import static extension uk.ac.kcl.inf.gts_morpher.validation.GTSMorpherValidatorHelper.*
-import org.eclipse.emf.henshin.model.Attribute
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.SlotMapping
 
 /**
  * This class contains custom validation rules. 
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
-class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorpherValidatorHelper.IssueAcceptor{
+class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorpherValidatorHelper.IssueAcceptor {
 	public static val DUPLICATE_CLASS_MAPPING = MappingConverter.DUPLICATE_CLASS_MAPPING
 	public static val DUPLICATE_REFERENCE_MAPPING = MappingConverter.DUPLICATE_REFERENCE_MAPPING
 	public static val DUPLICATE_ATTRIBUTE_MAPPING = MappingConverter.DUPLICATE_ATTRIBUTE_MAPPING
@@ -102,6 +107,8 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 	public static val INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_WITHOUT_TO_VIRTUAL'
 	public static val INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_CANNOT_BE_ALLOW_FROM_EMPTY'
 	public static val INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.INCLUSION_MUST_HAVE_SAME_SOURCE_AND_TARGET'
+	public static val MODEL_CAST_INVALID_SOURCE_TYPE = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.MODEL_CAST_INVALID_SOURCE_TYPE'
+	public static val MODEL_CAST_INVALID_TARGET_TYPE = 'uk.ac.kcl.inf.gts_morpher.xdsml_compose.MODEL_CAST_INVALID_TARGET_TYPE'
 
 	/**
 	 * Check that the rules in a GTS specification refer to the metamodel package
@@ -490,6 +497,51 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 		]
 	}
 
+	@Check
+	def checkModelCast(ModelCast modelCast) {
+		modelCast.checkModelSourceType
+		modelCast.checkModelTargetType
+	}
+
+	private def checkModelSourceType(ModelCast modelCast) {
+		if ((modelCast.modelFile !== null) && (!modelCast.modelFile.empty) && (modelCast.srcGTS !== null) &&
+			(modelCast.srcGTS.metamodel !== null)) {
+			try {
+				val modelResource = modelCast.eResource.resourceSet.getResource(URI.createFileURI(modelCast.modelFile),
+					true)
+				val metaModel = modelResource.contents.head.eClass.eResource.contents.head as EPackage
+
+				if (metaModel !== modelCast.srcGTS.metamodel) {
+					error("The meta-model of the source model must correspond to the meta-model of the source GTS.",
+						GtsMorpherPackage.Literals.MODEL_CAST__MODEL_FILE, MODEL_CAST_INVALID_SOURCE_TYPE)
+				}
+			} catch (WrappedException we) {
+				error('''Could not load model file «we.exception.message».''',
+					GtsMorpherPackage.Literals.MODEL_CAST__MODEL_FILE, MODEL_CAST_INVALID_SOURCE_TYPE)
+			} catch (Exception e) {
+				error('''Could not load model file «e.message».''', GtsMorpherPackage.Literals.MODEL_CAST__MODEL_FILE,
+					MODEL_CAST_INVALID_SOURCE_TYPE)
+			}
+		}
+	}
+
+	private def checkModelTargetType(ModelCast modelCast) {
+		if (modelCast.tgtGTS !== null) {
+			if (modelCast.srcGTS !== null) {
+				if (!modelCast.tgtGTS.canBeDerivedFrom(modelCast.srcGTS)) {
+					error('''Target GTS cannot be uniquely derived from source GTS.''',
+						GtsMorpherPackage.Literals.MODEL_CAST__TGT_GTS, MODEL_CAST_INVALID_TARGET_TYPE)
+				}
+			} else {
+				// TODO: add validation for case where the source GTS must be inferred
+			}
+		}
+	}
+
+	private def canBeDerivedFrom(GTSSpecification target, GTSSpecification source) {
+		source.findTracesTo(target).size == 1
+	}
+
 	private dispatch def checkIsValidMapping(Void spec) {}
 
 	private dispatch def checkIsValidMapping(GTSMappingRefOrInterfaceSpec spec) {
@@ -533,14 +585,13 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 
 	private def mapMessage(Entry<EObject, Set<EObject>> mappingChoices) {
 		var message = '''«if (mappingChoices.key instanceof EClass) {'''class'''} else {'''reference'''}» «mappingChoices.key.qualifiedName» to any of [«mappingChoices.value.map[eo | eo.qualifiedName].join(', ')»]'''
-		
+
 		if (message.length > 150) {
 			message = message.substring(1, 147) + '...'
 		}
-		
+
 		message
 	}
-		
 
 	private def issueData(EObject source,
 		EObject target) '''«if (source instanceof EClass) {'''class'''} else {'''reference'''}»:«source.qualifiedName»=>«target.qualifiedName»'''
@@ -598,7 +649,7 @@ class GTSMorpherValidator extends AbstractGTSMorpherValidator implements GTSMorp
 		val _mapping = mapping.extractMapping
 		mapping.isInCompleteMapping(_mapping)
 	}
-	
+
 	override warning(String message, EObject source, EStructuralFeature feature, String code) {
 		super.warning(message, source, feature, code)
 	}

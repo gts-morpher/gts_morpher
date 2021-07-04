@@ -8,7 +8,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="GTSSpecificationModuleMember">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="GTSMapping" eSuperTypes="#//GTSSpecificationModuleMember">
+  <eClassifiers xsi:type="ecore:EClass" name="GTSMapping" eSuperTypes="#//GTSSpecificationModuleMember #//GTSTraceMember">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="autoComplete" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uniqueCompletion" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="inclusion" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
@@ -33,13 +33,13 @@
   <eClassifiers xsi:type="ecore:EClass" name="GTSReference" eSuperTypes="#//GTSSpecificationOrReference #//GTSSelection">
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//GTSSpecification"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="GTSSpecification" eSuperTypes="#//GTSSpecificationModuleMember #//GTSSpecificationOrReference">
+  <eClassifiers xsi:type="ecore:EClass" name="GTSSpecification" eSuperTypes="#//GTSSpecificationModuleMember #//GTSSpecificationOrReference #//GTSTraceMember">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="export" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="interface_mapping" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="gts" eType="#//GTSSelection"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="GTSSelection"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GTSSelection" eSuperTypes="#//GTSTraceMember"/>
   <eClassifiers xsi:type="ecore:EClass" name="GTSLiteral" eSuperTypes="#//GTSSelection">
     <eStructuralFeatures xsi:type="ecore:EReference" name="metamodel" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EPackage"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="behaviour" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Module"/>
@@ -72,9 +72,10 @@
   <eClassifiers xsi:type="ecore:EClass" name="GTSMappingRef" eSuperTypes="#//GTSMappingRefOrInterfaceSpec">
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//GTSMapping"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="GTSMappingInterfaceSpec" eSuperTypes="#//GTSMappingRefOrInterfaceSpec">
+  <eClassifiers xsi:type="ecore:EClass" name="GTSMappingInterfaceSpec" eSuperTypes="#//GTSMappingRefOrInterfaceSpec #//GTSTraceMember">
     <eStructuralFeatures xsi:type="ecore:EReference" name="gts_ref" eType="#//GTSSpecification"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GTSTraceMember"/>
   <eClassifiers xsi:type="ecore:EClass" name="UnitCallList">
     <eStructuralFeatures xsi:type="ecore:EReference" name="steps" upperBound="-1"
         eType="#//UnitCall" containment="true"/>
@@ -144,5 +145,10 @@
   <eClassifiers xsi:type="ecore:EClass" name="RuleParameterMapping" eSuperTypes="#//RuleElementMapping">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Parameter"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass platform:/resource/org.eclipse.emf.henshin.model/model/henshin.ecore#//Parameter"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ModelCast" eSuperTypes="#//GTSSpecificationModuleMember">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="modelFile" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="srcGTS" eType="#//GTSSpecification"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="tgtGTS" eType="#//GTSSpecification"/>
   </eClassifiers>
 </ecore:EPackage>

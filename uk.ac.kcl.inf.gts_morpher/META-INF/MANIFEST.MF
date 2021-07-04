@@ -34,5 +34,6 @@ Export-Package: uk.ac.kcl.inf.gts_morpher,
  uk.ac.kcl.inf.gts_morpher.serializer,
  uk.ac.kcl.inf.gts_morpher.services,
  uk.ac.kcl.inf.gts_morpher.util,
- uk.ac.kcl.inf.gts_morpher.validation
+ uk.ac.kcl.inf.gts_morpher.validation,
+ uk.ac.kcl.inf.gts_morpher.modelcaster
 Import-Package: org.apache.log4j
