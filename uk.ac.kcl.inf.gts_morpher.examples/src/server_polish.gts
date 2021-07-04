@@ -20,6 +20,28 @@ export gts AdaptedServer {
 	]
 }
 
+// Cannot do this because it doesn't define a clan morphism...
+//
+//map OriginalServer2PLS {
+//	from interface_of {
+//		metamodel: "server"
+//		behaviour: "serverRules" 
+//	}
+//	
+//	to {
+//		metamodel: "pls"
+//		behaviour: "plsRules"
+//	}
+//	
+//	type_mapping {
+//		class server.Server => pls.Polisher
+//		class server.Queue => pls.Container
+//		reference server.Server.in => pls.Machine.in
+//		reference  server.Server.out => pls.Machine.out
+//	}
+//}
+//
+// So we do this instead...
 auto-complete unique map Server2PLS {
 	from interface_of {
 		AdaptedServer

@@ -1,0 +1,27 @@
+@namespace(uri="http://kcl.ac.uk/xdsml/A", prefix="a")
+package A;
+
+@Interface
+class A1 {
+	@Interface
+	val A2 a2;
+	@Interface
+	val A3 a3;
+	ref A4[*] a4s;
+}
+
+@Interface
+class A2 {
+	@Interface
+	val A4[*] a4s;
+}
+
+@Interface
+class A3 {
+	@Interface
+	val A4[*] a4s;	
+}
+
+@Interface
+class A4 {
+}
