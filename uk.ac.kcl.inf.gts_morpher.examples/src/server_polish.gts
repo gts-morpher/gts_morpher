@@ -34,6 +34,7 @@ auto-complete unique map Server2PLS {
 		class server.Server => pls.Polisher
 		class server.InputQueue => pls.Tray
 		class server.OutputQueue => pls.Conveyor
+		reference server.ServerModel.servers => pls.PLSModel.machines 
 	}
 }
 

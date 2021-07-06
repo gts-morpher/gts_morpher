@@ -26,4 +26,15 @@
   <eClassifiers xsi:type="ecore:EClass" name="Output" eSuperTypes="#//Element">
     <eAnnotations source="Interface"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ServerModel">
+    <eAnnotations source="Interface"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="servers" upperBound="-1"
+        eType="#//Server" containment="true">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="queues" upperBound="-1"
+        eType="#//Queue" containment="true">
+      <eAnnotations source="Interface"/>
+    </eStructuralFeatures>
+  </eClassifiers>
 </ecore:EPackage>

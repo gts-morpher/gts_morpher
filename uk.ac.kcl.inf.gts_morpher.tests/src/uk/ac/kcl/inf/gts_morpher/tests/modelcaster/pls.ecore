@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="pls" nsURI="http://pls/1.0" nsPrefix="pls">
+  <eClassifiers xsi:type="ecore:EClass" name="Machine">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="out" eType="#//Conveyor"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="in" eType="#//Tray"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Conveyor" eSuperTypes="#//Container">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="out" eType="#//Tray"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Tray" eSuperTypes="#//Container"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Container">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parts" upperBound="-1"
+        eType="#//Part"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Polisher" eSuperTypes="#//Machine"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Assemble" eSuperTypes="#//Machine"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Generator" eSuperTypes="#//Machine"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GenHead" eSuperTypes="#//Generator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GenHandle" eSuperTypes="#//Generator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Part"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Hammer" eSuperTypes="#//Part"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Head" eSuperTypes="#//Part"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Handle" eSuperTypes="#//Part"/>
+</ecore:EPackage>

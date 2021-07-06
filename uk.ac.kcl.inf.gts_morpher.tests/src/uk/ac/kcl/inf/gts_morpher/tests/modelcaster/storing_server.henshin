@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_KHvuENBJEeeTmd7edEr5bw" name="serverRules">
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_KHvuENBJEeeTmd7edEr5bw" name="storing_serverRules">
   <imports href="storing_server.ecore#/"/>
   <units xsi:type="henshin:Rule" xmi:id="_XSG2kNBJEeeTmd7edEr5bw" name="process">
     <lhs xmi:id="_XStTgNBJEeeTmd7edEr5bw" name="Lhs">

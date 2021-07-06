@@ -1,5 +1,5 @@
-@namespace(uri="http://server/1.0", prefix="server")
-package server;
+@namespace(uri="http://storing_server/1.0", prefix="storing_server")
+package storing_server;
 
 @Interface
 class Server {

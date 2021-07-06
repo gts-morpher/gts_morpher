@@ -54,8 +54,37 @@ class GTSTrace extends ArrayList<GTSTraceMember> {
 
 	def getTarget() { last as GTSSpecification }
 	
-	def EObject getTransformedModel() {
-		null
+	def EObject transformModel(EObject srcModel) {
+		new GTSTraceEvaluator(srcModel, this).get(srcModel)
+	}
+	
+	/*
+	 *  FIXME: This is wrong: I really need something that will collapse a trace into a mapping from source meta-model elements into target 
+	 *  meta-model elements and then I use this to transform source models
+	 */
+	private static class GTSTraceEvaluator extends HashMap<EObject, EObject> {
+		var EObject srcModel
+		var GTSTrace trace
+		
+		new(EObject srcModel, GTSTrace trace) {
+			this.srcModel = srcModel
+			this.trace = trace
+			
+			doTransform
+		}
+		
+		private def doTransform() {
+			trace.drop(1) // Forget the source GTS
+				.forEach[doOneTransform]
+		}
+		
+//		private dispatch def doOneTransform (GTSTraceMember step) { }
+		private dispatch def doOneTransform (GTSMapping step) { }
+		private dispatch def doOneTransform (GTSSpecification step) { }
+		private dispatch def doOneTransform (GTSLiteral step) { }
+		private dispatch def doOneTransform (GTSFamilyChoice step) { }
+		private dispatch def doOneTransform (GTSReference step) { }
+		private dispatch def doOneTransform (GTSWeave step) { }
 	}
 
 	private static class GTSTraceHelper extends HashMap<GTSTraceMember, Set<GTSTrace>> {

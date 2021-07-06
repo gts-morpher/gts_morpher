@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_poXzsBJqEeiGBuuAusJIMQ" name="serverRules">
+  <imports href="server.ecore#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_3n1_QBJqEeiGBuuAusJIMQ" name="process">
+    <lhs xmi:id="_3n1_RRJqEeiGBuuAusJIMQ" name="Lhs">
+      <nodes xmi:id="_7C-pYBJqEeiGBuuAusJIMQ" name="s" outgoing="_CmVGEBJrEeiGBuuAusJIMQ _EBVEcBJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_79P5QBJqEeiGBuuAusJIMQ" name="iq" incoming="_CmVGEBJrEeiGBuuAusJIMQ" outgoing="_DMdR8BJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_8N6LcBJqEeiGBuuAusJIMQ" name="oq" incoming="_EBVEcBJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="__chcgBJqEeiGBuuAusJIMQ" name="i" incoming="_DMdR8BJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Input"/>
+      </nodes>
+      <edges xmi:id="_CmVGEBJrEeiGBuuAusJIMQ" source="_7C-pYBJqEeiGBuuAusJIMQ" target="_79P5QBJqEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Server/in"/>
+      </edges>
+      <edges xmi:id="_DMdR8BJrEeiGBuuAusJIMQ" source="_79P5QBJqEeiGBuuAusJIMQ" target="__chcgBJqEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Queue/elts"/>
+      </edges>
+      <edges xmi:id="_EBVEcBJrEeiGBuuAusJIMQ" source="_7C-pYBJqEeiGBuuAusJIMQ" target="_8N6LcBJqEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Server/out"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_3n1_RhJqEeiGBuuAusJIMQ" name="Rhs">
+      <nodes xmi:id="_7C_3gBJqEeiGBuuAusJIMQ" name="s" outgoing="_CmVGERJrEeiGBuuAusJIMQ _EBVEcRJrEeiGBuuAusJIMQ _E2OFEBJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Server"/>
+      </nodes>
+      <nodes xmi:id="_79P5QRJqEeiGBuuAusJIMQ" name="iq" incoming="_CmVGERJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_8N6LcRJqEeiGBuuAusJIMQ" name="oq" incoming="_EBVEcRJrEeiGBuuAusJIMQ" outgoing="_ES6jsBJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Queue"/>
+      </nodes>
+      <nodes xmi:id="_AREe4BJrEeiGBuuAusJIMQ" name="o" incoming="_ES6jsBJrEeiGBuuAusJIMQ _E2OFEBJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Output"/>
+      </nodes>
+      <edges xmi:id="_CmVGERJrEeiGBuuAusJIMQ" source="_7C_3gBJqEeiGBuuAusJIMQ" target="_79P5QRJqEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Server/in"/>
+      </edges>
+      <edges xmi:id="_EBVEcRJrEeiGBuuAusJIMQ" source="_7C_3gBJqEeiGBuuAusJIMQ" target="_8N6LcRJqEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Server/out"/>
+      </edges>
+      <edges xmi:id="_ES6jsBJrEeiGBuuAusJIMQ" source="_8N6LcRJqEeiGBuuAusJIMQ" target="_AREe4BJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Queue/elts"/>
+      </edges>
+      <edges xmi:id="_E2OFEBJrEeiGBuuAusJIMQ" source="_7C_3gBJqEeiGBuuAusJIMQ" target="_AREe4BJrEeiGBuuAusJIMQ">
+        <type href="server.ecore#//Server/made"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_7C_3gRJqEeiGBuuAusJIMQ" origin="_7C-pYBJqEeiGBuuAusJIMQ" image="_7C_3gBJqEeiGBuuAusJIMQ"/>
+    <mappings xmi:id="_79P5QhJqEeiGBuuAusJIMQ" origin="_79P5QBJqEeiGBuuAusJIMQ" image="_79P5QRJqEeiGBuuAusJIMQ"/>
+    <mappings xmi:id="_8N6LchJqEeiGBuuAusJIMQ" origin="_8N6LcBJqEeiGBuuAusJIMQ" image="_8N6LcRJqEeiGBuuAusJIMQ"/>
+  </units>
+</henshin:Module>
