@@ -246,5 +246,8 @@ For any amalgamated GTS that is labeled `export`, the automatic builder will gen
 [1] Francisco Durán, Antonio Moreno-Delgado, Fernando Orejas, and Steffen Zschaler: Amalgamation of Domain Specific Languages with Behaviour. Journal of Logical and Algebraic Methods in Programming, 86(1): 208--235, Jan. 2017.
 [[pdf]](http://www.steffen-zschaler.de/download.php?type=pdf&id=106) [[http]](http://www.steffen-zschaler.de/download.php?type=http&id=106) 
 
-[2] Steffen Zschaler and Francisco Duran: GTS Families for the Flexible Composition of Graph Transformation Systems. 20th International Conference on Fundamental Approaches to Software Engineering (FASE'17), 2017.
+[2] Steffen Zschaler and Francisco Durán: GTS Families for the Flexible Composition of Graph Transformation Systems. 20th International Conference on Fundamental Approaches to Software Engineering (FASE'17), 2017.
 [[pdf ((c) Springer)]](http://www.steffen-zschaler.de/download.php?type=pdf&id=116) [[slides]](https://www.slideshare.net/SteffenZschaler/gts-families-for-the-flexible-composition-of-graph-transformation-systems) [[http]](http://www.steffen-zschaler.de/download.php?type=http&id=116)
+
+[3] Steffen Zschaler, Francisco Durán: GTSMorpher: Safely Composing Behavioural Analyses Using Structured Operational Semantics. Robert Heinrich, Francisco Durán, Carolyn Talcott, and Steffen Zschaler (eds.), Composing Model-Based Analysis Tools, Springer, 2021. 
+[[http]](http://www.steffen-zschaler.de/download.php?type=http&id=145)
