@@ -30,7 +30,7 @@ import uk.ac.kcl.inf.gts_morpher.validation.GTSMorpherValidator
 import static org.junit.Assert.*
 
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
-import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import static extension org.eclipse.emf.henshin.adapters.xtext.NamingHelper.*
 
 @RunWith(XtextRunner)
 @InjectWith(GTSMorpherInjectorProvider)

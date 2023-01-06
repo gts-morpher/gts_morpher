@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.henshin.adapters.xtext.HenshinQualifiedNameProvider
 import org.eclipse.emf.henshin.model.Attribute
 import org.eclipse.emf.henshin.model.Edge
 import org.eclipse.emf.henshin.model.Graph
@@ -18,6 +19,7 @@ import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.HenshinFactory
 import org.eclipse.emf.henshin.model.Module
 import org.eclipse.emf.henshin.model.Node
+import org.eclipse.emf.henshin.model.Parameter
 import org.eclipse.emf.henshin.model.Rule
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
@@ -36,19 +38,17 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ObjectMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.ReferenceMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleElementMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleMapping
+import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.SlotMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeGraphMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeMapping
-import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 
 import static org.eclipse.xtext.scoping.Scopes.*
 
+import static extension org.eclipse.emf.henshin.adapters.xtext.NamingHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.EMFHelper.isInterfaceElement
 import static extension uk.ac.kcl.inf.gts_morpher.util.GTSSpecificationHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.HenshinChecker.isIdentityRule
-import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
-import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
-import org.eclipse.emf.henshin.model.Parameter
 
 /**
  * Basic util methods for extracting mappings from GTSMappings and vice versa.

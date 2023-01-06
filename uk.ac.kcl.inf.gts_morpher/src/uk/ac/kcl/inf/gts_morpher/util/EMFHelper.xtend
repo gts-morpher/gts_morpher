@@ -15,7 +15,7 @@ import org.eclipse.emf.henshin.model.ModelElement
 import org.eclipse.emf.henshin.model.Node
 import org.eclipse.emf.henshin.model.Parameter
 
-import static extension uk.ac.kcl.inf.util.henshinsupport.NamingHelper.*
+import static extension org.eclipse.emf.henshin.adapters.xtext.NamingHelper.*
 import static extension uk.ac.kcl.inf.gts_morpher.util.ExpressionRewriter.*
 
 class EMFHelper {
