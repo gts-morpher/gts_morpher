@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.emf.henshin.adapters.xtext.HenshinQualifiedNameProvider
 import org.eclipse.emf.henshin.model.Graph
 import org.eclipse.emf.henshin.model.GraphElement
 import org.eclipse.emf.henshin.model.HenshinPackage
@@ -34,7 +35,6 @@ import uk.ac.kcl.inf.gts_morpher.gtsMorpher.RuleParameterMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.SlotMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.TypeGraphMapping
 import uk.ac.kcl.inf.gts_morpher.gtsMorpher.UnitCall
-import uk.ac.kcl.inf.util.henshinsupport.HenshinQualifiedNameProvider
 
 import static org.eclipse.xtext.scoping.Scopes.*
 

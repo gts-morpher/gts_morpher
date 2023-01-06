@@ -4,8 +4,8 @@
 package uk.ac.kcl.inf.gts_morpher
 
 import com.google.inject.Injector
+import org.eclipse.emf.henshin.adapters.xtext.HenshinSupport
 import org.eclipse.xtext.ecore.EcoreSupport
-import uk.ac.kcl.inf.util.henshinsupport.HenshinSupport
 
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
