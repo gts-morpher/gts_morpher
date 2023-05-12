@@ -59,7 +59,7 @@ class TGWeaver extends AbstractWeaver {
 		doWeave(EPackage, ecore.EPackage, [ ep, keyedMergeList |
 			// A bit annoying, but the only efficient way of getting around Java typing issues, short of spending ages on getting the generics right for ModelSpans.
 			val keyedMergeEPackageList = keyedMergeList.map [ kep |
-				new Pair(kep.key, kep.value as EPackage)
+				(kep.key -> kep.value as EPackage)
 			].toList
 			val mergedPackage = EcoreFactory.eINSTANCE.createEPackage => [
 				nsPrefix = keyedMergeEPackageList.weaveNameSpaces

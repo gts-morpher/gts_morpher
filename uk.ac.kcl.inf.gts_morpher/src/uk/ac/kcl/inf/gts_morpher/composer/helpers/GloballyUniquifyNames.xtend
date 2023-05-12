@@ -38,7 +38,7 @@ class GloballyUniquifyNames implements NamingStrategy {
 		new(Map<? extends EObject, ? extends Iterable<? extends Pair<Origin, ? extends EObject>>> nameSourcesLookup,
 			UniquenessContext context, NamingStrategy naming) {
 			names = context.contextElements.map[eo | 
-				new Pair(eo, naming.weaveNames(nameSourcesLookup, eo, context))
+				(eo -> naming.weaveNames(nameSourcesLookup, eo, context))
 			].toMap([key], [value])
 			
 			// TODO: Does this always terminate? I think it does because we are always appending a locally unique appendix, so names get longer and prefixes remain unique and, as a consequence cannot clash with names in other groups

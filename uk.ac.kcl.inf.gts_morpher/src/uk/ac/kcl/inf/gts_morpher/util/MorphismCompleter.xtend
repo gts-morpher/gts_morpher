@@ -62,9 +62,9 @@ class MorphismCompleter {
 	 */
 	static def Pair<MorphismCompleter, Integer> getMorphismCompletions(GTSMapping mapping, boolean findAll) {
 		completionCache.get((mapping -> findAll), mapping.eResource) [
-			val completer = mapping.createMorphismCompleter
+			val completer = mapping.createMorphismCompleter;
 
-			new Pair(completer, completer.findMorphismCompletions(findAll))
+			(completer -> completer.findMorphismCompletions(findAll))
 		]
 	}
 
@@ -843,9 +843,9 @@ class MorphismCompleter {
 		if (elementsToMap.empty) {
 			var mappingVariant = new ArrayList<Pair<Rule, List<Pair<EObject, EObject>>>>
 			// Report a new morphism from tgtRule to srcRule with the specific mappings found
-			mappingVariant.add(new Pair(srcRule, behaviourMapping.filter [ src, tgt |
+			mappingVariant.add((srcRule -> behaviourMapping.filter [ src, tgt |
 				srcRule.eAllContents.exists[it === src]
-			].entrySet.map[e|new Pair<EObject, EObject>(e.key, e.value)].toList))
+			].entrySet.map[e|(e.key -> e.value)].toList))
 
 			return new Morphism(mappingVariant)
 		}
