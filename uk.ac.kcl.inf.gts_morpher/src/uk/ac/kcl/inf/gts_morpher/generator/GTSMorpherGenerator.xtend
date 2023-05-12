@@ -55,9 +55,9 @@ class GTSMorpherGenerator extends AbstractGenerator {
 				gtsModule.gtss.filter[gts|gts.export].map[it.gts].filter [
 					it instanceof GTSWeave || it instanceof GTSFamilyChoice
 				].map [ sel |
-					val name = (sel.eContainer as GTSSpecification).name
+					val name = (sel.eContainer as GTSSpecification).name;
 
-					new Pair(name, if (sel instanceof GTSWeave) {
+					(name -> if (sel instanceof GTSWeave) {
 						sel.doCompose(_monitor.split("Composing", 1))
 					} else if (sel instanceof GTSFamilyChoice) {
 						new Triple(sel.issues, sel.metamodel, sel.behaviour)

@@ -24,5 +24,5 @@ final class OriginMgr {
 
 	static def <T extends EObject> Pair<Origin, T> rightKey(T object) { object.origKey(Origin.RIGHT) }
 
-	static def <T extends EObject> Pair<Origin, T> origKey(T object, Origin origin) { new Pair(origin, object) }
+	static def <T extends EObject> Pair<Origin, T> origKey(T object, Origin origin) { (origin -> object) }
 }

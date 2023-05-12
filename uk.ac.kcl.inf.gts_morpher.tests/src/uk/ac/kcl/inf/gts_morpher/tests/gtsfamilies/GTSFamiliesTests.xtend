@@ -53,7 +53,7 @@ class GTSFamiliesTests extends AbstractTest {
 	@Test
 	def void testGTSFamilyChoices() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
 			export gts ServerChoice {
@@ -98,7 +98,7 @@ class GTSFamiliesTests extends AbstractTest {
 	@Test
 	def void testGTSFamilyChoicesWithRules() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val resourceSet = createNormalResourceSet
 		val result = parseHelper.parse('''
 			export gts ServerChoice {
@@ -152,7 +152,7 @@ class GTSFamiliesTests extends AbstractTest {
 	@Test
 	def void testGTSFamilyChoicesIssues() {
 		// TODO At some point may want to change this so it works with actual URLs rather than relying on Xtext/Ecore to pick up and search all the available ecore files
-		// Then would use �serverURI.toString� etc. below
+		// Then would use «serverURI.toString» etc. below
 		val result = parseHelper.parse('''
 			export gts ServerChoice {
 				family: {

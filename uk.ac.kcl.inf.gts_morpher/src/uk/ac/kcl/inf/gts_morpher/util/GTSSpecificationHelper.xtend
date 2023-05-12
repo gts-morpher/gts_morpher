@@ -134,8 +134,7 @@ class GTSSpecificationHelper {
 	static val DERIVED_GTS_RESOURCE_FACTORY = new ResourceFactoryImpl
 
 	static def derivedWovenGTS(GTSWeave weave) {
-		// FIXME: Pair doesn't have a good hash method, so no good as a key
-		weaveCache.get(new Pair(WEAVING_CONTENTS_KEY, weave), weave.eResource) [
+		weaveCache.get((WEAVING_CONTENTS_KEY -> weave), weave.eResource) [
 			val result = weave.doCompose(IProgressMonitor.NULL_IMPL)
 			
 			val issues = result.a.map[new Issue() {
@@ -188,7 +187,7 @@ class GTSSpecificationHelper {
 	}
 	
 	static def GTSInfo derivePickedGTS(GTSFamilyChoice gts) {
-		familyCache.get(new Pair(FAMILY_CONTENTS_KEY, gts),
+		familyCache.get((FAMILY_CONTENTS_KEY -> gts),
 			getSetOfResources(gts.root.metamodel, gts.root.behaviour, gts.transformers), [
 				if ((gts.transformers !== null) && (!gts.transformationSteps.steps.empty)) {
 					// Create a copy of the metamodel and behaviour (if any) from the specification ready to be transformed
